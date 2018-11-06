@@ -19,20 +19,12 @@
  *
  */
 
-package org.radarbase.appserver.dto;
+package org.radarbase.appserver.repository;
 
-import org.radarbase.fcm.dto.FcmUsers;
+import org.radarbase.appserver.entity.Project;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.io.Serializable;
-
-public class RadarProjectDto implements Serializable{
-
-    private static final long serialVersionUID = 2L;
-
-    private String id;
-
-    private String projectId;
-
-    private FcmUsers fcmUsers;
-
+@Repository
+public interface ProjectRepository extends JpaRepository<Project, Long> {
 }
