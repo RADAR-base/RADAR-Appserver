@@ -16,7 +16,7 @@ public class ScheduleController {
     public ResponseEntity<FcmNotificationDto> scheduleSingleNotification(
             @RequestBody ScheduleNotificationDto notification) {
 
-        // Call scheduler service to add -> which calls other appropriate services
+        // Call scheduler service to add -> which calls other appropriate services to put in db
         // And also schedules using quarts maybe
 
         return null;

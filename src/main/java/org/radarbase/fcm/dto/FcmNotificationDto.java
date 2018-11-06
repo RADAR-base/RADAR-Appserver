@@ -1,7 +1,10 @@
 package org.radarbase.fcm.dto;
 
+import org.radarbase.appserver.entity.Notification;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 public class FcmNotificationDto implements Serializable {
 
@@ -32,5 +35,15 @@ public class FcmNotificationDto implements Serializable {
         this.ttlSeconds = ttlSeconds;
         this.fcmToken = fcmToken;
         this.fcmMessageId = fcmMessageId;
+    }
+
+    public FcmNotificationDto(Notification notificationEntity) {
+        this.id = notificationEntity.getId();
+        this.scheduledTime = LocalDateTime.ofInstant(notificationEntity.getScheduledTime(), ZoneOffset.UTC);
+        this.title = notificationEntity.getTitle();
+        this.body = notificationEntity.getBody();
+        this.delivered = notificationEntity.isDelivered();
+        this.fcmMessageId = notificationEntity.getFcmMessageId();
+        this.fcmToken = notificationEntity.getUser().getFcmToken();
     }
 }
