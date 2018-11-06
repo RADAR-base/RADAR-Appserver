@@ -1,9 +1,9 @@
-package org.radarbase.appserver.dto;
+package org.radarbase.fcm.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class RadarUserDto implements Serializable {
+public class FcmUserDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,21 +25,20 @@ public class RadarUserDto implements Serializable {
     // The most recent time when a notification for the app was deliered.
     private LocalDateTime lastDelivered;
 
-    public RadarUserDto(String projectId, String subjectId, String sourceId) {
-        this.projectId = projectId;
-        this.subjectId = subjectId;
-        this.sourceId = sourceId;
-        this.lastOpened = LocalDateTime.now();
-        this.lastDelivered = null;
-    }
+    private String fcmToken;
 
-    public RadarUserDto(String id, String projectId, String subjectId, String sourceId, LocalDateTime lastOpened, LocalDateTime lastDelivered) {
+    FcmUserDto(String id, String projectId, String subjectId, String sourceId, LocalDateTime lastOpened, LocalDateTime lastDelivered, String fcmToken) {
         this.id = id;
         this.projectId = projectId;
         this.subjectId = subjectId;
         this.sourceId = sourceId;
         this.lastOpened = lastOpened;
         this.lastDelivered = lastDelivered;
+        this.fcmToken = fcmToken;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getProjectId() {
@@ -54,10 +53,6 @@ public class RadarUserDto implements Serializable {
         return sourceId;
     }
 
-    public String getId() {
-        return id;
-    }
-
     public LocalDateTime getLastOpened() {
         return lastOpened;
     }
@@ -66,15 +61,7 @@ public class RadarUserDto implements Serializable {
         return lastDelivered;
     }
 
-    @Override
-    public String toString() {
-        return "RadarUserDto{" +
-                "id='" + id + '\'' +
-                ", projectId='" + projectId + '\'' +
-                ", subjectId='" + subjectId + '\'' +
-                ", sourceId='" + sourceId + '\'' +
-                ", lastOpened=" + lastOpened +
-                ", lastDelivered=" + lastDelivered +
-                '}';
+    public String getFcmToken() {
+        return fcmToken;
     }
 }

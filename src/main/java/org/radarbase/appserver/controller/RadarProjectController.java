@@ -1,12 +1,12 @@
 package org.radarbase.appserver.controller;
 
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
+import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.appserver.dto.RadarProjectDto;
 import org.radarbase.appserver.dto.RadarProjects;
-import org.radarbase.appserver.dto.RadarUsers;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.RadarProjectService;
-import org.radarbase.appserver.service.RadarUserService;
+import org.radarbase.appserver.service.UserService;
+import org.radarbase.fcm.dto.FcmUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ public class RadarProjectController {
     private RadarProjectService projectService;
 
     @Autowired
-    private RadarUserService userService;
+    private UserService userService;
 
     @Autowired
     private FcmNotificationService notificationService;
@@ -34,13 +34,14 @@ public class RadarProjectController {
     public ResponseEntity<RadarProjectDto> getProjectsUsingId(@PathVariable String id) {
         return ResponseEntity.ok(this.projectService.getProjectById(id));
     }
+
     @GetMapping("/projects/{projectid}")
     public ResponseEntity<RadarProjectDto> getProjectsUsingProjectId(@PathVariable String projectId) {
         return ResponseEntity.ok(this.projectService.getProjectById(projectId));
     }
 
     @GetMapping("/projects/{projectid}/users")
-    public ResponseEntity<RadarUsers> getUsersUsingProjectId(@PathVariable String projectId) {
+    public ResponseEntity<FcmUsers> getUsersUsingProjectId(@PathVariable String projectId) {
         return ResponseEntity.ok(this.userService.getUserByProjectId(projectId));
     }
 

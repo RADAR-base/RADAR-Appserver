@@ -1,4 +1,4 @@
-package org.radarbase.appserver.dto.fcm;
+package org.radarbase.fcm.dto;
 
 import java.util.List;
 
@@ -14,4 +14,6 @@ public class FcmNotifications {
         this.notifications = notifications;
         return this;
     }
+
+
 }

@@ -1,6 +1,6 @@
 package org.radarbase.appserver.service;
 
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
+import org.radarbase.fcm.dto.FcmNotifications;
 
 public class FcmNotificationService {
 
@@ -19,4 +19,3 @@ public class FcmNotificationService {
         return null;
     }
 }
-    git push -u origin mastergit add

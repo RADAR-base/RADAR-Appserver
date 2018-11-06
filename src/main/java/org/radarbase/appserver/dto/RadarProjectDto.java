@@ -1,5 +1,7 @@
 package org.radarbase.appserver.dto;
 
+import org.radarbase.fcm.dto.FcmUsers;
+
 import java.io.Serializable;
 
 public class RadarProjectDto implements Serializable{
@@ -10,6 +12,6 @@ public class RadarProjectDto implements Serializable{
 
     private String projectId;
 
-    private RadarUsers users;
+    private FcmUsers fcmUsers;
 
 }

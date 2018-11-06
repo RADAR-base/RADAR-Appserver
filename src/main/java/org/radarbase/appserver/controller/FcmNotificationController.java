@@ -1,6 +1,6 @@
 package org.radarbase.appserver.controller;
 
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
+import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
