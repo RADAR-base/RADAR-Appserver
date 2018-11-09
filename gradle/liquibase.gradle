@@ -1,0 +1,75 @@
+/*
+ *
+ *  *
+ *  *  * Copyright 2018 King's College London
+ *  *  *
+ *  *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  * you may not use this file except in compliance with the License.
+ *  *  * You may obtain a copy of the License at
+ *  *  *
+ *  *  *   http://www.apache.org/licenses/LICENSE-2.0
+ *  *  *
+ *  *  * Unless required by applicable law or agreed to in writing, software
+ *  *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  * See the License for the specific language governing permissions and
+ *  *  * limitations under the License.
+ *  *  *
+ *  *
+ *
+ */
+
+configurations {
+    liquibase
+}
+
+dependencies {
+    liquibase group: 'org.liquibase.ext', name: 'liquibase-hibernate5', version: 3.6
+}
+
+//loading properties file.
+Properties liquibaseProps = new Properties()
+liquibaseProps.load(new FileInputStream("src/main/resources/liquibase-task.properties"))
+
+Properties applicationProps = new Properties()
+applicationProps.load(new FileInputStream("src/main/resources/application.properties"))
+
+task liquibaseGenerateChangelog(type: JavaExec) {
+    group = "liquibase"
+
+
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.liquibase
+    main = "liquibase.integration.commandline.Main"
+
+    args "--changeLogFile=" + liquibaseProps.getProperty('liquibase.changelog.path')+ "00000000000000_initial_schema-" + buildTimestamp() +"_changelog.yml"
+    args "--url=hibernate:spring:" + liquibaseProps.getProperty('liquibase.domain.package') + "?dialect=" + applicationProps.getProperty('spring.jpa.properties.hibernate.dialect')
+    args "--username=" + applicationProps.getProperty('spring.datasource.username')
+    args "--driver=liquibase.ext.hibernate.database.connection.HibernateDriver"
+    args "generateChangeLog"
+}
+
+
+task liquibaseDiffChangelog(type: JavaExec) {
+    group = "liquibase"
+
+
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.liquibase
+    main = "liquibase.integration.commandline.Main"
+
+    args "--changeLogFile=" + liquibaseProps.getProperty('liquibase.changelog.path')+ buildTimestamp() +"_changelog.yml"
+    args "--referenceUrl=hibernate:spring:" + liquibaseProps.getProperty('liquibase.domain.package') + "?dialect=" + applicationProps.getProperty('spring.jpa.properties.hibernate.dialect')
+    args "--username=" + applicationProps.getProperty('spring.datasource.username')
+    args "--password=" + applicationProps.getProperty('spring.datasource.password')
+    args "--url=" + applicationProps.getProperty('spring.datasource.url')
+    args "--driver=liquibase.ext.hibernate.database.connection.HibernateDriver"
+    args "generateChangeLog"
+    //args "diffChangeLog"
+}
+
+def buildTimestamp() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}

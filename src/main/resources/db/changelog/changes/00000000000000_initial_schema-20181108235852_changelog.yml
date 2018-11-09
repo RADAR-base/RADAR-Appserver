@@ -1,0 +1,194 @@
+databaseChangeLog:
+- changeSet:
+    id: 1541721536545-1
+    author: yatharth (generated)
+    changes:
+    - createSequence:
+        sequenceName: hibernate_sequence
+- changeSet:
+    id: 1541721536545-2
+    author: yatharth (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: notificationPK
+            name: id
+            type: BIGINT
+        - column:
+            name: body
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: delivered
+            type: BOOLEAN
+        - column:
+            name: dry_run
+            type: BOOLEAN
+        - column:
+            name: fcm_message_id
+            type: VARCHAR(255)
+        - column:
+            name: fcm_topic
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: scheduled_time
+            type: timestamp
+        - column:
+            name: source_id
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: title
+            type: VARCHAR(255)
+        - column:
+            name: ttl_seconds
+            type: INT
+        - column:
+            name: type
+            type: VARCHAR(255)
+        - column:
+            name: user_id
+            type: BIGINT
+        tableName: notification
+- changeSet:
+    id: 1541721536545-3
+    author: yatharth (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: projectPK
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: project_id
+            type: VARCHAR(255)
+        tableName: project
+- changeSet:
+    id: 1541721536545-4
+    author: yatharth (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: userPK
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: fcm_token
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: subject_id
+            type: VARCHAR(255)
+        - column:
+            name: project_id
+            type: BIGINT
+        - column:
+            name: userMetrics_id
+            type: BIGINT
+        tableName: user
+- changeSet:
+    id: 1541721536545-5
+    author: yatharth (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: user_metricsPK
+            name: id
+            type: BIGINT
+        - column:
+            name: lastDelivered
+            type: timestamp
+        - column:
+            name: lastOpened
+            type: timestamp
+        tableName: user_metrics
+- changeSet:
+    id: 1541721536545-6
+    author: yatharth (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: project_id
+        constraintName: UC_PROJECTPROJECT_ID_COL
+        tableName: project
+- changeSet:
+    id: 1541721536545-7
+    author: yatharth (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: user_id, source_id, scheduled_time, title, body, type, ttl_seconds,
+          delivered, dry_run
+        constraintName: UK2apxoeidqsg7pqcppdcu25fy3
+        tableName: notification
+- changeSet:
+    id: 1541721536545-8
+    author: yatharth (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: subject_id, fcm_token, project_id
+        constraintName: UKlva7c23rx65fqx5uwuo839933
+        tableName: user
+- changeSet:
+    id: 1541721536545-9
+    author: yatharth (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: project_id
+        baseTableName: user
+        constraintName: FK2yj6e26t1njfy8ld303hdav9y
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: project
+        validate: true
+- changeSet:
+    id: 1541721536545-10
+    author: yatharth (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: notification
+        constraintName: FKb0yvoep4h4k92ipon31wmdf7e
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: user
+        validate: true
+- changeSet:
+    id: 1541721536545-11
+    author: yatharth (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: userMetrics_id
+        baseTableName: user
+        constraintName: FKb14jhabp77jrx0579idyheq2x
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: user_metrics
+        validate: true
+

@@ -23,6 +23,8 @@ repositories {
 	mavenCentral()
 }
 
+apply from: 'gradle/liquibase.gradle'
+
 
 dependencies {
 	compile('org.liquibase:liquibase-core')
