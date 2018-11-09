@@ -1,0 +1,23 @@
+version: '2.1'
+
+networks:
+  db:
+    driver: bridge
+    internal: true
+
+services:
+  hsqldb:
+    build: ./database/
+    image: yatharthranjan89/hsqldb
+    restart: always
+    networks:
+      - db
+      - default
+    ports:
+      - 9001:9001
+    volumes:
+      - ../db:/usr/hsql/
+      - ./database/server.properties:/etc/opt/hsqldb/conf/server.properties
+      - ./database/sqltool.rc:/etc/opt/hsqldb/conf/sqltool.rc
+
+# TODO Add the app
