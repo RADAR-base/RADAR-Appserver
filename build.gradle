@@ -27,12 +27,11 @@ apply from: 'gradle/liquibase.gradle'
 
 
 dependencies {
-	compile('org.liquibase:liquibase-core')
-
 	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
 	implementation('org.springframework.boot:spring-boot-starter-data-rest')
 	implementation('org.springframework.boot:spring-boot-starter-web')
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	runtimeOnly('org.hsqldb:hsqldb')
+	runtimeOnly('org.liquibase:liquibase-core')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

@@ -38,6 +38,8 @@ public class ScheduleNotificationDto {
 
     private String fcmToken;
 
+    private String type;
+
     private String fcmMessageId;
 
     private String subjectId;

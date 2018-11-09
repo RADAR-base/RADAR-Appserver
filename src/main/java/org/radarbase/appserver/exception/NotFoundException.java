@@ -19,31 +19,19 @@
  *
  */
 
-package org.radarbase.appserver.converter;
+package org.radarbase.appserver.exception;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- *
  * @author yatharthranjan
- *
- * Generic converter class for conversions between entity and DTO objects
- * @param <T> the entity object class
- * @param <S> the DTO object class
  */
-public abstract class Converter<T, S> {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class NotFoundException extends RuntimeException {
 
-    abstract public T dtoToEntity(S s);
-
-    abstract public S entityToDto(T t);
-
-    public List<T> dtosToEntities(Collection<S> ss) {
-        return ss.parallelStream().map(this::dtoToEntity).collect(Collectors.toList());
+    public NotFoundException(String message) {
+        super(message);
     }
 
-    public List<S> entitiesToDtos(Collection<T> ts) {
-        return ts.parallelStream().map(this::entityToDto).collect(Collectors.toList());
-    }
 }

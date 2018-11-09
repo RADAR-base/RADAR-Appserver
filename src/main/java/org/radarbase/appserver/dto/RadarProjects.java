@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +31,21 @@ public class RadarProjects {
 
     private List<RadarProjectDto> projects;
 
+    public RadarProjects() {
+        this.projects = new ArrayList<>();
+    }
+
     public List<RadarProjectDto> getProjects() {
         return projects;
     }
 
     public RadarProjects setProjects(List<RadarProjectDto> projects) {
         this.projects = projects;
+        return this;
+    }
+
+    public RadarProjects addProject(RadarProjectDto project) {
+        this.projects.add(project);
         return this;
     }
 }

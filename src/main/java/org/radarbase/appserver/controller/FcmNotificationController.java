@@ -21,11 +21,14 @@
 
 package org.radarbase.appserver.controller;
 
+import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -42,11 +45,10 @@ public class FcmNotificationController {
         return ResponseEntity.ok(this.notificationService.getAllNotifications());
     }
 
-/*    @GetMapping("/notifications")
-    public ResponseEntity<FcmNotifications> getAllNotifications() {
-        return ResponseEntity.ok(this.notificationService.getAllNotifications());
-    }*/
-
-
+    @GetMapping("/notifications/{id}")
+    public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@PathVariable Long id) {
+        return ResponseEntity.ok(this.notificationService.getNotificationById(id));
+    }
+    // TODO: get notifications based on other params
 
 }

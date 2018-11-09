@@ -73,12 +73,15 @@ public class RadarUserController {
     @GetMapping("/users/{subjectid}")
     public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
             @PathVariable String subjectId) {
-        return null;
+        return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
     }
 
     @GetMapping("/users/{subjectid}/notifications")
     public ResponseEntity<FcmNotifications> getRadarNotificationsUsingSubjectId(
             @PathVariable String subjectId) {
-        return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
+        return ResponseEntity.ok(this.userService.getNotificationsBySubjectId(subjectId));
     }
+
+
+
 }

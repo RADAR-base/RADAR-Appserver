@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service;
 
+import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.fcm.dto.FcmUserDto;
 import org.radarbase.fcm.dto.FcmUsers;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,17 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public FcmUsers getUserByProjectId(String projectId) {
+        return null;
+    }
+
+
+    @Transactional(readOnly = true)
+    public FcmUserDto getUserBySubjectId(String subjectId){
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public FcmNotifications getNotificationsBySubjectId(String subjectId){
         return null;
     }
 }

@@ -25,4 +25,5 @@
 /nbdist/
 /.nb-gradle/
 
+# test database
 /db

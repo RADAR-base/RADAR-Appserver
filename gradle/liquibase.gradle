@@ -37,7 +37,6 @@ applicationProps.load(new FileInputStream("src/main/resources/application.proper
 task liquibaseGenerateChangelog(type: JavaExec) {
     group = "liquibase"
 
-
     classpath sourceSets.main.runtimeClasspath
     classpath configurations.liquibase
     main = "liquibase.integration.commandline.Main"
@@ -64,8 +63,7 @@ task liquibaseDiffChangelog(type: JavaExec) {
     args "--password=" + applicationProps.getProperty('spring.datasource.password')
     args "--url=" + applicationProps.getProperty('spring.datasource.url')
     args "--driver=liquibase.ext.hibernate.database.connection.HibernateDriver"
-    args "generateChangeLog"
-    //args "diffChangeLog"
+    args "diffChangeLog"
 }
 
 def buildTimestamp() {

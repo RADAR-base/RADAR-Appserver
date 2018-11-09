@@ -19,21 +19,21 @@
  *
  */
 
-package org.radarbase.appserver.repository;
+package org.radarbase.appserver.exception;
 
-import org.radarbase.appserver.entity.Project;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.radarbase.appserver.dto.RadarProjectDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-import java.util.Optional;
+@ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+public class InvalidProjectDetailsException extends RuntimeException{
 
-/**
- * @author yatharthranjan
- */
-@Repository
-public interface ProjectRepository extends JpaRepository<Project, Long> {
+    public InvalidProjectDetailsException(RadarProjectDto projectDto) {
+        super("Invalid details supplied for the project " + projectDto);
+    }
 
-    Optional<Project> findByProjectId(String projectId);
+    public InvalidProjectDetailsException(RadarProjectDto projectDto, Throwable cause) {
+        super("Invalid details supplied for the project " + projectDto, cause);
+    }
 
 }

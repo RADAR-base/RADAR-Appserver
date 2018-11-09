@@ -26,15 +26,20 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.fcm.dto.FcmUserDto;
 import org.radarbase.fcm.dto.FcmUsers;
 
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
  * @author yatharthranjan
  */
 public class ProjectConverter extends Converter<Project, RadarProjectDto> {
+    private Converter userConverter = new UserConverter();
+
     @Override
     public Project dtoToEntity(RadarProjectDto radarProjectDto) {
-        return null;
+
+        return new Project().setUsers(new HashSet<>(userConverter.dtosToEntities(radarProjectDto.getFcmUsers().getUsers())))
+                .setProjectId(radarProjectDto.getProjectId());
     }
 
     @Override

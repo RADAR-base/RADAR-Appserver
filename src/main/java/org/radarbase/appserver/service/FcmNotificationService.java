@@ -21,25 +21,21 @@
 
 package org.radarbase.appserver.service;
 
+import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmNotifications;
+import org.springframework.stereotype.Service;
 
 /**
  * @author yatharthranjan
  */
+@Service
 public class FcmNotificationService {
 
     public FcmNotifications getAllNotifications() {
         return null;
     }
 
-    public FcmNotifications getNotificationsBySubjectId(String subjectId) {
-        return null;
-    }
-    public FcmNotifications getNotificationsByProjectId(String projectId) {
-        return null;
-    }
-
-    public FcmNotifications getNotificationsByProjectIdAndSubjectId(String projectId, String subjectId) {
+    public FcmNotificationDto getNotificationById(long id) {
         return null;
     }
 }

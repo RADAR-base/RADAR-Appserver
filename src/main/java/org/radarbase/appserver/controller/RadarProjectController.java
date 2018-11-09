@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
+import org.radarbase.appserver.entity.Project;
 import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.appserver.dto.RadarProjectDto;
 import org.radarbase.appserver.dto.RadarProjects;
@@ -29,10 +30,9 @@ import org.radarbase.appserver.service.RadarProjectService;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.dto.FcmUsers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author yatharthranjan
@@ -49,34 +49,56 @@ public class RadarProjectController {
     @Autowired
     private FcmNotificationService notificationService;
 
+    /**
+     * Method for updating a project.
+     * @param projectDto The project info to update
+     * @return The updated Project DTO.
+     * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
+     */
+    @PostMapping(value = "/projects", consumes = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<RadarProjectDto> addProject(@RequestBody RadarProjectDto projectDto) {
+        return ResponseEntity.ok(this.projectService.addProject(projectDto));
+    }
+
+    /**
+     * Method for updating a project.
+     * @param projectDto The project info to update
+     * @return The updated Project DTO.
+     * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
+     */
+    @PutMapping("/projects", consumes = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<RadarProjectDto> updateProject(@RequestBody RadarProjectDto projectDto) {
+        return ResponseEntity.ok(this.projectService.updateProject(projectDto));
+    }
+
     @GetMapping("/projects")
     public ResponseEntity<RadarProjects> getAllProjects() {
         return ResponseEntity.ok(this.projectService.getAllProjects());
     }
 
     @GetMapping("/projects/{id}")
-    public ResponseEntity<RadarProjectDto> getProjectsUsingId(@PathVariable String id) {
+    public ResponseEntity<RadarProjectDto> getProjectsUsingId(@PathVariable Long id) {
         return ResponseEntity.ok(this.projectService.getProjectById(id));
     }
 
     @GetMapping("/projects/{projectid}")
     public ResponseEntity<RadarProjectDto> getProjectsUsingProjectId(@PathVariable String projectId) {
-        return ResponseEntity.ok(this.projectService.getProjectById(projectId));
+        return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
     }
 
     @GetMapping("/projects/{projectid}/users")
     public ResponseEntity<FcmUsers> getUsersUsingProjectId(@PathVariable String projectId) {
-        return ResponseEntity.ok(this.userService.getUserByProjectId(projectId));
+        return ResponseEntity.ok(this.projectService.getUsersByProjectId(projectId));
     }
 
     @GetMapping("/projects/{projectid}/notifications")
     public ResponseEntity<FcmNotifications> getNotificationsUsingProjectId(@PathVariable String projectId) {
-        return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId));
+        return ResponseEntity.ok(this.projectService.getNotificationsByProjectId(projectId));
     }
 
-    @GetMapping("/projects/{projectid}/users/{subjectid}")
+    @GetMapping("/projects/{projectid}/users/{subjectid}/notifications")
     public ResponseEntity<FcmNotifications> getUsersUsingProjectIdAndSubjectId(@PathVariable String projectId,
                                                              @PathVariable String subjectId) {
-        return ResponseEntity.ok(this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
+        return ResponseEntity.ok(this.projectService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
     }
 }
