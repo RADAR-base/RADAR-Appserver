@@ -27,6 +27,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+/**
+ * @author yatharthranjan
+ */
 public class FcmNotificationDto implements Serializable {
 
     private static final long serialVersionUID = 3L;

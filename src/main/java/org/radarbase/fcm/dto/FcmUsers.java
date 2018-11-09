@@ -23,6 +23,9 @@ package org.radarbase.fcm.dto;
 
 import java.util.List;
 
+/**
+ * @author yatharthranjan
+ */
 public class FcmUsers {
 
     private List<FcmUserDto> users;

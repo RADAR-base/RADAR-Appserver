@@ -30,6 +30,9 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author yatharthranjan
+ */
 public class FcmUserDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -59,8 +62,8 @@ public class FcmUserDto implements Serializable {
         this.projectId = user.getProject().getProjectId();
         this.subjectId = user.getSubjectId();
         this.sourceIds = user.getNotifications().stream().map(Notification::getSourceId).collect(Collectors.toList());
-        this.lastOpened = LocalDateTime.ofInstant(user.getLastOpened(), ZoneOffset.UTC);
-        this.lastDelivered = LocalDateTime.ofInstant(user.getLastDelivered(), ZoneOffset.UTC);
+        this.lastOpened = LocalDateTime.ofInstant(user.getUserMetrics().getLastOpened(), ZoneOffset.UTC);
+        this.lastDelivered = LocalDateTime.ofInstant(user.getUserMetrics().getLastDelivered(), ZoneOffset.UTC);
 
     }
 
