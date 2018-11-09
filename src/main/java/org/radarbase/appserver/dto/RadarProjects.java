@@ -23,6 +23,9 @@ package org.radarbase.appserver.dto;
 
 import java.util.List;
 
+/**
+ * @author yatharthranjan
+ */
 public class RadarProjects {
 
     private List<RadarProjectDto> projects;

@@ -24,6 +24,9 @@ package org.radarbase.appserver.service;
 import org.radarbase.appserver.dto.RadarProjectDto;
 import org.radarbase.appserver.dto.RadarProjects;
 
+/**
+ * @author yatharthranjan
+ */
 public class RadarProjectService {
 
     public RadarProjects getAllProjects() {

@@ -21,10 +21,16 @@
 
 package org.radarbase.appserver.entity;
 
-import javax.persistence.*;
-import java.time.Instant;
-import java.util.List;
+import org.hibernate.validator.constraints.UniqueElements;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.*;
+
+/**
+ * @author yatharthranjan
+ */
+@Table(name = "user", uniqueConstraints = {@UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})})
 @Entity
 public class User {
 
@@ -32,22 +38,28 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
+    @Column(name = "subject_id", nullable = false)
     private String subjectId;
 
+    @NotNull
+    @Column(name = "fcm_token", nullable = false)
     private String fcmToken;
 
-    // The most recent time when the app was opened
-    private Instant lastOpened;
-
-    // The most recent time when a notification for the app was delivered.
-    private Instant lastDelivered;
-
-
+    @NotNull
     @ManyToOne()
     private Project project;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<Notification> notifications;
+    @UniqueElements
+    private Set<Notification> notifications;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private UserMetrics userMetrics;
+
+    public User() {
+        this.notifications = Collections.synchronizedSet(new HashSet<>());
+    }
 
     public Long getId() {
         return id;
@@ -65,15 +77,60 @@ public class User {
         return project;
     }
 
-    public List<Notification> getNotifications() {
+    public Set<Notification> getNotifications() {
         return notifications;
     }
 
-    public Instant getLastOpened() {
-        return lastOpened;
+    public User setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
+        return this;
     }
 
-    public Instant getLastDelivered() {
-        return lastDelivered;
+    public User setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+        return this;
+    }
+
+    public User setProject(Project project) {
+        this.project = project;
+        return this;
+    }
+
+    public User setNotifications(Set<Notification> notifications) {
+        this.notifications = notifications;
+        return this;
+    }
+
+    public User addNotification(Notification notification) {
+        this.notifications.add(notification);
+        return this;
+    }
+
+    public User addNotifications(Set<Notification> notifications) {
+        this.notifications.addAll(notifications);
+        return this;
+    }
+
+    public UserMetrics getUserMetrics() {
+        return userMetrics;
+    }
+
+    public void setUserMetrics(UserMetrics userMetrics) {
+        this.userMetrics = userMetrics;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(getSubjectId(), user.getSubjectId()) &&
+                Objects.equals(getFcmToken(), user.getFcmToken()) &&
+                Objects.equals(getProject(), user.getProject());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSubjectId(), getFcmToken(), getProject());
     }
 }

@@ -21,10 +21,14 @@
 
 package org.radarbase.appserver.dto;
 
+
 import org.radarbase.fcm.dto.FcmUsers;
 
 import java.io.Serializable;
 
+/**
+ * @author yatharthranjan
+ */
 public class RadarProjectDto implements Serializable{
 
     private static final long serialVersionUID = 2L;

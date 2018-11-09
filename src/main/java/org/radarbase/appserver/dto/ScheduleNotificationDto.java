@@ -23,6 +23,9 @@ package org.radarbase.appserver.dto;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author yatharthranjan
+ */
 public class ScheduleNotificationDto {
 
     private LocalDateTime scheduledTime;

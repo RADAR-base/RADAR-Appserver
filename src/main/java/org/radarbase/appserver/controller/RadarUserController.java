@@ -35,6 +35,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * @author yatharthranjan
+ */
 @RestController
 public class RadarUserController {
     private static final Logger logger = LoggerFactory.getLogger(RadarUserController.class);

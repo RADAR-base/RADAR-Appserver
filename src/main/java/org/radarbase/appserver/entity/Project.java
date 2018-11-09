@@ -21,11 +21,15 @@
 
 package org.radarbase.appserver.entity;
 
-import org.hibernate.annotations.Cascade;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
-import java.util.List;
-
+import javax.validation.constraints.NotNull;
+import java.util.*;
+/**
+ * @author yatharthranjan
+ */
+@Table(name = "project")
 @Entity
 public class Project {
 
@@ -33,10 +37,17 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
+    @Column(name = "project_id", unique = true, nullable = false)
     private String projectId;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "project", orphanRemoval = true)
-    private List<User> users;
+    @UniqueElements
+    private Set<User> users;
+
+    public Project() {
+        this.users = Collections.synchronizedSet(new HashSet<>());
+    }
 
     public Long getId() {
         return id;
@@ -46,7 +57,40 @@ public class Project {
         return projectId;
     }
 
-    public List<User> getUsers() {
+    public Set<User> getUsers() {
         return users;
+    }
+
+    public Project setProjectId(String projectId) {
+        this.projectId = projectId;
+        return this;
+    }
+
+    public Project setUsers(Set<User> users) {
+        this.users = users;
+        return this;
+    }
+
+    public Project addUser(User user) {
+        this.users.add(user);
+        return this;
+    }
+
+    public Project addUsers(Set<User> users) {
+        this.users.addAll(users);
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Project)) return false;
+        Project project = (Project) o;
+        return Objects.equals(getProjectId(), project.getProjectId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getProjectId());
     }
 }
