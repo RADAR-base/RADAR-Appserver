@@ -115,8 +115,9 @@ public class User {
         return userMetrics;
     }
 
-    public void setUserMetrics(UserMetrics userMetrics) {
+    public User setUserMetrics(UserMetrics userMetrics) {
         this.userMetrics = userMetrics;
+        return this;
     }
 
     @Override

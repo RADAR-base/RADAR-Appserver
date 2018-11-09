@@ -21,9 +21,17 @@
 
 package org.radarbase.appserver.service;
 
+import org.radarbase.appserver.converter.Converter;
+import org.radarbase.appserver.converter.NotificationConverter;
+import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmNotifications;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yatharthranjan
@@ -31,11 +39,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class FcmNotificationService {
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    private static final Converter<Notification, FcmNotificationDto> notificationConverter = new NotificationConverter();
+
     public FcmNotifications getAllNotifications() {
-        return null;
+        List<Notification> notifications = notificationRepository.findAll();
+        return new FcmNotifications().setNotifications(notificationConverter.entitiesToDtos(notifications));
     }
 
     public FcmNotificationDto getNotificationById(long id) {
-        return null;
+        Optional<Notification> notification = notificationRepository.findById(id);
+        return notificationConverter.entityToDto(notification.get());
     }
 }

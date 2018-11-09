@@ -25,8 +25,15 @@ import org.radarbase.appserver.dto.RadarProjectDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * @author yatharthranjan
+ */
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
 public class InvalidProjectDetailsException extends RuntimeException{
+
+    public InvalidProjectDetailsException(String message) {
+        super(message);
+    }
 
     public InvalidProjectDetailsException(RadarProjectDto projectDto) {
         super("Invalid details supplied for the project " + projectDto);

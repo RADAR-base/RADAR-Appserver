@@ -58,7 +58,7 @@ public class FcmUserDto implements Serializable {
 
     private String fcmToken;
 
-    private Set<Notification> notifications;
+    private FcmNotifications notifications;
 
     public FcmUserDto(User user) {
         this.id = user.getId();
@@ -68,7 +68,7 @@ public class FcmUserDto implements Serializable {
         this.lastOpened = LocalDateTime.ofInstant(user.getUserMetrics().getLastOpened(), ZoneOffset.UTC);
         this.lastDelivered = LocalDateTime.ofInstant(user.getUserMetrics().getLastDelivered(), ZoneOffset.UTC);
         this.fcmToken = user.getFcmToken();
-        this.notifications = user.getNotifications();
+        this.notifications = new FcmNotifications().setNotifications(user.getNotifications().stream().map(n -> new FcmNotificationDto(n)).collect(Collectors.toList()));
     }
 
     public Long getId() {
@@ -97,5 +97,45 @@ public class FcmUserDto implements Serializable {
 
     public String getFcmToken() {
         return fcmToken;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public List<String> getSourceIds() {
+        return sourceIds;
+    }
+
+    public void setSourceIds(List<String> sourceIds) {
+        this.sourceIds = sourceIds;
+    }
+
+    public void setLastOpened(LocalDateTime lastOpened) {
+        this.lastOpened = lastOpened;
+    }
+
+    public void setLastDelivered(LocalDateTime lastDelivered) {
+        this.lastDelivered = lastDelivered;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public FcmNotifications getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(FcmNotifications notifications) {
+        this.notifications = notifications;
     }
 }

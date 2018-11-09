@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
+import org.radarbase.appserver.service.RadarProjectService;
 import org.radarbase.fcm.dto.FcmUsers;
 import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -48,13 +49,14 @@ public class RadarUserController {
     @Autowired
     private FcmNotificationService notificationService;
 
+    @Autowired
+    private RadarProjectService projectService;
+
     @PostMapping("/users")
-    public ResponseEntity addUser(@RequestParam(value = "projectId") String projectId,
-                                       @RequestParam(value = "subjectId") String subjectId,
-                                       @RequestParam(value = "sourceId") String sourceId)
+    public ResponseEntity addUser(@RequestBody FcmUserDto userDto)
             throws URISyntaxException {
 
-        FcmUserDto user = this.userService.storeRadarUser(projectId, subjectId, sourceId);
+        FcmUserDto user = this.projectService.saveUserInProject(userDto);
         return ResponseEntity
                 .created(new URI("/user/" + user.getId())).body(user);
     }

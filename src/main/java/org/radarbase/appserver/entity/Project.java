@@ -81,6 +81,15 @@ public class Project {
         return this;
     }
 
+    public User getUserBySubjectId(String subjectId) {
+        for(User user: users) {
+            if(user.getSubjectId().equals(subjectId)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

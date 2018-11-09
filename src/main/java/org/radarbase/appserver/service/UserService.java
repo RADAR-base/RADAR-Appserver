@@ -21,11 +21,30 @@
 
 package org.radarbase.appserver.service;
 
+import org.radarbase.appserver.converter.Converter;
+import org.radarbase.appserver.converter.NotificationConverter;
+import org.radarbase.appserver.converter.ProjectConverter;
+import org.radarbase.appserver.converter.UserConverter;
+import org.radarbase.appserver.dto.RadarProjectDto;
+import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.entity.Project;
+import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.entity.UserMetrics;
+import org.radarbase.appserver.exception.NotFoundException;
+import org.radarbase.appserver.repository.ProjectRepository;
+import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.fcm.dto.FcmUserDto;
 import org.radarbase.fcm.dto.FcmUsers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.ZoneOffset;
+import java.util.HashSet;
+import java.util.Optional;
 
 /**
  * @author yatharthranjan
@@ -34,14 +53,24 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RadarProjectService projectService;
+
+    private static final Converter<User, FcmUserDto> userConverter = new UserConverter();
+    private static final Converter<Notification, FcmNotificationDto> notificationConverter = new NotificationConverter();
+    private static final Converter<Project, RadarProjectDto> projectConverter = new ProjectConverter();
+
     @Transactional(readOnly = true)
     public FcmUsers getAllRadarUsers() {
         return null;
     }
 
     @Transactional
-    public FcmUserDto storeRadarUser(String projectId, String subjectId, String sourceId) {
-        // TODO: Future -- If any value is null get them using the MP api using others.
+    public FcmUserDto storeRadarUser(FcmUserDto userDto) {
+        // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject id, then get project id and source ids from MP)
         // TODO: Store in DB first
         return null;
     }

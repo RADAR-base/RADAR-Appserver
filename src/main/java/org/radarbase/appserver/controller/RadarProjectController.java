@@ -66,7 +66,7 @@ public class RadarProjectController {
      * @return The updated Project DTO.
      * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
      */
-    @PutMapping("/projects", consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "/projects" , consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<RadarProjectDto> updateProject(@RequestBody RadarProjectDto projectDto) {
         return ResponseEntity.ok(this.projectService.updateProject(projectDto));
     }

@@ -19,10 +19,25 @@
  *
  */
 
-package org.radarbase.fcm.upstream;
+package org.radarbase.appserver.exception;
 
-/**
- * @author yatharthranjan
- */
-public interface UpstreamMessageHandler {
+import org.radarbase.fcm.dto.FcmUserDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+public class InvalidUserDetailsException extends RuntimeException{
+
+
+    public InvalidUserDetailsException(String message) {
+        super(message);
+    }
+
+    public InvalidUserDetailsException(FcmUserDto userDto) {
+        super("Invalid details supplied for the user " + userDto);
+    }
+
+    public InvalidUserDetailsException(FcmUserDto userDto, Throwable cause) {
+        super("Invalid details supplied for the user " + userDto, cause);
+    }
 }
