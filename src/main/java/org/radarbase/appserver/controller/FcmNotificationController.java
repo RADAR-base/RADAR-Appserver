@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import java.time.LocalDateTime;
+
 /**
  * @author yatharthranjan
  */
@@ -46,9 +49,34 @@ public class FcmNotificationController {
     }
 
     @GetMapping("/notifications/{id}")
-    public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@PathVariable Long id) {
+    public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
         return ResponseEntity.ok(this.notificationService.getNotificationById(id));
     }
     // TODO: get notifications based on other params
+    @GetMapping("/notifications/filtered")
+    public ResponseEntity<FcmNotifications> getFilteredNotifications(@Valid @RequestParam(value = "type", required = false) String type,
+                                                                     @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
+                                                                     @Valid @RequestParam(value = "ttlSeconds", required = false) int ttlSeconds,
+                                                                     @Valid @RequestParam(value = "startTime", required = false) LocalDateTime startTime,
+                                                                     @Valid @RequestParam(value = "endTime", required = false) LocalDateTime endTime) {
+        return ResponseEntity.ok(this.notificationService.getFilteredNotifications(type, delivered, ttlSeconds, startTime, endTime));
+    }
 
+    @GetMapping("/projects/{projectId}/users/{subjectId}/notifications")
+    public ResponseEntity<FcmNotifications> getUsersUsingProjectIdAndSubjectId(@Valid @PathVariable("projectId") String projectId,
+                                                                               @Valid @PathVariable("subjectId") String subjectId) {
+        return ResponseEntity.ok(this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
+    }
+
+    @GetMapping("/projects/{projectId}/notifications")
+    public ResponseEntity<FcmNotifications> getNotificationsUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
+        return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId));
+    }
+
+
+    @GetMapping("/users/{subjectid}/notifications")
+    public ResponseEntity<FcmNotifications> getRadarNotificationsUsingSubjectId(
+            @Valid @PathVariable("subjectId") String subjectId) {
+        return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
+    }
 }

@@ -24,17 +24,25 @@ package org.radarbase.appserver.converter;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.fcm.dto.FcmNotificationDto;
 
+import java.time.ZoneOffset;
+
 /**
  * @author yatharthranjan
  */
 public class NotificationConverter extends Converter<Notification, FcmNotificationDto> {
     @Override
     public Notification dtoToEntity(FcmNotificationDto notificationDto) {
-        return null;
+        return new Notification().setBody(notificationDto.getBody())
+                .setScheduledTime(notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC))
+                .setTitle(notificationDto.getTitle())
+                .setSourceId(notificationDto.getSourceId())
+                .setType(notificationDto.getType())
+                .setTtlSeconds(notificationDto.getTtlSeconds())
+                .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
     }
 
     @Override
     public FcmNotificationDto entityToDto(Notification notification) {
-        return null;
+        return new FcmNotificationDto(notification);
     }
 }

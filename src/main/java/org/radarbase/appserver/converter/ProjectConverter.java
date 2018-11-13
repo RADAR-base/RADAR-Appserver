@@ -39,20 +39,14 @@ public class ProjectConverter extends Converter<Project, RadarProjectDto> {
     @Override
     public Project dtoToEntity(RadarProjectDto radarProjectDto) {
 
-        return new Project().setUsers(new HashSet<>(userConverter.dtosToEntities(radarProjectDto.getFcmUsers().getUsers())))
+        return new Project()
                 .setProjectId(radarProjectDto.getProjectId());
     }
 
     @Override
     public RadarProjectDto entityToDto(Project project) {
 
-        FcmUsers users = new FcmUsers().setUsers(project.getUsers().parallelStream()
-                .map(FcmUserDto::new)
-                .collect(Collectors.toList()));
-
-
         return new RadarProjectDto().setId(project.getId())
-                .setProjectId(project.getProjectId())
-                .setFcmUsers(users);
+                .setProjectId(project.getProjectId());
     }
 }

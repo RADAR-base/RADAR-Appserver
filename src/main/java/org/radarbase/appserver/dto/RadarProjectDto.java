@@ -37,18 +37,12 @@ public class RadarProjectDto implements Serializable{
 
     private String projectId;
 
-    private FcmUsers fcmUsers;
-
     public Long getId() {
         return id;
     }
 
     public String getProjectId() {
         return projectId;
-    }
-
-    public FcmUsers getFcmUsers() {
-        return fcmUsers;
     }
 
     public RadarProjectDto setId(Long id) {
@@ -58,11 +52,6 @@ public class RadarProjectDto implements Serializable{
 
     public RadarProjectDto setProjectId(String projectId) {
         this.projectId = projectId;
-        return this;
-    }
-
-    public RadarProjectDto setFcmUsers(FcmUsers fcmUsers) {
-        this.fcmUsers = fcmUsers;
         return this;
     }
 }

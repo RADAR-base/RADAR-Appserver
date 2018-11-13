@@ -21,15 +21,13 @@
 
 package org.radarbase.appserver.service;
 
-import org.radarbase.appserver.converter.Converter;
-import org.radarbase.appserver.converter.NotificationConverter;
-import org.radarbase.appserver.converter.ProjectConverter;
-import org.radarbase.appserver.converter.UserConverter;
+import org.radarbase.appserver.converter.*;
 import org.radarbase.appserver.dto.RadarProjectDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.entity.UserMetrics;
+import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
@@ -37,6 +35,8 @@ import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.fcm.dto.FcmUserDto;
 import org.radarbase.fcm.dto.FcmUsers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.IllegalTransactionStateException;
@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,11 +54,13 @@ import java.util.Optional;
 @Transactional
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private RadarProjectService projectService;
+    private ProjectRepository projectRepository;
 
     private static final Converter<User, FcmUserDto> userConverter = new UserConverter();
     private static final Converter<Notification, FcmNotificationDto> notificationConverter = new NotificationConverter();
@@ -65,7 +68,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public FcmUsers getAllRadarUsers() {
-        return null;
+        return new FcmUsers().setUsers(userConverter.entitiesToDtos(userRepository.findAll()));
     }
 
     @Transactional
@@ -76,18 +79,75 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public FcmUsers getUserByProjectId(String projectId) {
-        return null;
+    public FcmUserDto getUserById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+
+        if(user.isPresent()) {
+            return userConverter.entityToDto(user.get());
+        } else {
+            throw new NotFoundException("No User was found with the ID - " + id);
+        }
     }
 
 
     @Transactional(readOnly = true)
     public FcmUserDto getUserBySubjectId(String subjectId){
-        return null;
+        Optional<User> user = userRepository.findBySubjectId(subjectId);
+
+        if(user.isPresent()) {
+            return userConverter.entityToDto(user.get());
+        } else {
+            throw new NotFoundException("No User was found with the subject ID - " + subjectId);
+        }
     }
 
     @Transactional(readOnly = true)
-    public FcmNotifications getNotificationsBySubjectId(String subjectId){
-        return null;
+    public FcmUsers getUsersByProjectId(String projectId) {
+        Optional<Project> project = projectRepository.findByProjectId(projectId);
+
+        if (!project.isPresent()) {
+            throw new NotFoundException("Project not found with projectId " + projectId);
+        }
+
+        List<User> users = this.userRepository.findByProjectId(project.get().getId());
+
+        return new FcmUsers().setUsers(userConverter.entitiesToDtos(users));
+    }
+
+    @Transactional
+    public FcmUserDto saveUserInProject(FcmUserDto userDto) {
+        logger.info("User DTO:" + userDto);
+        Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
+        if(!project.isPresent()) {
+            throw new NotFoundException("Project Id does not exist. Please create a project with the ID first");
+        }
+
+        Optional<User> user = this.userRepository.findBySubjectIdAndProjectId(userDto.getSubjectId(), project.get().getId());
+
+        if(user.isPresent()) {
+            throw  new InvalidUserDetailsException("The user with specified subject ID " + userDto.getSubjectId() +
+                    " already exists in project ID " + userDto.getProjectId() + ". Please use Update endpoint to update the user");
+        } else {
+            User newUser = ConverterFactory.getUserConverter().dtoToEntity(userDto).setProject(project.get());
+            return ConverterFactory.getUserConverter().entityToDto(this.userRepository.save(newUser));
+        }
+    }
+
+    @Transactional
+    public FcmUserDto updateUser(FcmUserDto userDto) {
+        Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
+        if(!project.isPresent()) {
+            throw new NotFoundException("Project Id does not exist. Please create a project with the ID first");
+        }
+
+        Optional<User> user = this.userRepository.findBySubjectIdAndProjectId(userDto.getSubjectId(), project.get().getId());
+
+        if(!user.isPresent()) {
+            throw  new InvalidUserDetailsException("The user with specified subject ID " + userDto.getSubjectId() +
+                    " does not exist in project ID " + userDto.getProjectId() + ". Please use Create endpoint to create the user.");
+        } else {
+            User updatedUser = user.get().setFcmToken(userDto.getFcmToken()).setUserMetrics(UserConverter.getValidUserMetrics(userDto));
+            return ConverterFactory.getUserConverter().entityToDto(this.userRepository.save(updatedUser));
+        }
     }
 }

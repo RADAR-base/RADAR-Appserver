@@ -27,6 +27,7 @@ import org.radarbase.appserver.entity.User;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,9 +48,6 @@ public class FcmUserDto implements Serializable {
     // User ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String subjectId;
 
-    // Source ID to be used in org.radarcns.kafka.ObservationKey record keys
-    private List<String> sourceIds;
-
     // The most recent time when the app was opened
     private LocalDateTime lastOpened;
 
@@ -58,17 +56,17 @@ public class FcmUserDto implements Serializable {
 
     private String fcmToken;
 
-    private FcmNotifications notifications;
-
     public FcmUserDto(User user) {
         this.id = user.getId();
         this.projectId = user.getProject().getProjectId();
         this.subjectId = user.getSubjectId();
-        this.sourceIds = user.getNotifications().stream().map(Notification::getSourceId).collect(Collectors.toList());
         this.lastOpened = LocalDateTime.ofInstant(user.getUserMetrics().getLastOpened(), ZoneOffset.UTC);
-        this.lastDelivered = LocalDateTime.ofInstant(user.getUserMetrics().getLastDelivered(), ZoneOffset.UTC);
+        this.lastDelivered = user.getUserMetrics().getLastDelivered() == null ? null : LocalDateTime.ofInstant(user.getUserMetrics().getLastDelivered(), ZoneOffset.UTC);
         this.fcmToken = user.getFcmToken();
-        this.notifications = new FcmNotifications().setNotifications(user.getNotifications().stream().map(n -> new FcmNotificationDto(n)).collect(Collectors.toList()));
+    }
+
+    public FcmUserDto() {
+
     }
 
     public Long getId() {
@@ -83,10 +81,6 @@ public class FcmUserDto implements Serializable {
         return subjectId;
     }
 
-    public List<String> getSourceId() {
-        return sourceIds;
-    }
-
     public LocalDateTime getLastOpened() {
         return lastOpened;
     }
@@ -99,43 +93,45 @@ public class FcmUserDto implements Serializable {
         return fcmToken;
     }
 
-    public void setId(Long id) {
+    public FcmUserDto setId(Long id) {
         this.id = id;
+        return this;
     }
 
-    public void setProjectId(String projectId) {
+    public FcmUserDto setProjectId(String projectId) {
         this.projectId = projectId;
+        return this;
     }
 
-    public void setSubjectId(String subjectId) {
+    public FcmUserDto setSubjectId(String subjectId) {
         this.subjectId = subjectId;
+        return this;
     }
 
-    public List<String> getSourceIds() {
-        return sourceIds;
-    }
-
-    public void setSourceIds(List<String> sourceIds) {
-        this.sourceIds = sourceIds;
-    }
-
-    public void setLastOpened(LocalDateTime lastOpened) {
+    public FcmUserDto setLastOpened(LocalDateTime lastOpened) {
         this.lastOpened = lastOpened;
+        return this;
     }
 
-    public void setLastDelivered(LocalDateTime lastDelivered) {
+    public FcmUserDto setLastDelivered(LocalDateTime lastDelivered) {
         this.lastDelivered = lastDelivered;
+        return this;
     }
 
-    public void setFcmToken(String fcmToken) {
+    public FcmUserDto setFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+        return this;
     }
 
-    public FcmNotifications getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(FcmNotifications notifications) {
-        this.notifications = notifications;
+    @Override
+    public String toString() {
+        return "FcmUserDto{" +
+                "id=" + id +
+                ", projectId='" + projectId + '\'' +
+                ", subjectId='" + subjectId + '\'' +
+                ", lastOpened=" + lastOpened +
+                ", lastDelivered=" + lastDelivered +
+                ", fcmToken='" + fcmToken + '\'' +
+                '}';
     }
 }

@@ -21,6 +21,9 @@
 
 package org.radarbase.appserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -31,19 +34,22 @@ import java.util.Objects;
 /**
  * @author yatharthranjan
  */
-@Table(name = "notification", uniqueConstraints = {
+@Table(name = "notifications", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"user_id", "source_id", "scheduled_time",
                 "title", "body", "type", "ttl_seconds", "delivered", "dry_run"
         })})
 @Entity
-public class Notification {
+public class Notification extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private User user;
 
     @Nullable

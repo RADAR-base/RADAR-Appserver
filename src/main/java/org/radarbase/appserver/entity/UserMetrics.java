@@ -32,7 +32,7 @@ import java.time.Instant;
  */
 @Table(name = "user_metrics")
 @Entity
-public class UserMetrics {
+public class UserMetrics extends AuditModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,20 +40,29 @@ public class UserMetrics {
 
     // The most recent time when the app was opened
     @Nullable
+    @Column(name = "last_opened")
     private Instant lastOpened;
 
     // The most recent time when a notification for the app was delivered.
     @Nullable
+    @Column(name = "last_delivered")
     private Instant lastDelivered;
 
     @NonNull
     @OneToOne
-    @PrimaryKeyJoinColumn
     private User user;
 
     public UserMetrics(Instant lastOpened, Instant lastDelivered) {
         this.lastOpened = lastOpened;
         this.lastDelivered = lastDelivered;
+    }
+
+    public UserMetrics() {
+
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getId() {

@@ -21,18 +21,23 @@
 
 package org.radarbase.appserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
  * @author yatharthranjan
  */
-@Table(name = "user", uniqueConstraints = {@UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})})
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})})
 @Entity
-public class User {
+public class User extends AuditModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,18 +52,20 @@ public class User {
     private String fcmToken;
 
     @NotNull
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "project_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Project project;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    @UniqueElements
-    private Set<Notification> notifications;
+    @NotNull
+    @Column(name = "enrolment_date")
+    private Instant enrolmentDate;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private UserMetrics userMetrics;
+    private UserMetrics usermetrics;
 
     public User() {
-        this.notifications = Collections.synchronizedSet(new HashSet<>());
     }
 
     public Long getId() {
@@ -77,8 +84,8 @@ public class User {
         return project;
     }
 
-    public Set<Notification> getNotifications() {
-        return notifications;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public User setSubjectId(String subjectId) {
@@ -96,27 +103,20 @@ public class User {
         return this;
     }
 
-    public User setNotifications(Set<Notification> notifications) {
-        this.notifications = notifications;
-        return this;
+    public Instant getEnrolmentDate() {
+        return enrolmentDate;
     }
 
-    public User addNotification(Notification notification) {
-        this.notifications.add(notification);
-        return this;
-    }
-
-    public User addNotifications(Set<Notification> notifications) {
-        this.notifications.addAll(notifications);
-        return this;
+    public void setEnrolmentDate(Instant enrolmentDate) {
+        this.enrolmentDate = enrolmentDate;
     }
 
     public UserMetrics getUserMetrics() {
-        return userMetrics;
+        return usermetrics;
     }
 
     public User setUserMetrics(UserMetrics userMetrics) {
-        this.userMetrics = userMetrics;
+        this.usermetrics = userMetrics;
         return this;
     }
 
@@ -127,7 +127,8 @@ public class User {
         User user = (User) o;
         return Objects.equals(getSubjectId(), user.getSubjectId()) &&
                 Objects.equals(getFcmToken(), user.getFcmToken()) &&
-                Objects.equals(getProject(), user.getProject());
+                Objects.equals(getProject(), user.getProject()) &&
+                Objects.equals(getEnrolmentDate(), user.getEnrolmentDate());
     }
 
     @Override

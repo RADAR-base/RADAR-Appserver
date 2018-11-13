@@ -25,4 +25,5 @@ package org.radarbase.fcm.upstream;
  * @author yatharthranjan
  */
 public interface UpstreamMessageHandler {
+    // TODO Add different methods for different types of messages
 }

@@ -22,10 +22,13 @@
 package org.radarbase.fcm.dto;
 
 import org.radarbase.appserver.entity.Notification;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author yatharthranjan
@@ -36,6 +39,7 @@ public class FcmNotificationDto implements Serializable {
 
     private Long id;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime scheduledTime;
 
     private boolean delivered;
@@ -46,9 +50,13 @@ public class FcmNotificationDto implements Serializable {
 
     private int ttlSeconds;
 
+    private String sourceId;
+
     private String fcmToken;
 
     private String fcmMessageId;
+
+    private String type;
 
     public FcmNotificationDto(Notification notificationEntity) {
         this.id = notificationEntity.getId();
@@ -58,5 +66,141 @@ public class FcmNotificationDto implements Serializable {
         this.delivered = notificationEntity.isDelivered();
         this.fcmMessageId = notificationEntity.getFcmMessageId();
         this.fcmToken = notificationEntity.getUser().getFcmToken();
+        this.sourceId = notificationEntity.getSourceId();
+        this.type = notificationEntity.getType();
+    }
+
+    public FcmNotificationDto() {
+
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public FcmNotificationDto setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public LocalDateTime getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public FcmNotificationDto setScheduledTime(LocalDateTime scheduledTime) {
+        this.scheduledTime = scheduledTime;
+        return this;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public FcmNotificationDto setDelivered(boolean delivered) {
+        this.delivered = delivered;
+        return this;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public FcmNotificationDto setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public FcmNotificationDto setBody(String body) {
+        this.body = body;
+        return this;
+    }
+
+    public int getTtlSeconds() {
+        return ttlSeconds;
+    }
+
+    public FcmNotificationDto setTtlSeconds(int ttlSeconds) {
+        this.ttlSeconds = ttlSeconds;
+        return this;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public FcmNotificationDto setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+        return this;
+    }
+
+    public String getFcmMessageId() {
+        return fcmMessageId;
+    }
+
+    public FcmNotificationDto setFcmMessageId(String fcmMessageId) {
+        this.fcmMessageId = fcmMessageId;
+        return this;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public FcmNotificationDto setSourceId(String sourceId) {
+        this.sourceId = sourceId;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public FcmNotificationDto setType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FcmNotificationDto)) return false;
+        FcmNotificationDto that = (FcmNotificationDto) o;
+        return delivered == that.delivered &&
+                ttlSeconds == that.ttlSeconds &&
+                Objects.equals(scheduledTime, that.scheduledTime) &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(body, that.body) &&
+                Objects.equals(fcmToken, that.fcmToken) &&
+                Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(scheduledTime, delivered, title, body, ttlSeconds, fcmToken, type);
+    }
+
+    @Override
+    public String toString() {
+        return "FcmNotificationDto{" +
+                "id=" + id +
+                ", scheduledTime=" + scheduledTime +
+                ", delivered=" + delivered +
+                ", title='" + title + '\'' +
+                ", body='" + body + '\'' +
+                ", ttlSeconds=" + ttlSeconds +
+                ", sourceId='" + sourceId + '\'' +
+                ", fcmToken='" + fcmToken + '\'' +
+                ", fcmMessageId='" + fcmMessageId + '\'' +
+                ", type='" + type + '\'' +
+                '}';
     }
 }

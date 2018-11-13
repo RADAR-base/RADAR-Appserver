@@ -22,7 +22,12 @@
 package org.radarbase.appserver.converter;
 
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.entity.UserMetrics;
 import org.radarbase.fcm.dto.FcmUserDto;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  * @author yatharthranjan
@@ -31,11 +36,30 @@ public class UserConverter extends Converter<User, FcmUserDto> {
 
     @Override
     public User dtoToEntity(FcmUserDto fcmUserDto) {
-        return null;
+
+
+        return new User().setFcmToken(fcmUserDto.getFcmToken())
+                .setSubjectId(fcmUserDto.getSubjectId())
+                .setUserMetrics(getValidUserMetrics(fcmUserDto));
     }
 
     @Override
     public FcmUserDto entityToDto(User user) {
         return new FcmUserDto(user);
+    }
+
+    public static UserMetrics getValidUserMetrics(FcmUserDto fcmUserDto) {
+        UserMetrics userMetrics;
+        if (fcmUserDto.getLastOpened() == null && fcmUserDto.getLastDelivered() == null) {
+            userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), null);
+        } else if (fcmUserDto.getLastDelivered() == null) {
+            userMetrics = new UserMetrics(fcmUserDto.getLastOpened().toInstant(ZoneOffset.UTC), null);
+        } else if (fcmUserDto.getLastOpened() == null) {
+            userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered().toInstant(ZoneOffset.UTC));
+        } else {
+            userMetrics = new UserMetrics(fcmUserDto.getLastOpened().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered().toInstant(ZoneOffset.UTC));
+        }
+
+        return userMetrics;
     }
 }

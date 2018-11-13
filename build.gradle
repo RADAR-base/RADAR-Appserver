@@ -33,5 +33,6 @@ dependencies {
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	runtimeOnly('org.hsqldb:hsqldb')
 	runtimeOnly('org.liquibase:liquibase-core')
+	//compile('org.liquibase.ext:liquibase-hibernate5:3.6')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

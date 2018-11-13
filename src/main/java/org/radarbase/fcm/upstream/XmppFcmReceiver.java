@@ -27,4 +27,6 @@ import org.radarbase.fcm.common.CcsClient;
  * @author yatharthranjan
  */
 public class XmppFcmReceiver implements CcsClient {
+
+    UpstreamMessageHandler messageHandler;
 }

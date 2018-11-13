@@ -22,16 +22,22 @@
 package org.radarbase.appserver.entity;
 
 import org.hibernate.validator.constraints.UniqueElements;
+import org.radarbase.appserver.converter.Converter;
+import org.radarbase.appserver.converter.ConverterFactory;
+import org.radarbase.fcm.dto.FcmNotificationDto;
+import org.radarbase.fcm.dto.FcmUserDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 /**
  * @author yatharthranjan
  */
-@Table(name = "project")
+@Table(name = "projects")
 @Entity
-public class Project {
+public class Project extends AuditModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -41,12 +47,11 @@ public class Project {
     @Column(name = "project_id", unique = true, nullable = false)
     private String projectId;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "project", orphanRemoval = true)
-    @UniqueElements
-    private Set<User> users;
-
     public Project() {
-        this.users = Collections.synchronizedSet(new HashSet<>());
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getId() {
@@ -57,37 +62,9 @@ public class Project {
         return projectId;
     }
 
-    public Set<User> getUsers() {
-        return users;
-    }
-
     public Project setProjectId(String projectId) {
         this.projectId = projectId;
         return this;
-    }
-
-    public Project setUsers(Set<User> users) {
-        this.users = users;
-        return this;
-    }
-
-    public Project addUser(User user) {
-        this.users.add(user);
-        return this;
-    }
-
-    public Project addUsers(Set<User> users) {
-        this.users.addAll(users);
-        return this;
-    }
-
-    public User getUserBySubjectId(String subjectId) {
-        for(User user: users) {
-            if(user.getSubjectId().equals(subjectId)) {
-                return user;
-            }
-        }
-        return null;
     }
 
     @Override

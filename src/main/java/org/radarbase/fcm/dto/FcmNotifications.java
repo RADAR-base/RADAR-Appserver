@@ -21,6 +21,7 @@
 
 package org.radarbase.fcm.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +30,10 @@ import java.util.List;
 public class FcmNotifications {
 
     private List<FcmNotificationDto>  notifications;
+
+    public FcmNotifications() {
+        notifications = new ArrayList<>();
+    }
 
     public List<FcmNotificationDto> getNotifications() {
         return notifications;
@@ -39,5 +44,12 @@ public class FcmNotifications {
         return this;
     }
 
+    public FcmNotifications addNotification(FcmNotificationDto notificationDto) {
+
+        if(!notifications.contains(notificationDto)) {
+            this.notifications.add(notificationDto);
+        }
+        return this;
+    }
 
 }

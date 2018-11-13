@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -56,34 +58,60 @@ public class RadarUserController {
     public ResponseEntity addUser(@RequestBody FcmUserDto userDto)
             throws URISyntaxException {
 
-        FcmUserDto user = this.projectService.saveUserInProject(userDto);
+        FcmUserDto user = this.userService.saveUserInProject(userDto);
         return ResponseEntity
                 .created(new URI("/user/" + user.getId())).body(user);
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<FcmUsers> getAllRadarUsers() {
-        return null;
+    @PostMapping("/projects/{projectId}/users")
+    public ResponseEntity addUserToProject(@Valid @RequestBody FcmUserDto userDto,
+                                           @Valid @PathVariable(value = "projectId") String projectId)
+            throws URISyntaxException {
+        userDto.setProjectId(projectId);
+        FcmUserDto user = this.userService.saveUserInProject(userDto);
+        return ResponseEntity
+                .created(new URI("/user/" + user.getId())).body(user);
     }
 
-    @GetMapping("/users/{id}")
+    @PutMapping("/projects/{projectId}/users")
+    public ResponseEntity updateUserInProject(@Valid @RequestBody FcmUserDto userDto,
+                                              @Valid @PathVariable(value = "projectId") String projectId)
+            throws URISyntaxException {
+        userDto.setProjectId(projectId);
+        FcmUserDto user = this.userService.updateUser(userDto);
+        return ResponseEntity
+                .created(new URI("/user/" + user.getId())).body(user);
+    }
+
+    @PutMapping("/users")
+    public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
+            throws URISyntaxException {
+
+        FcmUserDto user = this.userService.updateUser(userDto);
+        return ResponseEntity
+                .created(new URI("/users/" + user.getSubjectId())).body(user);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<FcmUsers> getAllRadarUsers() {
+        return ResponseEntity.ok(this.userService.getAllRadarUsers());
+    }
+
+    @GetMapping("/users/user")
     public ResponseEntity<FcmUserDto> getRadarUserUsingId(
-            @PathVariable String id) {
-        return null;
+            @PathParam("id") Long id) {
+        return ResponseEntity.ok(this.userService.getUserById(id));
     }
 
     @GetMapping("/users/{subjectid}")
     public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
-            @PathVariable String subjectId) {
+            @PathVariable("subjectId") String subjectId) {
         return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
     }
 
-    @GetMapping("/users/{subjectid}/notifications")
-    public ResponseEntity<FcmNotifications> getRadarNotificationsUsingSubjectId(
-            @PathVariable String subjectId) {
-        return ResponseEntity.ok(this.userService.getNotificationsBySubjectId(subjectId));
+    @GetMapping("/projects/{projectId}/users")
+    public ResponseEntity<FcmUsers> getUsersUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
+        return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
     }
-
-
 
 }
