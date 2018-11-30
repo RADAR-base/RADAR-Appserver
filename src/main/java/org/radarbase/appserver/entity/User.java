@@ -65,6 +65,11 @@ public class User extends AuditModel{
     @OneToOne(cascade = CascadeType.ALL)
     private UserMetrics usermetrics;
 
+    //Timezone offset of the user in seconds
+    @NotNull
+    @Column(name = "timezone")
+    private double timezone;
+
     public User() {
     }
 
@@ -107,8 +112,9 @@ public class User extends AuditModel{
         return enrolmentDate;
     }
 
-    public void setEnrolmentDate(Instant enrolmentDate) {
+    public User setEnrolmentDate(Instant enrolmentDate) {
         this.enrolmentDate = enrolmentDate;
+        return this;
     }
 
     public UserMetrics getUserMetrics() {
@@ -120,13 +126,22 @@ public class User extends AuditModel{
         return this;
     }
 
+    public double getTimezone() {
+        return timezone;
+    }
+
+    public User setTimezone(double timezone) {
+        this.timezone = timezone;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         User user = (User) o;
         return Objects.equals(getSubjectId(), user.getSubjectId()) &&
-                Objects.equals(getFcmToken(), user.getFcmToken()) &&
+        Objects.equals(getFcmToken(), user.getFcmToken()) &&
                 Objects.equals(getProject(), user.getProject()) &&
                 Objects.equals(getEnrolmentDate(), user.getEnrolmentDate());
     }

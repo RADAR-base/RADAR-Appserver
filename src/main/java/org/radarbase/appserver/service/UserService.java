@@ -71,13 +71,6 @@ public class UserService {
         return new FcmUsers().setUsers(userConverter.entitiesToDtos(userRepository.findAll()));
     }
 
-    @Transactional
-    public FcmUserDto storeRadarUser(FcmUserDto userDto) {
-        // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject id, then get project id and source ids from MP)
-        // TODO: Store in DB first
-        return null;
-    }
-
     @Transactional(readOnly = true)
     public FcmUserDto getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
@@ -116,7 +109,10 @@ public class UserService {
 
     @Transactional
     public FcmUserDto saveUserInProject(FcmUserDto userDto) {
-        logger.info("User DTO:" + userDto);
+
+        // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject id, then get project id and source ids from MP)
+
+        logger.debug("User DTO:" + userDto);
         Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
         if(!project.isPresent()) {
             throw new NotFoundException("Project Id does not exist. Please create a project with the ID first");
@@ -126,9 +122,11 @@ public class UserService {
 
         if(user.isPresent()) {
             throw  new InvalidUserDetailsException("The user with specified subject ID " + userDto.getSubjectId() +
-                    " already exists in project ID " + userDto.getProjectId() + ". Please use Update endpoint to update the user");
+                    " already exists in project ID " + userDto.getProjectId() + ". Please use Update endpoint if need to update the user");
         } else {
             User newUser = ConverterFactory.getUserConverter().dtoToEntity(userDto).setProject(project.get());
+            // maintain a bi-directional relationship
+            newUser.getUserMetrics().setUser(newUser);
             return ConverterFactory.getUserConverter().entityToDto(this.userRepository.save(newUser));
         }
     }
@@ -144,9 +142,13 @@ public class UserService {
 
         if(!user.isPresent()) {
             throw  new InvalidUserDetailsException("The user with specified subject ID " + userDto.getSubjectId() +
-                    " does not exist in project ID " + userDto.getProjectId() + ". Please use Create endpoint to create the user.");
+                    " does not exist in project ID " + userDto.getProjectId() + ". Please use CreateUser endpoint to create the user.");
         } else {
-            User updatedUser = user.get().setFcmToken(userDto.getFcmToken()).setUserMetrics(UserConverter.getValidUserMetrics(userDto));
+            User updatedUser = user.get().setFcmToken(userDto.getFcmToken()).setUserMetrics(UserConverter.getValidUserMetrics(userDto))
+                    .setEnrolmentDate(userDto.getEnrolmentDate().toInstant(ZoneOffset.UTC))
+                    .setTimezone(userDto.getTimezone());
+            // maintain a bi-directional relationship
+            updatedUser.getUserMetrics().setUser(updatedUser);
             return ConverterFactory.getUserConverter().entityToDto(this.userRepository.save(updatedUser));
         }
     }

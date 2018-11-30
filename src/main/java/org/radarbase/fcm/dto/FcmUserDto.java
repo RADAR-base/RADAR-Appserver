@@ -21,16 +21,12 @@
 
 package org.radarbase.fcm.dto;
 
-import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.User;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author yatharthranjan
@@ -45,6 +41,7 @@ public class FcmUserDto implements Serializable {
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String projectId;
 
+    @NotNull
     // User ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String subjectId;
 
@@ -53,6 +50,13 @@ public class FcmUserDto implements Serializable {
 
     // The most recent time when a notification for the app was delivered.
     private LocalDateTime lastDelivered;
+
+    @NotNull
+    private LocalDateTime enrolmentDate;
+
+    //Timezone offset of the user in seconds
+    @NotNull
+    private double timezone;
 
     private String fcmToken;
 
@@ -63,6 +67,8 @@ public class FcmUserDto implements Serializable {
         this.lastOpened = LocalDateTime.ofInstant(user.getUserMetrics().getLastOpened(), ZoneOffset.UTC);
         this.lastDelivered = user.getUserMetrics().getLastDelivered() == null ? null : LocalDateTime.ofInstant(user.getUserMetrics().getLastDelivered(), ZoneOffset.UTC);
         this.fcmToken = user.getFcmToken();
+        this.enrolmentDate = LocalDateTime.ofInstant(user.getEnrolmentDate(), ZoneOffset.UTC);
+        this.timezone = user.getTimezone();
     }
 
     public FcmUserDto() {
@@ -123,6 +129,22 @@ public class FcmUserDto implements Serializable {
         return this;
     }
 
+    public LocalDateTime getEnrolmentDate() {
+        return enrolmentDate;
+    }
+
+    public void setEnrolmentDate(LocalDateTime enrolmentDate) {
+        this.enrolmentDate = enrolmentDate;
+    }
+
+    public double getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(double timezone) {
+        this.timezone = timezone;
+    }
+
     @Override
     public String toString() {
         return "FcmUserDto{" +
@@ -131,6 +153,8 @@ public class FcmUserDto implements Serializable {
                 ", subjectId='" + subjectId + '\'' +
                 ", lastOpened=" + lastOpened +
                 ", lastDelivered=" + lastDelivered +
+                ", enrolmentDate=" + enrolmentDate +
+                ", timezone=" + timezone +
                 ", fcmToken='" + fcmToken + '\'' +
                 '}';
     }
