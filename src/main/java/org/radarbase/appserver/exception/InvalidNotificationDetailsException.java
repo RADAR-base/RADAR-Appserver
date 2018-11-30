@@ -19,21 +19,20 @@
  *
  */
 
-package org.radarbase.appserver.repository;
+package org.radarbase.appserver.exception;
 
-import org.radarbase.appserver.entity.Notification;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.radarbase.fcm.dto.FcmNotificationDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
+@ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+public class InvalidNotificationDetailsException extends RuntimeException {
 
-/**
- * @author yatharthranjan
- */
-@Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+    public InvalidNotificationDetailsException(String message) {
+        super(message);
+    }
 
-    List<Notification> findByUserId(Long userId);
-
-    void deleteByUserId(Long userId);
+    public InvalidNotificationDetailsException(FcmNotificationDto notificationDto) {
+        super("Invalid details of the Notification supplied : " + notificationDto);
+    }
 }

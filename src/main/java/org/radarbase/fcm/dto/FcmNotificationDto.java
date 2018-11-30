@@ -24,6 +24,7 @@ package org.radarbase.fcm.dto;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -39,24 +40,32 @@ public class FcmNotificationDto implements Serializable {
 
     private Long id;
 
+    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime scheduledTime;
 
     private boolean delivered;
 
+    @NotNull
     private String title;
 
     private String body;
 
     private int ttlSeconds;
 
+    @NotNull
     private String sourceId;
-
-    private String fcmToken;
 
     private String fcmMessageId;
 
+    @NotNull
     private String type;
+
+    @NotNull
+    private String appPackage;
+
+    @NotNull
+    private String sourceType;
 
     public FcmNotificationDto(Notification notificationEntity) {
         this.id = notificationEntity.getId();
@@ -65,9 +74,11 @@ public class FcmNotificationDto implements Serializable {
         this.body = notificationEntity.getBody();
         this.delivered = notificationEntity.isDelivered();
         this.fcmMessageId = notificationEntity.getFcmMessageId();
-        this.fcmToken = notificationEntity.getUser().getFcmToken();
         this.sourceId = notificationEntity.getSourceId();
         this.type = notificationEntity.getType();
+        this.appPackage = notificationEntity.getAppPackage();
+        this.sourceType = notificationEntity.getSourceType();
+        this.ttlSeconds = notificationEntity.getTtlSeconds();
     }
 
     public FcmNotificationDto() {
@@ -132,15 +143,6 @@ public class FcmNotificationDto implements Serializable {
         return this;
     }
 
-    public String getFcmToken() {
-        return fcmToken;
-    }
-
-    public FcmNotificationDto setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
-        return this;
-    }
-
     public String getFcmMessageId() {
         return fcmMessageId;
     }
@@ -178,14 +180,31 @@ public class FcmNotificationDto implements Serializable {
                 Objects.equals(scheduledTime, that.scheduledTime) &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(body, that.body) &&
-                Objects.equals(fcmToken, that.fcmToken) &&
-                Objects.equals(type, that.type);
+                Objects.equals(type, that.type) &&
+                Objects.equals(appPackage, that.appPackage) &&
+                Objects.equals(sourceType, that.sourceType);
+    }
+
+    public String getAppPackage() {
+        return appPackage;
+    }
+
+    public void setAppPackage(String appPackage) {
+        this.appPackage = appPackage;
+    }
+
+    public String getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(String sourceType) {
+        this.sourceType = sourceType;
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(scheduledTime, delivered, title, body, ttlSeconds, fcmToken, type);
+        return Objects.hash(scheduledTime, delivered, title, body, ttlSeconds, type, appPackage, sourceType);
     }
 
     @Override
@@ -198,9 +217,10 @@ public class FcmNotificationDto implements Serializable {
                 ", body='" + body + '\'' +
                 ", ttlSeconds=" + ttlSeconds +
                 ", sourceId='" + sourceId + '\'' +
-                ", fcmToken='" + fcmToken + '\'' +
                 ", fcmMessageId='" + fcmMessageId + '\'' +
                 ", type='" + type + '\'' +
+                ", appPackage='" + appPackage + '\'' +
+                ", sourceType='" + sourceType + '\'' +
                 '}';
     }
 }

@@ -86,7 +86,6 @@ public class RadarUserController {
     @PutMapping("/users")
     public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
             throws URISyntaxException {
-
         FcmUserDto user = this.userService.updateUser(userDto);
         return ResponseEntity
                 .created(new URI("/users/" + user.getSubjectId())).body(user);

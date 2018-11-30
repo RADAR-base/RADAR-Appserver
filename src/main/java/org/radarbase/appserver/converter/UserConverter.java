@@ -40,7 +40,9 @@ public class UserConverter extends Converter<User, FcmUserDto> {
 
         return new User().setFcmToken(fcmUserDto.getFcmToken())
                 .setSubjectId(fcmUserDto.getSubjectId())
-                .setUserMetrics(getValidUserMetrics(fcmUserDto));
+                .setUserMetrics(getValidUserMetrics(fcmUserDto))
+                .setEnrolmentDate(fcmUserDto.getEnrolmentDate().toInstant(ZoneOffset.UTC))
+                .setTimezone(fcmUserDto.getTimezone());
     }
 
     @Override

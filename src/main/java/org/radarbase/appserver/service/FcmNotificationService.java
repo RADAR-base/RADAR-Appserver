@@ -25,6 +25,7 @@ import org.radarbase.appserver.converter.ConverterFactory;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.NotificationRepository;
@@ -32,7 +33,9 @@ import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmNotifications;
+import org.radarbase.fcm.dto.FcmUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -111,6 +114,18 @@ public class FcmNotificationService {
 
     }
 
+    @Transactional(readOnly = true)
+    public boolean checkIfNotificationExists(FcmNotificationDto notificationDto, String subjectId) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if(!user.isPresent()) {
+            throw new NotFoundException("The supplied subject ID is invalid. No user found. Please Create a User First.");
+        }
+        Notification notification = ConverterFactory.getNotificationConverter().dtoToEntity(notificationDto).setUser(user.get());
+
+        List<Notification> notifications = this.notificationRepository.findByUserId(user.get().getId());
+        return notifications.contains(notification);
+    }
+
     //TODO : WIP
     @Transactional(readOnly = true)
     public FcmNotifications getFilteredNotifications(String type, boolean delivered,
@@ -118,6 +133,7 @@ public class FcmNotificationService {
         return null;
     }
 
+    // TODO Also update users lastOpened metric
     @Transactional
     public FcmNotificationDto addNotification(FcmNotificationDto notificationDto, String subjectId, String projectId) {
         Optional<Project> project = this.projectRepository.findByProjectId(projectId);
@@ -158,5 +174,21 @@ public class FcmNotificationService {
                 .setSourceId(notificationDto.getSourceId()).setTitle(notificationDto.getTitle()).setTtlSeconds(notificationDto.getTtlSeconds())
                 .setType(notificationDto.getType()).setUser(user.get()).setFcmMessageId(String.valueOf(notificationDto.hashCode()));
         return ConverterFactory.getNotificationConverter().entityToDto(this.notificationRepository.save(newNotification));
+    }
+
+    @Transactional
+    public void removeNotificationsForUser(String projectId, String subjectId) {
+        Optional<Project> project = projectRepository.findByProjectId(projectId);
+
+        if(!project.isPresent()) {
+            throw new NotFoundException("Project not found with projectId " + projectId);
+        }
+
+        Optional<User> user = this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
+        if(!user.isPresent()) {
+            throw new NotFoundException("The supplied subject ID is invalid. No user found in the project ID provided. Please Create a User First.");
+        }
+
+        this.notificationRepository.deleteByUserId(user.get().getId());
     }
 }

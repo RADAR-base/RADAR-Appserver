@@ -84,6 +84,18 @@ public class Notification extends AuditModel {
     @Nullable
     private boolean delivered;
 
+    @Nullable
+    private boolean validated;
+
+    @Nullable
+    @Column(name = "app_package")
+    private String appPackage;
+
+    // Source Type from the Management Portal
+    @Nullable
+    @Column(name = "source_type")
+    private String sourceType;
+
     @Column(name = "dry_run")
     // for use with the FCM admin SDK
     @Nullable
@@ -192,6 +204,33 @@ public class Notification extends AuditModel {
         return this;
     }
 
+    public boolean isValidated() {
+        return validated;
+    }
+
+    public Notification setValidated(boolean validated) {
+        this.validated = validated;
+        return this;
+    }
+
+    public String getAppPackage() {
+        return appPackage;
+    }
+
+    public Notification setAppPackage(String appPackage) {
+        this.appPackage = appPackage;
+        return this;
+    }
+
+    public String getSourceType() {
+        return sourceType;
+    }
+
+    public Notification setSourceType(String sourceType) {
+        this.sourceType = sourceType;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -205,12 +244,35 @@ public class Notification extends AuditModel {
                 Objects.equals(getScheduledTime(), that.getScheduledTime()) &&
                 Objects.equals(getTitle(), that.getTitle()) &&
                 Objects.equals(getBody(), that.getBody()) &&
-                Objects.equals(getType(), that.getType());
+                Objects.equals(getType(), that.getType()) &&
+                Objects.equals(getAppPackage(), that.getAppPackage()) &&
+                Objects.equals(getSourceType(), that.getSourceType());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getUser(), getSourceId(), getScheduledTime(),
-                getTitle(), getBody(), getType(), getTtlSeconds(), isDelivered(), isDryRun());
+                getTitle(), getBody(), getType(), getTtlSeconds(), isDelivered(), isDryRun(), getAppPackage(), getSourceType());
+    }
+
+    @Override
+    public String toString() {
+        return "Notification{" +
+                "id=" + id +
+                ", user=" + user +
+                ", sourceId='" + sourceId + '\'' +
+                ", scheduledTime=" + scheduledTime +
+                ", title='" + title + '\'' +
+                ", body='" + body + '\'' +
+                ", type='" + type + '\'' +
+                ", ttlSeconds=" + ttlSeconds +
+                ", fcmMessageId='" + fcmMessageId + '\'' +
+                ", fcmTopic='" + fcmTopic + '\'' +
+                ", delivered=" + delivered +
+                ", validated=" + validated +
+                ", appPackage='" + appPackage + '\'' +
+                ", sourceType='" + sourceType + '\'' +
+                ", dryRun=" + dryRun +
+                '}';
     }
 }

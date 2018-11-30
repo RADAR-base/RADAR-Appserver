@@ -38,7 +38,9 @@ public class NotificationConverter extends Converter<Notification, FcmNotificati
                 .setSourceId(notificationDto.getSourceId())
                 .setType(notificationDto.getType())
                 .setTtlSeconds(notificationDto.getTtlSeconds())
-                .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
+                .setFcmMessageId(String.valueOf(notificationDto.hashCode()))
+                .setAppPackage(notificationDto.getAppPackage())
+                .setSourceType(notificationDto.getSourceType());
     }
 
     @Override
