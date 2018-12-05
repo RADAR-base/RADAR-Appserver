@@ -52,7 +52,7 @@ public class RadarProjectController {
      * @return The updated Project DTO.
      * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
      */
-    @PostMapping(value = "/projects", consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "/" + Paths.PROJECT_PATH, consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<RadarProjectDto> addProject(@Valid @RequestBody RadarProjectDto projectDto) {
         return ResponseEntity.ok(this.projectService.addProject(projectDto));
     }
@@ -63,22 +63,22 @@ public class RadarProjectController {
      * @return The updated Project DTO.
      * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
      */
-    @PutMapping(value = "/projects" , consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "/" + Paths.PROJECT_PATH, consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<RadarProjectDto> updateProject(@Valid @RequestBody RadarProjectDto projectDto) {
         return ResponseEntity.ok(this.projectService.updateProject(projectDto));
     }
 
-    @GetMapping("/projects")
+    @GetMapping("/" + Paths.PROJECT_PATH)
     public ResponseEntity<RadarProjects> getAllProjects() {
         return ResponseEntity.ok(this.projectService.getAllProjects());
     }
 
-    @GetMapping("/projects/project")
+    @GetMapping("/"+ Paths.PROJECT_PATH + "/project")
     public ResponseEntity<RadarProjectDto> getProjectsUsingId(@Valid @PathParam("id") Long id) {
         return ResponseEntity.ok(this.projectService.getProjectById(id));
     }
 
-    @GetMapping("/projects/{projectId}")
+    @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}")
     public ResponseEntity<RadarProjectDto> getProjectsUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
         return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
     }

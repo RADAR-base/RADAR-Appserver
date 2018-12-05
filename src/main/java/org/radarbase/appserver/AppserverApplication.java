@@ -21,15 +21,18 @@
 
 package org.radarbase.appserver;
 
+import org.radarbase.fcm.config.FcmServerConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * @author yatharthranjan
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"org.radarbase.appserver", "org.radarbase.fcm"})
 @EnableJpaAuditing
+@EnableConfigurationProperties({FcmServerConfig.class})
 public class AppserverApplication {
 
 	public static void main(String[] args) {

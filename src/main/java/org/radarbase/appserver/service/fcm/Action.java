@@ -19,16 +19,10 @@
  *
  */
 
-package org.radarbase.fcm.downstream;
+package org.radarbase.appserver.service.fcm;
 
-import org.springframework.messaging.Message;
-
-/**
- * @author yatharthranjan
- */
-public interface FcmSender {
-
-    Message send(Message<?> message) throws Exception;
-
-    boolean doesProvideDeliveryReceipt();
-}
+public enum Action {
+        SCHEDULE,
+        CANCEL,
+        ECHO
+    }

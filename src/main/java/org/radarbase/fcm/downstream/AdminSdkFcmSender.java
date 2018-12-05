@@ -22,16 +22,19 @@
 package org.radarbase.fcm.downstream;
 
 import org.radarbase.fcm.common.CcsClient;
+import org.springframework.messaging.Message;
+import org.springframework.stereotype.Component;
 
 /** TODO: WIP
  * @author yatharthranjan
  */
+@Component
 public class AdminSdkFcmSender implements CcsClient, FcmSender {
 
 
     @Override
-    public void send() {
-
+    public Message send(Message<?> message) {
+        return null;
     }
 
     @Override

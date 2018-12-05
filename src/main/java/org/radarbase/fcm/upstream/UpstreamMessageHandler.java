@@ -21,9 +21,24 @@
 
 package org.radarbase.fcm.upstream;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.stereotype.Service;
+
 /**
  * @author yatharthranjan
  */
+@Service
 public interface UpstreamMessageHandler {
-    // TODO Add different methods for different types of messages
+
+    void handleUpstreamMessage(JsonNode jsonMessage);
+
+    void handleAckReceipt(JsonNode jsonMessage);
+
+    void handleNackReceipt(JsonNode jsonMessage);
+
+    void handleStatusReceipt(JsonNode jsonMessage);
+
+    void handleControlMessage(JsonNode jsonMessage);
+
+    void handleOthers(JsonNode jsonMessage);
 }
