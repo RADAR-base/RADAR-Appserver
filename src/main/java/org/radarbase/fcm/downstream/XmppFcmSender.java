@@ -21,22 +21,13 @@
 
 package org.radarbase.fcm.downstream;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.radarbase.fcm.common.CcsClient;
-import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author yatharthranjan
@@ -47,43 +38,19 @@ public class XmppFcmSender implements CcsClient, FcmSender {
     @Autowired
     private MessageChannel xmppOutbound;
 
-    @Autowired
-    private ObjectMapperFactory mapperFactory;
+    private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
 
     @Override
-    public Message<String> send(Message<?> message) throws Exception {
-        //System.out.println(message.getHeaders());
-        //System.out.println(message.getPayload());
+    public void send(Message<?> message) {
 
-        ObjectMapper mapper = mapperFactory.getObject();
-        JsonParser parser;
-        JsonNode tree = null;
-        try {
-            parser = mapper.getFactory().createParser(message.getPayload().toString());
-            tree = mapper.readTree(parser);
-        } catch (Exception e) {
-            e.printStackTrace();
+        Message outMessage;
+        if(!message.getHeaders().containsKey(XmppHeaders.TO)) {
+            outMessage = MessageBuilder.fromMessage(message)
+                    .setHeaderIfAbsent(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT).build();
+        } else {
+            outMessage = message;
         }
-
-        try {
-            String data = mapper.writeValueAsString(tree.get("data"));
-            System.out.println("NodeType : " + tree.get("data").getNodeType().name());
-            System.out.println("DATA : " + data);
-            Map<String, Object> map = new HashMap<>();
-            map.put("data", data);
-            map.put("time_to_live", 900);
-            map.put("message_id", UUID.randomUUID());
-            map.put("to", tree.get("from").textValue());
-            Message<String> xmppOutboundMsg = MessageBuilder.withPayload(mapper.writeValueAsString(map))
-                    .setHeader(XmppHeaders.TO, message.getHeaders().get(XmppHeaders.FROM))
-                    .build();
-            xmppOutbound.send(xmppOutboundMsg);
-
-            return xmppOutboundMsg;
-        } catch (JsonProcessingException exc) {
-            exc.printStackTrace();
-        }
-        return null;
+        xmppOutbound.send(outMessage);
     }
 
     @Override

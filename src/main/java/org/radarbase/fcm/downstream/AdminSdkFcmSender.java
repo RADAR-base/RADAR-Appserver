@@ -33,8 +33,7 @@ public class AdminSdkFcmSender implements CcsClient, FcmSender {
 
 
     @Override
-    public Message send(Message<?> message) {
-        return null;
+    public void send(Message<?> message) {
     }
 
     @Override

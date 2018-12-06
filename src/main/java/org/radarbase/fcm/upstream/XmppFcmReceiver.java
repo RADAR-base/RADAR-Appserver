@@ -31,11 +31,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.xmpp.XmppHeaders;
-import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -55,7 +56,7 @@ public class XmppFcmReceiver implements CcsClient {
 
     @Autowired
     @Qualifier("fcmSenderProps")
-    FcmSender fcmSender;
+    private FcmSender fcmSender;
 
     public void handleIncomingMessage(Message<String> message) throws Exception {
         logger.debug("Header = " + message.getHeaders());
@@ -68,9 +69,9 @@ public class XmppFcmReceiver implements CcsClient {
         JsonNode tree = null;
         try (JsonParser parser = mapper.getFactory().createParser(message.getPayload())) {
             tree = mapper.readTree(parser);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
+        sendAck(message.getHeaders().get(XmppHeaders.FROM).toString(), tree);
 
         final Optional<JsonNode> messageTypeObj = Optional.ofNullable(tree.get("message_type"));
 
@@ -101,5 +102,16 @@ public class XmppFcmReceiver implements CcsClient {
                 logger.info("Received unknown FCM message type: {}", messageType);
                 break;
         }
+    }
+
+    private void sendAck(String headerTo, JsonNode jsonMessage) throws Exception {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("message_type", "ack");
+        map.put("to", jsonMessage.get("from").textValue());
+        map.put("message_id", jsonMessage.get("message_id").textValue());
+
+        String ackJson = mapperFactory.getObject().writeValueAsString(map);
+        fcmSender.send(MessageBuilder.withPayload(ackJson)
+                .setHeader(XmppHeaders.TO, headerTo).build());
     }
 }

@@ -28,7 +28,7 @@ import org.springframework.messaging.Message;
  */
 public interface FcmSender {
 
-    Message send(Message<?> message) throws Exception;
+    void send(Message<?> message) throws Exception;
 
     boolean doesProvideDeliveryReceipt();
 }
