@@ -21,6 +21,8 @@
 
 package org.radarbase.appserver.entity;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.radarbase.appserver.converter.Converter;
 import org.radarbase.appserver.converter.ConverterFactory;
@@ -37,6 +39,9 @@ import java.util.*;
  */
 @Table(name = "projects")
 @Entity
+
+@Getter
+@ToString
 public class Project extends AuditModel{
 
     @Id
@@ -52,14 +57,6 @@ public class Project extends AuditModel{
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getProjectId() {
-        return projectId;
     }
 
     public Project setProjectId(String projectId) {

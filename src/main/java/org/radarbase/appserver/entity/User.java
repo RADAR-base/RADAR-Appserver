@@ -22,6 +22,9 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.UniqueElements;
@@ -37,11 +40,13 @@ import java.util.*;
  */
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})})
 @Entity
+@Getter
+@ToString
 public class User extends AuditModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Setter private Long id;
 
     @NotNull
     @Column(name = "subject_id", nullable = false)
@@ -70,29 +75,6 @@ public class User extends AuditModel{
     @Column(name = "timezone")
     private double timezone;
 
-    public User() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getSubjectId() {
-        return subjectId;
-    }
-
-    public String getFcmToken() {
-        return fcmToken;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public User setSubjectId(String subjectId) {
         this.subjectId = subjectId;
         return this;
@@ -108,28 +90,15 @@ public class User extends AuditModel{
         return this;
     }
 
-    public Instant getEnrolmentDate() {
-        return enrolmentDate;
-    }
-
     public User setEnrolmentDate(Instant enrolmentDate) {
         this.enrolmentDate = enrolmentDate;
         return this;
-    }
-
-    public UserMetrics getUserMetrics() {
-        return usermetrics;
     }
 
     public User setUserMetrics(UserMetrics userMetrics) {
         this.usermetrics = userMetrics;
         return this;
     }
-
-    public double getTimezone() {
-        return timezone;
-    }
-
     public User setTimezone(double timezone) {
         this.timezone = timezone;
         return this;

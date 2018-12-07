@@ -21,9 +21,12 @@
 
 package org.radarbase.fcm.dto;
 
+import lombok.Data;
 import org.radarbase.appserver.entity.User;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -31,6 +34,7 @@ import java.time.ZoneOffset;
 /**
  * @author yatharthranjan
  */
+@Data
 public class FcmUserDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -64,8 +68,8 @@ public class FcmUserDto implements Serializable {
         this.id = user.getId();
         this.projectId = user.getProject().getProjectId();
         this.subjectId = user.getSubjectId();
-        this.lastOpened = LocalDateTime.ofInstant(user.getUserMetrics().getLastOpened(), ZoneOffset.UTC);
-        this.lastDelivered = user.getUserMetrics().getLastDelivered() == null ? null : LocalDateTime.ofInstant(user.getUserMetrics().getLastDelivered(), ZoneOffset.UTC);
+        this.lastOpened = LocalDateTime.ofInstant(user.getUsermetrics().getLastOpened(), ZoneOffset.UTC);
+        this.lastDelivered = user.getUsermetrics().getLastDelivered() == null ? null : LocalDateTime.ofInstant(user.getUsermetrics().getLastDelivered(), ZoneOffset.UTC);
         this.fcmToken = user.getFcmToken();
         this.enrolmentDate = LocalDateTime.ofInstant(user.getEnrolmentDate(), ZoneOffset.UTC);
         this.timezone = user.getTimezone();
@@ -73,30 +77,6 @@ public class FcmUserDto implements Serializable {
 
     public FcmUserDto() {
 
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public String getSubjectId() {
-        return subjectId;
-    }
-
-    public LocalDateTime getLastOpened() {
-        return lastOpened;
-    }
-
-    public LocalDateTime getLastDelivered() {
-        return lastDelivered;
-    }
-
-    public String getFcmToken() {
-        return fcmToken;
     }
 
     public FcmUserDto setId(Long id) {
@@ -129,33 +109,14 @@ public class FcmUserDto implements Serializable {
         return this;
     }
 
-    public LocalDateTime getEnrolmentDate() {
-        return enrolmentDate;
-    }
-
-    public void setEnrolmentDate(LocalDateTime enrolmentDate) {
+    public FcmUserDto setEnrolmentDate(LocalDateTime enrolmentDate) {
         this.enrolmentDate = enrolmentDate;
+        return this;
     }
 
-    public double getTimezone() {
-        return timezone;
-    }
-
-    public void setTimezone(double timezone) {
+    public FcmUserDto setTimezone(double timezone) {
         this.timezone = timezone;
+        return this;
     }
 
-    @Override
-    public String toString() {
-        return "FcmUserDto{" +
-                "id=" + id +
-                ", projectId='" + projectId + '\'' +
-                ", subjectId='" + subjectId + '\'' +
-                ", lastOpened=" + lastOpened +
-                ", lastDelivered=" + lastDelivered +
-                ", enrolmentDate=" + enrolmentDate +
-                ", timezone=" + timezone +
-                ", fcmToken='" + fcmToken + '\'' +
-                '}';
-    }
 }

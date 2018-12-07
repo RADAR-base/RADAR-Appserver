@@ -21,6 +21,7 @@
 
 package org.radarbase.fcm.dto;
 
+import lombok.Data;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -34,6 +35,7 @@ import java.util.Objects;
 /**
  * @author yatharthranjan
  */
+@Data
 public class FcmNotificationDto implements Serializable {
 
     private static final long serialVersionUID = 3L;
@@ -85,21 +87,9 @@ public class FcmNotificationDto implements Serializable {
 
     }
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
     public FcmNotificationDto setId(Long id) {
         this.id = id;
         return this;
-    }
-
-    public LocalDateTime getScheduledTime() {
-        return scheduledTime;
     }
 
     public FcmNotificationDto setScheduledTime(LocalDateTime scheduledTime) {
@@ -107,17 +97,9 @@ public class FcmNotificationDto implements Serializable {
         return this;
     }
 
-    public boolean isDelivered() {
-        return delivered;
-    }
-
     public FcmNotificationDto setDelivered(boolean delivered) {
         this.delivered = delivered;
         return this;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public FcmNotificationDto setTitle(String title) {
@@ -125,17 +107,9 @@ public class FcmNotificationDto implements Serializable {
         return this;
     }
 
-    public String getBody() {
-        return body;
-    }
-
     public FcmNotificationDto setBody(String body) {
         this.body = body;
         return this;
-    }
-
-    public int getTtlSeconds() {
-        return ttlSeconds;
     }
 
     public FcmNotificationDto setTtlSeconds(int ttlSeconds) {
@@ -143,26 +117,14 @@ public class FcmNotificationDto implements Serializable {
         return this;
     }
 
-    public String getFcmMessageId() {
-        return fcmMessageId;
-    }
-
     public FcmNotificationDto setFcmMessageId(String fcmMessageId) {
         this.fcmMessageId = fcmMessageId;
         return this;
     }
 
-    public String getSourceId() {
-        return sourceId;
-    }
-
     public FcmNotificationDto setSourceId(String sourceId) {
         this.sourceId = sourceId;
         return this;
-    }
-
-    public String getType() {
-        return type;
     }
 
     public FcmNotificationDto setType(String type) {
@@ -189,38 +151,22 @@ public class FcmNotificationDto implements Serializable {
         return appPackage;
     }
 
-    public void setAppPackage(String appPackage) {
+    public FcmNotificationDto setAppPackage(String appPackage) {
         this.appPackage = appPackage;
+        return this;
     }
 
     public String getSourceType() {
         return sourceType;
     }
 
-    public void setSourceType(String sourceType) {
+    public FcmNotificationDto setSourceType(String sourceType) {
         this.sourceType = sourceType;
+        return this;
     }
 
     @Override
     public int hashCode() {
-
         return Objects.hash(scheduledTime, delivered, title, body, ttlSeconds, type, appPackage, sourceType);
-    }
-
-    @Override
-    public String toString() {
-        return "FcmNotificationDto{" +
-                "id=" + id +
-                ", scheduledTime=" + scheduledTime +
-                ", delivered=" + delivered +
-                ", title='" + title + '\'' +
-                ", body='" + body + '\'' +
-                ", ttlSeconds=" + ttlSeconds +
-                ", sourceId='" + sourceId + '\'' +
-                ", fcmMessageId='" + fcmMessageId + '\'' +
-                ", type='" + type + '\'' +
-                ", appPackage='" + appPackage + '\'' +
-                ", sourceType='" + sourceType + '\'' +
-                '}';
     }
 }

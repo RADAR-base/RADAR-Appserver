@@ -21,18 +21,19 @@
 
 package org.radarbase.fcm.dto;
 
+import lombok.*;
+
 import java.util.List;
 
 /**
  * @author yatharthranjan
  */
+@ToString
+@Getter
+@EqualsAndHashCode
 public class FcmUsers {
 
     private List<FcmUserDto> users;
-
-    public List<FcmUserDto> getUsers() {
-        return users;
-    }
 
     public FcmUsers setUsers(List<FcmUserDto> users) {
         this.users = users;

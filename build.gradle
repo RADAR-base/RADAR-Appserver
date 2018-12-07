@@ -17,7 +17,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'org.radarbase'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
 	mavenCentral()
@@ -34,11 +34,13 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-data-rest')
 	implementation('org.springframework.boot:spring-boot-starter-web')
 	implementation('org.springframework.boot:spring-boot-starter-integration')
+    implementation('org.springframework.boot:spring-boot-starter-quartz')
 	compile('org.springframework.integration:spring-integration-xmpp:5.1.1.RELEASE')
 	compile group: 'org.igniterealtime.smack', name:'smack-experimental', version: smackVersion
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	runtimeOnly('org.hsqldb:hsqldb')
 	runtimeOnly('org.liquibase:liquibase-core')
+	compileOnly('org.projectlombok:lombok:1.18.4')
 	//compile('org.liquibase.ext:liquibase-hibernate5:3.6')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

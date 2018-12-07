@@ -98,7 +98,7 @@ public class UserService {
     public FcmUsers getUsersByProjectId(String projectId) {
         Optional<Project> project = projectRepository.findByProjectId(projectId);
 
-        if (!project.isPresent()) {
+        if (project.isEmpty()) {
             throw new NotFoundException("Project not found with projectId " + projectId);
         }
 
@@ -114,7 +114,7 @@ public class UserService {
 
         logger.debug("User DTO:" + userDto);
         Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
-        if(!project.isPresent()) {
+        if(project.isEmpty()) {
             throw new NotFoundException("Project Id does not exist. Please create a project with the ID first");
         }
 
@@ -126,7 +126,7 @@ public class UserService {
         } else {
             User newUser = ConverterFactory.getUserConverter().dtoToEntity(userDto).setProject(project.get());
             // maintain a bi-directional relationship
-            newUser.getUserMetrics().setUser(newUser);
+            newUser.getUsermetrics().setUser(newUser);
             return ConverterFactory.getUserConverter().entityToDto(this.userRepository.save(newUser));
         }
     }
@@ -134,13 +134,13 @@ public class UserService {
     @Transactional
     public FcmUserDto updateUser(FcmUserDto userDto) {
         Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
-        if(!project.isPresent()) {
+        if(project.isEmpty()) {
             throw new NotFoundException("Project Id does not exist. Please create a project with the ID first");
         }
 
         Optional<User> user = this.userRepository.findBySubjectIdAndProjectId(userDto.getSubjectId(), project.get().getId());
 
-        if(!user.isPresent()) {
+        if(user.isEmpty()) {
             throw  new InvalidUserDetailsException("The user with specified subject ID " + userDto.getSubjectId() +
                     " does not exist in project ID " + userDto.getProjectId() + ". Please use CreateUser endpoint to create the user.");
         } else {
@@ -148,7 +148,7 @@ public class UserService {
                     .setEnrolmentDate(userDto.getEnrolmentDate().toInstant(ZoneOffset.UTC))
                     .setTimezone(userDto.getTimezone());
             // maintain a bi-directional relationship
-            updatedUser.getUserMetrics().setUser(updatedUser);
+            updatedUser.getUsermetrics().setUser(updatedUser);
             return ConverterFactory.getUserConverter().entityToDto(this.userRepository.save(updatedUser));
         }
     }

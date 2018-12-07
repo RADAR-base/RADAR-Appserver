@@ -21,22 +21,21 @@
 
 package org.radarbase.fcm.dto;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author yatharthranjan
  */
+@Data
 public class FcmNotifications {
 
     private List<FcmNotificationDto>  notifications;
 
     public FcmNotifications() {
         notifications = new ArrayList<>();
-    }
-
-    public List<FcmNotificationDto> getNotifications() {
-        return notifications;
     }
 
     public FcmNotifications setNotifications(List<FcmNotificationDto> notifications) {

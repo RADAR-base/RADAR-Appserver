@@ -22,6 +22,9 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.lang.Nullable;
@@ -39,6 +42,8 @@ import java.util.Objects;
                 "title", "body", "type", "ttl_seconds", "delivered", "dry_run"
         })})
 @Entity
+@ToString
+@Getter
 public class Notification extends AuditModel {
 
     @Id
@@ -101,54 +106,6 @@ public class Notification extends AuditModel {
     @Nullable
     private boolean dryRun;
 
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public String getSourceId() {
-        return sourceId;
-    }
-
-    public Instant getScheduledTime() {
-        return scheduledTime;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public int getTtlSeconds() {
-        return ttlSeconds;
-    }
-
-    public String getFcmMessageId() {
-        return fcmMessageId;
-    }
-
-    public boolean isDelivered() {
-        return delivered;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getFcmTopic() {
-        return fcmTopic;
-    }
-
-    public boolean isDryRun() {
-        return dryRun;
-    }
-
     public Notification setUser(User user) {
         this.user = user;
         return this;
@@ -204,26 +161,14 @@ public class Notification extends AuditModel {
         return this;
     }
 
-    public boolean isValidated() {
-        return validated;
-    }
-
     public Notification setValidated(boolean validated) {
         this.validated = validated;
         return this;
     }
 
-    public String getAppPackage() {
-        return appPackage;
-    }
-
     public Notification setAppPackage(String appPackage) {
         this.appPackage = appPackage;
         return this;
-    }
-
-    public String getSourceType() {
-        return sourceType;
     }
 
     public Notification setSourceType(String sourceType) {
@@ -249,30 +194,11 @@ public class Notification extends AuditModel {
                 Objects.equals(getSourceType(), that.getSourceType());
     }
 
+
+
     @Override
     public int hashCode() {
         return Objects.hash(getUser(), getSourceId(), getScheduledTime(),
                 getTitle(), getBody(), getType(), getTtlSeconds(), isDelivered(), isDryRun(), getAppPackage(), getSourceType());
-    }
-
-    @Override
-    public String toString() {
-        return "Notification{" +
-                "id=" + id +
-                ", user=" + user +
-                ", sourceId='" + sourceId + '\'' +
-                ", scheduledTime=" + scheduledTime +
-                ", title='" + title + '\'' +
-                ", body='" + body + '\'' +
-                ", type='" + type + '\'' +
-                ", ttlSeconds=" + ttlSeconds +
-                ", fcmMessageId='" + fcmMessageId + '\'' +
-                ", fcmTopic='" + fcmTopic + '\'' +
-                ", delivered=" + delivered +
-                ", validated=" + validated +
-                ", appPackage='" + appPackage + '\'' +
-                ", sourceType='" + sourceType + '\'' +
-                ", dryRun=" + dryRun +
-                '}';
     }
 }

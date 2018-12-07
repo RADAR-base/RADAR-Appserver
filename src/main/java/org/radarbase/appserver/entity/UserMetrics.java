@@ -21,6 +21,9 @@
 
 package org.radarbase.appserver.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -32,11 +35,13 @@ import java.time.Instant;
  */
 @Table(name = "user_metrics")
 @Entity
+@ToString
+@Getter
 public class UserMetrics extends AuditModel{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Setter private Long id;
 
     // The most recent time when the app was opened
     @Nullable
@@ -61,22 +66,6 @@ public class UserMetrics extends AuditModel{
 
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Instant getLastOpened() {
-        return lastOpened;
-    }
-
-    public Instant getLastDelivered() {
-        return lastDelivered;
-    }
-
     public UserMetrics setLastOpened(Instant lastOpened) {
         this.lastOpened = lastOpened;
         return this;
@@ -85,10 +74,6 @@ public class UserMetrics extends AuditModel{
     public UserMetrics setLastDelivered(Instant lastDelivered) {
         this.lastDelivered = lastDelivered;
         return this;
-    }
-
-    public User getUser() {
-        return user;
     }
 
     public UserMetrics setUser(User user) {

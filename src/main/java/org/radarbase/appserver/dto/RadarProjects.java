@@ -21,12 +21,15 @@
 
 package org.radarbase.appserver.dto;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author yatharthranjan
  */
+@Data
 public class RadarProjects {
 
     private List<RadarProjectDto> projects;
