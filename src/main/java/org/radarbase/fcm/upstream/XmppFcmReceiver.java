@@ -24,6 +24,8 @@ package org.radarbase.fcm.upstream;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Cleanup;
+import lombok.SneakyThrows;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.downstream.FcmSender;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandlingException;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -66,45 +69,53 @@ public class XmppFcmReceiver implements CcsClient {
         }
 
         final ObjectMapper mapper = mapperFactory.getObject();
-        JsonNode tree = null;
-        try (JsonParser parser = mapper.getFactory().createParser(message.getPayload())) {
-            tree = mapper.readTree(parser);
-        }
 
-        sendAck(message.getHeaders().get(XmppHeaders.FROM).toString(), tree);
+        // Effectively final
+        var ref = new Object() {
+            JsonNode tree = null;
+        };
 
-        final Optional<JsonNode> messageTypeObj = Optional.ofNullable(tree.get("message_type"));
+        @Cleanup JsonParser parser = mapper.getFactory().createParser(message.getPayload());
+        ref.tree = mapper.readTree(parser);
 
-        if (!messageTypeObj.isPresent()) {
+        Optional<Object> from = Optional.ofNullable(message.getHeaders().get(XmppHeaders.FROM));
+
+        from.ifPresent(fromHeader -> sendAck(fromHeader.toString(), ref.tree));
+
+        final Optional<JsonNode> messageTypeObj = Optional.ofNullable(ref.tree.get("message_type"));
+
+        messageTypeObj.ifPresentOrElse(messageTypeObj1 -> {
+            final String messageType = messageTypeObj1.asText();
+            logger.info("Message Type : {}", messageType);
+            switch (messageType) {
+                case "ack":
+                    messageHandler.handleAckReceipt(ref.tree);
+                    break;
+                case "nack":
+                    messageHandler.handleNackReceipt(ref.tree);
+                    break;
+                case "receipt":
+                    messageHandler.handleStatusReceipt(ref.tree);
+                    break;
+                case "control":
+                    messageHandler.handleControlMessage(ref.tree);
+                    break;
+                default:
+                    messageHandler.handleOthers(ref.tree);
+                    logger.info("Received unknown FCM message type: {}", messageType);
+                    break;
+            }
+        }, () -> {
             // Normal upstream message from a device client
             // logger.debug("Sent Message: " + fcmSender.send(message));
-            messageHandler.handleUpstreamMessage(tree);
-            return;
-        }
+            messageHandler.handleUpstreamMessage(ref.tree);
+        });
 
-        final String messageType = messageTypeObj.get().asText();
-        logger.info("Message Type : {}", messageType);
-        switch (messageType) {
-            case "ack":
-                messageHandler.handleAckReceipt(tree);
-                break;
-            case "nack":
-                messageHandler.handleNackReceipt(tree);
-                break;
-            case "receipt":
-                messageHandler.handleStatusReceipt(tree);
-                break;
-            case "control":
-                messageHandler.handleControlMessage(tree);
-                break;
-            default:
-                messageHandler.handleOthers(tree);
-                logger.info("Received unknown FCM message type: {}", messageType);
-                break;
-        }
+
     }
 
-    private void sendAck(String headerTo, JsonNode jsonMessage) throws Exception {
+    @SneakyThrows
+    private void sendAck(String headerTo, JsonNode jsonMessage) {
         final Map<String, Object> map = new HashMap<>();
         map.put("message_type", "ack");
         map.put("to", jsonMessage.get("from").textValue());
