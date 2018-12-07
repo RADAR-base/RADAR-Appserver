@@ -21,29 +21,24 @@
 
 package org.radarbase.appserver.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.converter.*;
 import org.radarbase.appserver.dto.RadarProjectDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.entity.UserMetrics;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.fcm.dto.FcmNotificationDto;
-import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.fcm.dto.FcmUserDto;
 import org.radarbase.fcm.dto.FcmUsers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneOffset;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,9 +47,8 @@ import java.util.Optional;
  */
 @Service
 @Transactional
+@Slf4j
 public class UserService {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -112,7 +106,7 @@ public class UserService {
 
         // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject id, then get project id and source ids from MP)
 
-        logger.debug("User DTO:" + userDto);
+        log.debug("User DTO:" + userDto);
         Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
         if(project.isEmpty()) {
             throw new NotFoundException("Project Id does not exist. Please create a project with the ID first");

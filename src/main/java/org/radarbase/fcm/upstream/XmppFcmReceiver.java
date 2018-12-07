@@ -26,17 +26,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.downstream.FcmSender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHandlingException;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -46,10 +44,9 @@ import java.util.Optional;
 /**
  * @author yatharthranjan
  */
+@Slf4j
 @Component("fcmReceiver")
 public class XmppFcmReceiver implements CcsClient {
-
-    private static final Logger logger = LoggerFactory.getLogger(XmppFcmReceiver.class);
 
     @Autowired
     private UpstreamMessageHandler messageHandler;
@@ -62,10 +59,10 @@ public class XmppFcmReceiver implements CcsClient {
     private FcmSender fcmSender;
 
     public void handleIncomingMessage(Message<String> message) throws Exception {
-        logger.debug("Header = " + message.getHeaders());
-        logger.debug("Payload = " + message.getPayload());
+        log.debug("Header = " + message.getHeaders());
+        log.debug("Payload = " + message.getPayload());
         if(message.getHeaders().get(XmppHeaders.TYPE) == org.jivesoftware.smack.packet.Message.Type.normal) {
-            logger.debug("Normal Message");
+            log.debug("Normal Message");
         }
 
         final ObjectMapper mapper = mapperFactory.getObject();
@@ -86,7 +83,7 @@ public class XmppFcmReceiver implements CcsClient {
 
         messageTypeObj.ifPresentOrElse(messageTypeObj1 -> {
             final String messageType = messageTypeObj1.asText();
-            logger.info("Message Type : {}", messageType);
+            log.info("Message Type : {}", messageType);
             switch (messageType) {
                 case "ack":
                     messageHandler.handleAckReceipt(ref.tree);
@@ -102,12 +99,12 @@ public class XmppFcmReceiver implements CcsClient {
                     break;
                 default:
                     messageHandler.handleOthers(ref.tree);
-                    logger.info("Received unknown FCM message type: {}", messageType);
+                    log.info("Received unknown FCM message type: {}", messageType);
                     break;
             }
         }, () -> {
             // Normal upstream message from a device client
-            // logger.debug("Sent Message: " + fcmSender.send(message));
+            // log.debug("Sent Message: " + fcmSender.send(message));
             messageHandler.handleUpstreamMessage(ref.tree);
         });
 
