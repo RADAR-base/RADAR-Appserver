@@ -44,7 +44,7 @@ import java.util.Objects;
 @Entity
 @ToString
 @Getter
-public class Notification extends AuditModel {
+public class Notification extends AuditModel implements Scheduled {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -78,7 +78,7 @@ public class Notification extends AuditModel {
     @Column(name = "ttl_seconds")
     private int ttlSeconds;
 
-    @Column(name = "fcm_message_id")
+    @Column(name = "fcm_message_id", unique = true)
     private String fcmMessageId;
 
     @Column(name = "fcm_topic")

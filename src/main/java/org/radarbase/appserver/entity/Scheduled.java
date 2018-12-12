@@ -19,23 +19,11 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler;
+package org.radarbase.appserver.entity;
 
-import org.quartz.*;
+import java.time.Instant;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+public interface Scheduled {
 
-public interface SchedulerService {
-
-    void scheduleJob(JobDetail jobDetail, Trigger trigger);
-
-    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap);
-
-    void updateScheduledJob(JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject);
-
-    void deleteScheduledJobs(List<JobKey> jobKeys);
-
-    void deleteScheduledJob(JobKey jobKey);
+    Instant getScheduledTime();
 }

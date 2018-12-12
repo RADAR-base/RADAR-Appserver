@@ -19,23 +19,9 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler;
+package org.radarbase.appserver.service;
 
-import org.quartz.*;
+public class ManagementPortalService {
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-public interface SchedulerService {
-
-    void scheduleJob(JobDetail jobDetail, Trigger trigger);
-
-    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap);
-
-    void updateScheduledJob(JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject);
-
-    void deleteScheduledJobs(List<JobKey> jobKeys);
-
-    void deleteScheduledJob(JobKey jobKey);
+    //TODO WIP - Add MP client and get subjects and projects info if missing in any request.
 }
