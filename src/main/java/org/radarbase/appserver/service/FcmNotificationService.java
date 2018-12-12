@@ -47,6 +47,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * {@link Service} for interacting with the {@link Notification} {@link javax.persistence.Entity} using the
+ * {@link NotificationRepository}.
+ *
  * @author yatharthranjan
  */
 @Service

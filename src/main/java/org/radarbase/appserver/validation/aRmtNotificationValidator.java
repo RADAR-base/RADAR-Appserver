@@ -29,6 +29,13 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
 
+/**
+ * Validator for RADAR Active RMT app notifications.
+ *
+ * @see aRmtNotificationConstraint
+ *
+ * @author yatharthranjan
+ */
 public class aRmtNotificationValidator implements ConstraintValidator<aRmtNotificationConstraint, Notification> {
 
     @Autowired

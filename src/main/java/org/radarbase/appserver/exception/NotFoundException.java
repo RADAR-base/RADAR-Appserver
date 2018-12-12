@@ -25,6 +25,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
+ * Exception thrown when a requested {@link javax.swing.text.html.parser.Entity} or resource
+ * that needs to be updated/accessed does not exist.
+ * If accessed by REST API then gives a HTTP status {@link HttpStatus#NOT_FOUND}.
+ *
  * @author yatharthranjan
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)

@@ -33,6 +33,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
+ * Resource Endpoint for getting and adding (scheduling) notifications on Firbase Cloud Messaging.
+ *
  * @author yatharthranjan
  */
 @RestController

@@ -23,6 +23,14 @@ package org.radarbase.appserver.entity;
 
 import java.time.Instant;
 
+/**
+ * Functional Interface to signify a class that can be scheduled using the {@link org.radarbase.appserver.service.scheduler.SchedulerServiceImpl}.
+ * @see Notification
+ * @see org.radarbase.appserver.service.scheduler.SchedulerServiceImpl
+ *
+ * @author yatharthranjan
+ */
+@FunctionalInterface
 public interface Scheduled {
 
     Instant getScheduledTime();

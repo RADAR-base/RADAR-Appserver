@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Wrapper for a list of {@link RadarProjectDto} objects.
+ *
  * @author yatharthranjan
  */
 @Data

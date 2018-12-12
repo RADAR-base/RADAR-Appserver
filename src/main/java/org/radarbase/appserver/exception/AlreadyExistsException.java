@@ -24,6 +24,14 @@ package org.radarbase.appserver.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+
+/**
+ * Exception thrown when a requested {@link javax.swing.text.html.parser.Entity} or resource
+ * that needs to be added/created already exists.
+ * If accessed by REST API then gives a HTTP status {@link HttpStatus#ALREADY_REPORTED}.
+ *
+ * @author yatharthranjan
+ */
 @ResponseStatus(HttpStatus.ALREADY_REPORTED)
 public class AlreadyExistsException extends RuntimeException {
 

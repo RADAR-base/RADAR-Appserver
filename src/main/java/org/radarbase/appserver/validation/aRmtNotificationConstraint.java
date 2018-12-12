@@ -25,6 +25,12 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
+/**
+ * {@link Constraint} to be used in {@link javax.validation.Validator} {@link aRmtNotificationValidator} to validate
+ * incoming notification requests acording to their schedule via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
+ *
+ * @author yatharthranjan
+ */
 @Documented
 @Constraint(validatedBy = aRmtNotificationValidator.class)
 @Target( { ElementType.METHOD, ElementType.FIELD })

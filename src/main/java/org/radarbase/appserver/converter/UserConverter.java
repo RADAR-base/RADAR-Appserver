@@ -25,11 +25,12 @@ import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.entity.UserMetrics;
 import org.radarbase.fcm.dto.FcmUserDto;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 /**
+ * Converter {@link Converter} class for {@link User} entity.
+ *
  * @author yatharthranjan
  */
 public class UserConverter extends Converter<User, FcmUserDto> {

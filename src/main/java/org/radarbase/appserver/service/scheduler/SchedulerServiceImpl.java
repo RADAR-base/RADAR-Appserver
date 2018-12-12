@@ -34,6 +34,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An implementation of the {@link SchedulerService} providing Synchronized access to schedule, update and delete Jobs.
+ *
+ * @author yatharthranjan
+ */
 @Service
 public class SchedulerServiceImpl implements SchedulerService {
 

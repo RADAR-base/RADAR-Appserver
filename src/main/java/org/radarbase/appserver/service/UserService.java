@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * {@link Service} for interacting with the {@link User} {@link javax.persistence.Entity} using the
+ * {@link UserRepository}.
+ *
  * @author yatharthranjan
  */
 @Service

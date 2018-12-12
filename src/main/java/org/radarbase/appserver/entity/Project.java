@@ -35,6 +35,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 /**
+ * {@link Entity} for persisting projects. The corresponding DTO is {@link org.radarbase.appserver.dto.RadarProjectDto}.
+ *
  * @author yatharthranjan
  */
 @Table(name = "projects")

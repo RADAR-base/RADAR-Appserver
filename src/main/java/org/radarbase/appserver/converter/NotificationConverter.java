@@ -27,6 +27,8 @@ import org.radarbase.fcm.dto.FcmNotificationDto;
 import java.time.ZoneOffset;
 
 /**
+ * Converter {@link Converter} class for {@link Notification} entity.
+ *
  * @author yatharthranjan
  */
 public class NotificationConverter extends Converter<Notification, FcmNotificationDto> {

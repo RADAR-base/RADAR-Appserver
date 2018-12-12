@@ -22,8 +22,6 @@
 package org.radarbase.appserver.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.Getter;
-import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -32,6 +30,15 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+
+/**
+ * Enables Auditing on various JPA entities.
+ * This automatically adds and updates the `create at` and `updated at` attributes
+ * for any entity that extends this class.
+ * @see AuditingEntityListener
+ *
+ * @author yatharthranjan
+ */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(

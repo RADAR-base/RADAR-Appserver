@@ -31,6 +31,9 @@ import javax.persistence.*;
 import java.time.Instant;
 
 /**
+ * {@link Entity} for persisting important metrics about the {@link User}.
+ * A {@link User} can have exactly one {@link UserMetrics} (One-to-One).
+ *
  * @author yatharthranjan
  */
 @Table(name = "user_metrics")

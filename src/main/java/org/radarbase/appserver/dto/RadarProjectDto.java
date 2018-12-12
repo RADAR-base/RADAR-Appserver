@@ -23,12 +23,15 @@ package org.radarbase.appserver.dto;
 
 
 import lombok.Data;
-import lombok.Setter;
-import org.radarbase.fcm.dto.FcmUsers;
 
 import java.io.Serializable;
 
 /**
+ *
+ * Data Transfer object (DTO) for projects.
+ * A project may represent a Management Portal project.
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
+ *
  * @author yatharthranjan
  */
 @Data

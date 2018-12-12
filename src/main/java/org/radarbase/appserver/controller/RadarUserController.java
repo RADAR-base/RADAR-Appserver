@@ -24,12 +24,9 @@ package org.radarbase.appserver.controller;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.RadarProjectService;
 import org.radarbase.fcm.dto.FcmUsers;
-import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.dto.FcmUserDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,11 +37,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
+ * Resource Endpoint for getting and adding users.
+ * Each notification {@link org.radarbase.appserver.entity.Notification} needs to be associated to a user.
+ * A user may represent a Management Portal subject.
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
+ *
  * @author yatharthranjan
  */
 @RestController
 public class RadarUserController {
-    private static final Logger logger = LoggerFactory.getLogger(RadarUserController.class);
 
     @Autowired
     private UserService userService;

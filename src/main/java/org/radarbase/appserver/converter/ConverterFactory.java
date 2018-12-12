@@ -28,6 +28,14 @@ import org.radarbase.appserver.entity.User;
 import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmUserDto;
 
+
+/**
+ * Converter Factory providing different converters {@link Converter}.
+ * This ensures that only one instance of each converter is used every time.
+ * TODO Can also be implemented by extending the {@link org.springframework.beans.factory.config.AbstractFactoryBean} for each converter providing a better lifecycle and Autowiring support.
+ *
+ * @author yatharthranjan
+ */
 public class ConverterFactory {
 
     private static final Converter<Project, RadarProjectDto> projectConverter = new ProjectConverter();

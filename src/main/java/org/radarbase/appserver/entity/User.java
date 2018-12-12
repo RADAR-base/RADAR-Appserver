@@ -27,22 +27,23 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
+ * {@link Entity} for persisting users. The corresponding DTO is {@link org.radarbase.fcm.dto.FcmUserDto}.
+ * A {@link Project} can have multiple {@link User} (Many-to-One).
+ *
  * @author yatharthranjan
  */
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})})
 @Entity
 @Getter
 @ToString
-public class User extends AuditModel{
+public class User extends AuditModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

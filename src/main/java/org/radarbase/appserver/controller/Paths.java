@@ -21,6 +21,11 @@
 
 package org.radarbase.appserver.controller;
 
+/**
+ * Contains Path constants to be used in various resource endpoints.
+ *
+ * @author yatharthranjan
+ */
 public class Paths {
 
     public static final String USER_PATH = "users";

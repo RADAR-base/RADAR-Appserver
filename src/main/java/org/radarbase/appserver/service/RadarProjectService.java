@@ -35,6 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
+ * {@link Service} for interacting with the {@link Project} {@link javax.persistence.Entity} using the
+ * {@link ProjectRepository}.
+ *
  * @author yatharthranjan
  */
 @Service

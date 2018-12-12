@@ -26,12 +26,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Generic converter class for conversions between entity {@link org.radarbase.appserver.entity}
+ * and DTO {@link org.radarbase.appserver.dto}, {@link org.radarbase.fcm.dto} objects.
  *
- * @author yatharthranjan
- *
- * Generic converter class for conversions between entity and DTO objects
  * @param <T> the entity object class
  * @param <S> the DTO object class
+ *
+ * @author yatharthranjan
  */
 public abstract class Converter<T, S> {
 

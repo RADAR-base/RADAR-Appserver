@@ -27,6 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Generic Service for implementing an interface to the {@link Scheduler}.
+ *
+ * @see SchedulerServiceImpl
+ * @author yatharthranjan
+ */
 public interface SchedulerService {
 
     void scheduleJob(JobDetail jobDetail, Trigger trigger);

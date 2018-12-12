@@ -26,6 +26,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
+ * Exception thrown when a supplied {@link org.radarbase.appserver.entity.Project} or {@link RadarProjectDto}
+ * is invalid.
+ * If accessed by REST API then gives a HTTP status {@link HttpStatus#EXPECTATION_FAILED}.
+ *
  * @author yatharthranjan
  */
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)

@@ -38,6 +38,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+/**
+ * {@link UpstreamMessageHandler} for handling messages messages coming through the {@link org.radarbase.fcm.upstream.XmppFcmReceiver}
+ *
+ * @see org.radarbase.fcm.upstream.XmppFcmReceiver
+ * @see UpstreamMessageHandler
+ *
+ * @author yatharthranjan
+ */
 @Service
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
@@ -52,6 +60,12 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
     @Autowired
     private FcmNotificationService notificationService;
 
+    /**
+     * Performs {@link Action} based on the value supplied by the {@link org.jivesoftware.smack.packet.Stanza} through the
+     * {@link org.radarbase.fcm.upstream.XmppFcmReceiver}.
+     *
+     * @param jsonMessage The {@link JsonNode} containing the data from an upstream XMPP message request.
+     */
     @Override
     public void handleUpstreamMessage(JsonNode jsonMessage) {
         log.info("Normal Message: {}", jsonMessage.toString());
@@ -98,7 +112,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
     @Override
     public void handleNackReceipt(JsonNode jsonMessage) {
-        log.info("Nack Receipt: {}", jsonMessage.toString());
+        log.warn("Nack Receipt: {}", jsonMessage.toString());
     }
 
     @Override

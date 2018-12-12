@@ -21,14 +21,21 @@
 
 package org.radarbase.appserver.config;
 
+/**
+ * Creates a single validator for data using app-package and source-type so that
+ * each can have a different validator.
+ *
+ * @author yatharthranjan
+ */
 public class Validator {
 
-    //TODO add
+    //TODO add to load these from config files
 
     public String appPackage;
 
     public String sourceType;
 
+    // Validator class for loading via reflection
     public String validator;
 
 }

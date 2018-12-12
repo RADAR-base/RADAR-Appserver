@@ -21,14 +21,9 @@
 
 package org.radarbase.appserver.controller;
 
-import org.radarbase.appserver.entity.Project;
-import org.radarbase.fcm.dto.FcmNotifications;
 import org.radarbase.appserver.dto.RadarProjectDto;
 import org.radarbase.appserver.dto.RadarProjects;
-import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.RadarProjectService;
-import org.radarbase.appserver.service.UserService;
-import org.radarbase.fcm.dto.FcmUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +33,11 @@ import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 
 /**
+ * Resource Endpoint for getting and adding projects.
+ * Each user {@link org.radarbase.appserver.entity.User} needs to be associated to a project.
+ * A project may represent a Management Portal project.
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
+ *
  * @author yatharthranjan
  */
 @RestController
