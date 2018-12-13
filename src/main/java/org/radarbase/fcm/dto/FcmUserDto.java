@@ -21,12 +21,12 @@
 
 package org.radarbase.fcm.dto;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.radarbase.appserver.entity.User;
-import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -34,7 +34,9 @@ import java.time.ZoneOffset;
 /**
  * @author yatharthranjan
  */
-@Data
+@Getter
+@EqualsAndHashCode
+@ToString
 public class FcmUserDto implements Serializable {
 
     private static final long serialVersionUID = 1L;

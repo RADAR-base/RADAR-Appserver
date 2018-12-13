@@ -42,6 +42,10 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * A Message receiver for receiving upstream messages from devices using FCM XMPP protocol.
+ * Currently, FCM only supports upstream messages using the XMPP protocol.
+ * This uses an inbound-adapter configured in classpath to receive messages.
+ *
  * @author yatharthranjan
  */
 @Slf4j

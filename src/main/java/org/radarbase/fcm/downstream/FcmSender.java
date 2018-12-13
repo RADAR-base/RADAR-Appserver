@@ -24,6 +24,11 @@ package org.radarbase.fcm.downstream;
 import org.springframework.messaging.Message;
 
 /**
+ * Generic contract for sending messages to devices via Firebase.
+ *
+ * @see XmppFcmSender
+ * @see AdminSdkFcmSender
+ *
  * @author yatharthranjan
  */
 public interface FcmSender {

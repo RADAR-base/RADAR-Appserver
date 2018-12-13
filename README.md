@@ -50,13 +50,15 @@ There is also support for legacy XMPP protocol for FCM.
 
 # Current Features
 - Provides a general purpose FCM library with facility to send and receive messages using XMPP protocol. Admin SDK support to be added later.
-- Can configure which type of FCM sender to use via properties (so can be changed dynamically idf required).
+- Can configure which type of FCM sender to use via properties (so can be changed dynamically if required).
 - Provides functionality of scheduling notifications via FCM.
 - Acts as a data store for important user and app related data (like FCM token to subject mapping, notifications, user metrics, etc).
 - Can be easily extended for different apps.
-- Uses Liquibase for easy evolution of database.
+- Uses [Liquibase](https://www.liquibase.org/) for easy evolution of database.
 - Contains swagger integration for easy API documentation and generation of Java client.
-- Uses lombok.data in most places to reduce boiler plate code and make it more readable.
+- Uses [lombok.data](https://projectlombok.org/) in most places to reduce boiler plate code and make it more readable.
+- Has support for Auditing of database entities.
+- Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
 
 // WIP
 
@@ -73,5 +75,6 @@ There is also support for legacy XMPP protocol for FCM.
 - Break out the org.radarbase.fcm package into its own module to be used as a library.
 - Add docker builds.
 - Add a Angular UI to view, update and schedule/send notifications to subjects.
+- Investigate the feasibility of adding as an integration to the Management Portal for various tasks. (For instance, a new token can be sent via push notification using a button on MP to the device if the token has expired).
 
 // WIP

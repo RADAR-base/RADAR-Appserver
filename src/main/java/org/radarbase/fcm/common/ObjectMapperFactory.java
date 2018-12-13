@@ -25,6 +25,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.stereotype.Component;
 
+
+/**
+ * A Factory Bean that provides {@link ObjectMapper} so that can be {@link org.springframework.beans.factory.annotation.Autowired}
+ * and same instance can be used everywhere.
+ *
+ * @see AbstractFactoryBean for more details
+ * @author yatharthranjan
+ */
 @Component
 public class ObjectMapperFactory extends AbstractFactoryBean<ObjectMapper> {
 

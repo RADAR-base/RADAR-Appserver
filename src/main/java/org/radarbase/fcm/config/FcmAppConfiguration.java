@@ -40,6 +40,11 @@ import org.springframework.integration.xmpp.config.XmppConnectionFactoryBean;
 import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLSocketFactory;
 
+/**
+ * Configuration class providing all the beans and config required by the FCM XMPP client.
+ *
+ * @author yatharthranjan
+ */
 @Configuration
 @EnableIntegration
 @ImportResource({"classpath:inbound-xmpp.xml", "classpath:outbound-xmpp.xml"})

@@ -30,6 +30,9 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 /**
+ * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol.
+ * This uses an outbound-adapter configured in classpath to send messages.
+ *
  * @author yatharthranjan
  */
 @Component

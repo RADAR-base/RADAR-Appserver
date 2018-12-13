@@ -21,7 +21,9 @@
 
 package org.radarbase.fcm.dto;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -29,13 +31,14 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Objects;
 
 /**
  * @author yatharthranjan
  */
-@Data
+@Getter
+@EqualsAndHashCode
+@ToString
 public class FcmNotificationDto implements Serializable {
 
     private static final long serialVersionUID = 3L;

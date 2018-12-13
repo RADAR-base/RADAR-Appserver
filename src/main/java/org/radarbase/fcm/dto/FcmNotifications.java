@@ -21,7 +21,9 @@
 
 package org.radarbase.fcm.dto;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,9 @@ import java.util.List;
 /**
  * @author yatharthranjan
  */
-@Data
+@Getter
+@EqualsAndHashCode
+@ToString
 public class FcmNotifications {
 
     private List<FcmNotificationDto>  notifications;

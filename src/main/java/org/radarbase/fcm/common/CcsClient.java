@@ -22,6 +22,8 @@
 package org.radarbase.fcm.common;
 
 /**
+ * A stereotype to specify if a class is a client of the FCM CCS server.
+ *
  * @author yatharthranjan
  */
 public interface CcsClient {

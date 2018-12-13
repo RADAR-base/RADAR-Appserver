@@ -26,6 +26,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Objects;
 
+/**
+ * Loads Configuration required to connect to the FCM server.
+ *
+ * @author yatharthranjan
+ */
 @ConfigurationProperties(value = "fcmserver", ignoreUnknownFields = false)
 public class FcmServerConfig {
 
