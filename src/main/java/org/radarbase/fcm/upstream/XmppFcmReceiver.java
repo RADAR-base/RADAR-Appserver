@@ -88,17 +88,17 @@ public class XmppFcmReceiver implements CcsClient {
         messageTypeObj.ifPresentOrElse(messageTypeObj1 -> {
             final String messageType = messageTypeObj1.asText();
             log.info("Message Type : {}", messageType);
-            switch (messageType) {
-                case "ack":
+            switch (FcmMessageType.valueOf(messageType.toUpperCase())) {
+                case ACK:
                     messageHandler.handleAckReceipt(ref.tree);
                     break;
-                case "nack":
+                case NACK:
                     messageHandler.handleNackReceipt(ref.tree);
                     break;
-                case "receipt":
+                case RECEIPT:
                     messageHandler.handleStatusReceipt(ref.tree);
                     break;
-                case "control":
+                case CONTROL:
                     messageHandler.handleControlMessage(ref.tree);
                     break;
                 default:
@@ -118,7 +118,7 @@ public class XmppFcmReceiver implements CcsClient {
     @SneakyThrows
     private void sendAck(String headerTo, JsonNode jsonMessage) {
         final Map<String, Object> map = new HashMap<>();
-        map.put("message_type", "ack");
+        map.put("message_type", FcmMessageType.ACK.toString().toLowerCase());
         map.put("to", jsonMessage.get("from").textValue());
         map.put("message_id", jsonMessage.get("message_id").textValue());
 
