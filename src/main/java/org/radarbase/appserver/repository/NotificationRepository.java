@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yatharthranjan
@@ -44,4 +45,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             String type, int ttlSeconds);
 
     void deleteByFcmMessageId(String fcmMessageId);
+
+    Optional<Notification> findByFcmMessageId(String fcmMessageId);
 }

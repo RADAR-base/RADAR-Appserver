@@ -154,7 +154,7 @@ public class NotificationSchedulerService {
 
         Map<String, Object> map = new HashMap<>();
         map.put("notification", notificationMap);
-        map.put("time_to_live", 900);
+        map.put("time_to_live", notification.getTtlSeconds());
         map.put("message_id", String.valueOf(notification.getFcmMessageId()));
         map.put("delivery_receipt_requested", true);
         map.put("to", notification.getUser().getFcmToken());

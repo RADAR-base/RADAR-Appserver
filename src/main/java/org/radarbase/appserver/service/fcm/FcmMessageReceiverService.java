@@ -123,7 +123,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
              Optional<String> messageStatus = Optional.ofNullable(jsonData.get().get("message_status").asText());
              if(messageStatus.isPresent()){
                 if(messageStatus.get().equals("MESSAGE_SENT_TO_DEVICE")) {
-                    notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
+                    //notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
+                    notificationService.updateDeliveryStatus(jsonData.get().get("original_message_id").asText(), true);
                 }
              }
          }

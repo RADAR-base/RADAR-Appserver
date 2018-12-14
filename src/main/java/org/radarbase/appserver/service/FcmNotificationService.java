@@ -260,6 +260,18 @@ public class FcmNotificationService {
     }
 
     @Transactional
+    public void updateDeliveryStatus(String fcmMessageId, boolean isDelivered) {
+        Optional<Notification> notification = this.notificationRepository.findByFcmMessageId(fcmMessageId);
+
+        notification.ifPresentOrElse(n -> {
+            n.setDelivered(isDelivered);
+            Notification newNotification = this.notificationRepository.save(n);
+        }, () -> {
+            throw new InvalidNotificationDetailsException("Notification with the provided FCM message ID does not exist.");
+        });
+    }
+
+    @Transactional
     public void deleteNotificationByFcmMessageId(String fcmMessageId) {
         this.notificationRepository.deleteByFcmMessageId(fcmMessageId);
     }
