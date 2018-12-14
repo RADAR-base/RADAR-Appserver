@@ -37,7 +37,6 @@ import java.util.Objects;
  * @author yatharthranjan
  */
 @Getter
-@EqualsAndHashCode
 @ToString
 public class FcmNotificationDto implements Serializable {
 

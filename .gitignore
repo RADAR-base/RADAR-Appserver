@@ -27,3 +27,6 @@
 
 # test database
 /db
+
+# javadocs
+/src/main/resources/static/java-docs

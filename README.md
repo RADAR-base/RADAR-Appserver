@@ -42,6 +42,8 @@ There is also support for legacy XMPP protocol for FCM.
 
 6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
 
+7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Docs section below.
+
 # REST API
 // TODO 
 
@@ -78,3 +80,26 @@ There is also support for legacy XMPP protocol for FCM.
 - Investigate the feasibility of adding as an integration to the Management Portal for various tasks. (For instance, a new token can be sent via push notification using a button on MP to the device if the token has expired).
 
 // WIP
+
+# Documentation
+
+Api docs are available through swagger open api 2 config. 
+The raw json is present at the `<your-base-url/v2/api-docs>`
+
+The Swagger UI is shown below.
+It is present at `<your-base-url/swagger-ui.html`
+
+![Alt text](/images/swagger-ui.png "Swagger UI Api Docs")
+
+
+The Java docs are also available as static content when you build and deploy the app-server. 
+These are stored in the `/src/main/resources/static/java-docs` path automatically when building and spring picks this up and exposes it on the path `<your-base-url/java-docs/index.html>` as shown below - 
+
+![Alt text](/images/java-docs.png "Java Docs")
+
+
+# Client
+
+You can generate a client in 40 different languages for the api using [Swagger Codegen](https://swagger.io/tools/swagger-codegen/) tool. There is even a [javascript library](https://github.com/swagger-api/swagger-codegen#where-is-javascript) that is completely dynamic and does not require static code generation.
+
+**TODO**: generate a client and post to bintray.  

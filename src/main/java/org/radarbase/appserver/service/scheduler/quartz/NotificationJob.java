@@ -48,7 +48,6 @@ public class NotificationJob implements Job{
      * fires that is associated with the <code>Job</code>.
      * </p>
      * <p>
-     * <p>
      * The implementation may wish to set a
      * {@link JobExecutionContext#setResult(Object) result} object on the
      * {@link JobExecutionContext} before this method exits.  The result itself
@@ -59,7 +58,7 @@ public class NotificationJob implements Job{
      * </p>
      *
      * @param context context containing jobs details and data added when creating the job.
-     * @throws JobExecutionException if there is an exception while executing the job.
+     * @throws RuntimeException if there is an exception while executing the job.
      */
     @SneakyThrows
     @Override

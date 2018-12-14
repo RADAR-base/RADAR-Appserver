@@ -21,12 +21,16 @@ sourceCompatibility = 1.11
 
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 //apply from: 'gradle/liquibase.gradle'
 
 ext {
 	smackVersion = '4.3.1'
+	springFoxVersion= '2.9.2'
+	springInegrationXmppVersion = '5.1.1.RELEASE'
+	lombokVersion = '1.18.4'
 }
 
 dependencies {
@@ -35,12 +39,26 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-web')
 	implementation('org.springframework.boot:spring-boot-starter-integration')
     implementation('org.springframework.boot:spring-boot-starter-quartz')
-	compile('org.springframework.integration:spring-integration-xmpp:5.1.1.RELEASE')
+
+	// XMPP
+	compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
 	compile group: 'org.igniterealtime.smack', name:'smack-experimental', version: smackVersion
+
+	// Swagger
+	compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
+	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
+
 	runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	runtimeOnly('org.hsqldb:hsqldb')
 	runtimeOnly('org.liquibase:liquibase-core')
-	compileOnly('org.projectlombok:lombok:1.18.4')
+
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+
 	//compile('org.liquibase.ext:liquibase-hibernate5:3.6')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
+}
+
+javadoc {
+	options.addBooleanOption('html5', true)
+	destinationDir = new File("${project.rootDir}/src/main/resources/static/java-docs".toString())
 }
