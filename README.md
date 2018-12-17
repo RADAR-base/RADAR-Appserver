@@ -20,7 +20,7 @@ There is also support for legacy XMPP protocol for FCM.
     ```bash
     ./gradlew bootRun
     ```
-    You can also run in an IDE (like IntelliJ Idea) by giving the `/RADAR-Appserver/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
+    You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
     
 4. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
     ```javascript
@@ -42,7 +42,7 @@ There is also support for legacy XMPP protocol for FCM.
 
 6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
 
-7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Docs section below.
+7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
 # REST API
 // TODO 
@@ -61,6 +61,7 @@ There is also support for legacy XMPP protocol for FCM.
 - Uses [lombok.data](https://projectlombok.org/) in most places to reduce boiler plate code and make it more readable.
 - Has support for Auditing of database entities.
 - Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
+- Extends `XmppConnectionFactoryBean` with support for Reconnection and connection draining implementation using a Back-off strategy.
 
 // WIP
 
@@ -71,25 +72,28 @@ There is also support for legacy XMPP protocol for FCM.
 - Add endpoint to filter notifications based on different params.
 - Update lastOpened metric for user when a request is received.
 - Add batch scheduling of notifications.
-- Add Management Portal service for getting an missing info if not present in a request.
+- Add Management Portal service for getting any missing info not present in a request.
 - Add support for sending messages via Firebase Admin SDK.
-- Make the Xmpp Connection more robust by adding reconnection logic.
+- ~~Make the Xmpp Connection more robust by adding reconnection logic.~~
 - Break out the org.radarbase.fcm package into its own module to be used as a library.
 - Add docker builds.
 - Add a Angular UI to view, update and schedule/send notifications to subjects.
 - Investigate the feasibility of adding as an integration to the Management Portal for various tasks. (For instance, a new token can be sent via push notification using a button on MP to the device if the token has expired).
+- Add security to the application using MP OAuth client resource.
 
 // WIP
 
 # Documentation
 
 Api docs are available through swagger open api 2 config. 
-The raw json is present at the `<your-base-url/v2/api-docs>`
+The raw json is present at the `<your-base-url/v2/api-docs>`. By default this should be `http://localhost:8080/v2/api-docs`
 
 The Swagger UI is shown below.
 It is present at `<your-base-url/swagger-ui.html`
 
 ![Alt text](/images/swagger-ui.png "Swagger UI Api Docs")
+
+The Swagger API docs are also available at [Swagger Hub](https://app.swaggerhub.com/apis-docs/RADAR-Base/RADAR-Appserver) but may not be most up-to-date. Please check the version matches the app-server that you have deployed.
 
 
 The Java docs are also available as static content when you build and deploy the app-server. 
@@ -102,4 +106,4 @@ These are stored in the `/src/main/resources/static/java-docs` path automaticall
 
 You can generate a client in 40 different languages for the api using [Swagger Codegen](https://swagger.io/tools/swagger-codegen/) tool. There is even a [javascript library](https://github.com/swagger-api/swagger-codegen#where-is-javascript) that is completely dynamic and does not require static code generation.
 
-**TODO**: generate a client and post to bintray.  
+**TODO**: generate a java client and post to bintray.

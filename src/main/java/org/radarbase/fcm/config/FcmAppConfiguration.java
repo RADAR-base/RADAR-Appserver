@@ -51,7 +51,7 @@ import javax.net.ssl.SSLSocketFactory;
 @Slf4j
 public class FcmAppConfiguration implements PingFailedListener {
 
-    private XmppConnectionFactoryBean connectionFactoryBean;
+    private ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
 
     private XMPPTCPConnectionConfiguration connectionConfiguration;
 
@@ -59,7 +59,7 @@ public class FcmAppConfiguration implements PingFailedListener {
     private FcmServerConfig fcmServerConfig;
 
     @Bean("xmppConnection")
-    public XmppConnectionFactoryBean xmppConnection() throws Exception {
+    public ReconnectionEnabledXmppConnectionFactoryBean xmppConnection() throws Exception {
 
         String domain = "gcm.googleapis.com";
         connectionConfiguration = XMPPTCPConnectionConfiguration.builder()
@@ -70,7 +70,7 @@ public class FcmAppConfiguration implements PingFailedListener {
                 .setSocketFactory(SSLSocketFactory.getDefault())
                 .setXmppDomain(domain)
                 .build();
-        connectionFactoryBean = new XmppConnectionFactoryBean();
+        connectionFactoryBean = new ReconnectionEnabledXmppConnectionFactoryBean();
         connectionFactoryBean.setConnectionConfiguration(connectionConfiguration);
         connectionFactoryBean.setSubscriptionMode(null);
         connectionFactoryBean.setAutoStartup(true);
@@ -98,17 +98,6 @@ public class FcmAppConfiguration implements PingFailedListener {
         pingManager.setPingInterval(100);
         pingManager.registerPingFailedListener(this);
     }
-
-
-/*    @EventListener(ApplicationReadyEvent.class)
-    public void registerReconnection() throws Exception {
-        // Set the ping interval
-        log.info("Setting the PING interval to 100 seconds");
-        final PingManager pingManager = PingManager.getInstanceFor(connectionFactoryBean.getObject());
-        pingManager.setPingInterval(100);
-        pingManager.registerPingFailedListener(this);
-    }*/
-
 
     @Bean("fcmSenderProps")
     @SuppressWarnings("unchecked")

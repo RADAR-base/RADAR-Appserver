@@ -58,8 +58,9 @@ public class FcmNotificationController {
                                                                      @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
                                                                      @Valid @RequestParam(value = "ttlSeconds", required = false) int ttlSeconds,
                                                                      @Valid @RequestParam(value = "startTime", required = false) LocalDateTime startTime,
-                                                                     @Valid @RequestParam(value = "endTime", required = false) LocalDateTime endTime) {
-        return ResponseEntity.ok(this.notificationService.getFilteredNotifications(type, delivered, ttlSeconds, startTime, endTime));
+                                                                     @Valid @RequestParam(value = "endTime", required = false) LocalDateTime endTime,
+                                                                     @Valid @RequestParam(value = "limit", required = false) int limit) {
+        return ResponseEntity.ok(this.notificationService.getFilteredNotifications(type, delivered, ttlSeconds, startTime, endTime, limit));
     }
 
     @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/ " + Paths.USER_PATH + "/{subjectId}/" + Paths.NOTIFICATION_PATH)
@@ -74,7 +75,7 @@ public class FcmNotificationController {
     }
 
 
-    @GetMapping("/" + Paths.USER_PATH + "/{subjectid}/" + Paths.NOTIFICATION_PATH)
+    @GetMapping("/" + Paths.USER_PATH + "/{subjectId}/" + Paths.NOTIFICATION_PATH)
     public ResponseEntity<FcmNotifications> getRadarNotificationsUsingSubjectId(
             @Valid @PathVariable("subjectId") String subjectId) {
         return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
@@ -93,15 +94,6 @@ public class FcmNotificationController {
 
     }
 
-    @PostMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "/{userId}/" + Paths.NOTIFICATION_PATH + "/multi")
-    public ResponseEntity<FcmNotificationDto> scheduleMultipleNotification( @PathVariable String projectId,
-                                                                            @PathVariable String userId,
-                                                                            @Valid @RequestBody List<FcmNotificationDto> notifications) {
-
-        return null;
-    }
-
-
     @PostMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "/{userId}/notifications/now")
     public ResponseEntity<FcmNotificationDto> scheduleNotificationNow( @PathVariable String projectId,
                                                                        @PathVariable String userId,
@@ -113,11 +105,11 @@ public class FcmNotificationController {
     }
 
 
-    @DeleteMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "/{userId}/" + Paths.NOTIFICATION_PATH)
+    @DeleteMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "/{subjectId}/" + Paths.NOTIFICATION_PATH)
     public ResponseEntity deleteNotificationsForUser( @PathVariable String projectId,
-                                                      @PathVariable String userId) {
+                                                      @PathVariable String subjectId) {
 
-        this.notificationService.removeNotificationsForUser(projectId, userId);
+        this.notificationService.removeNotificationsForUser(projectId, subjectId);
         return ResponseEntity.ok().build();
     }
 }

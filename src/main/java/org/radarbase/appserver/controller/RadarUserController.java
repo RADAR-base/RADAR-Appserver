@@ -107,7 +107,7 @@ public class RadarUserController {
         return ResponseEntity.ok(this.userService.getUserById(id));
     }
 
-    @GetMapping("/" + Paths.USER_PATH + "/{subjectid}")
+    @GetMapping("/" + Paths.USER_PATH + "/{subjectId}")
     public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
             @PathVariable("subjectId") String subjectId) {
         return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));

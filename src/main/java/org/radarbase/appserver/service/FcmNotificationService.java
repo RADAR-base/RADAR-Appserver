@@ -137,7 +137,8 @@ public class FcmNotificationService {
     //TODO : WIP
     @Transactional(readOnly = true)
     public FcmNotifications getFilteredNotifications(String type, boolean delivered,
-                                                     int ttlSeconds, LocalDateTime startTime, LocalDateTime endTime) {
+                                                     int ttlSeconds, LocalDateTime startTime,
+                                                     LocalDateTime endTime, int limit) {
         return null;
     }
 

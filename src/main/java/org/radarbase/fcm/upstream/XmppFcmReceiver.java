@@ -29,6 +29,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.common.ObjectMapperFactory;
+import org.radarbase.fcm.config.ReconnectionEnabledXmppConnectionFactoryBean;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,6 +63,9 @@ public class XmppFcmReceiver implements CcsClient {
     @Qualifier("fcmSenderProps")
     private FcmSender fcmSender;
 
+    @Autowired
+    private ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+
     public void handleIncomingMessage(Message<String> message) throws Exception {
         log.debug("Header = " + message.getHeaders());
         log.debug("Payload = " + message.getPayload());
@@ -93,12 +97,34 @@ public class XmppFcmReceiver implements CcsClient {
                     messageHandler.handleAckReceipt(ref.tree);
                     break;
                 case NACK:
+                    Optional<String> errorCodeObj = Optional.ofNullable(ref.tree.get("error").asText());
+                    if (errorCodeObj.isEmpty()) {
+                        log.error("Received null FCM Error Code.");
+                        return;
+                    }
+
+                    final String errorCode = errorCodeObj.get();
+
+                    if (errorCode.equals("INVALID_JSON") || errorCode.equals("BAD_REGISTRATION") || errorCode.equals("BAD_ACK")
+                            || errorCode.equals("TOPICS_MESSAGE_RATE_EXCEEDED") || errorCode.equals("DEVICE_MESSAGE_RATE_EXCEEDED")) {
+                        log.info("Device error: {} -> {}", ref.tree.get("error"), ref.tree.get("error_description"));
+                    } else if (errorCode.equals("SERVICE_UNAVAILABLE") || errorCode.equals("INTERNAL_SERVER_ERROR")) {
+                        log.info("Server error: {} -> {}", ref.tree.get("error"), ref.tree.get("error_description"));
+                    } else if (errorCode.equals("CONNECTION_DRAINING")) {
+                        log.info("Connection draining from Nack ...");
+                        handleConnectionDraining();
+                    } else if (errorCode.equals("DEVICE_UNREGISTERED")) {
+                        log.info("Received unknown FCM Error Code: {}", errorCode);
+                    } else {
+                        log.info("Received unknown FCM Error Code: {}", errorCode);
+                    }
                     messageHandler.handleNackReceipt(ref.tree);
                     break;
                 case RECEIPT:
                     messageHandler.handleStatusReceipt(ref.tree);
                     break;
                 case CONTROL:
+                    handleControlMessage(ref.tree);
                     messageHandler.handleControlMessage(ref.tree);
                     break;
                 default:
@@ -113,6 +139,24 @@ public class XmppFcmReceiver implements CcsClient {
         });
 
 
+    }
+
+    private void handleConnectionDraining() {
+        log.info("FCM Connection is draining!");
+        connectionFactoryBean.setIsConnectionDraining(true);
+    }
+
+    /**
+     * Handles a Control message from FCM
+     */
+    private void handleControlMessage(JsonNode jsonNode) {
+        final String controlType = jsonNode.get("control_type").asText();
+
+        if (controlType.equals("CONNECTION_DRAINING")) {
+            handleConnectionDraining();
+        } else {
+            log.info("Received unknown FCM Control message: {}", controlType);
+        }
     }
 
     @SneakyThrows
