@@ -113,6 +113,19 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
     @Override
     public void handleNackReceipt(JsonNode jsonMessage) {
         log.warn("Nack Receipt: {}", jsonMessage.toString());
+
+        Optional<String> errorCodeObj = Optional.ofNullable(jsonMessage.get("error").asText());
+        if (errorCodeObj.isEmpty()) {
+            log.error("Received null FCM Error Code.");
+            return;
+        }
+
+        final String errorCode = errorCodeObj.get();
+
+        if (errorCode.equals("DEVICE_UNREGISTERED")) {
+            log.info("The FCM device unregistered. Removing all notifications: {}", errorCode);
+            this.notificationService.removeNotificationsForUserUsingFcmToken(jsonMessage.get("from").asText());
+        }
     }
 
     @Override

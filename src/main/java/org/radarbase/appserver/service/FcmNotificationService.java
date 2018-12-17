@@ -29,6 +29,7 @@ import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.entity.UserMetrics;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
+import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
@@ -275,6 +276,19 @@ public class FcmNotificationService {
     @Transactional
     public void deleteNotificationByFcmMessageId(String fcmMessageId) {
         this.notificationRepository.deleteByFcmMessageId(fcmMessageId);
+    }
+
+    public void removeNotificationsForUserUsingFcmToken(String fcmToken) {
+        Optional<User> user = this.userRepository.findByFcmToken(fcmToken);
+
+        user.ifPresentOrElse(user1 -> {
+            this.notificationRepository.deleteByUserId(user1.getId());
+            User newUser = user1.setFcmToken("");
+            newUser = this.userRepository.save(newUser);
+
+        }, () -> {
+            throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");
+        });
     }
 
     // TODO add batch adding of notifications. The scheduler function is already there.

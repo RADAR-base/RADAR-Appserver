@@ -41,4 +41,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByProjectId(Long projectId);
 
     Optional<User> findBySubjectIdAndProjectId(String subjectId, Long projectId);
+
+    Optional<User> findByFcmToken(String fcmToken);
 }

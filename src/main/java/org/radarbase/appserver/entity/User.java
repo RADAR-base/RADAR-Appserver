@@ -54,7 +54,7 @@ public class User extends AuditModel {
     private String subjectId;
 
     @NotNull
-    @Column(name = "fcm_token", nullable = false)
+    @Column(name = "fcm_token", nullable = false, unique = true)
     private String fcmToken;
 
     @NotNull
