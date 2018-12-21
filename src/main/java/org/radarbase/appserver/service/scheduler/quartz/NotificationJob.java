@@ -24,7 +24,6 @@ package org.radarbase.appserver.service.scheduler.quartz;
 import lombok.SneakyThrows;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;

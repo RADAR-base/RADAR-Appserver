@@ -49,7 +49,7 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
     @Override
     public void start() {
         this.isPresenceUnavailable = false;
-
+        this.isConnectionDraining = false;
         super.start();
 
         XMPPTCPConnection connection = getConnection();
@@ -115,14 +115,15 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
      */
     @Override
     public void connectionClosed() {
-        log.info("Connection closed. The current connectionDraining flag is: {}", isConnectionDraining);
-        if (isConnectionDraining || isPresenceUnavailable) {
-            super.stop();
+        log.info("Connection closed. The current connectionDraining flag is: {}." +
+                "\nThe current Presence unavailable flag is {}", isConnectionDraining, isPresenceUnavailable);
+        if (this.isConnectionDraining || this.isPresenceUnavailable) {
+            //super.stop();
             reconnect();
         }
     }
 
-    synchronized void reconnect() {
+    private synchronized void reconnect() {
         log.info("Initiating reconnection ...");
         final BackOffStrategy backoff = new BackOffStrategy(5, 1000);
         while (backoff.shouldRetry()) {

@@ -24,6 +24,10 @@ repositories {
 	jcenter()
 }
 
+bootJar {
+	mainClassName = 'org.radarbase.appserver.AppserverApplication'
+}
+
 //apply from: 'gradle/liquibase.gradle'
 
 ext {
@@ -53,6 +57,7 @@ dependencies {
 	runtimeOnly('org.liquibase:liquibase-core')
 
 	compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
 	//compile('org.liquibase.ext:liquibase-hibernate5:3.6')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
@@ -61,4 +66,14 @@ dependencies {
 javadoc {
 	options.addBooleanOption('html5', true)
 	destinationDir = new File("${project.rootDir}/src/main/resources/static/java-docs".toString())
+}
+
+wrapper {
+	gradleVersion '5.0'
+}
+
+task unpack(type: Copy) {
+	dependsOn bootJar
+	from(zipTree(tasks.bootJar.outputs.files.singleFile))
+	into("build/dependency")
 }
