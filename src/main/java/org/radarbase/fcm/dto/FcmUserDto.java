@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.entity.User;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -47,7 +48,7 @@ public class FcmUserDto implements Serializable {
     // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String projectId;
 
-    @NotNull
+    @NotEmpty
     // User ID to be used in org.radarcns.kafka.ObservationKey record keys
     private String subjectId;
 

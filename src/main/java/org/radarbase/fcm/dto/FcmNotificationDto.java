@@ -21,12 +21,12 @@
 
 package org.radarbase.fcm.dto;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -50,25 +50,25 @@ public class FcmNotificationDto implements Serializable {
 
     private boolean delivered;
 
-    @NotNull
+    @NotEmpty
     private String title;
 
     private String body;
 
     private int ttlSeconds;
 
-    @NotNull
+    @NotEmpty
     private String sourceId;
 
     private String fcmMessageId;
 
-    @NotNull
+    @NotEmpty
     private String type;
 
-    @NotNull
+    @NotEmpty
     private String appPackage;
 
-    @NotNull
+    @NotEmpty
     private String sourceType;
 
     public FcmNotificationDto(Notification notificationEntity) {
@@ -149,17 +149,9 @@ public class FcmNotificationDto implements Serializable {
                 Objects.equals(sourceType, that.sourceType);
     }
 
-    public String getAppPackage() {
-        return appPackage;
-    }
-
     public FcmNotificationDto setAppPackage(String appPackage) {
         this.appPackage = appPackage;
         return this;
-    }
-
-    public String getSourceType() {
-        return sourceType;
     }
 
     public FcmNotificationDto setSourceType(String sourceType) {

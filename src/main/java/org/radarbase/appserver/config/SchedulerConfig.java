@@ -35,22 +35,6 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 @Configuration
 public class SchedulerConfig {
 
-    /**
-     * Creates a Quartz scheduler using the config from application.properties in class path.
-     * Quartz properties must be prefixed with `spring.quartz`
-     *
-     * @return the Quartz scheduler wrapped as a spring bean {@link SchedulerFactoryBean}
-     */
-    @Bean
-    public SchedulerFactoryBean scheduler() {
-        SchedulerFactoryBean schedulerFactory = new SchedulerFactoryBean();
-        schedulerFactory.setConfigLocation(new ClassPathResource("application.properties"));
-
-        schedulerFactory.setJobFactory(springBeanJobFactory());
-        schedulerFactory.setAutoStartup(true);
-        return schedulerFactory;
-    }
-
     @Bean
     public SpringBeanJobFactory springBeanJobFactory() {
         return new SpringBeanJobFactory();
