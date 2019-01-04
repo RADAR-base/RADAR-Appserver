@@ -4,6 +4,9 @@ networks:
   db:
     driver: bridge
     internal: true
+  admin:
+    driver: bridge
+    internal: true
 
 services:
   hsqldb:
@@ -20,4 +23,31 @@ services:
       - ./database/server.properties:/etc/opt/hsqldb/conf/server.properties
       - ./database/sqltool.rc:/etc/opt/hsqldb/conf/sqltool.rc
 
-# TODO Add the app
+  appserver:
+    build: ../
+    restart: always
+    networks:
+      - db
+      - default
+      - admin
+    ports:
+      - 8080:8080
+    depends_on:
+      - hsqldb
+      - spring-boot-admin
+    environment:
+      SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
+      SPRING.BOOT.ADMIN.CLIENT.INSTANCE.NAME: radar-appserver
+
+  spring-boot-admin:
+    image: slydeveloper/spring-boot-admin:latest
+    restart: always
+    networks:
+      - admin
+      - default
+    ports:
+      - 8888:1111
+    environment:
+      - SPRING_BOOT_ADMIN_USER_NAME=radar
+      - SPRING_BOOT_ADMIN_USER_PASSWORD=appserver
+      - SPRING_BOOT_ADMIN_TITLE=RADAR-appserver

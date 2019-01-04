@@ -107,3 +107,37 @@ These are stored in the `/src/main/resources/static/java-docs` path automaticall
 You can generate a client in 40 different languages for the api using [Swagger Codegen](https://swagger.io/tools/swagger-codegen/) tool. There is even a [javascript library](https://github.com/swagger-api/swagger-codegen#where-is-javascript) that is completely dynamic and does not require static code generation.
 
 **TODO**: generate a java client and post to bintray.
+
+# Monitoring
+
+The App server has built in support for the [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready) and can be accessed via the default REST endpoints `<your-base-url>/actuator/*`. To see all the features provided please refer to the [official docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints) of Spring boot actuator.
+
+It also has functionality to register itself as a client to the [Spring Boot Admin Server](http://codecentric.github.io/spring-boot-admin/2.1.1/) for providing a beautiful UI for the Actuator and some other useful admin stuff.
+To make this work, 
+- Run an instance of the Spring Boot Admin server (various examples on the internet and also via Docker) on the machine and then 
+- configure the client to point to the Admin Server for registration by adding the following to your `application.properties` file - 
+       
+        ```properties
+        spring.boot.admin.client.url = http://localhost:8888
+        ```
+   In this case, the Spring Boot admin server was running on `http://localhost:8888`. If http basic auth is enabled on the server also add the following to the `application.properties` file -
+        
+        ```properties
+        spring.boot.admin.client.url = http://localhost:8888
+        spring.boot.admin.client".username = admin-server-username
+        spring.boot.admin.client".password = admin-server-password
+        ```
+
+The same can be achieved when deployed with the components as microservices in docker containers using docker-compose. The file `docker/docker-compose.yml` in this project shows an example of how this is achieved.
+Please note how the App server is configured in the container compared to the method of adding properties in `application.properties` file shown above.
+
+Just run 
+
+```bash
+cd docker
+sudo docker-compose up -d
+```
+
+Then go to the browser to the URL : `https://localhost:8888` and login with credentials `radar:appserver` to see the Spring Boot Admin Server in action.
+
+Deploying the Spring Boot Admin server and the client as different components makes sure that the same Server can be used to register multiple client apps and the server's lifecycle is not associated with the client. This also means that our client app is lighter and production ready.
