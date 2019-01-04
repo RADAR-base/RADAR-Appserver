@@ -35,6 +35,7 @@ ext {
 	springFoxVersion= '2.9.2'
 	springInegrationXmppVersion = '5.1.1.RELEASE'
 	lombokVersion = '1.18.4'
+	bootAdminVersion = '2.1.1'
 }
 
 dependencies {
@@ -43,7 +44,11 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-web')
 	implementation('org.springframework.boot:spring-boot-starter-integration')
     implementation('org.springframework.boot:spring-boot-starter-quartz')
+	implementation('org.springframework.boot:spring-boot-starter-security')
+	implementation('org.springframework.boot:spring-boot-starter-actuator')
 
+	compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion
+	
 	// XMPP
 	compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
 	compile group: 'org.igniterealtime.smack', name:'smack-experimental', version: smackVersion
