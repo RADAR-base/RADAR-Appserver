@@ -6,6 +6,7 @@ labels: bug
 assignees: yatharthranjan
 
 ---
+Please check if the bug has already been reported in the Issues Tab and mention any related issues here.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
