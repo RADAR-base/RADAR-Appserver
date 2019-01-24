@@ -19,25 +19,23 @@
  *
  */
 
-package org.radarbase.fcm.downstream;
+package org.radarbase.fcm.model;
 
-import org.radarbase.fcm.common.CcsClient;
-import org.radarbase.fcm.model.FcmDownstreamMessage;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.experimental.SuperBuilder;
 
-/** TODO: WIP
- * @author yatharthranjan
- */
-@Component
-public class AdminSdkFcmSender implements CcsClient, FcmSender {
+import java.util.Map;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@SuperBuilder
+public class FcmNotificationMessage extends FcmDownstreamMessage{
 
-    @Override
-    public void send(FcmDownstreamMessage downstreamMessage) {
-    }
+    // TODO Add specific Notification model and data model classes instead of using Maps.
 
-    @Override
-    public boolean doesProvideDeliveryReceipt() {
-        return false;
-    }
+    @JsonProperty
+    private Map<String, Object> notification;
+
+    @JsonProperty
+    private Map<String, Object> data;
 }

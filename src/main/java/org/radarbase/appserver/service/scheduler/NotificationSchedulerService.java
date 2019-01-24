@@ -28,10 +28,9 @@ import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.scheduler.quartz.NotificationJob;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.downstream.FcmSender;
+import org.radarbase.fcm.model.FcmNotificationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.support.MessageBuilder;
-import org.springframework.messaging.Message;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.stereotype.Service;
@@ -144,21 +143,20 @@ public class NotificationSchedulerService {
         return jobDetailFactory;
     }
 
-    private Message createMessageFromNotification(Notification notification) throws Exception {
+    private FcmNotificationMessage createMessageFromNotification(Notification notification) throws Exception {
         ObjectMapper mapper = mapperFactory.getObject();
 
-        Map<String, String> notificationMap = new HashMap<>();
+        Map<String, Object> notificationMap = new HashMap<>();
         notificationMap.put("body", notification.getBody());
         notificationMap.put("title", notification.getTitle());
         notificationMap.put("sound", "default");
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("notification", notificationMap);
-        map.put("time_to_live", notification.getTtlSeconds());
-        map.put("message_id", String.valueOf(notification.getFcmMessageId()));
-        map.put("delivery_receipt_requested", true);
-        map.put("to", notification.getUser().getFcmToken());
-        return MessageBuilder.withPayload(mapper.writeValueAsString(map))
+        return FcmNotificationMessage.builder()
+                .to(notification.getUser().getFcmToken())
+                .deliveryReceiptRequested(true)
+                .messageId(String.valueOf(notification.getFcmMessageId()))
+                .timeToLive(notification.getTtlSeconds())
+                .notification(notificationMap)
                 .build();
     }
 }

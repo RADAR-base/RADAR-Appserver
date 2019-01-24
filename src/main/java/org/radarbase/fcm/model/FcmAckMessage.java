@@ -19,25 +19,17 @@
  *
  */
 
-package org.radarbase.fcm.downstream;
+package org.radarbase.fcm.model;
 
-import org.radarbase.fcm.common.CcsClient;
-import org.radarbase.fcm.model.FcmDownstreamMessage;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.experimental.SuperBuilder;
+import org.radarbase.fcm.upstream.FcmMessageType;
 
-/** TODO: WIP
- * @author yatharthranjan
- */
-@Component
-public class AdminSdkFcmSender implements CcsClient, FcmSender {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@SuperBuilder
+public class FcmAckMessage extends FcmDownstreamMessage {
 
-
-    @Override
-    public void send(FcmDownstreamMessage downstreamMessage) {
-    }
-
-    @Override
-    public boolean doesProvideDeliveryReceipt() {
-        return false;
-    }
+    @JsonProperty("message_type")
+    private final String messageType = FcmMessageType.ACK.toString().toLowerCase();
 }

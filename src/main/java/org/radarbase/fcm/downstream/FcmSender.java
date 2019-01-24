@@ -21,7 +21,7 @@
 
 package org.radarbase.fcm.downstream;
 
-import org.springframework.messaging.Message;
+import org.radarbase.fcm.model.FcmDownstreamMessage;
 
 /**
  * Generic contract for sending messages to devices via Firebase.
@@ -33,7 +33,7 @@ import org.springframework.messaging.Message;
  */
 public interface FcmSender {
 
-    void send(Message<?> message) throws Exception;
+    void send(FcmDownstreamMessage message) throws Exception;
 
     boolean doesProvideDeliveryReceipt();
 }

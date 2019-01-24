@@ -22,15 +22,15 @@
 package org.radarbase.fcm.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.util.Objects;
 
 /**
  * Loads Configuration required to connect to the FCM server.
  *
  * @author yatharthranjan
  */
+@Data
 @ConfigurationProperties(value = "fcmserver", ignoreUnknownFields = false)
 public class FcmServerConfig {
 
@@ -43,42 +43,9 @@ public class FcmServerConfig {
     @JsonProperty("fcmsender")
     private String fcmsender;
 
-    public String getSenderId() {
-        return senderId;
-    }
+    @JsonProperty("host")
+    private String host;
 
-    public void setSenderId(String senderId) {
-        this.senderId = senderId;
-    }
-
-    public String getServerKey() {
-        return serverKey;
-    }
-
-    public void setServerKey(String serverKey) {
-        this.serverKey = serverKey;
-    }
-
-    public String getFcmsender() {
-        return fcmsender;
-    }
-
-    public void setFcmsender(String fcmsender) {
-        this.fcmsender = fcmsender;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FcmServerConfig)) return false;
-        FcmServerConfig that = (FcmServerConfig) o;
-        return Objects.equals(getSenderId(), that.getSenderId()) &&
-                Objects.equals(getServerKey(), that.getServerKey()) &&
-                Objects.equals(getFcmsender(), that.getFcmsender());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSenderId(), getServerKey(), getFcmsender());
-    }
+    @JsonProperty("port")
+    private Integer port;
 }

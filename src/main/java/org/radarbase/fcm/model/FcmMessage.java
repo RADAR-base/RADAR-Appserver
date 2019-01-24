@@ -19,25 +19,7 @@
  *
  */
 
-package org.radarbase.fcm.downstream;
+package org.radarbase.fcm.model;
 
-import org.radarbase.fcm.common.CcsClient;
-import org.radarbase.fcm.model.FcmDownstreamMessage;
-import org.springframework.stereotype.Component;
-
-/** TODO: WIP
- * @author yatharthranjan
- */
-@Component
-public class AdminSdkFcmSender implements CcsClient, FcmSender {
-
-
-    @Override
-    public void send(FcmDownstreamMessage downstreamMessage) {
-    }
-
-    @Override
-    public boolean doesProvideDeliveryReceipt() {
-        return false;
-    }
+public interface FcmMessage {
 }

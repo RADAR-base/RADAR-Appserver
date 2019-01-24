@@ -22,12 +22,18 @@
 package org.radarbase.fcm.downstream;
 
 import org.radarbase.fcm.common.CcsClient;
+import org.radarbase.fcm.common.ObjectMapperFactory;
+import org.radarbase.fcm.model.FcmDownstreamMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol.
@@ -41,18 +47,18 @@ public class XmppFcmSender implements CcsClient, FcmSender {
     @Autowired
     private MessageChannel xmppOutbound;
 
+    @Autowired
+    private ObjectMapperFactory mapperFactory;
+
     private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
 
     @Override
-    public void send(Message<?> message) {
+    public void send(FcmDownstreamMessage message) throws Exception {
 
-        Message outMessage;
-        if(!message.getHeaders().containsKey(XmppHeaders.TO)) {
-            outMessage = MessageBuilder.fromMessage(message)
-                    .setHeaderIfAbsent(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT).build();
-        } else {
-            outMessage = message;
-        }
+        Map<String, Object> headers = new HashMap<>();
+        headers.put(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT);
+        Message outMessage = MessageBuilder.createMessage(mapperFactory.getObject().writerFor(message.getClass()).writeValueAsString(message),
+                new MessageHeaders(headers));
         xmppOutbound.send(outMessage);
     }
 

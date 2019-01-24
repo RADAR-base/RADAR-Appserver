@@ -31,6 +31,7 @@ import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.config.ReconnectionEnabledXmppConnectionFactoryBean;
 import org.radarbase.fcm.downstream.FcmSender;
+import org.radarbase.fcm.model.FcmAckMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.support.MessageBuilder;
@@ -83,62 +84,70 @@ public class XmppFcmReceiver implements CcsClient {
         @Cleanup JsonParser parser = mapper.getFactory().createParser(message.getPayload());
         ref.tree = mapper.readTree(parser);
 
-        Optional<Object> from = Optional.ofNullable(message.getHeaders().get(XmppHeaders.FROM));
-
-        from.ifPresent(fromHeader -> sendAck(fromHeader.toString(), ref.tree));
+        final Optional<Object> from = Optional.ofNullable(message.getHeaders().get(XmppHeaders.FROM));
+        from.ifPresent(fromHeader -> sendAck(ref.tree));
 
         final Optional<JsonNode> messageTypeObj = Optional.ofNullable(ref.tree.get("message_type"));
 
-        messageTypeObj.ifPresentOrElse(messageTypeObj1 -> {
-            final String messageType = messageTypeObj1.asText();
-            log.info("Message Type : {}", messageType);
-            switch (FcmMessageType.valueOf(messageType.toUpperCase())) {
-                case ACK:
-                    messageHandler.handleAckReceipt(ref.tree);
-                    break;
-                case NACK:
-                    Optional<String> errorCodeObj = Optional.ofNullable(ref.tree.get("error").asText());
-                    if (errorCodeObj.isEmpty()) {
-                        log.error("Received null FCM Error Code.");
-                        return;
-                    }
+        messageTypeObj.ifPresentOrElse(messageTypeObj1 -> handleMessageTypes(messageTypeObj1, ref.tree),
+                () -> // Normal upstream message from a device client
+            messageHandler.handleUpstreamMessage(ref.tree)
+        );
+    }
 
-                    final String errorCode = errorCodeObj.get();
+    private void handleMessageTypes(JsonNode messageTypeObj, JsonNode tree) {
+        final String messageType = messageTypeObj.asText();
+        log.info("Message Type : {}", messageType);
+        switch (FcmMessageType.valueOf(messageType.toUpperCase())) {
+            case ACK:
+                messageHandler.handleAckReceipt(tree);
+                break;
+            case NACK:
+                Optional<String> errorCodeObj = Optional.ofNullable(tree.get("error").asText());
+                if (errorCodeObj.isEmpty()) {
+                    log.error("Received null FCM Error Code.");
+                    return;
+                }
 
-                    if (errorCode.equals("INVALID_JSON") || errorCode.equals("BAD_REGISTRATION") || errorCode.equals("BAD_ACK")
-                            || errorCode.equals("TOPICS_MESSAGE_RATE_EXCEEDED") || errorCode.equals("DEVICE_MESSAGE_RATE_EXCEEDED")) {
-                        log.info("Device error: {} -> {}", ref.tree.get("error"), ref.tree.get("error_description"));
-                    } else if (errorCode.equals("SERVICE_UNAVAILABLE") || errorCode.equals("INTERNAL_SERVER_ERROR")) {
-                        log.info("Server error: {} -> {}", ref.tree.get("error"), ref.tree.get("error_description"));
-                    } else if (errorCode.equals("CONNECTION_DRAINING")) {
+                final String errorCode = errorCodeObj.get();
+
+                switch (errorCode) {
+                    case "INVALID_JSON":
+                    case "BAD_REGISTRATION":
+                    case "BAD_ACK":
+                    case "TOPICS_MESSAGE_RATE_EXCEEDED":
+                    case "DEVICE_MESSAGE_RATE_EXCEEDED":
+                        log.info("Device error: {} -> {}", tree.get("error"), tree.get("error_description"));
+                        break;
+                    case "SERVICE_UNAVAILABLE":
+                    case "INTERNAL_SERVER_ERROR":
+                        log.info("Server error: {} -> {}", tree.get("error"), tree.get("error_description"));
+                        break;
+                    case "CONNECTION_DRAINING":
                         log.info("Connection draining from Nack ...");
                         handleConnectionDraining();
-                    } else if (errorCode.equals("DEVICE_UNREGISTERED")) {
+                        break;
+                    case "DEVICE_UNREGISTERED":
                         log.info("Received unknown FCM Error Code: {}", errorCode);
-                    } else {
+                        break;
+                    default:
                         log.info("Received unknown FCM Error Code: {}", errorCode);
-                    }
-                    messageHandler.handleNackReceipt(ref.tree);
-                    break;
-                case RECEIPT:
-                    messageHandler.handleStatusReceipt(ref.tree);
-                    break;
-                case CONTROL:
-                    handleControlMessage(ref.tree);
-                    messageHandler.handleControlMessage(ref.tree);
-                    break;
-                default:
-                    messageHandler.handleOthers(ref.tree);
-                    log.info("Received unknown FCM message type: {}", messageType);
-                    break;
-            }
-        }, () -> {
-            // Normal upstream message from a device client
-            // log.debug("Sent Message: " + fcmSender.send(message));
-            messageHandler.handleUpstreamMessage(ref.tree);
-        });
-
-
+                        break;
+                }
+                messageHandler.handleNackReceipt(tree);
+                break;
+            case RECEIPT:
+                messageHandler.handleStatusReceipt(tree);
+                break;
+            case CONTROL:
+                handleControlMessage(tree);
+                messageHandler.handleControlMessage(tree);
+                break;
+            default:
+                messageHandler.handleOthers(tree);
+                log.info("Received unknown FCM message type: {}", messageType);
+                break;
+        }
     }
 
     private void handleConnectionDraining() {
@@ -160,14 +169,12 @@ public class XmppFcmReceiver implements CcsClient {
     }
 
     @SneakyThrows
-    private void sendAck(String headerTo, JsonNode jsonMessage) {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("message_type", FcmMessageType.ACK.toString().toLowerCase());
-        map.put("to", jsonMessage.get("from").textValue());
-        map.put("message_id", jsonMessage.get("message_id").textValue());
+    private void sendAck(JsonNode jsonMessage) {
 
-        String ackJson = mapperFactory.getObject().writeValueAsString(map);
-        fcmSender.send(MessageBuilder.withPayload(ackJson)
-                .setHeader(XmppHeaders.TO, headerTo).build());
+        FcmAckMessage ackMessage = FcmAckMessage.builder()
+                .messageId(jsonMessage.get("from").textValue())
+                .to(jsonMessage.get("from").textValue())
+                .build();
+        fcmSender.send(ackMessage);
     }
 }

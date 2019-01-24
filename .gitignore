@@ -30,3 +30,6 @@
 
 # javadocs
 /src/main/resources/static/java-docs
+
+# test kubernetes
+/kubernetes

@@ -63,8 +63,8 @@ public class FcmAppConfiguration implements PingFailedListener {
 
         String domain = "gcm.googleapis.com";
         connectionConfiguration = XMPPTCPConnectionConfiguration.builder()
-                .setHost("fcm-xmpp.googleapis.com").setPort(5236)
-                .setUsernameAndPassword(fcmServerConfig.getSenderId() + "@" + domain, fcmServerConfig.getServerKey())//"xxxxxxxxxxxxxxxxx")
+                .setHost(fcmServerConfig.getHost()).setPort(fcmServerConfig.getPort())
+                .setUsernameAndPassword(fcmServerConfig.getSenderId() + "@" + domain, fcmServerConfig.getServerKey())
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.ifpossible)
                 .setSendPresence(false)
                 .setSocketFactory(SSLSocketFactory.getDefault())
