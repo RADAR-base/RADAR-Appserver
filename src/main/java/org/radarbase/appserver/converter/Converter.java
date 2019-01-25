@@ -34,17 +34,17 @@ import java.util.stream.Collectors;
  *
  * @author yatharthranjan
  */
-public abstract class Converter<T, S> {
+public interface Converter<T, S> {
 
-    abstract public T dtoToEntity(S s);
+    public T dtoToEntity(S s);
 
-    abstract public S entityToDto(T t);
+    public S entityToDto(T t);
 
-    public List<T> dtosToEntities(Collection<S> ss) {
+    default public List<T> dtosToEntities(Collection<S> ss) {
         return ss.parallelStream().map(this::dtoToEntity).collect(Collectors.toList());
     }
 
-    public List<S> entitiesToDtos(Collection<T> ts) {
+    default public List<S> entitiesToDtos(Collection<T> ts) {
         return ts.parallelStream().map(this::entityToDto).collect(Collectors.toList());
     }
 }

@@ -31,7 +31,7 @@ import org.radarbase.fcm.dto.FcmUserDto;
  *
  * @author yatharthranjan
  */
-public class ProjectConverter extends Converter<Project, RadarProjectDto> {
+public class ProjectConverter implements Converter<Project, RadarProjectDto> {
     private Converter<User, FcmUserDto> userConverter = new UserConverter();
 
     @Override

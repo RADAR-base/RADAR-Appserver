@@ -29,11 +29,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 /**
- * Converter {@link Converter} class for {@link User} entity.
+ * Converter {@link Converter} class for {@link User} entity and {@link FcmUserDto} DTO.
  *
  * @author yatharthranjan
  */
-public class UserConverter extends Converter<User, FcmUserDto> {
+public class UserConverter implements Converter<User, FcmUserDto> {
 
     @Override
     public User dtoToEntity(FcmUserDto fcmUserDto) {

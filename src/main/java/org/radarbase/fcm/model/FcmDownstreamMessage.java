@@ -27,6 +27,9 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotEmpty;
 
+/**
+ * @author yatharthranjan
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
 public class FcmDownstreamMessage implements FcmMessage {

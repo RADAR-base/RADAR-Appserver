@@ -26,6 +26,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.experimental.SuperBuilder;
 import org.radarbase.fcm.upstream.FcmMessageType;
 
+/**
+ * @author yatharthranjan
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
 public class FcmAckMessage extends FcmDownstreamMessage {

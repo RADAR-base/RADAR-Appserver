@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * A {@link Job} that sends an FCM notification to the device when executed.
  *
  * @see NotificationSchedulerService
- * @see org.radarbase.appserver.service.scheduler.SchedulerServiceImpl
+ * @see SchedulerServiceImpl
  *
  * @author yatharthranjan
  */
@@ -63,6 +63,6 @@ public class NotificationJob implements Job{
     @Override
     public void execute(JobExecutionContext context) {
         Notification notification = (Notification) context.getJobDetail().getJobDataMap().get("notification");
-        schedulerService.sendScheduledNotification(notification);
+        schedulerService.sendNotification(notification);
     }
 }

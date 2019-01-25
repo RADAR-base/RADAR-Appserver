@@ -156,8 +156,13 @@ public class FcmNotificationService {
             throw new NotFoundException("The supplied subject ID is invalid. No user found. Please Create a User First.");
         }
         if(!notificationRepository.existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                user.get().getId(), notificationDto.getSourceId(), notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC),
-                notificationDto.getTitle(), notificationDto.getBody(), notificationDto.getType(), notificationDto.getTtlSeconds()
+                user.get().getId(),
+                notificationDto.getSourceId(),
+                notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC),
+                notificationDto.getTitle(),
+                notificationDto.getBody(),
+                notificationDto.getType(),
+                notificationDto.getTtlSeconds()
         )) {
             Notification notification = ConverterFactory.getNotificationConverter().dtoToEntity(notificationDto).setUser(user.get());
 
@@ -196,10 +201,16 @@ public class FcmNotificationService {
                 )));
 
         if(!notificationRepository.existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                newUser.get().getId(), notificationDto.getSourceId(), notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC),
-                notificationDto.getTitle(), notificationDto.getBody(), notificationDto.getType(), notificationDto.getTtlSeconds()
+                newUser.get().getId(),
+                notificationDto.getSourceId(),
+                notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC),
+                notificationDto.getTitle(),
+                notificationDto.getBody(),
+                notificationDto.getType(),
+                notificationDto.getTtlSeconds()
         )) {
-            Notification notification = ConverterFactory.getNotificationConverter().dtoToEntity(notificationDto).setUser(newUser.get());
+            Notification notification = ConverterFactory.getNotificationConverter()
+                    .dtoToEntity(notificationDto).setUser(newUser.get());
             notification = this.notificationRepository.save(notification);
 
             this.schedulerService.scheduleNotification(notification);
@@ -230,10 +241,15 @@ public class FcmNotificationService {
             throw new NotFoundException("Notification does not exist. Please create first");
         }
 
-        Notification newNotification = notification.get().setBody(notificationDto.getBody())
+        Notification newNotification = notification.get()
+                .setBody(notificationDto.getBody())
                 .setScheduledTime(notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC))
-                .setSourceId(notificationDto.getSourceId()).setTitle(notificationDto.getTitle()).setTtlSeconds(notificationDto.getTtlSeconds())
-                .setType(notificationDto.getType()).setUser(user.get()).setFcmMessageId(String.valueOf(notificationDto.hashCode()));
+                .setSourceId(notificationDto.getSourceId())
+                .setTitle(notificationDto.getTitle())
+                .setTtlSeconds(notificationDto.getTtlSeconds())
+                .setType(notificationDto.getType())
+                .setUser(user.get())
+                .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
         newNotification = this.notificationRepository.save(newNotification);
 
         if(!notification.get().isDelivered()) {

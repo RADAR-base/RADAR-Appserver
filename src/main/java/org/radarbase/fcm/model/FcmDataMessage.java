@@ -27,6 +27,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
 
+/**
+ * @author yatharthranjan
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
 public class FcmDataMessage extends FcmDownstreamMessage {

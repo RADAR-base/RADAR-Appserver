@@ -19,13 +19,14 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler;
+package org.radarbase.appserver.service.scheduler.quartz;
 
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import org.quartz.*;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.radarbase.appserver.entity.Scheduled;
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

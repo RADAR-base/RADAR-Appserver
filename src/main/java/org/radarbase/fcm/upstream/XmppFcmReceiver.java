@@ -34,13 +34,10 @@ import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmAckMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -111,6 +108,7 @@ public class XmppFcmReceiver implements CcsClient {
 
                 final String errorCode = errorCodeObj.get();
 
+                // TODO Create Enum for the Error Codes
                 switch (errorCode) {
                     case "INVALID_JSON":
                     case "BAD_REGISTRATION":

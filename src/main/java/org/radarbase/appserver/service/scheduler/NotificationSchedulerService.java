@@ -24,8 +24,10 @@ package org.radarbase.appserver.service.scheduler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.quartz.spi.MutableTrigger;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.scheduler.quartz.NotificationJob;
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmNotificationMessage;
@@ -63,7 +65,11 @@ public class NotificationSchedulerService {
     @Autowired
     private SchedulerServiceImpl schedulerService;
 
-    public void sendScheduledNotification(Notification notification) throws Exception {
+
+    private static final String TRIGGER_PREFIX = "notification-trigger-";
+    private static final String JOB_PREFIX = "notification-jobdetail-";
+
+    public void sendNotification(Notification notification) throws Exception {
         fcmSender.send(createMessageFromNotification(notification));
     }
 
@@ -76,7 +82,6 @@ public class NotificationSchedulerService {
 
         schedulerService.scheduleJob(jobDetail, trigger);
     }
-
 
     public void scheduleNotifications(List<Notification> notifications) {
 
@@ -97,9 +102,22 @@ public class NotificationSchedulerService {
     }
 
     public void updateScheduledNotification(Notification notification) {
-       JobKey jobKey = new JobKey("notification-jobdetail-" + notification.getUser().getSubjectId() + "-" + notification.getId());
 
-       TriggerKey triggerKey = new TriggerKey("notification-trigger-" + notification.getUser().getSubjectId() + "-" + notification.getId());
+        String jobKeyString = new StringBuilder().append(JOB_PREFIX)
+                .append(notification.getUser().getSubjectId())
+                .append("-")
+                .append(notification.getId())
+                .toString();
+
+       JobKey jobKey = new JobKey(jobKeyString);
+
+       String triggerKeyString = new StringBuilder().append(TRIGGER_PREFIX)
+               .append(notification.getUser().getSubjectId())
+               .append("-")
+               .append(notification.getId())
+               .toString();
+
+       TriggerKey triggerKey = new TriggerKey(triggerKeyString);
 
        JobDataMap jobDataMap = new JobDataMap();
        jobDataMap.put("notification", notification);

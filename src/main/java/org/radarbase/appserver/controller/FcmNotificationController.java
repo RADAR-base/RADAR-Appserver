@@ -86,10 +86,6 @@ public class FcmNotificationController {
     public ResponseEntity<FcmNotificationDto> scheduleSingleNotification( @PathVariable String projectId,
                                                                           @PathVariable String subjectId,
                                                                           @Valid @RequestBody FcmNotificationDto notification) {
-
-        // Call scheduler service to add -> which calls other appropriate services to put in db
-        // And also schedules using quarts maybe
-
         return ResponseEntity.ok(this.notificationService.addNotification(notification, subjectId, projectId));
 
     }

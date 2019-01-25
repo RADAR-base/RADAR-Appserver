@@ -31,7 +31,7 @@ import java.time.ZoneOffset;
  *
  * @author yatharthranjan
  */
-public class NotificationConverter extends Converter<Notification, FcmNotificationDto> {
+public class NotificationConverter implements Converter<Notification, FcmNotificationDto> {
     @Override
     public Notification dtoToEntity(FcmNotificationDto notificationDto) {
         return new Notification().setBody(notificationDto.getBody())

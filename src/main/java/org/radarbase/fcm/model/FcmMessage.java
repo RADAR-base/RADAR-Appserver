@@ -21,5 +21,8 @@
 
 package org.radarbase.fcm.model;
 
+/**
+ * @author yatharthranjan
+ */
 public interface FcmMessage {
 }

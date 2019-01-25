@@ -28,7 +28,6 @@ import org.radarbase.appserver.entity.User;
 import org.radarbase.fcm.dto.FcmNotificationDto;
 import org.radarbase.fcm.dto.FcmUserDto;
 
-
 /**
  * Converter Factory providing different converters {@link Converter}.
  * This ensures that only one instance of each converter is used every time.

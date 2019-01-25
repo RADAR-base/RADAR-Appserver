@@ -19,7 +19,7 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler;
+package org.radarbase.appserver.service.scheduler.quartz;
 
 import org.quartz.*;
 
