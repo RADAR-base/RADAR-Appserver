@@ -24,7 +24,6 @@ package org.radarbase.appserver.service.scheduler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.quartz.spi.MutableTrigger;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.scheduler.quartz.NotificationJob;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
@@ -58,9 +57,6 @@ public class NotificationSchedulerService {
     @Autowired
     @Qualifier("fcmSenderProps")
     private FcmSender fcmSender;
-
-    @Autowired
-    private Scheduler scheduler;
 
     @Autowired
     private SchedulerServiceImpl schedulerService;
