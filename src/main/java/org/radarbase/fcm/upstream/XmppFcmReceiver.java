@@ -51,6 +51,8 @@ import java.util.Optional;
 @Component("fcmReceiver")
 public class XmppFcmReceiver implements CcsClient {
 
+    // TODO add support for subscribing to publisher updates added in Java 9
+
     @Autowired
     private UpstreamMessageHandler messageHandler;
 
