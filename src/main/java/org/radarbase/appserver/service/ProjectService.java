@@ -22,8 +22,8 @@
 package org.radarbase.appserver.service;
 
 import org.radarbase.appserver.converter.*;
-import org.radarbase.appserver.dto.RadarProjectDto;
-import org.radarbase.appserver.dto.RadarProjects;
+import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.Projects;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.exception.InvalidProjectDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
@@ -41,20 +41,20 @@ import java.util.*;
  * @author yatharthranjan
  */
 @Service
-public class RadarProjectService {
+public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
 
     @Transactional(readOnly = true)
-    public RadarProjects getAllProjects() {
-        RadarProjects projects = new RadarProjects();
-        return new RadarProjects().setProjects(
+    public Projects getAllProjects() {
+        Projects projects = new Projects();
+        return new Projects().setProjects(
                 ConverterFactory.getProjectConverter().entitiesToDtos(projectRepository.findAll()));
     }
 
     @Transactional(readOnly = true)
-    public RadarProjectDto getProjectById(Long id) {
+    public ProjectDto getProjectById(Long id) {
         Optional<Project> project = projectRepository.findById(id);
 
         if (project.isPresent()) {
@@ -65,7 +65,7 @@ public class RadarProjectService {
     }
 
     @Transactional(readOnly = true)
-    public RadarProjectDto getProjectByProjectId(String projectId) {
+    public ProjectDto getProjectByProjectId(String projectId) {
         Optional<Project> project = projectRepository.findByProjectId(projectId);
 
         if (project.isPresent()) {
@@ -75,19 +75,8 @@ public class RadarProjectService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public Project getProjectEntityByProjectId(String projectId) {
-        Optional<Project> project = projectRepository.findByProjectId(projectId);
-
-        if (project.isPresent()) {
-            return project.get();
-        } else {
-            throw new NotFoundException("Project not found with projectId" + projectId);
-        }
-    }
-
     @Transactional
-    public RadarProjectDto addProject(RadarProjectDto projectDto) {
+    public ProjectDto addProject(ProjectDto projectDto) {
 
         Optional<Project> project;
         if (projectDto.getProjectId() != null && !projectDto.getProjectId().isEmpty()) {
@@ -100,7 +89,8 @@ public class RadarProjectService {
 
         Project resultProject;
         if(project.isPresent()) {
-            resultProject = project.get().setProjectId(projectDto.getProjectId());
+            throw  new InvalidProjectDetailsException("The project with specified ID " + projectDto.getId() +
+                    " or project-id " + projectDto.getProjectId() + " already exists. Please use Update endpoint if need to update the project.");
         } else {
             resultProject = ConverterFactory.getProjectConverter().dtoToEntity(projectDto);
         }
@@ -110,21 +100,17 @@ public class RadarProjectService {
 
     //TODO Test this as right now creating new project if changing projectId
     @Transactional
-    public RadarProjectDto updateProject(RadarProjectDto projectDto) {
-
-        Optional<Project> project = projectRepository.findByProjectId(projectDto.getProjectId());;
-        if (project.isPresent()) {
-            throw new InvalidProjectDetailsException(projectDto, new IllegalArgumentException("The provided project ID already exists"));
-        } else if (projectDto.getId() != null) {
+    public ProjectDto updateProject(ProjectDto projectDto) {
+        Optional<Project> project;
+        if (projectDto.getId() != null) {
             project = projectRepository.findById(projectDto.getId());
         } else {
-            throw new InvalidProjectDetailsException(projectDto, new IllegalArgumentException("At least one of 'id' or 'project id' must be supplied"));
+            throw new InvalidProjectDetailsException(projectDto, new IllegalArgumentException("The 'id' of the project must be supplied for updating."));
         }
 
         Project resultProject;
         if (project.isPresent()) {
-            resultProject = this.projectRepository.getOne(projectDto.getId());
-            resultProject.setProjectId(projectDto.getProjectId());
+            resultProject = project.get().setProjectId(projectDto.getProjectId());
         } else {
             throw new NotFoundException("The project could not be found with details " + projectDto);
         }

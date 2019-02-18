@@ -27,29 +27,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wrapper for a list of {@link RadarProjectDto} objects.
+ * Wrapper for a list of {@link ProjectDto} objects.
  *
  * @author yatharthranjan
  */
 @Data
-public class RadarProjects {
+public class Projects {
 
-    private List<RadarProjectDto> projects;
+    private List<ProjectDto> projects;
 
-    public RadarProjects() {
+    public Projects() {
         this.projects = new ArrayList<>();
     }
 
-    public List<RadarProjectDto> getProjects() {
+    public List<ProjectDto> getProjects() {
         return projects;
     }
 
-    public RadarProjects setProjects(List<RadarProjectDto> projects) {
+    public Projects setProjects(List<ProjectDto> projects) {
         this.projects = projects;
         return this;
     }
 
-    public RadarProjects addProject(RadarProjectDto project) {
+    public Projects addProject(ProjectDto project) {
         this.projects.add(project);
         return this;
     }

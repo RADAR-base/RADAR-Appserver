@@ -21,7 +21,7 @@
 
 package org.radarbase.appserver.converter;
 
-import org.radarbase.appserver.dto.RadarProjectDto;
+import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.fcm.dto.FcmUserDto;
@@ -31,20 +31,20 @@ import org.radarbase.fcm.dto.FcmUserDto;
  *
  * @author yatharthranjan
  */
-public class ProjectConverter implements Converter<Project, RadarProjectDto> {
+public class ProjectConverter implements Converter<Project, ProjectDto> {
     private Converter<User, FcmUserDto> userConverter = new UserConverter();
 
     @Override
-    public Project dtoToEntity(RadarProjectDto radarProjectDto) {
+    public Project dtoToEntity(ProjectDto projectDto) {
 
         return new Project()
-                .setProjectId(radarProjectDto.getProjectId());
+                .setProjectId(projectDto.getProjectId());
     }
 
     @Override
-    public RadarProjectDto entityToDto(Project project) {
+    public ProjectDto entityToDto(Project project) {
 
-        return new RadarProjectDto().setId(project.getId())
+        return new ProjectDto().setId(project.getId())
                 .setProjectId(project.getProjectId());
     }
 }

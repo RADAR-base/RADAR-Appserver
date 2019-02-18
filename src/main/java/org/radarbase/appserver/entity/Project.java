@@ -23,19 +23,13 @@ package org.radarbase.appserver.entity;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.hibernate.validator.constraints.UniqueElements;
-import org.radarbase.appserver.converter.Converter;
-import org.radarbase.appserver.converter.ConverterFactory;
-import org.radarbase.fcm.dto.FcmNotificationDto;
-import org.radarbase.fcm.dto.FcmUserDto;
+import org.radarbase.appserver.dto.ProjectDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 /**
- * {@link Entity} for persisting projects. The corresponding DTO is {@link org.radarbase.appserver.dto.RadarProjectDto}.
+ * {@link Entity} for persisting projects. The corresponding DTO is {@link ProjectDto}.
  *
  * @author yatharthranjan
  */

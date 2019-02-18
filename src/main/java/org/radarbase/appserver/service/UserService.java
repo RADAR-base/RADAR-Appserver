@@ -23,7 +23,7 @@ package org.radarbase.appserver.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.converter.*;
-import org.radarbase.appserver.dto.RadarProjectDto;
+import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -61,7 +61,7 @@ public class UserService {
 
     private static final Converter<User, FcmUserDto> userConverter = new UserConverter();
     private static final Converter<Notification, FcmNotificationDto> notificationConverter = new NotificationConverter();
-    private static final Converter<Project, RadarProjectDto> projectConverter = new ProjectConverter();
+    private static final Converter<Project, ProjectDto> projectConverter = new ProjectConverter();
 
     @Transactional(readOnly = true)
     public FcmUsers getAllRadarUsers() {
@@ -108,6 +108,7 @@ public class UserService {
     public FcmUserDto saveUserInProject(FcmUserDto userDto) {
 
         // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject id, then get project id and source ids from MP)
+        // TODO: Make the above pluggable so can use others or none.
 
         log.debug("User DTO:" + userDto);
         Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());

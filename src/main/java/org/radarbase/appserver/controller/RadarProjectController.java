@@ -21,9 +21,9 @@
 
 package org.radarbase.appserver.controller;
 
-import org.radarbase.appserver.dto.RadarProjectDto;
-import org.radarbase.appserver.dto.RadarProjects;
-import org.radarbase.appserver.service.RadarProjectService;
+import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.Projects;
+import org.radarbase.appserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +44,7 @@ import javax.websocket.server.PathParam;
 public class RadarProjectController {
 
     @Autowired
-    private RadarProjectService projectService;
+    private ProjectService projectService;
 
     /**
      * Method for updating a project.
@@ -53,7 +53,7 @@ public class RadarProjectController {
      * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
      */
     @PostMapping(value = "/" + Paths.PROJECT_PATH, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<RadarProjectDto> addProject(@Valid @RequestBody RadarProjectDto projectDto) {
+    public ResponseEntity<ProjectDto> addProject(@Valid @RequestBody ProjectDto projectDto) {
         return ResponseEntity.ok(this.projectService.addProject(projectDto));
     }
 
@@ -64,22 +64,22 @@ public class RadarProjectController {
      * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
      */
     @PutMapping(value = "/" + Paths.PROJECT_PATH, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<RadarProjectDto> updateProject(@Valid @RequestBody RadarProjectDto projectDto) {
+    public ResponseEntity<ProjectDto> updateProject(@Valid @RequestBody ProjectDto projectDto) {
         return ResponseEntity.ok(this.projectService.updateProject(projectDto));
     }
 
     @GetMapping("/" + Paths.PROJECT_PATH)
-    public ResponseEntity<RadarProjects> getAllProjects() {
+    public ResponseEntity<Projects> getAllProjects() {
         return ResponseEntity.ok(this.projectService.getAllProjects());
     }
 
     @GetMapping("/"+ Paths.PROJECT_PATH + "/project")
-    public ResponseEntity<RadarProjectDto> getProjectsUsingId(@Valid @PathParam("id") Long id) {
+    public ResponseEntity<ProjectDto> getProjectsUsingId(@Valid @PathParam("id") Long id) {
         return ResponseEntity.ok(this.projectService.getProjectById(id));
     }
 
     @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}")
-    public ResponseEntity<RadarProjectDto> getProjectsUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
+    public ResponseEntity<ProjectDto> getProjectsUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
         return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
     }
 }

@@ -22,7 +22,7 @@
 package org.radarbase.appserver.controller;
 
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
-import org.radarbase.appserver.service.RadarProjectService;
+import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.fcm.dto.FcmUsers;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.UserService;
@@ -54,7 +54,7 @@ public class RadarUserController {
     private FcmNotificationService notificationService;
 
     @Autowired
-    private RadarProjectService projectService;
+    private ProjectService projectService;
 
     @PostMapping("/users")
     public ResponseEntity addUser(@RequestBody FcmUserDto userDto)

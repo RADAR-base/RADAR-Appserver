@@ -21,12 +21,12 @@
 
 package org.radarbase.appserver.exception;
 
-import org.radarbase.appserver.dto.RadarProjectDto;
+import org.radarbase.appserver.dto.ProjectDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Exception thrown when a supplied {@link org.radarbase.appserver.entity.Project} or {@link RadarProjectDto}
+ * Exception thrown when a supplied {@link org.radarbase.appserver.entity.Project} or {@link ProjectDto}
  * is invalid.
  * If accessed by REST API then gives a HTTP status {@link HttpStatus#EXPECTATION_FAILED}.
  *
@@ -39,11 +39,11 @@ public class InvalidProjectDetailsException extends RuntimeException{
         super(message);
     }
 
-    public InvalidProjectDetailsException(RadarProjectDto projectDto) {
+    public InvalidProjectDetailsException(ProjectDto projectDto) {
         super("Invalid details supplied for the project " + projectDto);
     }
 
-    public InvalidProjectDetailsException(RadarProjectDto projectDto, Throwable cause) {
+    public InvalidProjectDetailsException(ProjectDto projectDto, Throwable cause) {
         super("Invalid details supplied for the project " + projectDto, cause);
     }
 

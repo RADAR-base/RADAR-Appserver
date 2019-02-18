@@ -35,7 +35,7 @@ import java.io.Serializable;
  * @author yatharthranjan
  */
 @Data
-public class RadarProjectDto implements Serializable{
+public class ProjectDto implements Serializable{
 
     private static final long serialVersionUID = 2L;
 
@@ -51,12 +51,12 @@ public class RadarProjectDto implements Serializable{
         return projectId;
     }
 
-    public RadarProjectDto setId(Long id) {
+    public ProjectDto setId(Long id) {
         this.id = id;
         return this;
     }
 
-    public RadarProjectDto setProjectId(String projectId) {
+    public ProjectDto setProjectId(String projectId) {
         this.projectId = projectId;
         return this;
     }

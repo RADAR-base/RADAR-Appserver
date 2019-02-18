@@ -21,7 +21,7 @@
 
 package org.radarbase.appserver.converter;
 
-import org.radarbase.appserver.dto.RadarProjectDto;
+import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -37,11 +37,11 @@ import org.radarbase.fcm.dto.FcmUserDto;
  */
 public class ConverterFactory {
 
-    private static final Converter<Project, RadarProjectDto> projectConverter = new ProjectConverter();
+    private static final Converter<Project, ProjectDto> projectConverter = new ProjectConverter();
     private static final Converter<Notification, FcmNotificationDto> notificationConverter = new NotificationConverter();
     private static final Converter<User, FcmUserDto> userConverter = new UserConverter();
 
-    public static Converter<Project, RadarProjectDto> getProjectConverter() {
+    public static Converter<Project, ProjectDto> getProjectConverter() {
         return projectConverter;
     }
 
