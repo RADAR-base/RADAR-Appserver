@@ -28,7 +28,7 @@ import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.downstream.FcmSender;
-import org.radarbase.fcm.dto.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,7 +74,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
         jsonData.ifPresentOrElse(data -> {
 
-            Optional<JsonNode> action = Optional.ofNullable(jsonData.get().get("action"));
+            Optional<JsonNode> action = Optional.ofNullable(data.get("action"));
 
             action.ifPresentOrElse(act -> {
                 switch (Action.valueOf(act.asText())) {

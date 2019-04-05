@@ -22,7 +22,7 @@
 package org.radarbase.appserver.converter;
 
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.fcm.dto.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 
 import java.time.ZoneOffset;
 

@@ -19,7 +19,7 @@
  *
  */
 
-package org.radarbase.fcm.dto;
+package org.radarbase.appserver.dto.fcm;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -67,6 +67,8 @@ public class FcmUserDto implements Serializable {
 
     private String fcmToken;
 
+    private String language;
+
     public FcmUserDto(User user) {
         this.id = user.getId();
         this.projectId = user.getProject().getProjectId();
@@ -76,6 +78,7 @@ public class FcmUserDto implements Serializable {
         this.fcmToken = user.getFcmToken();
         this.enrolmentDate = LocalDateTime.ofInstant(user.getEnrolmentDate(), ZoneOffset.UTC);
         this.timezone = user.getTimezone();
+        this.language = user.getLanguage();
     }
 
     public FcmUserDto() {
@@ -122,4 +125,8 @@ public class FcmUserDto implements Serializable {
         return this;
     }
 
+    public FcmUserDto setLanguage(String language) {
+        this.language = language;
+        return this;
+    }
 }

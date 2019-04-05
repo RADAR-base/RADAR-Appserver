@@ -19,7 +19,7 @@
  *
  */
 
-package org.radarbase.fcm.dto;
+package org.radarbase.appserver.dto.fcm;
 
 import lombok.Getter;
 import lombok.ToString;

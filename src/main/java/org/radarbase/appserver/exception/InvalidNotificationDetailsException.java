@@ -21,7 +21,7 @@
 
 package org.radarbase.appserver.exception;
 
-import org.radarbase.fcm.dto.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

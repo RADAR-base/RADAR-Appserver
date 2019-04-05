@@ -19,24 +19,16 @@
  *
  */
 
-package org.radarbase.fcm.dto;
+package org.radarbase.appserver.dto.protocol;
 
-import lombok.*;
+import lombok.Data;
 
-import java.util.List;
+@Data
+public class TimePeriod {
 
-/**
- * @author yatharthranjan
- */
-@ToString
-@Getter
-@EqualsAndHashCode
-public class FcmUsers {
+    private String unit;
 
-    private List<FcmUserDto> users;
+    private Integer amount;
 
-    public FcmUsers setUsers(List<FcmUserDto> users) {
-        this.users = users;
-        return this;
-    }
+    private Integer repeat;
 }

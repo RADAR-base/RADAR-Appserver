@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -34,7 +35,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * {@link Entity} for persisting notifications. The corresponding DTO is {@link org.radarbase.fcm.dto.FcmNotificationDto}.
+ * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
  * This also includes information for scheduling the notification through the Firebase Cloud Messaging(FCM) system.
  *
  * @see Scheduled

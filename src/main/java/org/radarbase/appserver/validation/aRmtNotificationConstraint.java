@@ -27,7 +27,7 @@ import java.lang.annotation.*;
 
 /**
  * {@link Constraint} to be used in {@link javax.validation.Validator} {@link aRmtNotificationValidator} to validate
- * incoming notification requests acording to their schedule via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
+ * incoming notification requests according to their schedule via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
  *
  * @author yatharthranjan
  */

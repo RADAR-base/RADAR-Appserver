@@ -21,8 +21,8 @@
 
 package org.radarbase.appserver.controller;
 
-import org.radarbase.fcm.dto.FcmNotificationDto;
-import org.radarbase.fcm.dto.FcmNotifications;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Resource Endpoint for getting and adding (scheduling) notifications on Firbase Cloud Messaging.

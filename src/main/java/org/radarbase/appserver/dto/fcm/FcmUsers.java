@@ -19,40 +19,24 @@
  *
  */
 
-package org.radarbase.fcm.dto;
+package org.radarbase.appserver.dto.fcm;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author yatharthranjan
  */
+@ToString
 @Getter
 @EqualsAndHashCode
-@ToString
-public class FcmNotifications {
+public class FcmUsers {
 
-    private List<FcmNotificationDto>  notifications;
+    private List<FcmUserDto> users;
 
-    public FcmNotifications() {
-        notifications = new ArrayList<>();
-    }
-
-    public FcmNotifications setNotifications(List<FcmNotificationDto> notifications) {
-        this.notifications = notifications;
+    public FcmUsers setUsers(List<FcmUserDto> users) {
+        this.users = users;
         return this;
     }
-
-    public FcmNotifications addNotification(FcmNotificationDto notificationDto) {
-
-        if(!notifications.contains(notificationDto)) {
-            this.notifications.add(notificationDto);
-        }
-        return this;
-    }
-
 }

@@ -62,7 +62,7 @@ dependencies {
 	runtimeOnly('org.liquibase:liquibase-core')
 	runtime('com.h2database:h2')
 
-	compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+	//compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
 	//compile('org.liquibase.ext:liquibase-hibernate5:3.6')

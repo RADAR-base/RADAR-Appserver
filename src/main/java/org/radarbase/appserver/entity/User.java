@@ -27,14 +27,16 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.*;
 
 /**
- * {@link Entity} for persisting users. The corresponding DTO is {@link org.radarbase.fcm.dto.FcmUserDto}.
+ * {@link Entity} for persisting users. The corresponding DTO is {@link FcmUserDto}.
  * A {@link Project} can have multiple {@link User} (Many-to-One).
  *
  * @author yatharthranjan
@@ -76,6 +78,10 @@ public class User extends AuditModel {
     @Column(name = "timezone")
     private double timezone;
 
+    @NotEmpty
+    @Column(name = "language")
+    private String language;
+
     public User setSubjectId(String subjectId) {
         this.subjectId = subjectId;
         return this;
@@ -102,6 +108,11 @@ public class User extends AuditModel {
     }
     public User setTimezone(double timezone) {
         this.timezone = timezone;
+        return this;
+    }
+
+    public User setLanguage(String language) {
+        this.language = language;
         return this;
     }
 

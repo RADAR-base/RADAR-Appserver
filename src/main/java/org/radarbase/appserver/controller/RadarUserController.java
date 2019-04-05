@@ -23,10 +23,10 @@ package org.radarbase.appserver.controller;
 
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.ProjectService;
-import org.radarbase.fcm.dto.FcmUsers;
+import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.UserService;
-import org.radarbase.fcm.dto.FcmUserDto;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

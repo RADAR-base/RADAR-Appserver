@@ -35,8 +35,8 @@ import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
-import org.radarbase.fcm.dto.FcmNotificationDto;
-import org.radarbase.fcm.dto.FcmNotifications;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +55,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Service
 public class FcmNotificationService {
+
+    // TODO: Implement this as a publisher
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -301,7 +303,6 @@ public class FcmNotificationService {
             this.notificationRepository.deleteByUserId(user1.getId());
             User newUser = user1.setFcmToken("");
             newUser = this.userRepository.save(newUser);
-
         }, () -> {
             throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");
         });

@@ -21,25 +21,38 @@
 
 package org.radarbase.appserver.service;
 
-import org.radarbase.appserver.entity.Notification;
+import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.service.protocol.GithubProtocolGenerator;
+import org.radarbase.appserver.service.protocol.ProtocolGenerator;
+import org.radarbase.appserver.util.CachedMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 public class QuestionnaireScheduleService {
 
+    private ProtocolGenerator protocolGenerator;
 
-    // TODO get github protocol and generate schedule using enrolmentDate
-    // Use cached map of protocols per project
+    private CachedMap<String, Schedule> subjectScheduleMap;
+
+    @Autowired
+    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
+        this.protocolGenerator = protocolGenerator;
+        protocolGenerator.init();
+        log.info(String.valueOf(protocolGenerator.getProtocol("RADAR-MDD-KCL-s1").toString()));
+    }
+
     // Use cached map of schedule of user
-
     public void getProtocolForProject(String projectId) {
 
     }
 
-    public Set<Notification> getScheduleForUser(User user) {
+    public Set<Schedule> getScheduleForUser(User user) {
         return null;
     }
 

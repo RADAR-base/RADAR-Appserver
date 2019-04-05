@@ -23,7 +23,7 @@ package org.radarbase.appserver.converter;
 
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.entity.UserMetrics;
-import org.radarbase.fcm.dto.FcmUserDto;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -43,7 +43,8 @@ public class UserConverter implements Converter<User, FcmUserDto> {
                 .setSubjectId(fcmUserDto.getSubjectId())
                 .setUserMetrics(getValidUserMetrics(fcmUserDto))
                 .setEnrolmentDate(fcmUserDto.getEnrolmentDate().toInstant(ZoneOffset.UTC))
-                .setTimezone(fcmUserDto.getTimezone());
+                .setTimezone(fcmUserDto.getTimezone())
+                .setLanguage(fcmUserDto.getLanguage());
     }
 
     @Override
