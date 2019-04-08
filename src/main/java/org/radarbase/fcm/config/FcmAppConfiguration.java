@@ -53,8 +53,6 @@ public class FcmAppConfiguration implements PingFailedListener {
 
     private ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
 
-    private XMPPTCPConnectionConfiguration connectionConfiguration;
-
     @Autowired
     private FcmServerConfig fcmServerConfig;
 
@@ -62,7 +60,7 @@ public class FcmAppConfiguration implements PingFailedListener {
     public ReconnectionEnabledXmppConnectionFactoryBean xmppConnection() throws Exception {
 
         String domain = "gcm.googleapis.com";
-        connectionConfiguration = XMPPTCPConnectionConfiguration.builder()
+        XMPPTCPConnectionConfiguration connectionConfiguration = XMPPTCPConnectionConfiguration.builder()
                 .setHost(fcmServerConfig.getHost()).setPort(fcmServerConfig.getPort())
                 .setUsernameAndPassword(fcmServerConfig.getSenderId() + "@" + domain, fcmServerConfig.getServerKey())
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.ifpossible)

@@ -19,43 +19,38 @@
  *
  */
 
-package org.radarbase.appserver.service;
+package org.radarbase.appserver.controller;
 
-import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
-import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.service.protocol.ProtocolGenerator;
-import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import javax.validation.Valid;
+import java.util.Map;
 
-@Slf4j
-@Service
-public class QuestionnaireScheduleService {
+@RestController
+public class ProtocolEndpoint {
+
 
     private ProtocolGenerator protocolGenerator;
 
-    private CachedMap<String, Schedule> subjectScheduleMap;
-
     @Autowired
-    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
+    public ProtocolEndpoint(ProtocolGenerator protocolGenerator) {
         this.protocolGenerator = protocolGenerator;
-        protocolGenerator.init();
-        //log.info(String.valueOf(protocolGenerator.getProtocol("RADAR-MDD-KCL-s1").toString()));
+        this.protocolGenerator.init();
     }
 
-    // Use cached map of schedule of user
-    public void getProtocolForProject(String projectId) {
 
+    @GetMapping("/" + Paths.PROTOCOL_PATH)
+    public Map<String, Protocol> getProtocols() {
+        return this.protocolGenerator.getAllProtocols();
     }
 
-    public Set<Schedule> getScheduleForUser(User user) {
-        return null;
-    }
-
-    public void generateScheduleForUser(User user) {
-
+    @GetMapping("/" + Paths.PROTOCOL_PATH +"/{projectId}")
+    public Protocol getProtocol(@Valid @PathVariable String projectId) {
+        return this.protocolGenerator.getProtocol(projectId);
     }
 }

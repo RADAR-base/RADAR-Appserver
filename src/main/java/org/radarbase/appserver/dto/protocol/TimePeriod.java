@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.dto.protocol;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
@@ -30,5 +31,6 @@ public class TimePeriod {
 
     private Integer amount;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer repeat;
 }

@@ -25,11 +25,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.Temporal;
-import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Map that caches the result of a list for a limited time.
@@ -94,6 +91,17 @@ public class CachedMap<S, T> {
             return cache;
         }
     }
+
+
+    /**
+     * Get the cached map. Does not refresh the map even if the data is old.
+     *
+     * @return map of data
+     */
+    public Map<S, T> getCache() {
+        return cache;
+    }
+
 
     /**
      * Get a key from the map. If the key is missing, it will check with {@link #mayRetry()} whether

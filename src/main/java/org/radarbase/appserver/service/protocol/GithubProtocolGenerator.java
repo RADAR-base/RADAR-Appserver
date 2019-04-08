@@ -22,36 +22,29 @@
 package org.radarbase.appserver.service.protocol;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Request;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.util.CachedMap;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriBuilder;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletionException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
@@ -60,20 +53,26 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class GithubProtocolGenerator implements ProtocolGenerator {
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class GithubProtocolGenerator implements ProtocolGenerator{
 
     private final String protocolRepo;
     private final String protocolFileName;
     private final String protocolBranch;
 
-    private CachedMap<String, Protocol> cachedMap;
+    // Keeps a cache of Protocol for each project
+    private CachedMap<String, Protocol> cachedProtocolMap;
+
+    // Keeps a cache of github URI's associated with protocol for each project
+    private CachedMap<String, URI> projectProtocolUriMap;
+
     private HttpClient client;
 
     @Autowired
     private ObjectMapperFactory objectMapperFactory;
 
-    private static final Duration CACHE_INVALIDATE_DEFAULT = Duration.ofMinutes(1);
-    private static final Duration CACHE_RETRY_DEFAULT = Duration.ofHours(1);
+    private static final Duration CACHE_INVALIDATE_DEFAULT = Duration.ofHours(1);
+    private static final Duration CACHE_RETRY_DEFAULT = Duration.ofHours(2);
     private static final String GITHUB_API_URI = "https://api.github.com/repos/";
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
 
@@ -81,7 +80,7 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
     @Autowired
     public GithubProtocolGenerator(@Value("${radar.questionnaire.protocol.github.repo.path}") String protocolRepo,
                                    @Value("${radar.questionnaire.protocol.github.file.name}") String protocolFileName,
-                                   String protocolBranch) {
+                                   @Value("${radar.questionnaire.protocol.github.branch}") String protocolBranch) {
         this.protocolRepo = protocolRepo;
         this.protocolFileName = protocolFileName;
         this.protocolBranch = protocolBranch;
@@ -94,7 +93,8 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
             throw new IllegalArgumentException("Protocol Repo And File name needs to be configured.");
         }
         client = HttpClient.newHttpClient();
-        cachedMap = new CachedMap<>(this::refreshProtocols, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
+        cachedProtocolMap = new CachedMap<>(this::refreshProtocols, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
+        projectProtocolUriMap = new CachedMap<>(this::getProtocolDirectories, Duration.ofHours(3), Duration.ofHours(4));
 
         log.debug("initialized Github Protocol generator");
     }
@@ -102,7 +102,7 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
     @Override
     public Map<String, Protocol> getAllProtocols() {
         try {
-            return cachedMap.get();
+            return cachedProtocolMap.get();
         } catch (IOException ex) {
             log.error("Cannot retrieve Protocols: {}", ex);
             return null;
@@ -113,7 +113,7 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
     public Protocol getProtocol(String projectId) {
 
         try {
-            return cachedMap.get(projectId);
+            return cachedProtocolMap.get(projectId);
         } catch (IOException ex) {
             log.error("Cannot retrieve Protocols for project {} : {}",
                     projectId, ex);
@@ -126,7 +126,7 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
 
         final Map<String, Protocol> projectProtocolMap = new HashMap<>();
 
-        Map<String, URI> protocolUriMap = getProtocolDirectories();
+        Map<String, URI> protocolUriMap = projectProtocolUriMap.get();
 
         for (Map.Entry<String, URI> entry : protocolUriMap.entrySet()) {
             HttpResponse responsep = client.send(getRequest(entry.getValue()), HttpResponse.BodyHandlers.ofString());
@@ -136,6 +136,9 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
                         projectProtocolMap.put(entry.getKey(), getProtocolFromUrl(jsonNode.get("download_url").asText()));
                     }
                 }
+            } else {
+                log.warn("Failed to retrieve protocols from github. Using the existing cached values.");
+                return cachedProtocolMap.getCache();
             }
         }
         log.info("Refreshed Protocols from Github");
@@ -143,12 +146,12 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
         return projectProtocolMap;
     }
 
-    private Map<String, URI> getProtocolDirectories() throws Exception {
+    @SneakyThrows
+    private Map<String, URI> getProtocolDirectories() {
 
-        final ObjectMapper mapper = objectMapperFactory.getObject();
         Map<String, URI> protocolUriMap = new HashMap<>();
 
-        HttpResponse response = client.send(getRequest(URI.create(GITHUB_API_URI + protocolRepo + "/contents")),
+        HttpResponse response = client.send(getRequest(URI.create(GITHUB_API_URI + protocolRepo + "/contents?ref=" + protocolBranch)),
                 HttpResponse.BodyHandlers.ofString());
 
         if (isSuccessfulResponse(response)) {
@@ -158,6 +161,9 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
                     protocolUriMap.put(jsonNode.get("name").asText(), URI.create(jsonNode.get("_links").get("self").asText()));
                 }
             }
+        } else {
+            log.warn("Failed to retrieve protocols URIs from github: {}. Using the existing cached values.", response);
+            return projectProtocolUriMap.getCache();
         }
         return protocolUriMap;
     }
@@ -185,13 +191,12 @@ public class GithubProtocolGenerator implements ProtocolGenerator {
     }
 
     private ArrayNode getArrayNode(String json) throws Exception {
-        final ObjectMapper mapper = objectMapperFactory.getObject();
 
-        JsonParser parserProtocol = mapper.getFactory().createParser(json);
-        return mapper.readTree(parserProtocol);
+        JsonParser parserProtocol = objectMapperFactory.getObject().getFactory().createParser(json);
+        return objectMapperFactory.getObject().readTree(parserProtocol);
     }
 
-    public static boolean isSuccessfulResponse(HttpResponse response) {
+    private static boolean isSuccessfulResponse(HttpResponse response) {
         return response.statusCode() >= 200 && response.statusCode() < 300;
     }
 }
