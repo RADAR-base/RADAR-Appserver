@@ -23,21 +23,19 @@ package org.radarbase.appserver.dto.protocol;
 
 import lombok.Data;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Data
 public class LanguageText {
 
-    private String en;
+  private String en;
 
-    private String it;
+  private String it;
 
-    private String nl;
+  private String nl;
 
-    private String da;
+  private String da;
 
-    private String de;
+  private String de;
 
-    private String es;
+  private String es;
 }

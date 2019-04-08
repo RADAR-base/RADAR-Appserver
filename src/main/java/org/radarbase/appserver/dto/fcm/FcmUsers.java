@@ -25,18 +25,16 @@ import lombok.*;
 
 import java.util.List;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @ToString
 @Getter
 @EqualsAndHashCode
 public class FcmUsers {
 
-    private List<FcmUserDto> users;
+  private List<FcmUserDto> users;
 
-    public FcmUsers setUsers(List<FcmUserDto> users) {
-        this.users = users;
-        return this;
-    }
+  public FcmUsers setUsers(List<FcmUserDto> users) {
+    this.users = users;
+    return this;
+  }
 }

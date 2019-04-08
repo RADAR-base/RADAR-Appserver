@@ -24,14 +24,14 @@ package org.radarbase.appserver.service.fcm;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Enum to denote each action for the requests made via the {@link org.radarbase.fcm.upstream.XmppFcmReceiver}.
+ * Enum to denote each action for the requests made via the {@link
+ * org.radarbase.fcm.upstream.XmppFcmReceiver}.
  *
  * @see FcmMessageReceiverService#handleUpstreamMessage(JsonNode)
- *
  * @author yatharthranjan
  */
 enum Action {
-        SCHEDULE,
-        CANCEL,
-        ECHO
-    }
+  SCHEDULE,
+  CANCEL,
+  ECHO
+}

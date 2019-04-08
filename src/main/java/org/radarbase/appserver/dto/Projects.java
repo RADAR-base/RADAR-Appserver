@@ -34,23 +34,23 @@ import java.util.List;
 @Data
 public class Projects {
 
-    private List<ProjectDto> projects;
+  private List<ProjectDto> projects;
 
-    public Projects() {
-        this.projects = new ArrayList<>();
-    }
+  public Projects() {
+    this.projects = new ArrayList<>();
+  }
 
-    public List<ProjectDto> getProjects() {
-        return projects;
-    }
+  public List<ProjectDto> getProjects() {
+    return projects;
+  }
 
-    public Projects setProjects(List<ProjectDto> projects) {
-        this.projects = projects;
-        return this;
-    }
+  public Projects setProjects(List<ProjectDto> projects) {
+    this.projects = projects;
+    return this;
+  }
 
-    public Projects addProject(ProjectDto project) {
-        this.projects.add(project);
-        return this;
-    }
+  public Projects addProject(ProjectDto project) {
+    this.projects.add(project);
+    return this;
+  }
 }

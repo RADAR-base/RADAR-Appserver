@@ -36,34 +36,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol.
- * This uses an outbound-adapter configured in classpath to send messages.
+ * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol. This uses
+ * an outbound-adapter configured in classpath to send messages.
  *
  * @author yatharthranjan
  */
 @Component
 public class XmppFcmSender implements CcsClient, FcmSender {
 
-    @Autowired
-    private MessageChannel xmppOutbound;
+  @Autowired private MessageChannel xmppOutbound;
 
-    @Autowired
-    private ObjectMapperFactory mapperFactory;
+  @Autowired private ObjectMapperFactory mapperFactory;
 
-    private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
+  private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
 
-    @Override
-    public void send(FcmDownstreamMessage message) throws Exception {
+  @Override
+  public void send(FcmDownstreamMessage message) throws Exception {
 
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT);
-        Message outMessage = MessageBuilder.createMessage(mapperFactory.getObject().writerFor(message.getClass()).writeValueAsString(message),
-                new MessageHeaders(headers));
-        xmppOutbound.send(outMessage);
-    }
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT);
+    Message outMessage =
+        MessageBuilder.createMessage(
+            mapperFactory.getObject().writerFor(message.getClass()).writeValueAsString(message),
+            new MessageHeaders(headers));
+    xmppOutbound.send(outMessage);
+  }
 
-    @Override
-    public boolean doesProvideDeliveryReceipt() {
-        return true;
-    }
+  @Override
+  public boolean doesProvideDeliveryReceipt() {
+    return true;
+  }
 }

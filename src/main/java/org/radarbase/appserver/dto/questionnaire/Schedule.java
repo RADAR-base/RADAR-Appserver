@@ -21,5 +21,4 @@
 
 package org.radarbase.appserver.dto.questionnaire;
 
-public class Schedule {
-}
+public class Schedule {}

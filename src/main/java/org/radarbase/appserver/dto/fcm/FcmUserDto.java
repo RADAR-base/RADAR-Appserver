@@ -32,101 +32,99 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Getter
 @EqualsAndHashCode
 @ToString
 public class FcmUserDto implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    // Unique user key
-    private Long id;
+  // Unique user key
+  private Long id;
 
-    // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
-    private String projectId;
+  // Project ID to be used in org.radarcns.kafka.ObservationKey record keys
+  private String projectId;
 
-    @NotEmpty
-    // User ID to be used in org.radarcns.kafka.ObservationKey record keys
-    private String subjectId;
+  @NotEmpty
+  // User ID to be used in org.radarcns.kafka.ObservationKey record keys
+  private String subjectId;
 
-    // The most recent time when the app was opened
-    private LocalDateTime lastOpened;
+  // The most recent time when the app was opened
+  private LocalDateTime lastOpened;
 
-    // The most recent time when a notification for the app was delivered.
-    private LocalDateTime lastDelivered;
+  // The most recent time when a notification for the app was delivered.
+  private LocalDateTime lastDelivered;
 
-    @NotNull
-    private LocalDateTime enrolmentDate;
+  @NotNull private LocalDateTime enrolmentDate;
 
-    //Timezone offset of the user in seconds
-    @NotNull
-    private double timezone;
+  // Timezone offset of the user in seconds
+  @NotNull private double timezone;
 
-    private String fcmToken;
+  private String fcmToken;
 
-    private String language;
+  private String language;
 
-    public FcmUserDto(User user) {
-        this.id = user.getId();
-        this.projectId = user.getProject().getProjectId();
-        this.subjectId = user.getSubjectId();
-        this.lastOpened = LocalDateTime.ofInstant(user.getUsermetrics().getLastOpened(), ZoneOffset.UTC);
-        this.lastDelivered = user.getUsermetrics().getLastDelivered() == null ? null : LocalDateTime.ofInstant(user.getUsermetrics().getLastDelivered(), ZoneOffset.UTC);
-        this.fcmToken = user.getFcmToken();
-        this.enrolmentDate = LocalDateTime.ofInstant(user.getEnrolmentDate(), ZoneOffset.UTC);
-        this.timezone = user.getTimezone();
-        this.language = user.getLanguage();
-    }
+  public FcmUserDto(User user) {
+    this.id = user.getId();
+    this.projectId = user.getProject().getProjectId();
+    this.subjectId = user.getSubjectId();
+    this.lastOpened =
+        LocalDateTime.ofInstant(user.getUsermetrics().getLastOpened(), ZoneOffset.UTC);
+    this.lastDelivered =
+        user.getUsermetrics().getLastDelivered() == null
+            ? null
+            : LocalDateTime.ofInstant(user.getUsermetrics().getLastDelivered(), ZoneOffset.UTC);
+    this.fcmToken = user.getFcmToken();
+    this.enrolmentDate = LocalDateTime.ofInstant(user.getEnrolmentDate(), ZoneOffset.UTC);
+    this.timezone = user.getTimezone();
+    this.language = user.getLanguage();
+  }
 
-    public FcmUserDto() {
+  public FcmUserDto() {}
 
-    }
+  public FcmUserDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
-    public FcmUserDto setId(Long id) {
-        this.id = id;
-        return this;
-    }
+  public FcmUserDto setProjectId(String projectId) {
+    this.projectId = projectId;
+    return this;
+  }
 
-    public FcmUserDto setProjectId(String projectId) {
-        this.projectId = projectId;
-        return this;
-    }
+  public FcmUserDto setSubjectId(String subjectId) {
+    this.subjectId = subjectId;
+    return this;
+  }
 
-    public FcmUserDto setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
-        return this;
-    }
+  public FcmUserDto setLastOpened(LocalDateTime lastOpened) {
+    this.lastOpened = lastOpened;
+    return this;
+  }
 
-    public FcmUserDto setLastOpened(LocalDateTime lastOpened) {
-        this.lastOpened = lastOpened;
-        return this;
-    }
+  public FcmUserDto setLastDelivered(LocalDateTime lastDelivered) {
+    this.lastDelivered = lastDelivered;
+    return this;
+  }
 
-    public FcmUserDto setLastDelivered(LocalDateTime lastDelivered) {
-        this.lastDelivered = lastDelivered;
-        return this;
-    }
+  public FcmUserDto setFcmToken(String fcmToken) {
+    this.fcmToken = fcmToken;
+    return this;
+  }
 
-    public FcmUserDto setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
-        return this;
-    }
+  public FcmUserDto setEnrolmentDate(LocalDateTime enrolmentDate) {
+    this.enrolmentDate = enrolmentDate;
+    return this;
+  }
 
-    public FcmUserDto setEnrolmentDate(LocalDateTime enrolmentDate) {
-        this.enrolmentDate = enrolmentDate;
-        return this;
-    }
+  public FcmUserDto setTimezone(double timezone) {
+    this.timezone = timezone;
+    return this;
+  }
 
-    public FcmUserDto setTimezone(double timezone) {
-        this.timezone = timezone;
-        return this;
-    }
-
-    public FcmUserDto setLanguage(String language) {
-        this.language = language;
-        return this;
-    }
+  public FcmUserDto setLanguage(String language) {
+    this.language = language;
+    return this;
+  }
 }

@@ -25,15 +25,13 @@ import lombok.Data;
 
 import java.net.URI;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Data
 public class DefinitionInfo {
 
-    private URI repository;
+  private URI repository;
 
-    private String name;
+  private String name;
 
-    private String avsc;
+  private String avsc;
 }

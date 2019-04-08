@@ -26,18 +26,20 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * {@link Constraint} to be used in {@link javax.validation.Validator} {@link aRmtNotificationValidator} to validate
- * incoming notification requests according to their schedule via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
+ * {@link Constraint} to be used in {@link javax.validation.Validator} {@link
+ * aRmtNotificationValidator} to validate incoming notification requests according to their schedule
+ * via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
  *
  * @author yatharthranjan
  */
 @Documented
 @Constraint(validatedBy = aRmtNotificationValidator.class)
-@Target( { ElementType.METHOD, ElementType.FIELD })
+@Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface aRmtNotificationConstraint {
-    String message() default "Notification does not conform to the schedule.";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
-}
+  String message() default "Notification does not conform to the schedule.";
 
+  Class<?>[] groups() default {};
+
+  Class<? extends Payload>[] payload() default {};
+}

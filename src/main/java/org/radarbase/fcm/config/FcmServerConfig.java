@@ -34,18 +34,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(value = "fcmserver", ignoreUnknownFields = false)
 public class FcmServerConfig {
 
-    @JsonProperty("senderid")
-    private String senderId;
+  @JsonProperty("senderid")
+  private String senderId;
 
-    @JsonProperty("serverkey")
-    private String serverKey;
+  @JsonProperty("serverkey")
+  private String serverKey;
 
-    @JsonProperty("fcmsender")
-    private String fcmsender;
+  @JsonProperty("fcmsender")
+  private String fcmsender;
 
-    @JsonProperty("host")
-    private String host;
+  @JsonProperty("host")
+  private String host;
 
-    @JsonProperty("port")
-    private Integer port;
+  @JsonProperty("port")
+  private Integer port;
 }

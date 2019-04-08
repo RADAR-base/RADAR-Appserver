@@ -28,31 +28,28 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Getter
 @EqualsAndHashCode
 @ToString
 public class FcmNotifications {
 
-    private List<FcmNotificationDto>  notifications;
+  private List<FcmNotificationDto> notifications;
 
-    public FcmNotifications() {
-        notifications = new ArrayList<>();
+  public FcmNotifications() {
+    notifications = new ArrayList<>();
+  }
+
+  public FcmNotifications setNotifications(List<FcmNotificationDto> notifications) {
+    this.notifications = notifications;
+    return this;
+  }
+
+  public FcmNotifications addNotification(FcmNotificationDto notificationDto) {
+
+    if (!notifications.contains(notificationDto)) {
+      this.notifications.add(notificationDto);
     }
-
-    public FcmNotifications setNotifications(List<FcmNotificationDto> notifications) {
-        this.notifications = notifications;
-        return this;
-    }
-
-    public FcmNotifications addNotification(FcmNotificationDto notificationDto) {
-
-        if(!notifications.contains(notificationDto)) {
-            this.notifications.add(notificationDto);
-        }
-        return this;
-    }
-
+    return this;
+  }
 }

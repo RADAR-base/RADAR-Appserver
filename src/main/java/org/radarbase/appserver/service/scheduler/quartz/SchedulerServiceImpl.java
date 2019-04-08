@@ -36,68 +36,69 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of the {@link SchedulerService} providing Synchronized access to schedule, update and delete Jobs.
+ * An implementation of the {@link SchedulerService} providing Synchronized access to schedule,
+ * update and delete Jobs.
  *
  * @author yatharthranjan
  */
 @Service
 public class SchedulerServiceImpl implements SchedulerService {
 
-    @Autowired
-    private Scheduler scheduler;
+  @Autowired private Scheduler scheduler;
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
-        scheduler.scheduleJob(jobDetail, trigger);
+  @Synchronized
+  @SneakyThrows
+  @Override
+  public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
+    scheduler.scheduleJob(jobDetail, trigger);
+  }
+
+  @Synchronized
+  @SneakyThrows
+  @Override
+  public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap) {
+    scheduler.scheduleJobs(jobDetailTriggerMap, true);
+  }
+
+  @Synchronized
+  @SneakyThrows
+  @Override
+  public void updateScheduledJob(
+      JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject) {
+
+    if (!scheduler.checkExists(jobKey)) {
+      throw new IllegalArgumentException("The Specified Job Key does not exist : " + jobKey);
     }
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap) {
-        scheduler.scheduleJobs(jobDetailTriggerMap, true);
+    if (!scheduler.checkExists(triggerKey)) {
+      throw new IllegalArgumentException("The Specified Trigger Key does not exist :" + triggerKey);
     }
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void updateScheduledJob(JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject) {
+    JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+    jobDetail.getJobDataMap().putAll(jobDataMap.getWrappedMap());
 
-        if(!scheduler.checkExists(jobKey)) {
-            throw new IllegalArgumentException("The Specified Job Key does not exist : " + jobKey);
-        }
+    SimpleTriggerImpl trigger = (SimpleTriggerImpl) scheduler.getTrigger(triggerKey);
+    trigger.getJobDataMap().putAll(jobDataMap.getWrappedMap());
 
-        if(!scheduler.checkExists(triggerKey)) {
-            throw new IllegalArgumentException("The Specified Trigger Key does not exist :" + triggerKey);
-        }
-
-        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-        jobDetail.getJobDataMap().putAll(jobDataMap.getWrappedMap());
-
-        SimpleTriggerImpl trigger = (SimpleTriggerImpl) scheduler.getTrigger(triggerKey);
-        trigger.getJobDataMap().putAll(jobDataMap.getWrappedMap());
-
-        if(associatedObject instanceof Scheduled) {
-            Scheduled scheduledObject = (Scheduled) associatedObject;
-            trigger.setStartTime(new Date(scheduledObject.getScheduledTime().toEpochMilli()));
-        }
-
-        scheduler.rescheduleJob(triggerKey, trigger);
+    if (associatedObject instanceof Scheduled) {
+      Scheduled scheduledObject = (Scheduled) associatedObject;
+      trigger.setStartTime(new Date(scheduledObject.getScheduledTime().toEpochMilli()));
     }
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void deleteScheduledJobs(List<JobKey> jobKeys) {
-        scheduler.deleteJobs(jobKeys);
-    }
+    scheduler.rescheduleJob(triggerKey, trigger);
+  }
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void deleteScheduledJob(JobKey jobKey) {
-        scheduler.deleteJob(jobKey);
-    }
+  @Synchronized
+  @SneakyThrows
+  @Override
+  public void deleteScheduledJobs(List<JobKey> jobKeys) {
+    scheduler.deleteJobs(jobKeys);
+  }
+
+  @Synchronized
+  @SneakyThrows
+  @Override
+  public void deleteScheduledJob(JobKey jobKey) {
+    scheduler.deleteJob(jobKey);
+  }
 }

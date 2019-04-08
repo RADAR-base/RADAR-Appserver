@@ -27,43 +27,36 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotEmpty;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
 public class FcmDownstreamMessage implements FcmMessage {
 
-    @JsonProperty
-    @NotEmpty
-    private String to;
+  @JsonProperty @NotEmpty private String to;
 
-    @JsonProperty
-    private String condition;
+  @JsonProperty private String condition;
 
-    @NotEmpty
-    @JsonProperty("message_id")
-    private String messageId;
+  @NotEmpty
+  @JsonProperty("message_id")
+  private String messageId;
 
-    @JsonProperty("collapse_key")
-    private String collapseKey;
+  @JsonProperty("collapse_key")
+  private String collapseKey;
 
-    @JsonProperty
-    private String priority;
+  @JsonProperty private String priority;
 
-    @JsonProperty("content_available")
-    private Boolean contentAvailable;
+  @JsonProperty("content_available")
+  private Boolean contentAvailable;
 
-    @JsonProperty("mutable_content")
-    private Boolean mutableContent;
+  @JsonProperty("mutable_content")
+  private Boolean mutableContent;
 
-    @JsonProperty("time_to_live")
-    private Integer timeToLive;
+  @JsonProperty("time_to_live")
+  private Integer timeToLive;
 
-    @JsonProperty("delivery_receipt_requested")
-    private Boolean deliveryReceiptRequested;
+  @JsonProperty("delivery_receipt_requested")
+  private Boolean deliveryReceiptRequested;
 
-    @JsonProperty("dry_run")
-    private Boolean dryRun;
-
+  @JsonProperty("dry_run")
+  private Boolean dryRun;
 }

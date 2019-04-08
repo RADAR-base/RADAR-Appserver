@@ -35,27 +35,23 @@ import java.util.Set;
 @Service
 public class QuestionnaireScheduleService {
 
-    private ProtocolGenerator protocolGenerator;
+  private ProtocolGenerator protocolGenerator;
 
-    private CachedMap<String, Schedule> subjectScheduleMap;
+  private CachedMap<String, Schedule> subjectScheduleMap;
 
-    @Autowired
-    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
-        this.protocolGenerator = protocolGenerator;
-        protocolGenerator.init();
-        //log.info(String.valueOf(protocolGenerator.getProtocol("RADAR-MDD-KCL-s1").toString()));
-    }
+  @Autowired
+  public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
+    this.protocolGenerator = protocolGenerator;
+    protocolGenerator.init();
+    // log.info(String.valueOf(protocolGenerator.getProtocol("RADAR-MDD-KCL-s1").toString()));
+  }
 
-    // Use cached map of schedule of user
-    public void getProtocolForProject(String projectId) {
+  // Use cached map of schedule of user
+  public void getProtocolForProject(String projectId) {}
 
-    }
+  public Set<Schedule> getScheduleForUser(User user) {
+    return null;
+  }
 
-    public Set<Schedule> getScheduleForUser(User user) {
-        return null;
-    }
-
-    public void generateScheduleForUser(User user) {
-
-    }
+  public void generateScheduleForUser(User user) {}
 }

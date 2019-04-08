@@ -26,24 +26,22 @@ import lombok.Data;
 import java.util.List;
 
 /**
+ * Data Transfer object (DTO) for Protocol. A project may represent a Protcol for scheduling
+ * questionnaires.
  *
- * Data Transfer object (DTO) for Protocol.
- * A project may represent a Protcol for scheduling questionnaires.
  * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
- *
  * @author yatharthranjan
  */
 @Data
 public class Protocol {
 
-    private String version;
+  private String version;
 
-    private String schemaVersion;
+  private String schemaVersion;
 
-    private String name;
+  private String name;
 
-    private List<String> healthIssues;
+  private List<String> healthIssues;
 
-    private List<Assessment> protocols;
-
+  private List<Assessment> protocols;
 }

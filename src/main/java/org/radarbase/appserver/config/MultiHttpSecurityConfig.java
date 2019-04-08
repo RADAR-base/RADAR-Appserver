@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.config;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -41,60 +40,67 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
 
-    @Value("${radar.admin.user}")
-    private String adminUsername;
+  @Value("${radar.admin.user}")
+  private String adminUsername;
 
-    @Value("${radar.admin.password}")
-    private String adminPassword;
+  @Value("${radar.admin.password}")
+  private String adminPassword;
 
-    @Bean
-    public UserDetailsService userDetailsService() throws Exception {
+  @Bean
+  public UserDetailsService userDetailsService() throws Exception {
 
-        // ensure the passwords are encoded properly
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    // ensure the passwords are encoded properly
+    PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-        User.UserBuilder users = User.builder().passwordEncoder(encoder::encode);
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(users.username(adminUsername).password(adminPassword).roles("ADMIN").build());
-        //manager.createUser(users.username("default").password("radar").roles("USER","ADMIN").build());
-        return manager;
+    User.UserBuilder users = User.builder().passwordEncoder(encoder::encode);
+    InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+    manager.createUser(
+        users.username(adminUsername).password(adminPassword).roles("ADMIN").build());
+    // manager.createUser(users.username("default").password("radar").roles("USER","ADMIN").build());
+    return manager;
+  }
+
+  @Configuration
+  @Order(1)
+  public static class AdminWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+      http.antMatcher("/actuator/**")
+          .authorizeRequests()
+          .anyRequest()
+          .hasRole("ADMIN")
+          .and()
+          .httpBasic();
     }
+  }
 
-    @Configuration
-    @Order(1)
-    public static class AdminWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+  @Configuration
+  public static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
 
-            http.antMatcher("/actuator/**").authorizeRequests()
-                    .anyRequest().hasRole("ADMIN")
-                    .and()
-                    .httpBasic();
-        }
+      http.requestMatcher(EndpointRequest.toAnyEndpoint())
+          .authorizeRequests()
+          .anyRequest()
+          .permitAll()
+          .and()
+          .csrf()
+          .disable();
+      /*http
+      .authorizeRequests()
+      .anyRequest().permitAll()
+      .and()
+      //.formLogin();
+      .csrf().disable();*/
 
+      // .authenticated().and().httpBasic()..anyRequest().permitAll();
+
+      // Added because of
+      // https://stackoverflow.com/questions/53395200/h2-console-is-not-showing-in-browser
+      http.headers().frameOptions().disable();
     }
-
-    @Configuration
-    public static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-
-
-            http.requestMatcher(EndpointRequest.toAnyEndpoint()).authorizeRequests()
-                    .anyRequest().permitAll().and().csrf().disable();
-            /*http
-                    .authorizeRequests()
-                    .anyRequest().permitAll()
-                    .and()
-                    //.formLogin();
-                    .csrf().disable();*/
-
-            //.authenticated().and().httpBasic()..anyRequest().permitAll();
-
-            // Added because of https://stackoverflow.com/questions/53395200/h2-console-is-not-showing-in-browser
-            http.headers().frameOptions().disable();
-        }
-    }
+  }
 }

@@ -35,41 +35,39 @@ import java.util.*;
  */
 @Table(name = "projects")
 @Entity
-
 @Getter
 @ToString
-public class Project extends AuditModel{
+public class Project extends AuditModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    @NotNull
-    @Column(name = "project_id", unique = true, nullable = false)
-    private String projectId;
+  @NotNull
+  @Column(name = "project_id", unique = true, nullable = false)
+  private String projectId;
 
-    public Project() {
-    }
+  public Project() {}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public Project setProjectId(String projectId) {
-        this.projectId = projectId;
-        return this;
-    }
+  public Project setProjectId(String projectId) {
+    this.projectId = projectId;
+    return this;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Project)) return false;
-        Project project = (Project) o;
-        return Objects.equals(getProjectId(), project.getProjectId());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Project)) return false;
+    Project project = (Project) o;
+    return Objects.equals(getProjectId(), project.getProjectId());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getProjectId());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getProjectId());
+  }
 }

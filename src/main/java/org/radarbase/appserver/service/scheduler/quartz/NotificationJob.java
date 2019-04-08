@@ -33,36 +33,29 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @see NotificationSchedulerService
  * @see SchedulerServiceImpl
- *
  * @author yatharthranjan
  */
-public class NotificationJob implements Job{
+public class NotificationJob implements Job {
 
-    @Autowired
-    private NotificationSchedulerService schedulerService;
+  @Autowired private NotificationSchedulerService schedulerService;
 
-    /**
-     * <p>
-     * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}</code>
-     * fires that is associated with the <code>Job</code>.
-     * </p>
-     * <p>
-     * The implementation may wish to set a
-     * {@link JobExecutionContext#setResult(Object) result} object on the
-     * {@link JobExecutionContext} before this method exits.  The result itself
-     * is meaningless to Quartz, but may be informative to
-     * <code>{@link org.quartz.JobListener}s</code> or
-     * <code>{@link org.quartz.TriggerListener}s</code> that are watching the job's
-     * execution.
-     * </p>
-     *
-     * @param context context containing jobs details and data added when creating the job.
-     * @throws RuntimeException if there is an exception while executing the job.
-     */
-    @SneakyThrows
-    @Override
-    public void execute(JobExecutionContext context) {
-        Notification notification = (Notification) context.getJobDetail().getJobDataMap().get("notification");
-        schedulerService.sendNotification(notification);
-    }
+  /**
+   * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}
+   * </code> fires that is associated with the <code>Job</code>.
+   *
+   * <p>The implementation may wish to set a {@link JobExecutionContext#setResult(Object) result}
+   * object on the {@link JobExecutionContext} before this method exits. The result itself is
+   * meaningless to Quartz, but may be informative to <code>{@link org.quartz.JobListener}s</code>
+   * or <code>{@link org.quartz.TriggerListener}s</code> that are watching the job's execution.
+   *
+   * @param context context containing jobs details and data added when creating the job.
+   * @throws RuntimeException if there is an exception while executing the job.
+   */
+  @SneakyThrows
+  @Override
+  public void execute(JobExecutionContext context) {
+    Notification notification =
+        (Notification) context.getJobDetail().getJobDataMap().get("notification");
+    schedulerService.sendNotification(notification);
+  }
 }

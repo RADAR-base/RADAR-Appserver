@@ -33,21 +33,18 @@ import javax.validation.Valid;
  * Validator for RADAR Active RMT app notifications.
  *
  * @see aRmtNotificationConstraint
- *
  * @author yatharthranjan
  */
-public class aRmtNotificationValidator implements ConstraintValidator<aRmtNotificationConstraint, Notification> {
+public class aRmtNotificationValidator
+    implements ConstraintValidator<aRmtNotificationConstraint, Notification> {
 
-    @Autowired
-    private QuestionnaireScheduleService scheduleService;
+  @Autowired private QuestionnaireScheduleService scheduleService;
 
-    @Override
-    public void initialize(aRmtNotificationConstraint constraintAnnotation) {
+  @Override
+  public void initialize(aRmtNotificationConstraint constraintAnnotation) {}
 
-    }
-
-    @Override
-    public boolean isValid(@Valid Notification notification, ConstraintValidatorContext context) {
-        return scheduleService.getScheduleForUser(notification.getUser()).contains(notification);
-    }
+  @Override
+  public boolean isValid(@Valid Notification notification, ConstraintValidatorContext context) {
+    return scheduleService.getScheduleForUser(notification.getUser()).contains(notification);
+  }
 }

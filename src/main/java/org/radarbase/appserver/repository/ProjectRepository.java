@@ -28,12 +28,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-    Optional<Project> findByProjectId(String projectId);
-
+  Optional<Project> findByProjectId(String projectId);
 }

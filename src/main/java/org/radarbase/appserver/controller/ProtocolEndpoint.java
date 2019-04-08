@@ -34,23 +34,21 @@ import java.util.Map;
 @RestController
 public class ProtocolEndpoint {
 
+  private ProtocolGenerator protocolGenerator;
 
-    private ProtocolGenerator protocolGenerator;
+  @Autowired
+  public ProtocolEndpoint(ProtocolGenerator protocolGenerator) {
+    this.protocolGenerator = protocolGenerator;
+    this.protocolGenerator.init();
+  }
 
-    @Autowired
-    public ProtocolEndpoint(ProtocolGenerator protocolGenerator) {
-        this.protocolGenerator = protocolGenerator;
-        this.protocolGenerator.init();
-    }
+  @GetMapping("/" + Paths.PROTOCOL_PATH)
+  public Map<String, Protocol> getProtocols() {
+    return this.protocolGenerator.getAllProtocols();
+  }
 
-
-    @GetMapping("/" + Paths.PROTOCOL_PATH)
-    public Map<String, Protocol> getProtocols() {
-        return this.protocolGenerator.getAllProtocols();
-    }
-
-    @GetMapping("/" + Paths.PROTOCOL_PATH +"/{projectId}")
-    public Protocol getProtocol(@Valid @PathVariable String projectId) {
-        return this.protocolGenerator.getProtocol(projectId);
-    }
+  @GetMapping("/" + Paths.PROTOCOL_PATH + "/{projectId}")
+  public Protocol getProtocol(@Valid @PathVariable String projectId) {
+    return this.protocolGenerator.getProtocol(projectId);
+  }
 }

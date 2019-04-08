@@ -37,84 +37,81 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Resource Endpoint for getting and adding users.
- * Each notification {@link org.radarbase.appserver.entity.Notification} needs to be associated to a user.
- * A user may represent a Management Portal subject.
- * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
+ * Resource Endpoint for getting and adding users. Each notification {@link
+ * org.radarbase.appserver.entity.Notification} needs to be associated to a user. A user may
+ * represent a Management Portal subject.
  *
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
  * @author yatharthranjan
  */
 @RestController
 public class RadarUserController {
 
-    @Autowired
-    private UserService userService;
+  @Autowired private UserService userService;
 
-    @Autowired
-    private FcmNotificationService notificationService;
+  @Autowired private FcmNotificationService notificationService;
 
-    @Autowired
-    private ProjectService projectService;
+  @Autowired private ProjectService projectService;
 
-    @PostMapping("/users")
-    public ResponseEntity addUser(@RequestBody FcmUserDto userDto)
-            throws URISyntaxException {
+  @PostMapping("/users")
+  public ResponseEntity addUser(@RequestBody FcmUserDto userDto) throws URISyntaxException {
 
-        FcmUserDto user = this.userService.saveUserInProject(userDto);
-        return ResponseEntity
-                .created(new URI("/user/" + user.getId())).body(user);
+    FcmUserDto user = this.userService.saveUserInProject(userDto);
+    return ResponseEntity.created(new URI("/user/" + user.getId())).body(user);
+  }
+
+  @PostMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+  public ResponseEntity addUserToProject(
+      @Valid @RequestBody FcmUserDto userDto,
+      @Valid @PathVariable(value = "projectId") String projectId)
+      throws URISyntaxException {
+    userDto.setProjectId(projectId);
+    FcmUserDto user = this.userService.saveUserInProject(userDto);
+    return ResponseEntity.created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId()))
+        .body(user);
+  }
+
+  @PutMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+  public ResponseEntity updateUserInProject(
+      @Valid @RequestBody FcmUserDto userDto,
+      @Valid @PathVariable(value = "projectId") String projectId)
+      throws URISyntaxException {
+    userDto.setProjectId(projectId);
+    FcmUserDto user = this.userService.updateUser(userDto);
+    return ResponseEntity.created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId()))
+        .body(user);
+  }
+
+  @PutMapping("/" + Paths.USER_PATH)
+  public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
+      throws URISyntaxException {
+    FcmUserDto user = this.userService.updateUser(userDto);
+    return ResponseEntity.created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId()))
+        .body(user);
+  }
+
+  @GetMapping("/" + Paths.USER_PATH)
+  public ResponseEntity<FcmUsers> getAllRadarUsers() {
+    return ResponseEntity.ok(this.userService.getAllRadarUsers());
+  }
+
+  @GetMapping("/" + Paths.USER_PATH + "/user")
+  public ResponseEntity<FcmUserDto> getRadarUserUsingId(@PathParam("id") Long id) {
+    if (id == null) {
+      throw new InvalidUserDetailsException("The given id must not be null!");
     }
+    return ResponseEntity.ok(this.userService.getUserById(id));
+  }
 
-    @PostMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
-    public ResponseEntity addUserToProject(@Valid @RequestBody FcmUserDto userDto,
-                                           @Valid @PathVariable(value = "projectId") String projectId)
-            throws URISyntaxException {
-        userDto.setProjectId(projectId);
-        FcmUserDto user = this.userService.saveUserInProject(userDto);
-        return ResponseEntity
-                .created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId())).body(user);
-    }
+  @GetMapping("/" + Paths.USER_PATH + "/{subjectId}")
+  public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
+      @PathVariable("subjectId") String subjectId) {
+    return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
+  }
 
-    @PutMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
-    public ResponseEntity updateUserInProject(@Valid @RequestBody FcmUserDto userDto,
-                                              @Valid @PathVariable(value = "projectId") String projectId)
-            throws URISyntaxException {
-        userDto.setProjectId(projectId);
-        FcmUserDto user = this.userService.updateUser(userDto);
-        return ResponseEntity
-                .created(new URI("/"+ Paths.USER_PATH +"/user?id=" + user.getId())).body(user);
-    }
-
-    @PutMapping("/" + Paths.USER_PATH)
-    public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
-            throws URISyntaxException {
-        FcmUserDto user = this.userService.updateUser(userDto);
-        return ResponseEntity
-                .created(new URI("/"+ Paths.USER_PATH + "/user?id=" + user.getId())).body(user);
-    }
-
-    @GetMapping("/" + Paths.USER_PATH)
-    public ResponseEntity<FcmUsers> getAllRadarUsers() {
-        return ResponseEntity.ok(this.userService.getAllRadarUsers());
-    }
-
-    @GetMapping("/" + Paths.USER_PATH + "/user")
-    public ResponseEntity<FcmUserDto> getRadarUserUsingId(
-            @PathParam("id") Long id) {
-        if(id == null) {
-            throw new InvalidUserDetailsException("The given id must not be null!");
-        }
-        return ResponseEntity.ok(this.userService.getUserById(id));
-    }
-
-    @GetMapping("/" + Paths.USER_PATH + "/{subjectId}")
-    public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
-            @PathVariable("subjectId") String subjectId) {
-        return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
-    }
-
-    @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
-    public ResponseEntity<FcmUsers> getUsersUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
-        return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
-    }
+  @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+  public ResponseEntity<FcmUsers> getUsersUsingProjectId(
+      @Valid @PathVariable("projectId") String projectId) {
+    return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
+  }
 }

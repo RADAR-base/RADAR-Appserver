@@ -57,7 +57,7 @@ dependencies {
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
 	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
 
-	runtimeOnly('org.springframework.boot:spring-boot-devtools')
+	//runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	runtimeOnly('org.hsqldb:hsqldb')
 	runtimeOnly('org.liquibase:liquibase-core')
 	runtime('com.h2database:h2')

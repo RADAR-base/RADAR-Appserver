@@ -25,25 +25,22 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Data
 public class AssessmentProtocol {
 
+  private TimePeriod repeatProtocol;
 
-    private TimePeriod repeatProtocol;
+  private TimePeriod reminders;
 
-    private TimePeriod reminders;
+  private TimePeriod completionWindow;
 
-    private TimePeriod completionWindow;
+  private RepeatQuestionnaireProtocol repeatQuestionnaire;
 
-    private RepeatQuestionnaireProtocol repeatQuestionnaire;
+  @Data
+  private class RepeatQuestionnaireProtocol {
+    private String unit;
 
-    @Data
-    private class RepeatQuestionnaireProtocol {
-        private String unit;
-
-        private List<Integer> unitsFromZero;
-    }
+    private List<Integer> unitsFromZero;
+  }
 }

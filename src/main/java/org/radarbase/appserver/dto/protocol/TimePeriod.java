@@ -27,10 +27,10 @@ import lombok.Data;
 @Data
 public class TimePeriod {
 
-    private String unit;
+  private String unit;
 
-    private Integer amount;
+  private Integer amount;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer repeat;
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Integer repeat;
 }

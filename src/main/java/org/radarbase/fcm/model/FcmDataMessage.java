@@ -27,14 +27,10 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
 public class FcmDataMessage extends FcmDownstreamMessage {
 
-    @JsonProperty
-    private Map<String,Object> data;
-
+  @JsonProperty private Map<String, Object> data;
 }

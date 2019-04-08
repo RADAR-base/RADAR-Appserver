@@ -32,21 +32,22 @@ import java.time.ZoneOffset;
  * @author yatharthranjan
  */
 public class NotificationConverter implements Converter<Notification, FcmNotificationDto> {
-    @Override
-    public Notification dtoToEntity(FcmNotificationDto notificationDto) {
-        return new Notification().setBody(notificationDto.getBody())
-                .setScheduledTime(notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC))
-                .setTitle(notificationDto.getTitle())
-                .setSourceId(notificationDto.getSourceId())
-                .setType(notificationDto.getType())
-                .setTtlSeconds(notificationDto.getTtlSeconds())
-                .setFcmMessageId(String.valueOf(notificationDto.hashCode()))
-                .setAppPackage(notificationDto.getAppPackage())
-                .setSourceType(notificationDto.getSourceType());
-    }
+  @Override
+  public Notification dtoToEntity(FcmNotificationDto notificationDto) {
+    return new Notification()
+        .setBody(notificationDto.getBody())
+        .setScheduledTime(notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC))
+        .setTitle(notificationDto.getTitle())
+        .setSourceId(notificationDto.getSourceId())
+        .setType(notificationDto.getType())
+        .setTtlSeconds(notificationDto.getTtlSeconds())
+        .setFcmMessageId(String.valueOf(notificationDto.hashCode()))
+        .setAppPackage(notificationDto.getAppPackage())
+        .setSourceType(notificationDto.getSourceType());
+  }
 
-    @Override
-    public FcmNotificationDto entityToDto(Notification notification) {
-        return new FcmNotificationDto(notification);
-    }
+  @Override
+  public FcmNotificationDto entityToDto(Notification notification) {
+    return new FcmNotificationDto(notification);
+  }
 }

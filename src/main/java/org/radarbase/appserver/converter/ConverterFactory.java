@@ -29,27 +29,29 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 
 /**
- * Converter Factory providing different converters {@link Converter}.
- * This ensures that only one instance of each converter is used every time.
- * TODO Can also be implemented by extending the {@link org.springframework.beans.factory.config.AbstractFactoryBean} for each converter providing a better lifecycle and Autowiring support.
+ * Converter Factory providing different converters {@link Converter}. This ensures that only one
+ * instance of each converter is used every time. TODO Can also be implemented by extending the
+ * {@link org.springframework.beans.factory.config.AbstractFactoryBean} for each converter providing
+ * a better lifecycle and Autowiring support.
  *
  * @author yatharthranjan
  */
 public class ConverterFactory {
 
-    private static final Converter<Project, ProjectDto> projectConverter = new ProjectConverter();
-    private static final Converter<Notification, FcmNotificationDto> notificationConverter = new NotificationConverter();
-    private static final Converter<User, FcmUserDto> userConverter = new UserConverter();
+  private static final Converter<Project, ProjectDto> projectConverter = new ProjectConverter();
+  private static final Converter<Notification, FcmNotificationDto> notificationConverter =
+      new NotificationConverter();
+  private static final Converter<User, FcmUserDto> userConverter = new UserConverter();
 
-    public static Converter<Project, ProjectDto> getProjectConverter() {
-        return projectConverter;
-    }
+  public static Converter<Project, ProjectDto> getProjectConverter() {
+    return projectConverter;
+  }
 
-    public static Converter<Notification, FcmNotificationDto> getNotificationConverter() {
-        return notificationConverter;
-    }
+  public static Converter<Notification, FcmNotificationDto> getNotificationConverter() {
+    return notificationConverter;
+  }
 
-    public static Converter<User, FcmUserDto> getUserConverter() {
-        return userConverter;
-    }
+  public static Converter<User, FcmUserDto> getUserConverter() {
+    return userConverter;
+  }
 }

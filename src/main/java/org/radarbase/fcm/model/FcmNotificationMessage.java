@@ -27,18 +27,14 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Map;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
-public class FcmNotificationMessage extends FcmDownstreamMessage{
+public class FcmNotificationMessage extends FcmDownstreamMessage {
 
-    // TODO Add specific Notification model and data model classes instead of using Maps.
+  // TODO Add specific Notification model and data model classes instead of using Maps.
 
-    @JsonProperty
-    private Map<String, Object> notification;
+  @JsonProperty private Map<String, Object> notification;
 
-    @JsonProperty
-    private Map<String, Object> data;
+  @JsonProperty private Map<String, Object> data;
 }

@@ -29,9 +29,9 @@ import java.util.Map;
 @Service
 public interface ProtocolGenerator {
 
-    void init();
+  void init();
 
-    Map<String, Protocol> getAllProtocols();
+  Map<String, Protocol> getAllProtocols();
 
-    Protocol getProtocol(String projectId);
+  Protocol getProtocol(String projectId);
 }

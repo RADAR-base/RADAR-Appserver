@@ -35,8 +35,8 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 @Configuration
 public class SchedulerConfig {
 
-    @Bean
-    public SpringBeanJobFactory springBeanJobFactory() {
-        return new SpringBeanJobFactory();
-    }
+  @Bean
+  public SpringBeanJobFactory springBeanJobFactory() {
+    return new SpringBeanJobFactory();
+  }
 }

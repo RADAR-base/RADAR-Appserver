@@ -26,27 +26,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Generic converter class for conversions between entity {@link org.radarbase.appserver.entity}
- * and DTO {@link org.radarbase.appserver.dto} objects.
+ * Generic converter class for conversions between entity {@link org.radarbase.appserver.entity} and
+ * DTO {@link org.radarbase.appserver.dto} objects.
  *
  * @param <T> the entity object class
  * @param <S> the DTO object class
- *
  * @author yatharthranjan
- *
- * TODO - Use MapStruct for mapping entities and DTOs (http://mapstruct.org/)
+ *     <p>TODO - Use MapStruct for mapping entities and DTOs (http://mapstruct.org/)
  */
 public interface Converter<T, S> {
 
-    T dtoToEntity(S s);
+  T dtoToEntity(S s);
 
-    S entityToDto(T t);
+  S entityToDto(T t);
 
-    default List<T> dtosToEntities(Collection<S> ss) {
-        return ss.parallelStream().map(this::dtoToEntity).collect(Collectors.toList());
-    }
+  default List<T> dtosToEntities(Collection<S> ss) {
+    return ss.parallelStream().map(this::dtoToEntity).collect(Collectors.toList());
+  }
 
-    default List<S> entitiesToDtos(Collection<T> ts) {
-        return ts.parallelStream().map(this::entityToDto).collect(Collectors.toList());
-    }
+  default List<S> entitiesToDtos(Collection<T> ts) {
+    return ts.parallelStream().map(this::entityToDto).collect(Collectors.toList());
+  }
 }

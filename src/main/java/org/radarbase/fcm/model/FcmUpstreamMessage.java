@@ -21,9 +21,5 @@
 
 package org.radarbase.fcm.model;
 
-/**
- * @author yatharthranjan
- */
-public class FcmUpstreamMessage implements FcmMessage{
-
-}
+/** @author yatharthranjan */
+public class FcmUpstreamMessage implements FcmMessage {}
