@@ -21,20 +21,25 @@
 
 package org.radarbase.appserver.controller;
 
-import org.radarbase.appserver.exception.InvalidUserDetailsException;
-import org.radarbase.appserver.service.ProjectService;
-import org.radarbase.appserver.dto.fcm.FcmUsers;
-import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.UserService;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.dto.fcm.FcmUsers;
+import org.radarbase.appserver.exception.InvalidUserDetailsException;
+import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.ProjectService;
+import org.radarbase.appserver.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Resource Endpoint for getting and adding users. Each notification {@link
@@ -54,7 +59,7 @@ public class RadarUserController {
   @Autowired private ProjectService projectService;
 
   @PostMapping("/users")
-  public ResponseEntity addUser(@RequestBody FcmUserDto userDto) throws URISyntaxException {
+  public ResponseEntity addUser(@Valid @RequestBody FcmUserDto userDto) throws URISyntaxException {
 
     FcmUserDto user = this.userService.saveUserInProject(userDto);
     return ResponseEntity.created(new URI("/user/" + user.getId())).body(user);
@@ -78,16 +83,14 @@ public class RadarUserController {
       throws URISyntaxException {
     userDto.setProjectId(projectId);
     FcmUserDto user = this.userService.updateUser(userDto);
-    return ResponseEntity.created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId()))
-        .body(user);
+    return ResponseEntity.ok(user);
   }
 
   @PutMapping("/" + Paths.USER_PATH)
   public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
       throws URISyntaxException {
     FcmUserDto user = this.userService.updateUser(userDto);
-    return ResponseEntity.created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId()))
-        .body(user);
+    return ResponseEntity.ok(user);
   }
 
   @GetMapping("/" + Paths.USER_PATH)

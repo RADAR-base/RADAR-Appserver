@@ -21,13 +21,20 @@
 
 package org.radarbase.appserver.service;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.SneakyThrows;
 import org.radarbase.appserver.converter.ConverterFactory;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.entity.UserMetrics;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -36,17 +43,9 @@ import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * {@link Service} for interacting with the {@link Notification} {@link javax.persistence.Entity}
@@ -55,7 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author yatharthranjan
  */
 @Service
-public class FcmNotificationService {
+public class FcmNotificationService implements NotificationService {
 
   // TODO: Implement this as a publisher
 
@@ -182,7 +181,7 @@ public class FcmNotificationService {
         .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
             user.get().getId(),
             notificationDto.getSourceId(),
-            notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC),
+            notificationDto.getScheduledTime(),
             notificationDto.getTitle(),
             notificationDto.getBody(),
             notificationDto.getType(),
@@ -217,7 +216,8 @@ public class FcmNotificationService {
     }
 
     Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(userDto.getSubjectId(), newProject.getId());
+        this.userRepository.findBySubjectIdAndProjectId(
+            userDto.getSubjectId(), newProject.getId());
     AtomicReference<User> newUser = new AtomicReference<>();
 
     user.ifPresentOrElse(
@@ -233,7 +233,7 @@ public class FcmNotificationService {
         .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
             newUser.get().getId(),
             notificationDto.getSourceId(),
-            notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC),
+            notificationDto.getScheduledTime(),
             notificationDto.getTitle(),
             notificationDto.getBody(),
             notificationDto.getType(),
@@ -272,6 +272,7 @@ public class FcmNotificationService {
       throw new InvalidNotificationDetailsException(
           "ID must be supplied for updating the notification");
     }
+
     Optional<Notification> notification =
         this.notificationRepository.findById(notificationDto.getId());
 
@@ -283,7 +284,7 @@ public class FcmNotificationService {
         notification
             .get()
             .setBody(notificationDto.getBody())
-            .setScheduledTime(notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC))
+            .setScheduledTime(notificationDto.getScheduledTime())
             .setSourceId(notificationDto.getSourceId())
             .setTitle(notificationDto.getTitle())
             .setTtlSeconds(notificationDto.getTtlSeconds())

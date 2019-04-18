@@ -21,12 +21,11 @@
 
 package org.radarbase.appserver.converter;
 
-import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.entity.UserMetrics;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.entity.UserMetrics;
 
 /**
  * Converter {@link Converter} class for {@link User} entity and {@link FcmUserDto} DTO.
@@ -42,7 +41,7 @@ public class UserConverter implements Converter<User, FcmUserDto> {
         .setFcmToken(fcmUserDto.getFcmToken())
         .setSubjectId(fcmUserDto.getSubjectId())
         .setUserMetrics(getValidUserMetrics(fcmUserDto))
-        .setEnrolmentDate(fcmUserDto.getEnrolmentDate().toInstant(ZoneOffset.UTC))
+        .setEnrolmentDate(fcmUserDto.getEnrolmentDate())
         .setTimezone(fcmUserDto.getTimezone())
         .setLanguage(fcmUserDto.getLanguage());
   }
@@ -57,17 +56,17 @@ public class UserConverter implements Converter<User, FcmUserDto> {
     if (fcmUserDto.getLastOpened() == null && fcmUserDto.getLastDelivered() == null) {
       userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), null);
     } else if (fcmUserDto.getLastDelivered() == null) {
-      userMetrics = new UserMetrics(fcmUserDto.getLastOpened().toInstant(ZoneOffset.UTC), null);
+      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), null);
     } else if (fcmUserDto.getLastOpened() == null) {
       userMetrics =
           new UserMetrics(
               LocalDateTime.now().toInstant(ZoneOffset.UTC),
-              fcmUserDto.getLastDelivered().toInstant(ZoneOffset.UTC));
+              fcmUserDto.getLastDelivered());
     } else {
       userMetrics =
           new UserMetrics(
-              fcmUserDto.getLastOpened().toInstant(ZoneOffset.UTC),
-              fcmUserDto.getLastDelivered().toInstant(ZoneOffset.UTC));
+              fcmUserDto.getLastOpened(),
+              fcmUserDto.getLastDelivered());
     }
 
     return userMetrics;

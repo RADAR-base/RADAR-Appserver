@@ -19,25 +19,18 @@
  *
  */
 
-package org.radarbase.appserver;
+package org.radarbase.appserver.config;
 
-import org.radarbase.appserver.config.ApplicationConfig;
 import org.radarbase.fcm.config.FcmServerConfig;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/** @author yatharthranjan */
-@SpringBootApplication(
-    exclude = {SolrAutoConfiguration.class},
-    scanBasePackages = {"org.radarbase.appserver", "org.radarbase.fcm"})
-public class AppserverApplication {
+@Configuration
+@EnableJpaAuditing
+@EnableConfigurationProperties({FcmServerConfig.class})
+@EnableTransactionManagement
+public class ApplicationConfig {
 
-  public static void main(String[] args) {
-    SpringApplication.run(AppserverApplication.class, args);
-  }
 }

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1554740802000-01
+      author: yatharth
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: additional_key
+                  type: VARCHAR(255)
+            tableName: notifications
+        - addColumn:
+            columns:
+              - column:
+                  name: additional_value
+                  type: text
+            tableName: notifications
+
+

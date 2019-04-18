@@ -21,22 +21,23 @@
 
 package org.radarbase.appserver.dto.fcm;
 
+import java.io.Serializable;
+import java.time.Instant;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.entity.User;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /** @author yatharthranjan */
 @Getter
 @EqualsAndHashCode
 @ToString
 public class FcmUserDto implements Serializable {
+
+  // TODO add updated and created at
 
   private static final long serialVersionUID = 1L;
 
@@ -51,12 +52,14 @@ public class FcmUserDto implements Serializable {
   private String subjectId;
 
   // The most recent time when the app was opened
-  private LocalDateTime lastOpened;
+  private Instant lastOpened;
 
   // The most recent time when a notification for the app was delivered.
-  private LocalDateTime lastDelivered;
+  private Instant lastDelivered;
 
-  @NotNull private LocalDateTime enrolmentDate;
+  @NotNull
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private Instant enrolmentDate;
 
   // Timezone offset of the user in seconds
   @NotNull private double timezone;
@@ -69,14 +72,10 @@ public class FcmUserDto implements Serializable {
     this.id = user.getId();
     this.projectId = user.getProject().getProjectId();
     this.subjectId = user.getSubjectId();
-    this.lastOpened =
-        LocalDateTime.ofInstant(user.getUsermetrics().getLastOpened(), ZoneOffset.UTC);
-    this.lastDelivered =
-        user.getUsermetrics().getLastDelivered() == null
-            ? null
-            : LocalDateTime.ofInstant(user.getUsermetrics().getLastDelivered(), ZoneOffset.UTC);
+    this.lastOpened = user.getUsermetrics().getLastOpened();
+    this.lastDelivered = user.getUsermetrics().getLastDelivered();
     this.fcmToken = user.getFcmToken();
-    this.enrolmentDate = LocalDateTime.ofInstant(user.getEnrolmentDate(), ZoneOffset.UTC);
+    this.enrolmentDate = user.getEnrolmentDate();
     this.timezone = user.getTimezone();
     this.language = user.getLanguage();
   }
@@ -98,12 +97,12 @@ public class FcmUserDto implements Serializable {
     return this;
   }
 
-  public FcmUserDto setLastOpened(LocalDateTime lastOpened) {
+  public FcmUserDto setLastOpened(Instant lastOpened) {
     this.lastOpened = lastOpened;
     return this;
   }
 
-  public FcmUserDto setLastDelivered(LocalDateTime lastDelivered) {
+  public FcmUserDto setLastDelivered(Instant lastDelivered) {
     this.lastDelivered = lastDelivered;
     return this;
   }
@@ -113,7 +112,7 @@ public class FcmUserDto implements Serializable {
     return this;
   }
 
-  public FcmUserDto setEnrolmentDate(LocalDateTime enrolmentDate) {
+  public FcmUserDto setEnrolmentDate(Instant enrolmentDate) {
     this.enrolmentDate = enrolmentDate;
     return this;
   }

@@ -21,30 +21,32 @@
 
 package org.radarbase.appserver.dto.fcm;
 
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Objects;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 /** @author yatharthranjan */
 @Getter
 @ToString
 public class FcmNotificationDto implements Serializable {
 
+  // TODO add updated and created at
+
   private static final long serialVersionUID = 3L;
 
   private Long id;
 
   @NotNull
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  private LocalDateTime scheduledTime;
+  @DateTimeFormat( iso = ISO.DATE_TIME)
+  private Instant scheduledTime;
 
   private boolean delivered;
 
@@ -64,10 +66,11 @@ public class FcmNotificationDto implements Serializable {
 
   @NotEmpty private String sourceType;
 
+  private Map<String, String> additionalData;
+
   public FcmNotificationDto(Notification notificationEntity) {
     this.id = notificationEntity.getId();
-    this.scheduledTime =
-        LocalDateTime.ofInstant(notificationEntity.getScheduledTime(), ZoneOffset.UTC);
+    this.scheduledTime = notificationEntity.getScheduledTime();
     this.title = notificationEntity.getTitle();
     this.body = notificationEntity.getBody();
     this.delivered = notificationEntity.isDelivered();
@@ -77,6 +80,7 @@ public class FcmNotificationDto implements Serializable {
     this.appPackage = notificationEntity.getAppPackage();
     this.sourceType = notificationEntity.getSourceType();
     this.ttlSeconds = notificationEntity.getTtlSeconds();
+    this.additionalData = notificationEntity.getAdditionalData();
   }
 
   public FcmNotificationDto() {}
@@ -86,7 +90,7 @@ public class FcmNotificationDto implements Serializable {
     return this;
   }
 
-  public FcmNotificationDto setScheduledTime(LocalDateTime scheduledTime) {
+  public FcmNotificationDto setScheduledTime(Instant scheduledTime) {
     this.scheduledTime = scheduledTime;
     return this;
   }
@@ -126,6 +130,21 @@ public class FcmNotificationDto implements Serializable {
     return this;
   }
 
+  public FcmNotificationDto setAppPackage(String appPackage) {
+    this.appPackage = appPackage;
+    return this;
+  }
+
+  public FcmNotificationDto setSourceType(String sourceType) {
+    this.sourceType = sourceType;
+    return this;
+  }
+
+  public FcmNotificationDto setAdditionalData(Map<String, String> additionalData) {
+    this.additionalData = additionalData;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -139,16 +158,6 @@ public class FcmNotificationDto implements Serializable {
         && Objects.equals(type, that.type)
         && Objects.equals(appPackage, that.appPackage)
         && Objects.equals(sourceType, that.sourceType);
-  }
-
-  public FcmNotificationDto setAppPackage(String appPackage) {
-    this.appPackage = appPackage;
-    return this;
-  }
-
-  public FcmNotificationDto setSourceType(String sourceType) {
-    this.sourceType = sourceType;
-    return this;
   }
 
   @Override

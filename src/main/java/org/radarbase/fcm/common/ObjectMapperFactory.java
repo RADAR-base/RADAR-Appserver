@@ -22,6 +22,7 @@
 package org.radarbase.fcm.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObjectMapperFactory extends AbstractFactoryBean<ObjectMapper> {
 
+  // TODO Remove this if can directly autowire from Spring context
+
   @Override
   public Class<?> getObjectType() {
     return ObjectMapper.class;
@@ -42,6 +45,6 @@ public class ObjectMapperFactory extends AbstractFactoryBean<ObjectMapper> {
 
   @Override
   protected ObjectMapper createInstance() {
-    return new ObjectMapper();
+    return new ObjectMapper().registerModule(new JavaTimeModule());
   }
 }

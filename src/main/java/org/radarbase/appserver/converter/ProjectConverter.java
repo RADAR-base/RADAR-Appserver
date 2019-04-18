@@ -22,9 +22,9 @@
 package org.radarbase.appserver.converter;
 
 import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
 
 /**
  * Converter {@link Converter} class for {@link Project} entity.

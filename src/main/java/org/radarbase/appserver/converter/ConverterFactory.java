@@ -22,11 +22,11 @@
 package org.radarbase.appserver.converter;
 
 import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
 
 /**
  * Converter Factory providing different converters {@link Converter}. This ensures that only one

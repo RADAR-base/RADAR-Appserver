@@ -22,17 +22,28 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.util.Objects;
 
 /**
  * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
@@ -61,9 +72,11 @@ import java.util.Objects;
           })
     })
 @Entity
-@ToString
 @Getter
+@ToString
 public class Notification extends AuditModel implements Scheduled {
+
+  // TODO Add STATUS as enum of (ADDED, SCHEDULED, EXECUTED, DELIVERED, ERROR)
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -121,6 +134,12 @@ public class Notification extends AuditModel implements Scheduled {
   // for use with the FCM admin SDK
   @Nullable
   private boolean dryRun;
+
+  @Nullable
+  @ElementCollection
+  @MapKeyColumn(name = "additional_key")
+  @Column(name = "additional_value")
+  private Map<String, String> additionalData;
 
   public Notification setUser(User user) {
     this.user = user;
@@ -189,6 +208,16 @@ public class Notification extends AuditModel implements Scheduled {
 
   public Notification setSourceType(String sourceType) {
     this.sourceType = sourceType;
+    return this;
+  }
+
+  public Notification setAdditionalData(Map<String, String> additionalData) {
+    this.additionalData = additionalData;
+    return this;
+  }
+
+  public Notification setId(Long id) {
+    this.id = id;
     return this;
   }
 

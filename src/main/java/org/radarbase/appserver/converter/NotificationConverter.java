@@ -21,10 +21,9 @@
 
 package org.radarbase.appserver.converter;
 
-import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-
 import java.time.ZoneOffset;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
+import org.radarbase.appserver.entity.Notification;
 
 /**
  * Converter {@link Converter} class for {@link Notification} entity.
@@ -36,14 +35,15 @@ public class NotificationConverter implements Converter<Notification, FcmNotific
   public Notification dtoToEntity(FcmNotificationDto notificationDto) {
     return new Notification()
         .setBody(notificationDto.getBody())
-        .setScheduledTime(notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC))
+        .setScheduledTime(notificationDto.getScheduledTime())
         .setTitle(notificationDto.getTitle())
         .setSourceId(notificationDto.getSourceId())
         .setType(notificationDto.getType())
         .setTtlSeconds(notificationDto.getTtlSeconds())
         .setFcmMessageId(String.valueOf(notificationDto.hashCode()))
         .setAppPackage(notificationDto.getAppPackage())
-        .setSourceType(notificationDto.getSourceType());
+        .setSourceType(notificationDto.getSourceType())
+        .setAdditionalData(notificationDto.getAdditionalData());
   }
 
   @Override

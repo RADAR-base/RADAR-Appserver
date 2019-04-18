@@ -21,14 +21,19 @@
 
 package org.radarbase.appserver.entity;
 
+import java.time.Instant;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-
-import javax.persistence.*;
-import java.time.Instant;
 
 /**
  * {@link Entity} for persisting important metrics about the {@link User}. A {@link User} can have
@@ -38,8 +43,8 @@ import java.time.Instant;
  */
 @Table(name = "user_metrics")
 @Entity
-@ToString
 @Getter
+@ToString
 public class UserMetrics extends AuditModel {
 
   @Id
@@ -57,6 +62,7 @@ public class UserMetrics extends AuditModel {
   @Column(name = "last_delivered")
   private Instant lastDelivered;
 
+  @ToString.Exclude
   @NonNull @OneToOne private User user;
 
   public UserMetrics(Instant lastOpened, Instant lastDelivered) {

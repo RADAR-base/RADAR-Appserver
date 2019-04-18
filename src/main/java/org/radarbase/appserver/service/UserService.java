@@ -21,9 +21,18 @@
 
 package org.radarbase.appserver.service;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.converter.*;
+import org.radarbase.appserver.converter.Converter;
+import org.radarbase.appserver.converter.ConverterFactory;
+import org.radarbase.appserver.converter.NotificationConverter;
+import org.radarbase.appserver.converter.ProjectConverter;
+import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -31,16 +40,9 @@ import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
-import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * {@link Service} for interacting with the {@link User} {@link javax.persistence.Entity} using the
@@ -160,7 +162,7 @@ public class UserService {
           user.get()
               .setFcmToken(userDto.getFcmToken())
               .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
-              .setEnrolmentDate(userDto.getEnrolmentDate().toInstant(ZoneOffset.UTC))
+              .setEnrolmentDate(userDto.getEnrolmentDate())
               .setTimezone(userDto.getTimezone());
       // maintain a bi-directional relationship
       updatedUser.getUsermetrics().setUser(updatedUser);

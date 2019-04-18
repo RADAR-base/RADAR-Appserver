@@ -22,24 +22,22 @@
 package org.radarbase.appserver.service.fcm;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.downstream.FcmSender;
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Optional;
 
 /**
  * {@link UpstreamMessageHandler} for handling messages messages coming through the {@link
@@ -174,10 +172,10 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
           "The notifications details are invalid: " + jsonMessage);
     }
 
-    LocalDateTime scheduledTime =
-        LocalDateTime.ofEpochSecond(jsonMessage.get("time").asLong() / 1000L, 0, ZoneOffset.UTC);
+    Instant scheduledTime =
+        Instant.ofEpochSecond(jsonMessage.get("time").asLong() / 1000L);
 
-    if (scheduledTime.isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
+    if (scheduledTime.isBefore(Instant.now())) {
       throw new InvalidNotificationDetailsException(
           "The notification scheduled " + "time cannot be before current time");
     }
@@ -213,9 +211,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
             jsonMessage.get("language") == null ? "en" : jsonMessage.get("subjectId").asText())
         .setEnrolmentDate(
             jsonMessage.get("enrolmentDate") == null
-                ? LocalDateTime.now(ZoneOffset.UTC)
-                : LocalDateTime.ofInstant(
-                    Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L),
-                    ZoneOffset.UTC));
+                ? Instant.now()
+                : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L));
   }
 }

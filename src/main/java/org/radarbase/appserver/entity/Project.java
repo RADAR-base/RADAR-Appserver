@@ -21,13 +21,17 @@
 
 package org.radarbase.appserver.entity;
 
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.dto.ProjectDto;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.*;
 /**
  * {@link Entity} for persisting projects. The corresponding DTO is {@link ProjectDto}.
  *
@@ -49,8 +53,9 @@ public class Project extends AuditModel {
 
   public Project() {}
 
-  public void setId(Long id) {
+  public Project setId(Long id) {
     this.id = id;
+    return this;
   }
 
   public Project setProjectId(String projectId) {

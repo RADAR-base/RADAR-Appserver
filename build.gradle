@@ -1,13 +1,16 @@
 buildscript {
-	ext {
-		springBootVersion = '2.1.0.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+    ext {
+        springBootVersion = '2.1.0.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+plugins {
+    id 'checkstyle'
 }
 
 apply plugin: 'java'
@@ -20,66 +23,69 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.11
 
 repositories {
-	mavenCentral()
-	jcenter()
+    mavenCentral()
+    jcenter()
 }
 
 bootJar {
-	mainClassName = 'org.radarbase.appserver.AppserverApplication'
+    mainClassName = 'org.radarbase.appserver.AppserverApplication'
 }
 
 //apply from: 'gradle/liquibase.gradle'
 
 ext {
-	smackVersion = '4.3.1'
-	springFoxVersion= '2.9.2'
-	springInegrationXmppVersion = '5.1.1.RELEASE'
-	lombokVersion = '1.18.4'
-	bootAdminVersion = '2.1.1'
+    smackVersion = '4.3.1'
+    springFoxVersion = '2.9.2'
+    springInegrationXmppVersion = '5.1.1.RELEASE'
+    lombokVersion = '1.18.4'
+    bootAdminVersion = '2.1.1'
 }
 
 dependencies {
-	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-	implementation('org.springframework.boot:spring-boot-starter-data-rest')
-	implementation('org.springframework.boot:spring-boot-starter-web')
-	implementation('org.springframework.boot:spring-boot-starter-integration')
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('org.springframework.boot:spring-boot-starter-data-rest')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-starter-integration')
     implementation('org.springframework.boot:spring-boot-starter-quartz')
-	implementation('org.springframework.boot:spring-boot-starter-security')
-	implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
 
-	compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion
-	
-	// XMPP
-	compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
-	compile group: 'org.igniterealtime.smack', name:'smack-experimental', version: smackVersion
+    compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion
 
-	// Swagger
-	compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
-	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
+    // XMPP
+    compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
+    compile group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion
 
-	//runtimeOnly('org.springframework.boot:spring-boot-devtools')
-	runtimeOnly('org.hsqldb:hsqldb')
-	runtimeOnly('org.liquibase:liquibase-core')
-	runtime('com.h2database:h2')
+    // Swagger
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
 
-	//compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+    //runtimeOnly('org.springframework.boot:spring-boot-devtools')
+    runtimeOnly('org.hsqldb:hsqldb')
+    runtimeOnly('org.liquibase:liquibase-core')
+    runtime('com.h2database:h2')
 
-	//compile('org.liquibase.ext:liquibase-hibernate5:3.6')
-	testImplementation('org.springframework.boot:spring-boot-starter-test')
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+
+    //compile('org.liquibase.ext:liquibase-hibernate5:3.6')
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+
+    testImplementation('org.junit.jupiter:junit-jupiter-api')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine')
 }
 
 javadoc {
-	options.addBooleanOption('html5', true)
-	destinationDir = new File("${project.rootDir}/src/main/resources/static/java-docs".toString())
+    options.addBooleanOption('html5', true)
+    destinationDir = new File("${project.rootDir}/src/main/resources/static/java-docs".toString())
 }
 
 wrapper {
-	gradleVersion '5.0'
+    gradleVersion '5.2.1'
 }
 
 task unpack(type: Copy) {
-	dependsOn bootJar
-	from(zipTree(tasks.bootJar.outputs.files.singleFile))
-	into("build/dependency")
+    dependsOn bootJar
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
 }
