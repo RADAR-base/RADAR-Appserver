@@ -21,16 +21,11 @@
 
 package org.radarbase.appserver.service.protocol;
 
+import java.io.IOException;
 import java.util.Map;
 import org.radarbase.appserver.dto.protocol.Protocol;
-import org.springframework.stereotype.Service;
 
-@Service
-public interface ProtocolGenerator {
+public interface ProtocolFetcherStrategy {
 
-  void init();
-
-  Map<String, Protocol> getAllProtocols();
-
-  Protocol getProtocol(String projectId);
+  Map<String, Protocol> fetchProtocols() throws IOException;
 }
