@@ -24,6 +24,7 @@ package org.radarbase.fcm.upstream;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Optional;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +38,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 /**
  * A Message receiver for receiving upstream messages from devices using FCM XMPP protocol.
@@ -56,6 +55,8 @@ public class XmppFcmReceiver implements CcsClient {
   @Autowired private UpstreamMessageHandler messageHandler;
 
   @Autowired private ObjectMapperFactory mapperFactory;
+
+  @Autowired private ErrorHandlingStrategy errorHandlingStrategy;
 
   @Autowired
   @Qualifier("fcmSenderProps")
@@ -108,31 +109,7 @@ public class XmppFcmReceiver implements CcsClient {
         }
 
         final String errorCode = errorCodeObj.get();
-
-        // TODO Create Enum for the Error Codes
-        switch (errorCode) {
-          case "INVALID_JSON":
-          case "BAD_REGISTRATION":
-          case "BAD_ACK":
-          case "TOPICS_MESSAGE_RATE_EXCEEDED":
-          case "DEVICE_MESSAGE_RATE_EXCEEDED":
-            log.info("Device error: {} -> {}", tree.get("error"), tree.get("error_description"));
-            break;
-          case "SERVICE_UNAVAILABLE":
-          case "INTERNAL_SERVER_ERROR":
-            log.info("Server error: {} -> {}", tree.get("error"), tree.get("error_description"));
-            break;
-          case "CONNECTION_DRAINING":
-            log.info("Connection draining from Nack ...");
-            handleConnectionDraining();
-            break;
-          case "DEVICE_UNREGISTERED":
-            log.info("Received unknown FCM Error Code: {}", errorCode);
-            break;
-          default:
-            log.info("Received unknown FCM Error Code: {}", errorCode);
-            break;
-        }
+        errorHandlingStrategy.handleError(errorCode, tree);
         messageHandler.handleNackReceipt(tree);
         break;
       case RECEIPT:
