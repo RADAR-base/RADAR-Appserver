@@ -22,8 +22,19 @@
 package org.radarbase.appserver.service.scheduler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.*;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.scheduler.quartz.NotificationJob;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
@@ -36,9 +47,6 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * {@link Service} for scheduling Notifications to be sent through FCM at the {@link
  * org.radarbase.appserver.entity.Scheduled} time. It also provided functions for updating/ deleting
@@ -46,13 +54,15 @@ import java.util.stream.Collectors;
  *
  * @author yatharthranjan
  */
-@Slf4j
 @Service
+@Slf4j
 public class NotificationSchedulerService {
 
   // TODO add a schedule cache to cache incoming requests and do batch scheduling
 
   @Autowired private ObjectMapperFactory mapperFactory;
+
+  @Autowired private ObjectMapper objectMapper;
 
   @Autowired
   @Qualifier("fcmSenderProps")

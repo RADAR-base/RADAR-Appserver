@@ -23,7 +23,7 @@ package org.radarbase.appserver.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
@@ -54,41 +54,34 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(FcmNotificationController.class)
 class FcmNotificationControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @MockBean
-  private FcmNotificationService notificationService;
+  @MockBean private FcmNotificationService notificationService;
 
   private final Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
 
   @BeforeEach
   public void setUp() {
-    FcmNotificationDto notificationDto = new FcmNotificationDto()
-        .setBody("Test notif")
-        .setTitle("Testing 1")
-        .setScheduledTime(scheduledTime)
-        .setSourceId("test")
-        .setFcmMessageId("123456")
-        .setTtlSeconds(86400)
-        .setDelivered(false)
-        .setId(1L);
+    FcmNotificationDto notificationDto =
+        new FcmNotificationDto()
+            .setBody("Test notif")
+            .setTitle("Testing 1")
+            .setScheduledTime(scheduledTime)
+            .setSourceId("test")
+            .setFcmMessageId("123456")
+            .setTtlSeconds(86400)
+            .setDelivered(false)
+            .setId(1L);
 
     given(notificationService.getAllNotifications())
-        .willReturn(
-            new FcmNotifications().setNotifications(List.of(notificationDto))
-        );
-
-    given(notificationService.getNotificationById(1L))
-        .willReturn(notificationDto);
-
-    given(notificationService.getNotificationsByProjectIdAndSubjectId("test-project",
-        "test-user"))
         .willReturn(new FcmNotifications().setNotifications(List.of(notificationDto)));
 
+    given(notificationService.getNotificationById(1L)).willReturn(notificationDto);
+
+    given(notificationService.getNotificationsByProjectIdAndSubjectId("test-project", "test-user"))
+        .willReturn(new FcmNotifications().setNotifications(List.of(notificationDto)));
 
     given(notificationService.getNotificationsByProjectId("test-project"))
         .willReturn(new FcmNotifications().setNotifications(List.of(notificationDto)));
@@ -96,56 +89,57 @@ class FcmNotificationControllerTest {
     given(notificationService.getNotificationsBySubjectId("test-user"))
         .willReturn(new FcmNotifications().setNotifications(List.of(notificationDto)));
 
-    FcmNotificationDto notificationDto2 = new FcmNotificationDto()
-        .setBody("Test notif")
-        .setTitle("Testing 2")
-        .setScheduledTime(scheduledTime)
-        .setSourceId("test")
-        .setFcmMessageId("1234567")
-        .setSourceType("aRMT")
-        .setType("ESM")
-        .setAppPackage("aRMT")
-        .setTtlSeconds(86400)
-        .setDelivered(false)
-        .setId(2L);
+    FcmNotificationDto notificationDto2 =
+        new FcmNotificationDto()
+            .setBody("Test notif")
+            .setTitle("Testing 2")
+            .setScheduledTime(scheduledTime)
+            .setSourceId("test")
+            .setFcmMessageId("1234567")
+            .setSourceType("aRMT")
+            .setType("ESM")
+            .setAppPackage("aRMT")
+            .setTtlSeconds(86400)
+            .setDelivered(false)
+            .setId(2L);
 
     given(notificationService.addNotification(notificationDto2, "test-user", "test-project"))
         .willReturn(notificationDto2);
 
-    given(notificationService.getNotificationById(2L))
-        .willReturn(notificationDto2);
+    given(notificationService.getNotificationById(2L)).willReturn(notificationDto2);
 
+    doAnswer(
+            (invocation) -> {
+              String projectId = invocation.getArgument(0);
+              String subjectId = invocation.getArgument(1);
 
-    doAnswer( (invocation) -> {
+              assertEquals("test-project", projectId);
+              assertEquals("test-user", subjectId);
 
-      String projectId = invocation.getArgument(0);
-      String subjectId = invocation.getArgument(1);
-
-      assertEquals("test-project", projectId);
-      assertEquals("test-user", subjectId);
-
-      return null;
-
-    }).when(notificationService).removeNotificationsForUser(any(String.class), any(String.class));
-
-
+              return null;
+            })
+        .when(notificationService)
+        .removeNotificationsForUser(any(String.class), any(String.class));
   }
 
   @Test
   void getAllNotifications() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get(URI.create("/notifications"))
-          .contentType(MediaType.APPLICATION_JSON))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(URI.create("/notifications"))
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.notifications", hasSize(1)))
         .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
         .andExpect(jsonPath("$.notifications[0].fcmMessageId", is("123456")));
-
   }
 
   @Test
   void getNotificationUsingId() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get(URI.create("/notifications/1"))
-          .contentType(MediaType.APPLICATION_JSON))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(URI.create("/notifications/1"))
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.title", is("Testing 1")))
         .andExpect(jsonPath("$.fcmMessageId", is("123456")));
@@ -158,9 +152,12 @@ class FcmNotificationControllerTest {
   @Test
   void getNotificationsUsingProjectIdAndSubjectId() throws Exception {
 
-    mockMvc.perform(MockMvcRequestBuilders.get(URI.create("/projects/test-project/users/test-user/notifications"))
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                    URI.create("/projects/test-project/users/test-user/notifications"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.notifications", hasSize(1)))
         .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
@@ -170,9 +167,11 @@ class FcmNotificationControllerTest {
   @Test
   void getNotificationsUsingProjectId() throws Exception {
 
-    mockMvc.perform(MockMvcRequestBuilders.get(URI.create("/projects/test-project/notifications"))
-          .contentType(MediaType.APPLICATION_JSON)
-          .accept(MediaType.APPLICATION_JSON))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(URI.create("/projects/test-project/notifications"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.notifications", hasSize(1)))
         .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
@@ -181,33 +180,39 @@ class FcmNotificationControllerTest {
 
   @Test
   void getNotificationsUsingSubjectId() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get(URI.create("/users/test-user/notifications"))
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.notifications", hasSize(1)))
-      .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
-      .andExpect(jsonPath("$.notifications[0].fcmMessageId", is("123456")));
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(URI.create("/users/test-user/notifications"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.notifications", hasSize(1)))
+        .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
+        .andExpect(jsonPath("$.notifications[0].fcmMessageId", is("123456")));
   }
 
   @Test
   void addSingleNotification() throws Exception {
 
-    FcmNotificationDto notificationDto2 = new FcmNotificationDto()
-        .setBody("Test notif")
-        .setTitle("Testing 2")
-        .setScheduledTime(scheduledTime)
-        .setSourceId("test")
-        .setFcmMessageId("1234567")
-        .setSourceType("aRMT")
-        .setType("ESM")
-        .setAppPackage("aRMT")
-        .setTtlSeconds(86400)
-        .setDelivered(false);
+    FcmNotificationDto notificationDto2 =
+        new FcmNotificationDto()
+            .setBody("Test notif")
+            .setTitle("Testing 2")
+            .setScheduledTime(scheduledTime)
+            .setSourceId("test")
+            .setFcmMessageId("1234567")
+            .setSourceType("aRMT")
+            .setType("ESM")
+            .setAppPackage("aRMT")
+            .setTtlSeconds(86400)
+            .setDelivered(false);
 
-    mockMvc.perform(MockMvcRequestBuilders.post(URI.create("/projects/test-project/users/test-user/notifications"))
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsBytes(notificationDto2)))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    URI.create("/projects/test-project/users/test-user/notifications"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(notificationDto2)))
         .andExpect(jsonPath("$.title", is("Testing 2")))
         .andExpect(jsonPath("$.fcmMessageId", is("1234567")))
         .andExpect(jsonPath("$.id", is(2)));
@@ -215,7 +220,9 @@ class FcmNotificationControllerTest {
 
   @Test
   void deleteNotificationsForUser() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.delete(URI.create("/projects/test-project/users/test-user/notifications"))
-        .contentType(MediaType.APPLICATION_JSON));
+    mockMvc.perform(
+        MockMvcRequestBuilders.delete(
+                URI.create("/projects/test-project/users/test-user/notifications"))
+            .contentType(MediaType.APPLICATION_JSON));
   }
 }

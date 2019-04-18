@@ -21,6 +21,8 @@
 
 package org.radarbase.fcm.config;
 
+import javax.annotation.PreDestroy;
+import javax.net.ssl.SSLSocketFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -35,10 +37,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.event.EventListener;
 import org.springframework.integration.config.EnableIntegration;
-import org.springframework.integration.xmpp.config.XmppConnectionFactoryBean;
-
-import javax.annotation.PreDestroy;
-import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Configuration class providing all the beans and config required by the FCM XMPP client.

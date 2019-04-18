@@ -21,9 +21,8 @@
 
 package org.radarbase.appserver.dto;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * Data Transfer object (DTO) for projects. A project may represent a Management Portal project.
@@ -33,6 +32,8 @@ import java.io.Serializable;
  */
 @Data
 public class ProjectDto implements Serializable {
+
+  // TODO add updated and created at
 
   private static final long serialVersionUID = 2L;
 

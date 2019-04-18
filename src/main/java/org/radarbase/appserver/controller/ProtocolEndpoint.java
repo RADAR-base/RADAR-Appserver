@@ -21,15 +21,14 @@
 
 package org.radarbase.appserver.controller;
 
+import java.util.Map;
+import javax.validation.Valid;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.service.protocol.ProtocolGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.util.Map;
 
 @RestController
 public class ProtocolEndpoint {

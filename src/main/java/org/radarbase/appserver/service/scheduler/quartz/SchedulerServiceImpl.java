@@ -21,19 +21,22 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
-import lombok.SneakyThrows;
-import lombok.Synchronized;
-import org.quartz.*;
-import org.quartz.impl.triggers.SimpleTriggerImpl;
-import org.radarbase.appserver.entity.Scheduled;
-import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.SneakyThrows;
+import lombok.Synchronized;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
+import org.quartz.impl.triggers.SimpleTriggerImpl;
+import org.radarbase.appserver.entity.Scheduled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * An implementation of the {@link SchedulerService} providing Synchronized access to schedule,

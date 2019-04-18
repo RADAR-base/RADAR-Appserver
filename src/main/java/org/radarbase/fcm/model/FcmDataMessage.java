@@ -23,9 +23,8 @@ package org.radarbase.fcm.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.experimental.SuperBuilder;
-
 import java.util.Map;
+import lombok.experimental.SuperBuilder;
 
 /** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)

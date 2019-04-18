@@ -21,9 +21,10 @@
 
 package org.radarbase.appserver.dto.fcm;
 
-import lombok.*;
-
 import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 /** @author yatharthranjan */
 @ToString

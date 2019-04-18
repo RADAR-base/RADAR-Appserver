@@ -22,7 +22,11 @@
 package org.radarbase.fcm.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.ReconnectionListener;
+import org.jivesoftware.smack.ReconnectionManager;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.sm.predicates.ForEveryStanza;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;

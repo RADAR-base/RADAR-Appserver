@@ -45,7 +45,7 @@ public class FcmNotificationDto implements Serializable {
   private Long id;
 
   @NotNull
-  @DateTimeFormat( iso = ISO.DATE_TIME)
+  @DateTimeFormat(iso = ISO.DATE_TIME)
   private Instant scheduledTime;
 
   private boolean delivered;

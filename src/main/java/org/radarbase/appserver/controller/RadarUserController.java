@@ -23,7 +23,6 @@ package org.radarbase.appserver.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Optional;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;

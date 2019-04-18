@@ -29,8 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,8 +102,7 @@ class FcmNotificationServiceTest {
             .setSubjectId("test-user")
             .setId(1L);
 
-    Mockito.when(userRepository.findBySubjectId(user.getSubjectId()))
-        .thenReturn(Optional.of(user));
+    Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
 
     Mockito.when(userRepository.findBySubjectIdAndProjectId("test-user", 1L))
         .thenReturn(Optional.of(user));
@@ -158,11 +155,9 @@ class FcmNotificationServiceTest {
     Mockito.when(notificationRepository.findByFcmMessageId("123456"))
         .thenReturn(Optional.of(notification2));
 
-    Mockito.when(notificationRepository.findById(1L))
-        .thenReturn(Optional.of(notification1));
+    Mockito.when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification1));
 
-    Mockito.when(notificationRepository.findById(2L))
-        .thenReturn(Optional.of(notification2));
+    Mockito.when(notificationRepository.findById(2L)).thenReturn(Optional.of(notification2));
 
     Mockito.when(
             notificationRepository
@@ -190,8 +185,7 @@ class FcmNotificationServiceTest {
 
     Mockito.when(notificationRepository.save(notification3)).thenReturn(notification3);
 
-    Mockito.when(notificationRepository.findById(3L))
-        .thenReturn(Optional.of(notification3));
+    Mockito.when(notificationRepository.findById(3L)).thenReturn(Optional.of(notification3));
 
     Mockito.when(
             notificationRepository
@@ -213,8 +207,7 @@ class FcmNotificationServiceTest {
 
     Mockito.when(notificationRepository.save(notification4)).thenReturn(notification4);
 
-    Mockito.when(notificationRepository.findById(4L))
-        .thenReturn(Optional.of(notification4));
+    Mockito.when(notificationRepository.findById(4L)).thenReturn(Optional.of(notification4));
 
     Mockito.when(
             notificationRepository
@@ -222,23 +215,21 @@ class FcmNotificationServiceTest {
                     2L, "test", scheduledTime, "Testing4", "Test notif", null, 86400))
         .thenReturn(false);
 
-    Notification notification5 = new Notification()
-        .setBody("Test notif Updated")
-        .setTitle("Testing 2 Updated")
-        .setUser(user)
-        .setScheduledTime(scheduledTime)
-        .setSourceId("test")
-        .setFcmMessageId("123456")
-        .setTtlSeconds(86400)
-        .setDelivered(false)
-        .setId(2L);
+    Notification notification5 =
+        new Notification()
+            .setBody("Test notif Updated")
+            .setTitle("Testing 2 Updated")
+            .setUser(user)
+            .setScheduledTime(scheduledTime)
+            .setSourceId("test")
+            .setFcmMessageId("123456")
+            .setTtlSeconds(86400)
+            .setDelivered(false)
+            .setId(2L);
 
-    Mockito.when(notificationRepository.save(notification5))
-        .thenReturn(notification5);
+    Mockito.when(notificationRepository.save(notification5)).thenReturn(notification5);
 
-    Mockito.when(userRepository.findByFcmToken("xxxx"))
-        .thenReturn(Optional.of(user));
-
+    Mockito.when(userRepository.findByFcmToken("xxxx")).thenReturn(Optional.of(user));
   }
 
   @Test
@@ -436,7 +427,8 @@ class FcmNotificationServiceTest {
   // If does not throw exception then test is valid
   @Test
   void removeNotificationsForUser() {
-    assertDoesNotThrow(() -> notificationService.removeNotificationsForUser("test-project", "test-user"));
+    assertDoesNotThrow(
+        () -> notificationService.removeNotificationsForUser("test-project", "test-user"));
   }
 
   @Test
@@ -446,13 +438,11 @@ class FcmNotificationServiceTest {
     assertTrue(notificationService.getNotificationById(1L).isDelivered());
   }
 
-
   // Directly calls the repository so no need to assert. Just check that no excpetion is thrown
   @Test
   void deleteNotificationByFcmMessageId() {
     assertDoesNotThrow(() -> notificationService.deleteNotificationByFcmMessageId("123456"));
   }
-
 
   // If does not throw exception then test is valid
   @Test

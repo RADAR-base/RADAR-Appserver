@@ -21,15 +21,9 @@
 
 package org.radarbase.appserver;
 
-import org.radarbase.appserver.config.ApplicationConfig;
-import org.radarbase.fcm.config.FcmServerConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /** @author yatharthranjan */
 @SpringBootApplication(

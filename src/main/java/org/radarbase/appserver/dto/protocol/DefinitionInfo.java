@@ -21,9 +21,8 @@
 
 package org.radarbase.appserver.dto.protocol;
 
-import lombok.Data;
-
 import java.net.URI;
+import lombok.Data;
 
 /** @author yatharthranjan */
 @Data

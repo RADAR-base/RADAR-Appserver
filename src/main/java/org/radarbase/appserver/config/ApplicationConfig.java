@@ -31,6 +31,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaAuditing
 @EnableConfigurationProperties({FcmServerConfig.class})
 @EnableTransactionManagement
-public class ApplicationConfig {
-
-}
+public class ApplicationConfig {}

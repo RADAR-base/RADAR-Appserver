@@ -62,8 +62,7 @@ public class UserMetrics extends AuditModel {
   @Column(name = "last_delivered")
   private Instant lastDelivered;
 
-  @ToString.Exclude
-  @NonNull @OneToOne private User user;
+  @ToString.Exclude @NonNull @OneToOne private User user;
 
   public UserMetrics(Instant lastOpened, Instant lastDelivered) {
     this.lastOpened = lastOpened;

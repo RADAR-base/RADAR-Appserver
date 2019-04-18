@@ -21,9 +21,8 @@
 
 package org.radarbase.appserver.dto.protocol;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * Data Transfer object (DTO) for Protocol. A project may represent a Protcol for scheduling

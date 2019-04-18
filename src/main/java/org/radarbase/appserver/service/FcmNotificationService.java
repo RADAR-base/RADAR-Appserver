@@ -216,8 +216,7 @@ public class FcmNotificationService implements NotificationService {
     }
 
     Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(
-            userDto.getSubjectId(), newProject.getId());
+        this.userRepository.findBySubjectIdAndProjectId(userDto.getSubjectId(), newProject.getId());
     AtomicReference<User> newUser = new AtomicReference<>();
 
     user.ifPresentOrElse(

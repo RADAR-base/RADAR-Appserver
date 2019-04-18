@@ -21,7 +21,9 @@
 
 package org.radarbase.appserver.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -48,35 +50,35 @@ public class NotificationRepositoryTest {
   private User user;
   private Instant scheduledTime;
 
-  /**
-   * Insert a Notification Before each test.
-   */
+  /** Insert a Notification Before each test. */
   @Before
   public void initNotification() {
-    //given
+    // given
     Project project = new Project().setProjectId("test-project");
     entityManager.persist(project);
 
-   this.user = new User()
-        .setFcmToken("xxxx")
-        .setEnrolmentDate(Instant.now())
-        .setProject(project)
-        .setTimezone(0d)
-        .setLanguage("en")
-        .setSubjectId("test-user");
+    this.user =
+        new User()
+            .setFcmToken("xxxx")
+            .setEnrolmentDate(Instant.now())
+            .setProject(project)
+            .setTimezone(0d)
+            .setLanguage("en")
+            .setSubjectId("test-user");
     entityManager.persist(this.user);
 
     this.scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
 
-    Notification notification = new Notification()
-        .setUser(user)
-        .setBody("Test notif")
-        .setTitle("Testing")
-        .setFcmMessageId("12345")
-        .setScheduledTime(this.scheduledTime)
-        .setSourceId("test")
-        .setTtlSeconds(86400)
-        .setDelivered(false);
+    Notification notification =
+        new Notification()
+            .setUser(user)
+            .setBody("Test notif")
+            .setTitle("Testing")
+            .setFcmMessageId("12345")
+            .setScheduledTime(this.scheduledTime)
+            .setSourceId("test")
+            .setTtlSeconds(86400)
+            .setDelivered(false);
 
     this.id = (long) entityManager.persistAndGetId(notification);
     entityManager.flush();
@@ -84,92 +86,108 @@ public class NotificationRepositoryTest {
 
   @Test
   public void whenInsertWithTransientUser_thenThrowException() {
-    //given
-    Notification notification = new Notification()
-        .setUser(new User())
-        .setBody("Test notif")
-        .setTitle("Testing")
-        .setFcmMessageId("12345")
-        .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-        .setSourceId("test")
-        .setTtlSeconds(86400)
-        .setDelivered(false);
+    // given
+    Notification notification =
+        new Notification()
+            .setUser(new User())
+            .setBody("Test notif")
+            .setTitle("Testing")
+            .setFcmMessageId("12345")
+            .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+            .setSourceId("test")
+            .setTtlSeconds(86400)
+            .setDelivered(false);
 
-    IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-      entityManager.persist(notification);
-      entityManager.flush();
-    });
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> {
+              entityManager.persist(notification);
+              entityManager.flush();
+            });
 
     assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
   }
 
   @Test
   public void whenInsertWithoutUser_thenThrowException() {
-    //given
-    Notification notification = new Notification()
-        .setBody("Test notif")
-        .setTitle("Testing")
-        .setFcmMessageId("12345")
-        .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-        .setSourceId("test")
-        .setTtlSeconds(86400)
-        .setDelivered(false);
+    // given
+    Notification notification =
+        new Notification()
+            .setBody("Test notif")
+            .setTitle("Testing")
+            .setFcmMessageId("12345")
+            .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+            .setSourceId("test")
+            .setTtlSeconds(86400)
+            .setDelivered(false);
 
-    assertThrows(ConstraintViolationException.class, () -> {
-      entityManager.persist(notification);
-      entityManager.flush();
-    });
+    assertThrows(
+        ConstraintViolationException.class,
+        () -> {
+          entityManager.persist(notification);
+          entityManager.flush();
+        });
   }
 
   @Test
   public void whenInsertWithUserButTransientProject_thenThrowException() {
-    //given
-    User user = new User()
-        .setFcmToken("xxxx")
-        .setEnrolmentDate(Instant.now())
-        .setProject(new Project())
-        .setTimezone(0d)
-        .setLanguage("en")
-        .setSubjectId("test-user");
+    // given
+    User user =
+        new User()
+            .setFcmToken("xxxx")
+            .setEnrolmentDate(Instant.now())
+            .setProject(new Project())
+            .setTimezone(0d)
+            .setLanguage("en")
+            .setSubjectId("test-user");
 
-
-    IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-      entityManager.persist(user);
-      entityManager.flush();
-    });
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> {
+              entityManager.persist(user);
+              entityManager.flush();
+            });
 
     assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
 
-    Notification notification = new Notification()
-        .setUser(user)
-        .setBody("Test notif")
-        .setTitle("Testing")
-        .setFcmMessageId("12345")
-        .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-        .setSourceId("test")
-        .setTtlSeconds(86400)
-        .setDelivered(false);
+    Notification notification =
+        new Notification()
+            .setUser(user)
+            .setBody("Test notif")
+            .setTitle("Testing")
+            .setFcmMessageId("12345")
+            .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+            .setSourceId("test")
+            .setTtlSeconds(86400)
+            .setDelivered(false);
 
-    ex = assertThrows(IllegalStateException.class, () -> {
-      entityManager.persist(notification);
-      entityManager.flush();
-    });
+    ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> {
+              entityManager.persist(notification);
+              entityManager.flush();
+            });
 
     assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
   }
 
   @Test
-  public void whenExistsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds_thenReturnTrue() {
+  public void
+      whenExistsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds_thenReturnTrue() {
     // when
-    boolean exists = notificationRepository
-        .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-            this.user.getId(),
-            "test",
-            this.scheduledTime,
-            "Testing",
-            "Test notif",
-            null,
-            86400);
+    boolean exists =
+        notificationRepository
+            .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                this.user.getId(),
+                "test",
+                this.scheduledTime,
+                "Testing",
+                "Test notif",
+                null,
+                86400);
 
     // then
     assertTrue(exists);
@@ -181,10 +199,9 @@ public class NotificationRepositoryTest {
     // when
     notificationRepository.deleteByFcmMessageId("12345");
 
-    //then
+    // then
     Notification notification = entityManager.find(Notification.class, this.id);
     assertNull(notification);
-
   }
 
   @Test

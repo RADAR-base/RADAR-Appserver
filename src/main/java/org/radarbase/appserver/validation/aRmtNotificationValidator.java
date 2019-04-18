@@ -21,13 +21,12 @@
 
 package org.radarbase.appserver.validation;
 
-import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.service.QuestionnaireScheduleService;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
+import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.service.QuestionnaireScheduleService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Validator for RADAR Active RMT app notifications.

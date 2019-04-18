@@ -21,6 +21,8 @@
 
 package org.radarbase.fcm.downstream;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
@@ -31,9 +33,6 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol. This uses

@@ -21,9 +21,8 @@
 
 package org.radarbase.fcm.config;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Random;
+import lombok.extern.slf4j.Slf4j;
 
 /** Util class for back off strategy */
 @Slf4j

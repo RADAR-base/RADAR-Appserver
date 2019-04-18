@@ -60,13 +60,9 @@ public class UserConverter implements Converter<User, FcmUserDto> {
     } else if (fcmUserDto.getLastOpened() == null) {
       userMetrics =
           new UserMetrics(
-              LocalDateTime.now().toInstant(ZoneOffset.UTC),
-              fcmUserDto.getLastDelivered());
+              LocalDateTime.now().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered());
     } else {
-      userMetrics =
-          new UserMetrics(
-              fcmUserDto.getLastOpened(),
-              fcmUserDto.getLastDelivered());
+      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), fcmUserDto.getLastDelivered());
     }
 
     return userMetrics;

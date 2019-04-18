@@ -21,10 +21,9 @@
 
 package org.radarbase.appserver.dto;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
 /**
  * Wrapper for a list of {@link ProjectDto} objects.

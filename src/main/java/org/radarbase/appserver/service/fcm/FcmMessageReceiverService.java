@@ -23,8 +23,6 @@ package org.radarbase.appserver.service.fcm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -172,8 +170,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
           "The notifications details are invalid: " + jsonMessage);
     }
 
-    Instant scheduledTime =
-        Instant.ofEpochSecond(jsonMessage.get("time").asLong() / 1000L);
+    Instant scheduledTime = Instant.ofEpochSecond(jsonMessage.get("time").asLong() / 1000L);
 
     if (scheduledTime.isBefore(Instant.now())) {
       throw new InvalidNotificationDetailsException(

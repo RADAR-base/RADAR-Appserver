@@ -21,7 +21,8 @@
 
 package org.radarbase.appserver.service;
 
-import org.radarbase.appserver.converter.*;
+import java.util.Optional;
+import org.radarbase.appserver.converter.ConverterFactory;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.Projects;
 import org.radarbase.appserver.entity.Project;
@@ -31,8 +32,6 @@ import org.radarbase.appserver.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
 
 /**
  * {@link Service} for interacting with the {@link Project} {@link javax.persistence.Entity} using

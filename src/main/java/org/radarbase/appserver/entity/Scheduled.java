@@ -21,9 +21,8 @@
 
 package org.radarbase.appserver.entity;
 
-import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
-
 import java.time.Instant;
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
 
 /**
  * Functional Interface to signify a class that can be scheduled using the {@link

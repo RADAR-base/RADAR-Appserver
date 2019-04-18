@@ -21,16 +21,20 @@
 
 package org.radarbase.appserver.controller;
 
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.Projects;
 import org.radarbase.appserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.websocket.server.PathParam;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Resource Endpoint for getting and adding projects. Each user {@link

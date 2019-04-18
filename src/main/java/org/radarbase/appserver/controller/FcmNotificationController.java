@@ -21,15 +21,20 @@
 
 package org.radarbase.appserver.controller;
 
+import java.time.LocalDateTime;
+import javax.validation.Valid;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.time.LocalDateTime;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Resource Endpoint for getting and adding (scheduling) notifications on Firbase Cloud Messaging.
@@ -38,6 +43,8 @@ import java.time.LocalDateTime;
  */
 @RestController
 public class FcmNotificationController {
+
+  // TODO Add Update Endpoint
 
   @Autowired private FcmNotificationService notificationService;
 
@@ -65,13 +72,14 @@ public class FcmNotificationController {
   }
 
   @GetMapping(
-      "/"
-          + Paths.PROJECT_PATH
-          + "/{projectId}/ "
-          + Paths.USER_PATH
-          + "/{subjectId}/"
-          + Paths.NOTIFICATION_PATH)
-  public ResponseEntity<FcmNotifications> getUsersUsingProjectIdAndSubjectId(
+      value =
+          "/"
+              + Paths.PROJECT_PATH
+              + "/{projectId}/"
+              + Paths.USER_PATH
+              + "/{subjectId}/"
+              + Paths.NOTIFICATION_PATH)
+  public ResponseEntity<FcmNotifications> getNotificationsUsingProjectIdAndSubjectId(
       @Valid @PathVariable("projectId") String projectId,
       @Valid @PathVariable("subjectId") String subjectId) {
     return ResponseEntity.ok(
@@ -85,7 +93,7 @@ public class FcmNotificationController {
   }
 
   @GetMapping("/" + Paths.USER_PATH + "/{subjectId}/" + Paths.NOTIFICATION_PATH)
-  public ResponseEntity<FcmNotifications> getRadarNotificationsUsingSubjectId(
+  public ResponseEntity<FcmNotifications> getNotificationsUsingSubjectId(
       @Valid @PathVariable("subjectId") String subjectId) {
     return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
   }
@@ -97,13 +105,16 @@ public class FcmNotificationController {
           + Paths.USER_PATH
           + "/{subjectId}/"
           + Paths.NOTIFICATION_PATH)
-  public ResponseEntity<FcmNotificationDto> scheduleSingleNotification(
+  public ResponseEntity<FcmNotificationDto> addSingleNotification(
       @PathVariable String projectId,
       @PathVariable String subjectId,
       @Valid @RequestBody FcmNotificationDto notification) {
     return ResponseEntity.ok(
         this.notificationService.addNotification(notification, subjectId, projectId));
   }
+
+  // TODO Move to a separate Schedule Endpoint. with a provider as an optional query param(default
+  // will be fcm)
 
   @PostMapping(
       "/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "/{userId}/notifications/now")

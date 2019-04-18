@@ -41,7 +41,7 @@ task liquibaseGenerateChangelog(type: JavaExec) {
     classpath configurations.liquibase
     main = "liquibase.integration.commandline.Main"
 
-    args "--changeLogFile=" + liquibaseProps.getProperty('liquibase.changelog.path')+ "00000000000000_initial_schema-" + buildTimestamp() +"_changelog.yml"
+    args "--changeLogFile=" + liquibaseProps.getProperty('liquibase.changelog.path') + "00000000000000_initial_schema-" + buildTimestamp() + "_changelog.yml"
     args "--url=hibernate:spring:" + liquibaseProps.getProperty('liquibase.domain.package') + "?dialect=" + applicationProps.getProperty('spring.jpa.properties.hibernate.dialect')
     args "--username=" + applicationProps.getProperty('spring.datasource.username')
     args "--driver=liquibase.ext.hibernate.database.connection.HibernateDriver"
@@ -57,7 +57,7 @@ task liquibaseDiffChangelog(type: JavaExec) {
     classpath configurations.liquibase
     main = "liquibase.integration.commandline.Main"
 
-    args "--changeLogFile=" + liquibaseProps.getProperty('liquibase.changelog.path')+ buildTimestamp() +"_changelog.yml"
+    args "--changeLogFile=" + liquibaseProps.getProperty('liquibase.changelog.path') + buildTimestamp() + "_changelog.yml"
     args "--referenceUrl=hibernate:spring:" + liquibaseProps.getProperty('liquibase.domain.package') + "?dialect=" + applicationProps.getProperty('spring.jpa.properties.hibernate.dialect')
     args "--username=" + applicationProps.getProperty('spring.datasource.username')
     args "--password=" + applicationProps.getProperty('spring.datasource.password')

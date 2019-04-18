@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service;
 
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
@@ -28,8 +29,6 @@ import org.radarbase.appserver.service.protocol.ProtocolGenerator;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 @Slf4j
 @Service
