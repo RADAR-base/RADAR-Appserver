@@ -49,6 +49,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
+
+  // TODO Try to use REST endpoints for consistency.
+
   @Autowired private ObjectMapperFactory mapperFactory;
 
   @Autowired
@@ -85,8 +88,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                   case SCHEDULE:
                     log.info("Got a SCHEDULE Request");
                     notificationService.addNotificationForced(
-                        notificationDtoMapper(jsonData.get()),
-                        userDtoMapper(jsonMessage.get("from").asText(), jsonData.get()),
+                        notificationDtoMapper(data),
+                        userDtoMapper(jsonMessage.get("from").asText(), data),
                         jsonMessage.get("projectId") == null
                             ? "unknown-project"
                             : jsonMessage.get("projectId").asText());

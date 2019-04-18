@@ -57,6 +57,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class FcmNotificationService implements NotificationService {
 
   // TODO: Implement this as a publisher
+  // TODO Add option to specify a scheduling provider (default will be fcm)
+  // TODO: Use strategy pattern for handling notifications for scheduling and adding to database
 
   @Autowired private NotificationRepository notificationRepository;
 

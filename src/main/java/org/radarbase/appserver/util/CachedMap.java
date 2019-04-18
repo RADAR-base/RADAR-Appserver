@@ -130,7 +130,7 @@ public class CachedMap<S, T> {
   }
 
   /**
-   * Supplier that may throw an exception. Otherwise similar to {@link java.util.function.Supplier}.
+   * Supplier that may throw an CustomExceptionHandler. Otherwise similar to {@link java.util.function.Supplier}.
    */
   @FunctionalInterface
   public interface ThrowingSupplier<T> {

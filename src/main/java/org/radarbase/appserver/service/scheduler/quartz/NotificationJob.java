@@ -49,7 +49,7 @@ public class NotificationJob implements Job {
    * or <code>{@link org.quartz.TriggerListener}s</code> that are watching the job's execution.
    *
    * @param context context containing jobs details and data added when creating the job.
-   * @throws RuntimeException if there is an exception while executing the job.
+   * @throws RuntimeException if there is an CustomExceptionHandler while executing the job.
    */
   @SneakyThrows
   @Override

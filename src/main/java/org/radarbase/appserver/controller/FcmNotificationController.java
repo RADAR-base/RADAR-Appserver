@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,8 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FcmNotificationController {
 
-  // TODO Add Update Endpoint
-
   @Autowired private FcmNotificationService notificationService;
 
   @GetMapping("/" + Paths.NOTIFICATION_PATH)
@@ -57,7 +56,7 @@ public class FcmNotificationController {
   public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.notificationService.getNotificationById(id));
   }
-  // TODO: get notifications based on other params
+  // TODO: get notifications based on other params. Maybe use projections ?
   @GetMapping("/" + Paths.NOTIFICATION_PATH + "/filtered")
   public ResponseEntity<FcmNotifications> getFilteredNotifications(
       @Valid @RequestParam(value = "type", required = false) String type,
@@ -113,18 +112,20 @@ public class FcmNotificationController {
         this.notificationService.addNotification(notification, subjectId, projectId));
   }
 
-  // TODO Move to a separate Schedule Endpoint. with a provider as an optional query param(default
-  // will be fcm)
-
-  @PostMapping(
-      "/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "/{userId}/notifications/now")
-  public ResponseEntity<FcmNotificationDto> scheduleNotificationNow(
+  @PutMapping(
+      "/"
+          + Paths.PROJECT_PATH
+          + "/{projectId}/"
+          + Paths.USER_PATH
+          + "/{subjectId}/"
+          + Paths.NOTIFICATION_PATH)
+  public ResponseEntity updateNotification(
       @PathVariable String projectId,
-      @PathVariable String userId,
+      @PathVariable String subjectId,
       @Valid @RequestBody FcmNotificationDto notification) {
 
-    // No need to add to the database, Directly send via Firebase
-    return null;
+    return ResponseEntity.ok(
+        this.notificationService.updateNotification(notification, subjectId, projectId));
   }
 
   @DeleteMapping(
