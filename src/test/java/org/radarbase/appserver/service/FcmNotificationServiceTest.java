@@ -67,13 +67,17 @@ class FcmNotificationServiceTest {
   }
 
   // TODO Make this generic when NotificationService interface is complete
-  @Autowired FcmNotificationService notificationService;
+  @Autowired
+  private FcmNotificationService notificationService;
 
-  @MockBean NotificationRepository notificationRepository;
+  @MockBean
+  private NotificationRepository notificationRepository;
 
-  @MockBean UserRepository userRepository;
+  @MockBean
+  private UserRepository userRepository;
 
-  @MockBean ProjectRepository projectRepository;
+  @MockBean
+  private ProjectRepository projectRepository;
 
   @MockBean NotificationSchedulerService schedulerService;
 
@@ -424,7 +428,7 @@ class FcmNotificationServiceTest {
     assertEquals("Testing 2 Updated", notificationService.getNotificationById(2L).getTitle());
   }
 
-  // If does not throw exception then test is valid
+  // If does not throw CustomExceptionHandler then test is valid
   @Test
   void removeNotificationsForUser() {
     assertDoesNotThrow(
@@ -444,7 +448,7 @@ class FcmNotificationServiceTest {
     assertDoesNotThrow(() -> notificationService.deleteNotificationByFcmMessageId("123456"));
   }
 
-  // If does not throw exception then test is valid
+  // If does not throw CustomExceptionHandler then test is valid
   @Test
   void removeNotificationsForUserUsingFcmToken() {
     assertDoesNotThrow(() -> notificationService.removeNotificationsForUserUsingFcmToken("xxxx"));

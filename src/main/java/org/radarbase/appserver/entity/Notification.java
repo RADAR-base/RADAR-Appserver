@@ -76,7 +76,7 @@ import org.springframework.lang.Nullable;
 @ToString
 public class Notification extends AuditModel implements Scheduled {
 
-  // TODO Add STATUS as enum of (ADDED, SCHEDULED, EXECUTED, DELIVERED, ERROR)
+  // TODO Add STATUS as enum of (ADDED, SCHEDULED, CANCELLED, EXECUTED, DELIVERED, ERROR)
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

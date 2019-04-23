@@ -28,8 +28,6 @@ import javax.websocket.server.PathParam;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
-import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.appserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,15 +51,11 @@ public class RadarUserController {
 
   @Autowired private UserService userService;
 
-  @Autowired private FcmNotificationService notificationService;
-
-  @Autowired private ProjectService projectService;
-
   @PostMapping("/users")
   public ResponseEntity addUser(@Valid @RequestBody FcmUserDto userDto) throws URISyntaxException {
 
     FcmUserDto user = this.userService.saveUserInProject(userDto);
-    return ResponseEntity.created(new URI("/user/" + user.getId())).body(user);
+    return ResponseEntity.created(new URI("/users/user?id=" + user.getId())).body(user);
   }
 
   @PostMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
@@ -116,4 +110,6 @@ public class RadarUserController {
       @Valid @PathVariable("projectId") String projectId) {
     return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
   }
+
+  // TODO Add GET mapping for /projects/{projectID}/users/{userId}
 }

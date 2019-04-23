@@ -35,5 +35,5 @@ public class FcmNotificationMessage extends FcmDownstreamMessage {
 
   @JsonProperty private Map<String, Object> notification;
 
-  @JsonProperty private Map<String, Object> data;
+  @JsonProperty private Map<String, String> data;
 }

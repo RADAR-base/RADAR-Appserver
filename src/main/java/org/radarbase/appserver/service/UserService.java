@@ -138,6 +138,7 @@ public class UserService {
     }
   }
 
+  // TODO update to use Id instead of subjectId
   @Transactional
   public FcmUserDto updateUser(FcmUserDto userDto) {
     Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());

@@ -257,6 +257,12 @@ public class FcmNotificationService implements NotificationService {
   @Transactional
   public FcmNotificationDto updateNotification(
       FcmNotificationDto notificationDto, String subjectId, String projectId) {
+
+    if (notificationDto.getId() == null) {
+      throw new InvalidNotificationDetailsException(
+          "ID must be supplied for updating the notification");
+    }
+
     Optional<Project> project = this.projectRepository.findByProjectId(projectId);
     if (project.isEmpty()) {
       throw new NotFoundException(
@@ -268,10 +274,6 @@ public class FcmNotificationService implements NotificationService {
     if (user.isEmpty()) {
       throw new NotFoundException(
           "The supplied subject ID is invalid. No user found. Please Create a User First.");
-    }
-    if (notificationDto.getId() == null) {
-      throw new InvalidNotificationDetailsException(
-          "ID must be supplied for updating the notification");
     }
 
     Optional<Notification> notification =
