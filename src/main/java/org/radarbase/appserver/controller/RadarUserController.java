@@ -1,60 +1,120 @@
+/*
+ *
+ *  *
+ *  *  * Copyright 2018 King's College London
+ *  *  *
+ *  *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  * you may not use this file except in compliance with the License.
+ *  *  * You may obtain a copy of the License at
+ *  *  *
+ *  *  *   http://www.apache.org/licenses/LICENSE-2.0
+ *  *  *
+ *  *  * Unless required by applicable law or agreed to in writing, software
+ *  *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  * See the License for the specific language governing permissions and
+ *  *  * limitations under the License.
+ *  *  *
+ *  *
+ *
+ */
+
 package org.radarbase.appserver.controller;
 
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
-import org.radarbase.appserver.dto.RadarUserDto;
-import org.radarbase.appserver.dto.RadarUsers;
+import org.radarbase.appserver.exception.InvalidUserDetailsException;
+import org.radarbase.appserver.service.ProjectService;
+import org.radarbase.fcm.dto.FcmUsers;
 import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.RadarUserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.radarbase.appserver.service.UserService;
+import org.radarbase.fcm.dto.FcmUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * Resource Endpoint for getting and adding users.
+ * Each notification {@link org.radarbase.appserver.entity.Notification} needs to be associated to a user.
+ * A user may represent a Management Portal subject.
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
+ *
+ * @author yatharthranjan
+ */
 @RestController
 public class RadarUserController {
-    private static final Logger logger = LoggerFactory.getLogger(RadarUserController.class);
 
     @Autowired
-    private RadarUserService userService;
+    private UserService userService;
 
     @Autowired
     private FcmNotificationService notificationService;
 
+    @Autowired
+    private ProjectService projectService;
+
     @PostMapping("/users")
-    public ResponseEntity addRadarUser(@RequestParam(value = "projectId") String projectId,
-                                       @RequestParam(value = "subjectId") String subjectId,
-                                       @RequestParam(value = "sourceId") String sourceId)
+    public ResponseEntity addUser(@RequestBody FcmUserDto userDto)
             throws URISyntaxException {
 
-        RadarUserDto user = this.userService.storeRadarUser(projectId, subjectId, sourceId);
+        FcmUserDto user = this.userService.saveUserInProject(userDto);
         return ResponseEntity
                 .created(new URI("/user/" + user.getId())).body(user);
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<RadarUsers> getAllRadarUsers() {
-        return null;
+    @PostMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+    public ResponseEntity addUserToProject(@Valid @RequestBody FcmUserDto userDto,
+                                           @Valid @PathVariable(value = "projectId") String projectId)
+            throws URISyntaxException {
+        userDto.setProjectId(projectId);
+        FcmUserDto user = this.userService.saveUserInProject(userDto);
+        return ResponseEntity
+                .created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId())).body(user);
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<RadarUserDto> getRadarUserUsingId(
-            @PathVariable String id) {
-        return null;
+    @PutMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+    public ResponseEntity updateUserInProject(@Valid @RequestBody FcmUserDto userDto,
+                                              @Valid @PathVariable(value = "projectId") String projectId)
+            throws URISyntaxException {
+        userDto.setProjectId(projectId);
+        FcmUserDto user = this.userService.updateUser(userDto);
+        return ResponseEntity
+                .created(new URI("/"+ Paths.USER_PATH +"/user?id=" + user.getId())).body(user);
     }
 
-    @GetMapping("/users/{subjectid}")
-    public ResponseEntity<RadarUserDto> getRadarUserUsingSubjectId(
-            @PathVariable String subjectId) {
-        return null;
+    @PutMapping("/" + Paths.USER_PATH)
+    public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
+            throws URISyntaxException {
+        FcmUserDto user = this.userService.updateUser(userDto);
+        return ResponseEntity
+                .created(new URI("/"+ Paths.USER_PATH + "/user?id=" + user.getId())).body(user);
     }
 
-    @GetMapping("/users/{subjectid}/notifications")
-    public ResponseEntity<FcmNotifications> getRadarNotificationsUsingSubjectId(
-            @PathVariable String subjectId) {
-        return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
+    @GetMapping("/" + Paths.USER_PATH)
+    public ResponseEntity<FcmUsers> getAllRadarUsers() {
+        return ResponseEntity.ok(this.userService.getAllRadarUsers());
+    }
+
+    @GetMapping("/" + Paths.USER_PATH + "/user")
+    public ResponseEntity<FcmUserDto> getRadarUserUsingId(
+            @PathParam("id") Long id) {
+        if(id == null) {
+            throw new InvalidUserDetailsException("The given id must not be null!");
+        }
+        return ResponseEntity.ok(this.userService.getUserById(id));
+    }
+
+    @GetMapping("/" + Paths.USER_PATH + "/{subjectId}")
+    public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
+            @PathVariable("subjectId") String subjectId) {
+        return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
+    }
+
+    @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+    public ResponseEntity<FcmUsers> getUsersUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
+        return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
     }
 }

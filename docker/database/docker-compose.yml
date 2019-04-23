@@ -1,0 +1,12 @@
+version: '2.1'
+
+services:
+  hsqldb:
+    build: ./
+    #image: yatharthranjan89/hsqldb
+    ports:
+      - 9001:9001
+    volumes:
+      - ../../db:/usr/hsql/
+      - ./server.properties:/etc/opt/hsqldb/conf/server.properties
+      - ./sqltool.rc:/etc/opt/hsqldb/conf/sqltool.rc

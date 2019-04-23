@@ -24,3 +24,12 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+# test database
+/db
+
+# javadocs
+/src/main/resources/static/java-docs
+
+# test kubernetes
+/kubernetes
