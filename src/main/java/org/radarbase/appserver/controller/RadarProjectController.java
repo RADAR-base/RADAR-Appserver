@@ -21,6 +21,8 @@
 
 package org.radarbase.appserver.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import org.radarbase.appserver.dto.ProjectDto;
@@ -59,8 +61,12 @@ public class RadarProjectController {
   @PostMapping(
       value = "/" + Paths.PROJECT_PATH,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<ProjectDto> addProject(@Valid @RequestBody ProjectDto projectDto) {
-    return ResponseEntity.ok(this.projectService.addProject(projectDto));
+  public ResponseEntity<ProjectDto> addProject(@Valid @RequestBody ProjectDto projectDto)
+      throws URISyntaxException {
+
+    ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
+    return ResponseEntity.created(new URI("/projects/project?id=" + projectDtoNew.getId()))
+        .body(projectDtoNew);
   }
 
   /**

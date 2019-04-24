@@ -280,8 +280,8 @@ class FcmNotificationServiceTest {
         notificationService.getNotificationsByProjectId("test-project");
 
     assertEquals(2, notifications.getNotifications().size());
-    assertEquals("Testing1", notifications.getNotifications().get(0).getTitle());
-    assertEquals("Testing2", notifications.getNotifications().get(1).getTitle());
+    assertTrue(notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing1")));
+    assertTrue(notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing2")));
   }
 
   @Test
