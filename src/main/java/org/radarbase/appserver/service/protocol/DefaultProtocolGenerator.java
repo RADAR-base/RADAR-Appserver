@@ -21,13 +21,13 @@
 
 package org.radarbase.appserver.service.protocol;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.util.CachedMap;
-import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,8 +41,6 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
 
   // Keeps a cache of Protocol for each project
   private CachedMap<String, Protocol> cachedProtocolMap;
-
-  @Autowired private ObjectMapperFactory objectMapperFactory;
 
   private static final Duration CACHE_INVALIDATE_DEFAULT = Duration.ofHours(1);
   private static final Duration CACHE_RETRY_DEFAULT = Duration.ofHours(2);

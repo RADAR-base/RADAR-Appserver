@@ -21,10 +21,13 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
+import static com.pivovarit.function.ThrowingPredicate.unchecked;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import org.quartz.JobDataMap;
@@ -47,7 +50,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class SchedulerServiceImpl implements SchedulerService {
 
-  @Autowired private Scheduler scheduler;
+  private Scheduler scheduler;
+
+  public SchedulerServiceImpl(@Autowired Scheduler scheduler) {
+    this.scheduler = scheduler;
+  }
 
   @Synchronized
   @SneakyThrows
@@ -88,6 +95,8 @@ public class SchedulerServiceImpl implements SchedulerService {
       trigger.setStartTime(new Date(scheduledObject.getScheduledTime().toEpochMilli()));
     }
 
+    scheduler.addJob(jobDetail, true);
+
     scheduler.rescheduleJob(triggerKey, trigger);
   }
 
@@ -95,6 +104,7 @@ public class SchedulerServiceImpl implements SchedulerService {
   @SneakyThrows
   @Override
   public void deleteScheduledJobs(List<JobKey> jobKeys) {
+    jobKeys = jobKeys.stream().filter(unchecked(scheduler::checkExists)).collect(Collectors.toList());
     scheduler.deleteJobs(jobKeys);
   }
 
@@ -102,6 +112,10 @@ public class SchedulerServiceImpl implements SchedulerService {
   @SneakyThrows
   @Override
   public void deleteScheduledJob(JobKey jobKey) {
-    scheduler.deleteJob(jobKey);
+    if (scheduler.checkExists(jobKey)) {
+      scheduler.deleteJob(jobKey);
+    }
   }
+
+
 }

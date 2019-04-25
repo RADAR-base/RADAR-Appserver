@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service.scheduler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,8 +36,9 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.scheduler.quartz.NotificationJob;
-import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
-import org.radarbase.fcm.common.ObjectMapperFactory;
+import org.radarbase.appserver.service.scheduler.quartz.QuartzNamingStrategy;
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
+import org.radarbase.appserver.service.scheduler.quartz.SimpleQuartzNamingStrategy;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmNotificationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,18 +60,46 @@ public class NotificationSchedulerService {
 
   // TODO add a schedule cache to cache incoming requests and do batch scheduling
 
-  @Autowired private ObjectMapperFactory mapperFactory;
+  private static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
 
-  @Autowired private ObjectMapper objectMapper;
+  private final FcmSender fcmSender;
+  private final SchedulerService schedulerService;
 
-  @Autowired
-  @Qualifier("fcmSenderProps")
-  private FcmSender fcmSender;
+  public NotificationSchedulerService(
+      @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
+      @Autowired SchedulerService schedulerService) {
+    this.fcmSender = fcmSender;
+    this.schedulerService = schedulerService;
+  }
 
-  @Autowired private SchedulerServiceImpl schedulerService;
+  public static SimpleTriggerFactoryBean getTriggerForNotification(
+      Notification notification, JobDetail jobDetail) {
+    SimpleTriggerFactoryBean triggerFactoryBean = new SimpleTriggerFactoryBean();
+    triggerFactoryBean.setJobDetail(jobDetail);
+    triggerFactoryBean.setName(
+        NAMING_STRATEGY.getTriggerName(
+            notification.getUser().getSubjectId(), notification.getId().toString()));
+    triggerFactoryBean.setRepeatCount(0);
+    triggerFactoryBean.setRepeatInterval(0L);
+    triggerFactoryBean.setStartTime(new Date(notification.getScheduledTime().toEpochMilli()));
+    triggerFactoryBean.afterPropertiesSet();
+    return triggerFactoryBean;
+  }
 
-  private static final String TRIGGER_PREFIX = "notification-trigger-";
-  private static final String JOB_PREFIX = "notification-jobdetail-";
+  public static JobDetailFactoryBean getJobDetailForNotification(Notification notification) {
+    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+    jobDetailFactory.setJobClass(NotificationJob.class);
+    jobDetailFactory.setDescription("Send Notification at scheduled time...");
+    jobDetailFactory.setDurability(true);
+    jobDetailFactory.setName(
+        NAMING_STRATEGY.getJobKeyName(
+            notification.getUser().getSubjectId(), notification.getId().toString()));
+    Map<String, Object> map = new HashMap<>();
+    map.put("notification", notification);
+    jobDetailFactory.setJobDataAsMap(map);
+    jobDetailFactory.afterPropertiesSet();
+    return jobDetailFactory;
+  }
 
   public void sendNotification(Notification notification) throws Exception {
     fcmSender.send(createMessageFromNotification(notification));
@@ -100,7 +128,7 @@ public class NotificationSchedulerService {
           Set<Trigger> triggerSet = new HashSet<>();
           triggerSet.add(getTriggerForNotification(notification, jobDetail).getObject());
 
-          jobDetailSetMap.put(jobDetail, triggerSet);
+          jobDetailSetMap.putIfAbsent(jobDetail, triggerSet);
         });
 
     schedulerService.scheduleJobs(jobDetailSetMap);
@@ -109,22 +137,14 @@ public class NotificationSchedulerService {
   public void updateScheduledNotification(Notification notification) {
 
     String jobKeyString =
-        new StringBuilder()
-            .append(JOB_PREFIX)
-            .append(notification.getUser().getSubjectId())
-            .append("-")
-            .append(notification.getId())
-            .toString();
+        NAMING_STRATEGY.getJobKeyName(
+            notification.getUser().getSubjectId(), notification.getId().toString());
 
     JobKey jobKey = new JobKey(jobKeyString);
 
     String triggerKeyString =
-        new StringBuilder()
-            .append(TRIGGER_PREFIX)
-            .append(notification.getUser().getSubjectId())
-            .append("-")
-            .append(notification.getId())
-            .toString();
+        NAMING_STRATEGY.getTriggerName(
+            notification.getUser().getSubjectId(), notification.getId().toString());
 
     TriggerKey triggerKey = new TriggerKey(triggerKeyString);
 
@@ -140,7 +160,8 @@ public class NotificationSchedulerService {
             .map(
                 n ->
                     new JobKey(
-                        "notification-jobdetail-" + n.getUser().getSubjectId() + "-" + n.getId()))
+                        NAMING_STRATEGY.getJobKeyName(
+                            n.getUser().getSubjectId(), n.getId().toString())))
             .collect(Collectors.toList());
     schedulerService.deleteScheduledJobs(keys);
   }
@@ -148,49 +169,13 @@ public class NotificationSchedulerService {
   public void deleteScheduledNotification(Notification notification) {
     JobKey key =
         new JobKey(
-            "notification-jobdetail-"
-                + notification.getUser().getSubjectId()
-                + "-"
-                + notification.getId());
+            NAMING_STRATEGY.getJobKeyName(
+                notification.getUser().getSubjectId(), notification.getId().toString()));
     schedulerService.deleteScheduledJob(key);
-  }
-
-  private static SimpleTriggerFactoryBean getTriggerForNotification(
-      Notification notification, JobDetail jobDetail) {
-    SimpleTriggerFactoryBean triggerFactoryBean = new SimpleTriggerFactoryBean();
-    triggerFactoryBean.setJobDetail(jobDetail);
-    triggerFactoryBean.setName(
-        "notification-trigger-"
-            + notification.getUser().getSubjectId()
-            + "-"
-            + notification.getId());
-    triggerFactoryBean.setRepeatCount(0);
-    triggerFactoryBean.setRepeatInterval(0L);
-    triggerFactoryBean.setStartTime(new Date(notification.getScheduledTime().toEpochMilli()));
-    triggerFactoryBean.afterPropertiesSet();
-    return triggerFactoryBean;
-  }
-
-  private static JobDetailFactoryBean getJobDetailForNotification(Notification notification) {
-    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-    jobDetailFactory.setJobClass(NotificationJob.class);
-    jobDetailFactory.setDescription("Send Notification at scheduled time...");
-    jobDetailFactory.setDurability(true);
-    jobDetailFactory.setName(
-        "notification-jobdetail-"
-            + notification.getUser().getSubjectId()
-            + "-"
-            + notification.getId());
-    Map<String, Object> map = new HashMap<>();
-    map.put("notification", notification);
-    jobDetailFactory.setJobDataAsMap(map);
-    jobDetailFactory.afterPropertiesSet();
-    return jobDetailFactory;
   }
 
   private FcmNotificationMessage createMessageFromNotification(Notification notification)
       throws Exception {
-    ObjectMapper mapper = mapperFactory.getObject();
 
     Map<String, Object> notificationMap = new HashMap<>();
     notificationMap.put("body", notification.getBody());
@@ -203,6 +188,7 @@ public class NotificationSchedulerService {
         .messageId(String.valueOf(notification.getFcmMessageId()))
         .timeToLive(notification.getTtlSeconds())
         .notification(notificationMap)
+        .data(notification.getAdditionalData())
         .build();
   }
 }

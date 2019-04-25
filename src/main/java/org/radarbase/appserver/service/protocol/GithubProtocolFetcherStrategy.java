@@ -39,7 +39,6 @@ import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.util.CachedMap;
-import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -60,8 +59,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
   private final String protocolBranch;
   private final ObjectMapper objectMapper;
   // Keeps a cache of github URI's associated with protocol for each project
-  private CachedMap<String, URI> projectProtocolUriMap;
-  private HttpClient client;
+  private final CachedMap<String, URI> projectProtocolUriMap;
+  private final HttpClient client;
 
   @SneakyThrows
   @Autowired
@@ -69,7 +68,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
       @Value("${radar.questionnaire.protocol.github.repo.path}") String protocolRepo,
       @Value("${radar.questionnaire.protocol.github.file.name}") String protocolFileName,
       @Value("${radar.questionnaire.protocol.github.branch}") String protocolBranch,
-      ObjectMapperFactory objectMapperFactory) {
+      ObjectMapper objectMapper) {
 
     if (protocolRepo == null
         || protocolRepo.isEmpty()
@@ -83,7 +82,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     this.protocolBranch = protocolBranch;
     projectProtocolUriMap =
         new CachedMap<>(this::getProtocolDirectories, Duration.ofHours(3), Duration.ofHours(4));
-    objectMapper = objectMapperFactory.getObject();
+    this.objectMapper = objectMapper;
     client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
   }
 

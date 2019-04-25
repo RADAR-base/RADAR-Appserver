@@ -30,7 +30,6 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +50,6 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
 
   // TODO Try to use REST endpoints for consistency.
-
-  @Autowired private ObjectMapperFactory mapperFactory;
 
   @Autowired
   @Qualifier("fcmSenderProps")
