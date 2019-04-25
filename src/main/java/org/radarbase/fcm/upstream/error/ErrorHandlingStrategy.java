@@ -19,7 +19,7 @@
  *
  */
 
-package org.radarbase.fcm.upstream;
+package org.radarbase.fcm.upstream.error;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
