@@ -23,13 +23,19 @@ package org.radarbase.appserver.converter;
 
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.entity.Notification;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Converter {@link Converter} class for {@link Notification} entity.
  *
  * @author yatharthranjan
  */
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class NotificationConverter implements Converter<Notification, FcmNotificationDto> {
+
   @Override
   public Notification dtoToEntity(FcmNotificationDto notificationDto) {
     return new Notification()

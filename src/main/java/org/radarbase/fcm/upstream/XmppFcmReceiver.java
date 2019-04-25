@@ -33,6 +33,7 @@ import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.config.ReconnectionEnabledXmppConnectionFactoryBean;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmAckMessage;
+import org.radarbase.fcm.upstream.error.ErrorHandlingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.xmpp.XmppHeaders;

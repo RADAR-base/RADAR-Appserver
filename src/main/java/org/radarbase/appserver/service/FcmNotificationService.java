@@ -28,7 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.SneakyThrows;
-import org.radarbase.appserver.converter.ConverterFactory;
+import org.radarbase.appserver.converter.NotificationConverter;
+import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
@@ -68,19 +69,21 @@ public class FcmNotificationService implements NotificationService {
 
   @Autowired private NotificationSchedulerService schedulerService;
 
+  @Autowired private NotificationConverter notificationConverter;
+
+  @Autowired private UserConverter userConverter;
+
   @Transactional(readOnly = true)
   public FcmNotifications getAllNotifications() {
     List<Notification> notifications = notificationRepository.findAll();
     return new FcmNotifications()
-        .setNotifications(
-            ConverterFactory.getNotificationConverter().entitiesToDtos(notifications));
+        .setNotifications(notificationConverter.entitiesToDtos(notifications));
   }
 
   @Transactional(readOnly = true)
   public FcmNotificationDto getNotificationById(long id) {
     Optional<Notification> notification = notificationRepository.findById(id);
-    return ConverterFactory.getNotificationConverter()
-        .entityToDto(notification.orElseGet(Notification::new));
+    return notificationConverter.entityToDto(notification.orElseGet(Notification::new));
   }
 
   @Transactional(readOnly = true)
@@ -92,8 +95,7 @@ public class FcmNotificationService implements NotificationService {
     }
     List<Notification> notifications = notificationRepository.findByUserId(user.get().getId());
     return new FcmNotifications()
-        .setNotifications(
-            ConverterFactory.getNotificationConverter().entitiesToDtos(notifications));
+        .setNotifications(notificationConverter.entitiesToDtos(notifications));
   }
 
   @Transactional(readOnly = true)
@@ -114,8 +116,7 @@ public class FcmNotificationService implements NotificationService {
 
     List<Notification> notifications = notificationRepository.findByUserId(user.get().getId());
     return new FcmNotifications()
-        .setNotifications(
-            ConverterFactory.getNotificationConverter().entitiesToDtos(notifications));
+        .setNotifications(notificationConverter.entitiesToDtos(notifications));
   }
 
   @Transactional(readOnly = true)
@@ -131,8 +132,7 @@ public class FcmNotificationService implements NotificationService {
       notifications.addAll(this.notificationRepository.findByUserId(user.getId()));
     }
     return new FcmNotifications()
-        .setNotifications(
-            ConverterFactory.getNotificationConverter().entitiesToDtos(notifications));
+        .setNotifications(notificationConverter.entitiesToDtos(notifications));
   }
 
   @Transactional(readOnly = true)
@@ -143,9 +143,7 @@ public class FcmNotificationService implements NotificationService {
           "The supplied subject ID is invalid. No user found. Please Create a User First.");
     }
     Notification notification =
-        ConverterFactory.getNotificationConverter()
-            .dtoToEntity(notificationDto)
-            .setUser(user.get());
+        notificationConverter.dtoToEntity(notificationDto).setUser(user.get());
 
     List<Notification> notifications = this.notificationRepository.findByUserId(user.get().getId());
     return notifications.contains(notification);
@@ -189,14 +187,12 @@ public class FcmNotificationService implements NotificationService {
             notificationDto.getType(),
             notificationDto.getTtlSeconds())) {
       Notification notification =
-          ConverterFactory.getNotificationConverter()
-              .dtoToEntity(notificationDto)
-              .setUser(user.get());
+          notificationConverter.dtoToEntity(notificationDto).setUser(user.get());
 
       notification = this.notificationRepository.save(notification);
       this.schedulerService.scheduleNotification(notification);
 
-      return ConverterFactory.getNotificationConverter().entityToDto(notification);
+      return notificationConverter.entityToDto(notification);
 
     } else {
       throw new AlreadyExistsException(
@@ -226,9 +222,7 @@ public class FcmNotificationService implements NotificationService {
         () ->
             newUser.set(
                 this.userRepository.save(
-                    ConverterFactory.getUserConverter()
-                        .dtoToEntity(userDto)
-                        .setProject(newProject))));
+                    userConverter.dtoToEntity(userDto).setProject(newProject))));
 
     if (!notificationRepository
         .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
@@ -240,14 +234,12 @@ public class FcmNotificationService implements NotificationService {
             notificationDto.getType(),
             notificationDto.getTtlSeconds())) {
       Notification notification =
-          ConverterFactory.getNotificationConverter()
-              .dtoToEntity(notificationDto)
-              .setUser(newUser.get());
+          notificationConverter.dtoToEntity(notificationDto).setUser(newUser.get());
       notification = this.notificationRepository.save(notification);
 
       this.schedulerService.scheduleNotification(notification);
 
-      return ConverterFactory.getNotificationConverter().entityToDto(notification);
+      return notificationConverter.entityToDto(notification);
     } else {
       throw new AlreadyExistsException(
           "The Notification Already exists. Please Use update endpoint", notificationDto);
@@ -299,7 +291,7 @@ public class FcmNotificationService implements NotificationService {
     if (!notification.get().isDelivered()) {
       this.schedulerService.updateScheduledNotification(newNotification);
     }
-    return ConverterFactory.getNotificationConverter().entityToDto(newNotification);
+    return notificationConverter.entityToDto(newNotification);
   }
 
   @Transactional

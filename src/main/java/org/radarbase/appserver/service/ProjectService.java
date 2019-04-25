@@ -22,7 +22,7 @@
 package org.radarbase.appserver.service;
 
 import java.util.Optional;
-import org.radarbase.appserver.converter.ConverterFactory;
+import org.radarbase.appserver.converter.ProjectConverter;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.Projects;
 import org.radarbase.appserver.entity.Project;
@@ -43,13 +43,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProjectService {
 
   @Autowired private ProjectRepository projectRepository;
+  @Autowired private ProjectConverter projectConverter;
 
   @Transactional(readOnly = true)
   public Projects getAllProjects() {
     Projects projects = new Projects();
-    return new Projects()
-        .setProjects(
-            ConverterFactory.getProjectConverter().entitiesToDtos(projectRepository.findAll()));
+    return new Projects().setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
   }
 
   @Transactional(readOnly = true)
@@ -57,7 +56,7 @@ public class ProjectService {
     Optional<Project> project = projectRepository.findById(id);
 
     if (project.isPresent()) {
-      return ConverterFactory.getProjectConverter().entityToDto(project.get());
+      return projectConverter.entityToDto(project.get());
     } else {
       throw new NotFoundException("Project not found with id" + id);
     }
@@ -68,7 +67,7 @@ public class ProjectService {
     Optional<Project> project = projectRepository.findByProjectId(projectId);
 
     if (project.isPresent()) {
-      return ConverterFactory.getProjectConverter().entityToDto(project.get());
+      return projectConverter.entityToDto(project.get());
     } else {
       throw new NotFoundException("Project not found with projectId" + projectId);
     }
@@ -102,13 +101,12 @@ public class ProjectService {
               + projectDto.getProjectId()
               + " already exists. Please use Update endpoint if need to update the project.");
     } else {
-      resultProject = ConverterFactory.getProjectConverter().dtoToEntity(projectDto);
+      resultProject = projectConverter.dtoToEntity(projectDto);
     }
     Project project1 = this.projectRepository.save(resultProject);
-    return ConverterFactory.getProjectConverter().entityToDto(project1);
+    return projectConverter.entityToDto(project1);
   }
 
-  // TODO Test this as right now creating new project if changing projectId
   @Transactional
   public ProjectDto updateProject(ProjectDto projectDto) {
     Optional<Project> project;
@@ -128,6 +126,6 @@ public class ProjectService {
     }
 
     resultProject = this.projectRepository.save(resultProject);
-    return ConverterFactory.getProjectConverter().entityToDto(resultProject);
+    return projectConverter.entityToDto(resultProject);
   }
 }

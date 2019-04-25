@@ -26,12 +26,18 @@ import java.time.ZoneOffset;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.entity.UserMetrics;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Converter {@link Converter} class for {@link User} entity and {@link FcmUserDto} DTO.
  *
  * @author yatharthranjan
  */
+
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UserConverter implements Converter<User, FcmUserDto> {
 
   @Override

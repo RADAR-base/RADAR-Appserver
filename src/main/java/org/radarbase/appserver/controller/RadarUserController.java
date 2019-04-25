@@ -111,5 +111,12 @@ public class RadarUserController {
     return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
   }
 
-  // TODO Add GET mapping for /projects/{projectID}/users/{userId}
+  @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "{subjectId}")
+  public ResponseEntity<FcmUserDto> getUsersUsingProjectIdAndSubjectId(
+      @Valid @PathVariable("projectId") String projectId,
+      @Valid @PathVariable("subjectId") String subjectId) {
+
+    return ResponseEntity.ok(
+        this.userService.getUsersByProjectIdAndSubjectId(projectId, subjectId));
+  }
 }

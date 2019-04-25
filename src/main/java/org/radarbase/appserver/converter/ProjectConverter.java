@@ -25,12 +25,18 @@ import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Converter {@link Converter} class for {@link Project} entity.
  *
  * @author yatharthranjan
  */
+
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ProjectConverter implements Converter<Project, ProjectDto> {
   private Converter<User, FcmUserDto> userConverter = new UserConverter();
 
