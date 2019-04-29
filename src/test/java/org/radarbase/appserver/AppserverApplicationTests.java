@@ -11,8 +11,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class AppserverApplicationTests {
 
   @Test
-  @Disabled
+  @Disabled("No needed to test")
   public void contextLoads() {
-
+    // do nothing
   }
 }

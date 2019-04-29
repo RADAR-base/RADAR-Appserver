@@ -55,7 +55,7 @@ public class XmppFcmReceiver implements CcsClient {
 
   @Autowired private UpstreamMessageHandler messageHandler;
 
-  @Autowired private ObjectMapperFactory mapperFactory;
+  @Autowired private ObjectMapper mapper;
 
   @Autowired private ErrorHandlingStrategy errorHandlingStrategy;
 
@@ -72,8 +72,6 @@ public class XmppFcmReceiver implements CcsClient {
         == org.jivesoftware.smack.packet.Message.Type.normal) {
       log.debug("Normal Message");
     }
-
-    final ObjectMapper mapper = mapperFactory.getObject();
 
     // Effectively final
     var ref =

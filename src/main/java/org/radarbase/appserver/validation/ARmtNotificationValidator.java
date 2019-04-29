@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @see aRmtNotificationConstraint
  * @author yatharthranjan
  */
-public class aRmtNotificationValidator
+public class ARmtNotificationValidator
     implements ConstraintValidator<aRmtNotificationConstraint, Notification> {
 
   @Autowired private QuestionnaireScheduleService scheduleService;
@@ -44,6 +44,9 @@ public class aRmtNotificationValidator
 
   @Override
   public boolean isValid(@Valid Notification notification, ConstraintValidatorContext context) {
-    return scheduleService.getScheduleForUser(notification.getUser()).contains(notification);
+    return scheduleService
+        .getScheduleForUser(notification.getUser())
+        .getNotifications()
+        .contains(notification);
   }
 }

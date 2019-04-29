@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service;
 
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
@@ -48,7 +47,7 @@ public class QuestionnaireScheduleService {
   // Use cached map of schedule of user
   public void getProtocolForProject(String projectId) {}
 
-  public Set<Schedule> getScheduleForUser(User user) {
+  public Schedule getScheduleForUser(User user) {
     return null;
   }
 

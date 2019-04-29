@@ -109,10 +109,12 @@ public class NotificationSchedulerService {
     log.info("Notification = {}", notification);
     JobDetail jobDetail = getJobDetailForNotification(notification).getObject();
 
-    log.info("Job Detail = {}", jobDetail);
-    Trigger trigger = getTriggerForNotification(notification, jobDetail).getObject();
+    if (jobDetail != null) {
+      log.info("Job Detail = {}", jobDetail);
+      Trigger trigger = getTriggerForNotification(notification, jobDetail).getObject();
 
-    schedulerService.scheduleJob(jobDetail, trigger);
+      schedulerService.scheduleJob(jobDetail, trigger);
+    }
   }
 
   public void scheduleNotifications(List<Notification> notifications) {

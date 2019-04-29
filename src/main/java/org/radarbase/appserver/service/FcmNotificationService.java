@@ -61,17 +61,34 @@ public class FcmNotificationService implements NotificationService {
   // TODO Add option to specify a scheduling provider (default will be fcm)
   // TODO: Use strategy pattern for handling notifications for scheduling and adding to database
 
-  @Autowired private NotificationRepository notificationRepository;
+  private final NotificationRepository notificationRepository;
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private ProjectRepository projectRepository;
+   private final ProjectRepository projectRepository;
 
-  @Autowired private NotificationSchedulerService schedulerService;
+   private final NotificationSchedulerService schedulerService;
 
-  @Autowired private NotificationConverter notificationConverter;
+  private final NotificationConverter notificationConverter;
 
-  @Autowired private UserConverter userConverter;
+  private final UserConverter userConverter;
+
+
+  @Autowired
+  public FcmNotificationService(
+      NotificationRepository notificationRepository,
+      UserRepository userRepository,
+      ProjectRepository projectRepository,
+      NotificationSchedulerService schedulerService,
+      NotificationConverter notificationConverter,
+      UserConverter userConverter) {
+    this.notificationRepository = notificationRepository;
+    this.userRepository = userRepository;
+    this.projectRepository = projectRepository;
+    this.schedulerService = schedulerService;
+    this.notificationConverter = notificationConverter;
+    this.userConverter = userConverter;
+  }
 
   @Transactional(readOnly = true)
   public FcmNotifications getAllNotifications() {

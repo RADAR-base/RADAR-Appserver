@@ -37,7 +37,7 @@ public class AssessmentProtocol {
   private RepeatQuestionnaireProtocol repeatQuestionnaire;
 
   @Data
-  private class RepeatQuestionnaireProtocol {
+  private static class RepeatQuestionnaireProtocol {
     private String unit;
 
     private List<Integer> unitsFromZero;

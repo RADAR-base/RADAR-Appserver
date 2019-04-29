@@ -42,12 +42,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ProjectService {
 
-  @Autowired private ProjectRepository projectRepository;
-  @Autowired private ProjectConverter projectConverter;
+  private final ProjectRepository projectRepository;
+  private final ProjectConverter projectConverter;
+
+  @Autowired
+  public ProjectService(ProjectRepository projectRepository,
+      ProjectConverter projectConverter) {
+    this.projectRepository = projectRepository;
+    this.projectConverter = projectConverter;
+  }
 
   @Transactional(readOnly = true)
   public Projects getAllProjects() {
-    Projects projects = new Projects();
     return new Projects().setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
   }
 

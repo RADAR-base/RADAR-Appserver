@@ -82,7 +82,7 @@ public class NotificationRepositoryTest {
             .setTtlSeconds(86400)
             .setDelivered(false);
 
-    this.id = (long) entityManager.persistAndGetId(notification);
+    this.id = (Long) entityManager.persistAndGetId(notification);
     entityManager.flush();
   }
 

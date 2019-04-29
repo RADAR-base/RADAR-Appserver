@@ -21,4 +21,11 @@
 
 package org.radarbase.appserver.dto.questionnaire;
 
-public class Schedule {}
+import java.util.List;
+import lombok.Data;
+import org.radarbase.appserver.entity.Notification;
+
+@Data
+public class Schedule {
+  private List<Notification> notifications;
+}

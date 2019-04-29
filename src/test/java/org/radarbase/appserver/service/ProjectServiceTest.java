@@ -29,6 +29,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.radarbase.appserver.converter.ProjectConverter;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.Projects;
 import org.radarbase.appserver.entity.Project;
@@ -119,9 +120,13 @@ class ProjectServiceTest {
   @TestConfiguration
   static class ProjectServiceTestConfig {
 
+    @Autowired private ProjectRepository projectRepository;
+
+    private final ProjectConverter projectConverter = new ProjectConverter();
+
     @Bean
     public ProjectService projectServiceBeanConfig() {
-      return new ProjectService();
+      return new ProjectService(projectRepository, projectConverter);
     }
   }
 }

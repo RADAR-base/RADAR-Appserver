@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.entity.Project;
@@ -196,9 +197,15 @@ class UserServiceTest {
   @TestConfiguration
   static class UserServiceConfig {
 
+    @Autowired UserRepository userRepository;
+
+    @Autowired ProjectRepository projectRepository;
+
+    private final UserConverter userConverter = new UserConverter();
+
     @Bean
     public UserService userServiceBeanConfig() {
-      return new UserService();
+      return new UserService(userConverter, userRepository, projectRepository);
     }
   }
 }

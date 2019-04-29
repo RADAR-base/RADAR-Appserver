@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.entity;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,6 +33,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.quartz.utils.FindbugsSuppressWarnings;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -45,6 +47,7 @@ import org.springframework.lang.Nullable;
 @Entity
 @Getter
 @ToString
+@SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
 public class UserMetrics extends AuditModel {
 
   @Id

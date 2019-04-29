@@ -48,9 +48,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserService {
 
-  @Autowired private UserConverter userConverter;
-  @Autowired private UserRepository userRepository;
-  @Autowired private ProjectRepository projectRepository;
+  private final UserConverter userConverter;
+  private final UserRepository userRepository;
+  private final ProjectRepository projectRepository;
+
+  @Autowired
+  public UserService(UserConverter userConverter,
+      UserRepository userRepository,
+      ProjectRepository projectRepository) {
+    this.userConverter = userConverter;
+    this.userRepository = userRepository;
+    this.projectRepository = projectRepository;
+  }
 
   @Transactional(readOnly = true)
   public FcmUsers getAllRadarUsers() {

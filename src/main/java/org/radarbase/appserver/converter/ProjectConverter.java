@@ -38,7 +38,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ProjectConverter implements Converter<Project, ProjectDto> {
-  private Converter<User, FcmUserDto> userConverter = new UserConverter();
 
   @Override
   public Project dtoToEntity(ProjectDto projectDto) {

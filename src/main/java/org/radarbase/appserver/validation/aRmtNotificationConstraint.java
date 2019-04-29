@@ -31,13 +31,13 @@ import javax.validation.Payload;
 
 /**
  * {@link Constraint} to be used in {@link javax.validation.Validator} {@link
- * aRmtNotificationValidator} to validate incoming notification requests according to their schedule
+ * ARmtNotificationValidator} to validate incoming notification requests according to their schedule
  * via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
  *
  * @author yatharthranjan
  */
 @Documented
-@Constraint(validatedBy = aRmtNotificationValidator.class)
+@Constraint(validatedBy = ARmtNotificationValidator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface aRmtNotificationConstraint {

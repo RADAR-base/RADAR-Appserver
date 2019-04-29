@@ -21,6 +21,7 @@
 
 package org.radarbase.fcm.downstream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import org.radarbase.fcm.common.CcsClient;
@@ -45,7 +46,7 @@ public class XmppFcmSender implements CcsClient, FcmSender {
 
   @Autowired private MessageChannel xmppOutbound;
 
-  @Autowired private ObjectMapperFactory mapperFactory;
+  @Autowired private ObjectMapper mapper;
 
   private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
 
@@ -56,7 +57,7 @@ public class XmppFcmSender implements CcsClient, FcmSender {
     headers.put(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT);
     Message outMessage =
         MessageBuilder.createMessage(
-            mapperFactory.getObject().writerFor(message.getClass()).writeValueAsString(message),
+            mapper.writerFor(message.getClass()).writeValueAsString(message),
             new MessageHeaders(headers));
     xmppOutbound.send(outMessage);
   }

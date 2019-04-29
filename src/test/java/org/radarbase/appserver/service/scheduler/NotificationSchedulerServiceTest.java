@@ -75,23 +75,21 @@ import org.springframework.test.context.junit4.SpringRunner;
     })
 class NotificationSchedulerServiceTest {
 
-  private static Notification notification;
-  private static User user;
+  private Notification notification;
   @Autowired private NotificationSchedulerService notificationSchedulerService;
   @Autowired private Scheduler scheduler;
 
   @BeforeEach
   void setUp() throws SchedulerException {
     scheduler.clear();
-    user =
-        new User()
-            .setId(1L)
-            .setSubjectId("test-subject")
-            .setLanguage("en")
-            .setTimezone(0d)
-            .setProject(new Project())
-            .setEnrolmentDate(Instant.now())
-            .setFcmToken("xxxx");
+    User user = new User()
+        .setId(1L)
+        .setSubjectId("test-subject")
+        .setLanguage("en")
+        .setTimezone(0d)
+        .setProject(new Project())
+        .setEnrolmentDate(Instant.now())
+        .setFcmToken("xxxx");
 
     notification =
         new Notification()
@@ -216,7 +214,7 @@ class NotificationSchedulerServiceTest {
     }
   }
 
-  static class TestJobListener implements JobListener {
+  private class TestJobListener implements JobListener {
 
     /** Get the name of the <code>JobListener</code>. */
     @Override

@@ -36,6 +36,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.radarbase.appserver.converter.NotificationConverter;
+import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
@@ -58,30 +60,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 class FcmNotificationServiceTest {
 
-  @TestConfiguration
-  static class FcmNotificationServiceTestContextConfiguration {
-    @Bean
-    public NotificationService notificationService() {
-      return new FcmNotificationService();
-    }
-  }
-
-  // TODO Make this generic when NotificationService interface is complete
-  @Autowired
-  private FcmNotificationService notificationService;
-
-  @MockBean
-  private NotificationRepository notificationRepository;
-
-  @MockBean
-  private UserRepository userRepository;
-
-  @MockBean
-  private ProjectRepository projectRepository;
-
+  private final Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
   @MockBean NotificationSchedulerService schedulerService;
 
-  private final Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
+  // TODO Make this generic when NotificationService interface is complete
+  @Autowired private FcmNotificationService notificationService;
+  @MockBean private NotificationRepository notificationRepository;
+  @MockBean private UserRepository userRepository;
+  @MockBean private ProjectRepository projectRepository;
 
   @BeforeEach
   void setUp() {
@@ -280,8 +266,10 @@ class FcmNotificationServiceTest {
         notificationService.getNotificationsByProjectId("test-project");
 
     assertEquals(2, notifications.getNotifications().size());
-    assertTrue(notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing1")));
-    assertTrue(notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing2")));
+    assertTrue(
+        notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing1")));
+    assertTrue(
+        notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing2")));
   }
 
   @Test
@@ -322,9 +310,7 @@ class FcmNotificationServiceTest {
             .setTtlSeconds(86400)
             .setDelivered(false);
 
-    FcmNotificationDto fcmNotificationDto =
-        notificationService.addNotification(notificationDto, "test-user", "test-project");
-
+    notificationService.addNotification(notificationDto, "test-user", "test-project");
     FcmNotificationDto savedNotification = notificationService.getNotificationById(3L);
 
     assertEquals("Testing3", savedNotification.getTitle());
@@ -398,8 +384,7 @@ class FcmNotificationServiceTest {
             .setSubjectId("test-user-new");
 
     // Note we are using a project name and user name that does not exist yet.
-    FcmNotificationDto fcmNotificationDto =
-        notificationService.addNotificationForced(notificationDto, userDto, "test-project-new");
+    notificationService.addNotificationForced(notificationDto, userDto, "test-project-new");
 
     FcmNotificationDto savedNotification = notificationService.getNotificationById(4L);
 
@@ -421,8 +406,7 @@ class FcmNotificationServiceTest {
             .setDelivered(false)
             .setId(2L);
 
-    FcmNotificationDto updatedNotificationDto =
-        notificationService.updateNotification(notificationDto, "test-user", "test-project");
+    notificationService.updateNotification(notificationDto, "test-user", "test-project");
 
     assertEquals("Test notif Updated", notificationService.getNotificationById(2L).getBody());
     assertEquals("Testing 2 Updated", notificationService.getNotificationById(2L).getTitle());
@@ -452,5 +436,26 @@ class FcmNotificationServiceTest {
   @Test
   void removeNotificationsForUserUsingFcmToken() {
     assertDoesNotThrow(() -> notificationService.removeNotificationsForUserUsingFcmToken("xxxx"));
+  }
+
+  @TestConfiguration
+  static class FcmNotificationServiceTestContextConfiguration {
+    private final NotificationConverter notificationConverter = new NotificationConverter();
+    private final UserConverter userConverter = new UserConverter();
+    @Autowired private NotificationRepository notificationRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private ProjectRepository projectRepository;
+    @Autowired private NotificationSchedulerService schedulerService;
+
+    @Bean
+    public NotificationService notificationService() {
+      return new FcmNotificationService(
+          notificationRepository,
+          userRepository,
+          projectRepository,
+          schedulerService,
+          notificationConverter,
+          userConverter);
+    }
   }
 }
