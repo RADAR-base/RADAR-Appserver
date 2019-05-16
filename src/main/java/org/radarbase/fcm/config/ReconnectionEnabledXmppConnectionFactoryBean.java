@@ -28,6 +28,7 @@ import org.jivesoftware.smack.ReconnectionListener;
 import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.sm.predicates.ForEveryStanza;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.gcm.packet.GcmPacketExtension;
@@ -49,8 +50,8 @@ import org.springframework.integration.xmpp.config.XmppConnectionFactoryBean;
 public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnectionFactoryBean
     implements ConnectionListener, ReconnectionListener {
 
-  private Boolean isConnectionDraining;
-  private Boolean isPresenceUnavailable;
+  private transient Boolean isConnectionDraining;
+  private transient Boolean isPresenceUnavailable;
 
   @Override
   public void start() {
@@ -73,7 +74,7 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
     manager.addReconnectionListener(this);
 
     connection.addStanzaInterceptor(
-        stanza -> {
+        (Stanza stanza) -> {
 
           /**
            * If the server requested to terminate connection, then the smack library disconnects the

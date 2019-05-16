@@ -31,11 +31,11 @@ import lombok.Data;
  * @author yatharthranjan
  */
 @Data
-public class Projects {
+public class ProjectDtos {
 
   private List<ProjectDto> projects;
 
-  public Projects() {
+  public ProjectDtos() {
     this.projects = new ArrayList<>();
   }
 
@@ -43,12 +43,12 @@ public class Projects {
     return projects;
   }
 
-  public Projects setProjects(List<ProjectDto> projects) {
+  public ProjectDtos setProjects(List<ProjectDto> projects) {
     this.projects = projects;
     return this;
   }
 
-  public Projects addProject(ProjectDto project) {
+  public ProjectDtos addProject(ProjectDto project) {
     this.projects.add(project);
     return this;
   }

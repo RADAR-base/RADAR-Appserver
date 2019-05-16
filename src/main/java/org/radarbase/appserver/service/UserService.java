@@ -48,9 +48,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserService {
 
-  private final UserConverter userConverter;
-  private final UserRepository userRepository;
-  private final ProjectRepository projectRepository;
+  private final transient UserConverter userConverter;
+  private final transient UserRepository userRepository;
+  private final transient ProjectRepository projectRepository;
 
   @Autowired
   public UserService(UserConverter userConverter,

@@ -40,12 +40,12 @@ import org.springframework.stereotype.Service;
 public class DefaultProtocolGenerator implements ProtocolGenerator {
 
   // Keeps a cache of Protocol for each project
-  private CachedMap<String, Protocol> cachedProtocolMap;
+  private transient CachedMap<String, Protocol> cachedProtocolMap;
 
   private static final Duration CACHE_INVALIDATE_DEFAULT = Duration.ofHours(1);
   private static final Duration CACHE_RETRY_DEFAULT = Duration.ofHours(2);
 
-  private final ProtocolFetcherStrategy protocolFetcherStrategy;
+  private final transient ProtocolFetcherStrategy protocolFetcherStrategy;
 
   @Autowired
   public DefaultProtocolGenerator(ProtocolFetcherStrategy protocolFetcherStrategy) {

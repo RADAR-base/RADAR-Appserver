@@ -24,7 +24,7 @@ package org.radarbase.appserver.service;
 import java.util.Optional;
 import org.radarbase.appserver.converter.ProjectConverter;
 import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.Projects;
+import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.exception.InvalidProjectDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
@@ -42,8 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ProjectService {
 
-  private final ProjectRepository projectRepository;
-  private final ProjectConverter projectConverter;
+  private final transient ProjectRepository projectRepository;
+  private final transient ProjectConverter projectConverter;
 
   @Autowired
   public ProjectService(ProjectRepository projectRepository,
@@ -53,8 +53,8 @@ public class ProjectService {
   }
 
   @Transactional(readOnly = true)
-  public Projects getAllProjects() {
-    return new Projects().setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
+  public ProjectDtos getAllProjects() {
+    return new ProjectDtos().setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
   }
 
   @Transactional(readOnly = true)
@@ -131,7 +131,7 @@ public class ProjectService {
       throw new NotFoundException("The project could not be found with details " + projectDto);
     }
 
-    resultProject = this.projectRepository.save(resultProject);
-    return projectConverter.entityToDto(resultProject);
+    Project savedProject= this.projectRepository.save(resultProject);
+    return projectConverter.entityToDto(savedProject);
   }
 }

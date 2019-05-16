@@ -76,7 +76,7 @@ import org.springframework.lang.Nullable;
 @ToString
 public class Notification extends AuditModel implements Scheduled {
 
-  // TODO Add STATUS as enum of (ADDED, SCHEDULED, CANCELLED, EXECUTED, DELIVERED, ERROR)
+  // TODO Add STATUS as enum of (ADDED, SCHEDULED, CANCELLED, EXECUTED, DELIVERED, ERRORED)
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -223,8 +223,12 @@ public class Notification extends AuditModel implements Scheduled {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Notification)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Notification)) {
+      return false;
+    }
     Notification that = (Notification) o;
     return getTtlSeconds() == that.getTtlSeconds()
         && isDelivered() == that.isDelivered()

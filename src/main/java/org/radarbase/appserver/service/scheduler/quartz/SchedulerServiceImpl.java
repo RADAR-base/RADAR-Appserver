@@ -50,7 +50,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SchedulerServiceImpl implements SchedulerService {
 
-  private Scheduler scheduler;
+  private transient Scheduler scheduler;
 
   public SchedulerServiceImpl(@Autowired Scheduler scheduler) {
     this.scheduler = scheduler;

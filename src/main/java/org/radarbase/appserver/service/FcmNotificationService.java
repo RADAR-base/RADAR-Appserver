@@ -61,18 +61,14 @@ public class FcmNotificationService implements NotificationService {
   // TODO Add option to specify a scheduling provider (default will be fcm)
   // TODO: Use strategy pattern for handling notifications for scheduling and adding to database
 
-  private final NotificationRepository notificationRepository;
-
-  private final UserRepository userRepository;
-
-   private final ProjectRepository projectRepository;
-
-   private final NotificationSchedulerService schedulerService;
-
-  private final NotificationConverter notificationConverter;
-
-  private final UserConverter userConverter;
-
+  private static final String INVALID_SUBJECT_ID_MESSAGE =
+      "The supplied subject ID is invalid. No user found. Please Create a User First.";
+  private final transient NotificationRepository notificationRepository;
+  private final transient UserRepository userRepository;
+  private final transient ProjectRepository projectRepository;
+  private final transient NotificationSchedulerService schedulerService;
+  private final transient NotificationConverter notificationConverter;
+  private final transient UserConverter userConverter;
 
   @Autowired
   public FcmNotificationService(
@@ -107,8 +103,7 @@ public class FcmNotificationService implements NotificationService {
   public FcmNotifications getNotificationsBySubjectId(String subjectId) {
     Optional<User> user = this.userRepository.findBySubjectId(subjectId);
     if (user.isEmpty()) {
-      throw new NotFoundException(
-          "The supplied subject ID is invalid. No user found. Please Create a User First.");
+      throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
     }
     List<Notification> notifications = notificationRepository.findByUserId(user.get().getId());
     return new FcmNotifications()
@@ -127,8 +122,7 @@ public class FcmNotificationService implements NotificationService {
     Optional<User> user =
         this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
     if (user.isEmpty()) {
-      throw new NotFoundException(
-          "The supplied subject ID is invalid. No user found in the project ID provided. Please Create a User First.");
+      throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
     }
 
     List<Notification> notifications = notificationRepository.findByUserId(user.get().getId());
@@ -145,9 +139,9 @@ public class FcmNotificationService implements NotificationService {
     }
     List<User> users = this.userRepository.findByProjectId(project.get().getId());
     Set<Notification> notifications = new HashSet<>();
-    for (User user : users) {
-      notifications.addAll(this.notificationRepository.findByUserId(user.getId()));
-    }
+    users.stream()
+        .map((User user) -> this.notificationRepository.findByUserId(user.getId()))
+        .forEach(notifications::addAll);
     return new FcmNotifications()
         .setNotifications(notificationConverter.entitiesToDtos(notifications));
   }
@@ -156,8 +150,7 @@ public class FcmNotificationService implements NotificationService {
   public boolean checkIfNotificationExists(FcmNotificationDto notificationDto, String subjectId) {
     Optional<User> user = this.userRepository.findBySubjectId(subjectId);
     if (user.isEmpty()) {
-      throw new NotFoundException(
-          "The supplied subject ID is invalid. No user found. Please Create a User First.");
+      throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
     }
     Notification notification =
         notificationConverter.dtoToEntity(notificationDto).setUser(user.get());
@@ -191,8 +184,7 @@ public class FcmNotificationService implements NotificationService {
     Optional<User> user =
         this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
     if (user.isEmpty()) {
-      throw new NotFoundException(
-          "The supplied subject ID is invalid. No user found. Please Create a User First.");
+      throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
     }
     if (!notificationRepository
         .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
@@ -203,13 +195,13 @@ public class FcmNotificationService implements NotificationService {
             notificationDto.getBody(),
             notificationDto.getType(),
             notificationDto.getTtlSeconds())) {
-      Notification notification =
-          notificationConverter.dtoToEntity(notificationDto).setUser(user.get());
 
-      notification = this.notificationRepository.save(notification);
-      this.schedulerService.scheduleNotification(notification);
+      Notification notificationSaved =
+          this.notificationRepository.save(
+              notificationConverter.dtoToEntity(notificationDto).setUser(user.get()));
+      this.schedulerService.scheduleNotification(notificationSaved);
 
-      return notificationConverter.entityToDto(notification);
+      return notificationConverter.entityToDto(notificationSaved);
 
     } else {
       throw new AlreadyExistsException(
@@ -251,8 +243,8 @@ public class FcmNotificationService implements NotificationService {
             notificationDto.getType(),
             notificationDto.getTtlSeconds())) {
       Notification notification =
-          notificationConverter.dtoToEntity(notificationDto).setUser(newUser.get());
-      notification = this.notificationRepository.save(notification);
+          this.notificationRepository.save(
+              notificationConverter.dtoToEntity(notificationDto).setUser(newUser.get()));
 
       this.schedulerService.scheduleNotification(notification);
 
@@ -303,12 +295,12 @@ public class FcmNotificationService implements NotificationService {
             .setType(notificationDto.getType())
             .setUser(user.get())
             .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
-    newNotification = this.notificationRepository.save(newNotification);
+    Notification notificationSaved = this.notificationRepository.save(newNotification);
 
     if (!notification.get().isDelivered()) {
-      this.schedulerService.updateScheduledNotification(newNotification);
+      this.schedulerService.updateScheduledNotification(notificationSaved);
     }
-    return notificationConverter.entityToDto(newNotification);
+    return notificationConverter.entityToDto(notificationSaved);
   }
 
   @Transactional
@@ -338,9 +330,9 @@ public class FcmNotificationService implements NotificationService {
         this.notificationRepository.findByFcmMessageId(fcmMessageId);
 
     notification.ifPresentOrElse(
-        n -> {
+        (Notification n) -> {
           n.setDelivered(isDelivered);
-          Notification newNotification = this.notificationRepository.save(n);
+          this.notificationRepository.save(n);
         },
         () -> {
           throw new InvalidNotificationDetailsException(
@@ -357,10 +349,10 @@ public class FcmNotificationService implements NotificationService {
     Optional<User> user = this.userRepository.findByFcmToken(fcmToken);
 
     user.ifPresentOrElse(
-        user1 -> {
+        (User user1) -> {
           this.notificationRepository.deleteByUserId(user1.getId());
           User newUser = user1.setFcmToken("");
-          newUser = this.userRepository.save(newUser);
+          this.userRepository.save(newUser);
         },
         () -> {
           throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");

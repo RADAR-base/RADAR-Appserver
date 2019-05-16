@@ -35,10 +35,10 @@ import java.util.NoSuchElementException;
  */
 public class CachedMap<S, T> {
 
-  private final ThrowingSupplier<? extends Map<S, T>> retriever;
-  private final Duration invalidateAfter;
-  private final Duration retryAfter;
-  private Temporal lastFetch;
+  private final transient ThrowingSupplier<? extends Map<S, T>> retriever;
+  private final transient Duration invalidateAfter;
+  private final transient Duration retryAfter;
+  private transient Temporal lastFetch;
   private Map<S, T> cache;
 
   /**
@@ -67,6 +67,10 @@ public class CachedMap<S, T> {
    */
   public Map<S, T> get() throws IOException {
     return get(false);
+  }
+
+  void setCache(Map<S, T> cache) {
+    this.cache = cache;
   }
 
   /**

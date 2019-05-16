@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RadarUserController {
 
-  @Autowired private UserService userService;
+  @Autowired private transient UserService userService;
 
   @PostMapping("/users")
   public ResponseEntity addUser(@Valid @RequestBody FcmUserDto userDto) throws URISyntaxException {
@@ -58,10 +58,10 @@ public class RadarUserController {
     return ResponseEntity.created(new URI("/users/user?id=" + user.getId())).body(user);
   }
 
-  @PostMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+  @PostMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity addUserToProject(
       @Valid @RequestBody FcmUserDto userDto,
-      @Valid @PathVariable(value = "projectId") String projectId)
+      @Valid @PathVariable(value = Paths.PROJECT_ID_CONSTANT) String projectId)
       throws URISyntaxException {
     userDto.setProjectId(projectId);
     FcmUserDto user = this.userService.saveUserInProject(userDto);
@@ -69,10 +69,10 @@ public class RadarUserController {
         .body(user);
   }
 
-  @PutMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+  @PutMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity updateUserInProject(
       @Valid @RequestBody FcmUserDto userDto,
-      @Valid @PathVariable(value = "projectId") String projectId)
+      @Valid @PathVariable(value = Paths.PROJECT_ID_CONSTANT) String projectId)
       throws URISyntaxException {
     userDto.setProjectId(projectId);
     FcmUserDto user = this.userService.updateUser(userDto);
@@ -99,22 +99,30 @@ public class RadarUserController {
     return ResponseEntity.ok(this.userService.getUserById(id));
   }
 
-  @GetMapping("/" + Paths.USER_PATH + "/{subjectId}")
+  @GetMapping("/" + Paths.USER_PATH + "/" + Paths.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
-      @PathVariable("subjectId") String subjectId) {
+      @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
     return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
   }
 
-  @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH)
+  @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity<FcmUsers> getUsersUsingProjectId(
-      @Valid @PathVariable("projectId") String projectId) {
+      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId) {
     return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
   }
 
-  @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.USER_PATH + "{subjectId}")
+  @GetMapping(
+      "/"
+          + Paths.PROJECT_PATH
+          + "/"
+          + Paths.PROJECT_ID_CONSTANT
+          + "/"
+          + Paths.USER_PATH
+          + "/"
+          + Paths.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getUsersUsingProjectIdAndSubjectId(
-      @Valid @PathVariable("projectId") String projectId,
-      @Valid @PathVariable("subjectId") String subjectId) {
+      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId,
+      @Valid @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
 
     return ResponseEntity.ok(
         this.userService.getUsersByProjectIdAndSubjectId(projectId, subjectId));

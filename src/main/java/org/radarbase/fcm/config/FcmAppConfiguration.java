@@ -49,9 +49,9 @@ import org.springframework.integration.config.EnableIntegration;
 @Slf4j
 public class FcmAppConfiguration implements PingFailedListener {
 
-  private ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+  private transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
 
-  @Autowired private FcmServerConfig fcmServerConfig;
+  @Autowired private transient FcmServerConfig fcmServerConfig;
 
   @Bean("xmppConnection")
   public ReconnectionEnabledXmppConnectionFactoryBean xmppConnection() throws Exception {

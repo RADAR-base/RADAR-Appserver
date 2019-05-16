@@ -54,13 +54,13 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
 
   private static final String GITHUB_API_URI = "https://api.github.com/repos/";
   private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
-  private final String protocolRepo;
-  private final String protocolFileName;
-  private final String protocolBranch;
-  private final ObjectMapper objectMapper;
+  private final transient String protocolRepo;
+  private final transient String protocolFileName;
+  private final transient String protocolBranch;
+  private final transient ObjectMapper objectMapper;
   // Keeps a cache of github URI's associated with protocol for each project
-  private final CachedMap<String, URI> projectProtocolUriMap;
-  private final HttpClient client;
+  private final transient CachedMap<String, URI> projectProtocolUriMap;
+  private final transient HttpClient client;
 
   @SneakyThrows
   @Autowired
@@ -90,6 +90,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     return response.statusCode() >= 200 && response.statusCode() < 300;
   }
 
+  @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   @Override
   public synchronized Map<String, Protocol> fetchProtocols() throws IOException {
     final Map<String, Protocol> projectProtocolMap = new HashMap<>();
@@ -101,6 +102,9 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
       protocolUriMap = projectProtocolUriMap.getCache();
     }
 
+    if(protocolUriMap == null) {
+      return projectProtocolMap;
+    }
     try {
       for (Map.Entry<String, URI> entry : protocolUriMap.entrySet()) {
         HttpResponse responsep =
@@ -119,7 +123,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
               "Failed to retrieve protocols from github.");
         }
       }
-    } catch (InterruptedException | ResponseStatusException | NullPointerException e) {
+    } catch (InterruptedException | ResponseStatusException e) {
       throw new IOException("Failed to get Protocols from Github", e);
     }
 
@@ -128,6 +132,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     return projectProtocolMap;
   }
 
+  @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   @Synchronized
   private Map<String, URI> getProtocolDirectories() throws IOException {
 

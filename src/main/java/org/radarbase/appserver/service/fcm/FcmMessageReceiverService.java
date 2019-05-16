@@ -48,14 +48,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
-
   // TODO Try to use REST endpoints for consistency.
 
   @Autowired
   @Qualifier("fcmSenderProps")
-  private FcmSender fcmSender;
+  private transient FcmSender fcmSender;
 
-  @Autowired private FcmNotificationService notificationService;
+  @Autowired private transient FcmNotificationService notificationService;
 
   /**
    * Performs {@link Action} based on the value supplied by the {@link
@@ -72,7 +71,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
     Optional<JsonNode> jsonData = Optional.ofNullable(jsonMessage.get("data"));
 
     jsonData.ifPresentOrElse(
-        data -> {
+        (JsonNode data) -> {
           Optional<JsonNode> action = Optional.ofNullable(data.get("action"));
 
           action.ifPresentOrElse(

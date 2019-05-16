@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.Projects;
+import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RadarProjectController {
 
-  @Autowired private ProjectService projectService;
+  @Autowired private transient ProjectService projectService;
 
   /**
    * Method for updating a project.
@@ -84,7 +84,7 @@ public class RadarProjectController {
   }
 
   @GetMapping("/" + Paths.PROJECT_PATH)
-  public ResponseEntity<Projects> getAllProjects() {
+  public ResponseEntity<ProjectDtos> getAllProjects() {
     return ResponseEntity.ok(this.projectService.getAllProjects());
   }
 
@@ -93,9 +93,9 @@ public class RadarProjectController {
     return ResponseEntity.ok(this.projectService.getProjectById(id));
   }
 
-  @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}")
+  @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT)
   public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
-      @Valid @PathVariable("projectId") String projectId) {
+      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId) {
     return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
   }
 }

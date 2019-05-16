@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FcmNotificationController {
 
-  @Autowired private FcmNotificationService notificationService;
+  @Autowired private transient FcmNotificationService notificationService;
 
   @GetMapping("/" + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getAllNotifications() {
@@ -74,35 +74,45 @@ public class FcmNotificationController {
       value =
           "/"
               + Paths.PROJECT_PATH
-              + "/{projectId}/"
+              + "/"
+              + Paths.PROJECT_ID_CONSTANT
+              + "/"
               + Paths.USER_PATH
-              + "/{subjectId}/"
+              + "/"
+              + Paths.SUBJECT_ID_CONSTANT
+              + "/"
               + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectIdAndSubjectId(
-      @Valid @PathVariable("projectId") String projectId,
-      @Valid @PathVariable("subjectId") String subjectId) {
+      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId,
+      @Valid @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
     return ResponseEntity.ok(
         this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
   }
 
-  @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}/" + Paths.NOTIFICATION_PATH)
+  @GetMapping(
+      "/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectId(
-      @Valid @PathVariable("projectId") String projectId) {
+      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId) {
     return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId));
   }
 
-  @GetMapping("/" + Paths.USER_PATH + "/{subjectId}/" + Paths.NOTIFICATION_PATH)
+  @GetMapping(
+      "/" + Paths.USER_PATH + "/" + Paths.SUBJECT_ID_CONSTANT + "/" + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingSubjectId(
-      @Valid @PathVariable("subjectId") String subjectId) {
+      @Valid @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
     return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
   }
 
   @PostMapping(
       "/"
           + Paths.PROJECT_PATH
-          + "/{projectId}/"
+          + "/"
+          + Paths.PROJECT_ID_CONSTANT
+          + "/"
           + Paths.USER_PATH
-          + "/{subjectId}/"
+          + "/"
+          + Paths.SUBJECT_ID_CONSTANT
+          + "/"
           + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotificationDto> addSingleNotification(
       @PathVariable String projectId,
@@ -115,9 +125,13 @@ public class FcmNotificationController {
   @PutMapping(
       "/"
           + Paths.PROJECT_PATH
-          + "/{projectId}/"
+          + "/"
+          + Paths.PROJECT_ID_CONSTANT
+          + "/"
           + Paths.USER_PATH
-          + "/{subjectId}/"
+          + "/"
+          + Paths.SUBJECT_ID_CONSTANT
+          + "/"
           + Paths.NOTIFICATION_PATH)
   public ResponseEntity updateNotification(
       @PathVariable String projectId,
@@ -131,9 +145,13 @@ public class FcmNotificationController {
   @DeleteMapping(
       "/"
           + Paths.PROJECT_PATH
-          + "/{projectId}/"
+          + "/"
+          + Paths.PROJECT_ID_CONSTANT
+          + "/"
           + Paths.USER_PATH
-          + "/{subjectId}/"
+          + "/"
+          + Paths.SUBJECT_ID_CONSTANT
+          + "/"
           + Paths.NOTIFICATION_PATH)
   public ResponseEntity deleteNotificationsForUser(
       @PathVariable String projectId, @PathVariable String subjectId) {

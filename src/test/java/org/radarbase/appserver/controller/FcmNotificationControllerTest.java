@@ -39,6 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -54,20 +55,19 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(FcmNotificationController.class)
 class FcmNotificationControllerTest {
 
-  @Autowired private MockMvc mockMvc;
-
-  @Autowired private ObjectMapper objectMapper;
-
-  @MockBean private FcmNotificationService notificationService;
-
   private final Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
+  @Autowired private transient MockMvc mockMvc;
+  @Autowired private transient ObjectMapper objectMapper;
+  @MockBean private transient FcmNotificationService notificationService;
+
+  private static final String TITLE_1 = "Testing 1";
 
   @BeforeEach
   public void setUp() {
     FcmNotificationDto notificationDto =
         new FcmNotificationDto()
             .setBody("Test notif")
-            .setTitle("Testing 1")
+            .setTitle(TITLE_1)
             .setScheduledTime(scheduledTime)
             .setSourceId("test")
             .setFcmMessageId("123456")
@@ -109,7 +109,7 @@ class FcmNotificationControllerTest {
     given(notificationService.getNotificationById(2L)).willReturn(notificationDto2);
 
     doAnswer(
-            (invocation) -> {
+            (InvocationOnMock invocation) -> {
               String projectId = invocation.getArgument(0);
               String subjectId = invocation.getArgument(1);
 
@@ -130,7 +130,7 @@ class FcmNotificationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.notifications", hasSize(1)))
-        .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
+        .andExpect(jsonPath("$.notifications[0].title", is(TITLE_1)))
         .andExpect(jsonPath("$.notifications[0].fcmMessageId", is("123456")));
   }
 
@@ -141,7 +141,7 @@ class FcmNotificationControllerTest {
             MockMvcRequestBuilders.get(URI.create("/notifications/1"))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.title", is("Testing 1")))
+        .andExpect(jsonPath("$.title", is(TITLE_1)))
         .andExpect(jsonPath("$.fcmMessageId", is("123456")));
   }
 
@@ -160,7 +160,7 @@ class FcmNotificationControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.notifications", hasSize(1)))
-        .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
+        .andExpect(jsonPath("$.notifications[0].title", is(TITLE_1)))
         .andExpect(jsonPath("$.notifications[0].fcmMessageId", is("123456")));
   }
 
@@ -174,7 +174,7 @@ class FcmNotificationControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.notifications", hasSize(1)))
-        .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
+        .andExpect(jsonPath("$.notifications[0].title", is(TITLE_1)))
         .andExpect(jsonPath("$.notifications[0].fcmMessageId", is("123456")));
   }
 
@@ -187,7 +187,7 @@ class FcmNotificationControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.notifications", hasSize(1)))
-        .andExpect(jsonPath("$.notifications[0].title", is("Testing 1")))
+        .andExpect(jsonPath("$.notifications[0].title", is(TITLE_1)))
         .andExpect(jsonPath("$.notifications[0].fcmMessageId", is("123456")));
   }
 

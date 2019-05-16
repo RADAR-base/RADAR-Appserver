@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class NotificationJob implements Job {
 
-  @Autowired private NotificationSchedulerService schedulerService;
+  @Autowired private transient NotificationSchedulerService schedulerService;
 
   /**
    * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}

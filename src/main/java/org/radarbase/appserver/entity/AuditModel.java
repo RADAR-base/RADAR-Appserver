@@ -22,7 +22,6 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
@@ -47,7 +46,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
     value = {"createdAt", "updatedAt"},
     allowGetters = true)
 @Data
-abstract class AuditModel implements Serializable {
+abstract class AuditModel {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created_at", nullable = false, updatable = false)
   @CreatedDate

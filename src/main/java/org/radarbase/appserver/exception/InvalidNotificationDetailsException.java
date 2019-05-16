@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
 public class InvalidNotificationDetailsException extends RuntimeException {
 
+  static final long serialVersionUID = 793602934508766939L;
+
   public InvalidNotificationDetailsException(String message) {
     super(message);
   }

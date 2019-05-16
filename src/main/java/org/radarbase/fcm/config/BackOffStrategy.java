@@ -31,11 +31,11 @@ public class BackOffStrategy {
   private static final int DEFAULT_RETRIES = 3;
   private static final long DEFAULT_WAIT_TIME_IN_MILLI = 1000;
 
-  private int numberOfRetries;
-  private int numberOfTriesLeft;
-  private long defaultTimeToWait;
-  private long timeToWait;
-  private Random random = new Random();
+  private transient int numberOfRetries;
+  private transient int numberOfTriesLeft;
+  private transient long defaultTimeToWait;
+  private transient long timeToWait;
+  private transient Random random = new Random();
 
   public BackOffStrategy() {
     this(DEFAULT_RETRIES, DEFAULT_WAIT_TIME_IN_MILLI);

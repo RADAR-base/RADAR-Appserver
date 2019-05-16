@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingErrorHandlingStrategy implements ErrorHandlingStrategy {
 
-  @Autowired private ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+  @Autowired private transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
 
   @Override
   public void handleError(String error, JsonNode message) {

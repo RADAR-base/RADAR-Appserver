@@ -24,6 +24,7 @@ package org.radarbase.fcm.upstream;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Locale;
 import java.util.Optional;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
@@ -53,17 +54,17 @@ public class XmppFcmReceiver implements CcsClient {
 
   // TODO add support for subscribing to publisher updates added in Java 9
 
-  @Autowired private UpstreamMessageHandler messageHandler;
+  @Autowired private transient UpstreamMessageHandler messageHandler;
 
-  @Autowired private ObjectMapper mapper;
+  @Autowired private transient ObjectMapper mapper;
 
-  @Autowired private ErrorHandlingStrategy errorHandlingStrategy;
+  @Autowired private transient ErrorHandlingStrategy errorHandlingStrategy;
 
   @Autowired
   @Qualifier("fcmSenderProps")
-  private FcmSender fcmSender;
+  private transient FcmSender fcmSender;
 
-  @Autowired private ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+  @Autowired private transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
 
   public void handleIncomingMessage(Message<String> message) throws Exception {
     log.debug("Header = " + message.getHeaders());
@@ -73,30 +74,24 @@ public class XmppFcmReceiver implements CcsClient {
       log.debug("Normal Message");
     }
 
-    // Effectively final
-    var ref =
-        new Object() {
-          JsonNode tree = null;
-        };
-
     @Cleanup JsonParser parser = mapper.getFactory().createParser(message.getPayload());
-    ref.tree = mapper.readTree(parser);
+    final JsonNode tree = mapper.readTree(parser);
 
     final Optional<Object> from = Optional.ofNullable(message.getHeaders().get(XmppHeaders.FROM));
-    from.ifPresent(fromHeader -> sendAck(ref.tree));
+    from.ifPresent(fromHeader -> sendAck(tree));
 
-    final Optional<JsonNode> messageTypeObj = Optional.ofNullable(ref.tree.get("message_type"));
+    final Optional<JsonNode> messageTypeObj = Optional.ofNullable(tree.get("message_type"));
 
     messageTypeObj.ifPresentOrElse(
-        messageTypeObj1 -> handleMessageTypes(messageTypeObj1, ref.tree),
+        messageTypeObj1 -> handleMessageTypes(messageTypeObj1, tree),
         () -> // Normal upstream message from a device client
-        messageHandler.handleUpstreamMessage(ref.tree));
+        messageHandler.handleUpstreamMessage(tree));
   }
 
   private void handleMessageTypes(JsonNode messageTypeObj, JsonNode tree) {
     final String messageType = messageTypeObj.asText();
     log.info("Message Type : {}", messageType);
-    switch (FcmMessageType.valueOf(messageType.toUpperCase())) {
+    switch (FcmMessageType.valueOf(messageType.toUpperCase(Locale.UK))) {
       case ACK:
         messageHandler.handleAckReceipt(tree);
         break;

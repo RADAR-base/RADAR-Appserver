@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.radarbase.appserver.converter.ProjectConverter;
 import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.Projects;
+import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,10 +71,10 @@ class ProjectServiceTest {
 
   @Test
   void getAllProjects() {
-    Projects projects = projectService.getAllProjects();
+    ProjectDtos projectDtos = projectService.getAllProjects();
 
-    assertEquals("test-project", projects.getProjects().get(0).getProjectId());
-    assertEquals(Long.valueOf(1L), projects.getProjects().get(0).getId());
+    assertEquals("test-project", projectDtos.getProjects().get(0).getProjectId());
+    assertEquals(Long.valueOf(1L), projectDtos.getProjects().get(0).getId());
 
   }
 

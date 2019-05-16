@@ -41,10 +41,10 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 public class MultiHttpSecurityConfig {
 
   @Value("${radar.admin.user}")
-  private String adminUsername;
+  private transient String adminUsername;
 
   @Value("${radar.admin.password}")
-  private String adminPassword;
+  private transient String adminPassword;
 
   @Bean
   public UserDetailsService userDetailsService() throws Exception {

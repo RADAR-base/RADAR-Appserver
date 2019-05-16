@@ -44,9 +44,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class XmppFcmSender implements CcsClient, FcmSender {
 
-  @Autowired private MessageChannel xmppOutbound;
+  @Autowired private transient MessageChannel xmppOutbound;
 
-  @Autowired private ObjectMapper mapper;
+  @Autowired private transient ObjectMapper mapper;
 
   private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
 

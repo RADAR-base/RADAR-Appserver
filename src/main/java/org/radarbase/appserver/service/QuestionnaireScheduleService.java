@@ -33,7 +33,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class QuestionnaireScheduleService {
 
-  private ProtocolGenerator protocolGenerator;
+  private transient ProtocolGenerator protocolGenerator;
 
   private CachedMap<String, Schedule> subjectScheduleMap;
 

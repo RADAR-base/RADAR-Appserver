@@ -65,8 +65,12 @@ public class Project extends AuditModel {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Project)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Project)) {
+      return false;
+    }
     Project project = (Project) o;
     return Objects.equals(getProjectId(), project.getProjectId());
   }

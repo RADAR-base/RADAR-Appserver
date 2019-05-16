@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ProtocolEndpoint {
 
-  private ProtocolGenerator protocolGenerator;
+  private transient ProtocolGenerator protocolGenerator;
 
   @Autowired
   public ProtocolEndpoint(ProtocolGenerator protocolGenerator) {

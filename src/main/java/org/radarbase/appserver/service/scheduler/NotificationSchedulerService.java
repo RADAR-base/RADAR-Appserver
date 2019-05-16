@@ -62,8 +62,8 @@ public class NotificationSchedulerService {
 
   private static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
 
-  private final FcmSender fcmSender;
-  private final SchedulerService schedulerService;
+  private final transient FcmSender fcmSender;
+  private final transient SchedulerService schedulerService;
 
   public NotificationSchedulerService(
       @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
@@ -122,7 +122,7 @@ public class NotificationSchedulerService {
     Map<JobDetail, Set<? extends Trigger>> jobDetailSetMap = new HashMap<>();
 
     notifications.forEach(
-        notification -> {
+        (Notification notification) -> {
           log.info("Notification = {}", notification);
           JobDetail jobDetail = getJobDetailForNotification(notification).getObject();
 

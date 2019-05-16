@@ -33,7 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.Projects;
+import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -59,7 +59,7 @@ class RadarProjectControllerTest {
     ProjectDto projectDto = new ProjectDto().setProjectId("test-project").setId(1L);
 
     given(projectService.getAllProjects())
-        .willReturn(new Projects().setProjects(List.of(projectDto)));
+        .willReturn(new ProjectDtos().setProjects(List.of(projectDto)));
 
     given(projectService.getProjectById(1L)).willReturn(projectDto);
 

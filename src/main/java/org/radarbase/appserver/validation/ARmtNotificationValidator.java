@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ARmtNotificationValidator
     implements ConstraintValidator<aRmtNotificationConstraint, Notification> {
 
-  @Autowired private QuestionnaireScheduleService scheduleService;
+  @Autowired private transient QuestionnaireScheduleService scheduleService;
 
   @Override
   public void initialize(aRmtNotificationConstraint constraintAnnotation) {}
