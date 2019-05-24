@@ -69,50 +69,28 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 class FcmNotificationServiceTest {
 
+  private static final String NEW_SUFFIX = "-new";
+  private static final String NOTIFICATION_TITLE_1 = "Testing1";
+  private static final String NOTIFICATION_TITLE_2 = "Testing2";
+  private static final String NOTIFICATION_TITLE_3 = "Testing3";
+  private static final String NOTIFICATION_TITLE_4 = "Testing4";
+  private static User user;
   private final transient Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
   @MockBean private transient NotificationSchedulerService schedulerService;
-
   // TODO Make this generic when NotificationService interface is complete
   @Autowired private transient FcmNotificationService notificationService;
   @MockBean private transient NotificationRepository notificationRepository;
   @MockBean private transient UserRepository userRepository;
   @MockBean private transient ProjectRepository projectRepository;
 
-  private static final String NEW_SUFFIX = "-new";
-  private static final String NOTIFICATION_TITLE_1 = "Testing1";
-  private static final String NOTIFICATION_TITLE_2 = "Testing2";
-  private static final String NOTIFICATION_TITLE_3 = "Testing3";
-  private static final String NOTIFICATION_TITLE_4 = "Testing4";
-
   @BeforeEach
   void setUp() {
-    // given
-    Project project = new Project().setProjectId(PROJECT_ID).setId(1L);
-
-    Mockito.when(projectRepository.findByProjectId(project.getProjectId()))
-        .thenReturn(Optional.of(project));
+    setUpProjectAndUser();
+    setUpNotification1And2();
 
     Project projectNew = new Project().setProjectId(PROJECT_ID).setId(2L);
-
     Mockito.when(projectRepository.save(new Project().setProjectId(PROJECT_ID + NEW_SUFFIX)))
         .thenReturn(projectNew);
-
-    User user =
-        new User()
-            .setFcmToken(FCM_TOKEN_1)
-            .setEnrolmentDate(Instant.now())
-            .setProject(project)
-            .setTimezone(0d)
-            .setLanguage("en")
-            .setSubjectId(USER_ID)
-            .setId(1L);
-
-    Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
-
-    Mockito.when(userRepository.findBySubjectIdAndProjectId(USER_ID, 1L))
-        .thenReturn(Optional.of(user));
-
-    Mockito.when(userRepository.findByProjectId(1L)).thenReturn(List.of(user));
 
     User userNew =
         new User()
@@ -123,70 +101,6 @@ class FcmNotificationServiceTest {
             .setId(2L);
 
     Mockito.when(userRepository.save(Mockito.any())).thenReturn(userNew);
-
-    Notification notification1 =
-        new Notification()
-            .setUser(user)
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE)
-            .setScheduledTime(scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false)
-            .setId(1L);
-
-    Notification notification2 =
-        new Notification()
-            .setUser(user)
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE_2)
-            .setScheduledTime(scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setFcmMessageId(FCM_MESSAGE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false)
-            .setId(2L);
-
-    Mockito.when(notificationRepository.findAll())
-        .thenReturn(List.of(notification1, notification2));
-
-    Mockito.when(notificationRepository.findByUserId(1L))
-        .thenReturn(List.of(notification1, notification2));
-
-    Mockito.when(notificationRepository.findByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID))
-        .thenReturn(Optional.of(notification1));
-
-    Mockito.when(notificationRepository.findByFcmMessageId(FCM_MESSAGE_ID))
-        .thenReturn(Optional.of(notification2));
-
-    Mockito.when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification1));
-
-    Mockito.when(notificationRepository.findById(2L)).thenReturn(Optional.of(notification2));
-
-    Mockito.when(
-            notificationRepository
-                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                    1L,
-                    NOTIFICATION_SOURCE_ID,
-                    scheduledTime,
-                    NOTIFICATION_TITLE_1,
-                    NOTIFICATION_BODY,
-                    null,
-                    86400))
-        .thenReturn(true);
-
-    Mockito.when(
-            notificationRepository
-                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                    1L,
-                    NOTIFICATION_SOURCE_ID,
-                    scheduledTime,
-                    NOTIFICATION_TITLE_2,
-                    NOTIFICATION_BODY,
-                    null,
-                    86400))
-        .thenReturn(true);
 
     Notification notification3 =
         new Notification()
@@ -259,6 +173,97 @@ class FcmNotificationServiceTest {
     Mockito.when(notificationRepository.save(notification5)).thenReturn(notification5);
 
     Mockito.when(userRepository.findByFcmToken(FCM_TOKEN_1)).thenReturn(Optional.of(user));
+  }
+
+  private void setUpProjectAndUser() {
+    // given
+    Project project = new Project().setProjectId(PROJECT_ID).setId(1L);
+
+    Mockito.when(projectRepository.findByProjectId(project.getProjectId()))
+        .thenReturn(Optional.of(project));
+
+    user =
+        new User()
+            .setFcmToken(FCM_TOKEN_1)
+            .setEnrolmentDate(Instant.now())
+            .setProject(project)
+            .setTimezone(0d)
+            .setLanguage("en")
+            .setSubjectId(USER_ID)
+            .setId(1L);
+
+    Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
+
+    Mockito.when(userRepository.findBySubjectIdAndProjectId(USER_ID, 1L))
+        .thenReturn(Optional.of(user));
+
+    Mockito.when(userRepository.findByProjectId(1L)).thenReturn(List.of(user));
+  }
+
+  private void setUpNotification1And2() {
+    Notification notification1 =
+        new Notification()
+            .setUser(user)
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE)
+            .setScheduledTime(scheduledTime)
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+            .setTtlSeconds(86400)
+            .setDelivered(false)
+            .setId(1L);
+
+    Notification notification2 =
+        new Notification()
+            .setUser(user)
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_2)
+            .setScheduledTime(scheduledTime)
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID)
+            .setTtlSeconds(86400)
+            .setDelivered(false)
+            .setId(2L);
+
+    Mockito.when(notificationRepository.findAll())
+        .thenReturn(List.of(notification1, notification2));
+
+    Mockito.when(notificationRepository.findByUserId(1L))
+        .thenReturn(List.of(notification1, notification2));
+
+    Mockito.when(notificationRepository.findByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID))
+        .thenReturn(Optional.of(notification1));
+
+    Mockito.when(notificationRepository.findByFcmMessageId(FCM_MESSAGE_ID))
+        .thenReturn(Optional.of(notification2));
+
+    Mockito.when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification1));
+
+    Mockito.when(notificationRepository.findById(2L)).thenReturn(Optional.of(notification2));
+
+    Mockito.when(
+            notificationRepository
+                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                    1L,
+                    NOTIFICATION_SOURCE_ID,
+                    scheduledTime,
+                    NOTIFICATION_TITLE_1,
+                    NOTIFICATION_BODY,
+                    null,
+                    86400))
+        .thenReturn(true);
+
+    Mockito.when(
+            notificationRepository
+                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                    1L,
+                    NOTIFICATION_SOURCE_ID,
+                    scheduledTime,
+                    NOTIFICATION_TITLE_2,
+                    NOTIFICATION_BODY,
+                    null,
+                    86400))
+        .thenReturn(true);
   }
 
   @Test
@@ -393,9 +398,7 @@ class FcmNotificationServiceTest {
     NotFoundException ex =
         assertThrows(
             NotFoundException.class,
-            () ->
-                notificationService.addNotification(
-                    notificationDto, USER_ID, PROJECT_ID + "-2"));
+            () -> notificationService.addNotification(notificationDto, USER_ID, PROJECT_ID + "-2"));
 
     assertTrue(ex.getMessage().contains("Project Id does not exist"));
   }

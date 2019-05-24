@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
@@ -245,7 +246,7 @@ class NotificationSchedulerServiceTest {
      */
     @Override
     public void jobExecutionVetoed(JobExecutionContext context) {
-      throw new RuntimeException(new InterruptedException());
+      fail(new InterruptedException("The Job Execution was vetoed."));
     }
 
     /**

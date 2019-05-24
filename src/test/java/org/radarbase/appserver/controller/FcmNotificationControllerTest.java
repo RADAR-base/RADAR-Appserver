@@ -152,7 +152,9 @@ public class FcmNotificationControllerTest {
 
   @Test
   @Disabled("Not implemented yet")
-  void getFilteredNotifications() {}
+  void getFilteredNotifications() {
+    // TODO
+  }
 
   @Test
   void getNotificationsUsingProjectIdAndSubjectId() throws Exception {

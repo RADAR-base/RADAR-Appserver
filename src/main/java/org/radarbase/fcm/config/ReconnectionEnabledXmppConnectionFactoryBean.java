@@ -22,7 +22,6 @@
 package org.radarbase.fcm.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.ReconnectionListener;
 import org.jivesoftware.smack.ReconnectionManager;
@@ -83,8 +82,8 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
            * connection disconnect(); }
            *
            * <p>which calls the {@link AbstractXMPPConnection#disconnect()}.{@link
-           * AbstractXMPPConnection#disconnect(Presence)}. We need to handle this and reconnect if
-           * the server asks for disconnection.
+           * org.jivesoftware.smack.AbstractXMPPConnection#disconnect(Presence)}. We need to handle
+           * this and reconnect if the server asks for disconnection.
            */
           if (stanza instanceof Presence && !((Presence) stanza).isAvailable()) {
             logger.info("Reconnect after server requested disconnection.");

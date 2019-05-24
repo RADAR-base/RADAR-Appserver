@@ -52,7 +52,7 @@ public class QuestionnaireScheduleService {
 
   // Use cached map of schedule of user
   public void getProtocolForProject(String projectId) throws IOException {
-    Map<String, Protocol> protocolMap = protocolGenerator.getAllProtocols();
+    protocolGenerator.getAllProtocols();
     subjectScheduleMap.get();
   }
 
