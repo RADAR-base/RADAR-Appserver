@@ -45,7 +45,6 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
-import org.quartz.TriggerListener;
 import org.radarbase.appserver.config.SchedulerConfig;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
@@ -228,7 +227,7 @@ class NotificationSchedulerServiceTest {
      * to be executed (an associated <code>{@link Trigger}</code> has occurred).
      *
      * <p>This method will not be invoked if the execution of the Job was vetoed by a <code>{@link
-     * TriggerListener}</code>.
+     * org.quartz.TriggerListener}</code>.
      *
      * @see #jobExecutionVetoed(JobExecutionContext)
      */
@@ -240,7 +239,7 @@ class NotificationSchedulerServiceTest {
     /**
      * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> was about
      * to be executed (an associated <code>{@link Trigger}</code> has occurred), but a <code>{@link
-     * TriggerListener}</code> vetoed it's execution.
+     * org.quartz.TriggerListener}</code> vetoed it's execution.
      *
      * @see #jobToBeExecuted(JobExecutionContext)
      */

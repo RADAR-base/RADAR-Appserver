@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class SimpleQuartzNamingStrategy implements QuartzNamingStrategy {
 
-
   private static final String TRIGGER_PREFIX = "notification-trigger-";
   private static final String JOB_PREFIX = "notification-jobdetail-";
 

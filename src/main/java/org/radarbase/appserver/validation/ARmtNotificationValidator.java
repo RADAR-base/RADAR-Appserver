@@ -40,7 +40,9 @@ public class ARmtNotificationValidator
   @Autowired private transient QuestionnaireScheduleService scheduleService;
 
   @Override
-  public void initialize(aRmtNotificationConstraint constraintAnnotation) {}
+  public void initialize(aRmtNotificationConstraint constraintAnnotation) {
+    // TODO
+  }
 
   @Override
   public boolean isValid(@Valid Notification notification, ConstraintValidatorContext context) {

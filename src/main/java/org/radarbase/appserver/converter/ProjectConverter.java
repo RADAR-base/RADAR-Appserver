@@ -22,9 +22,7 @@
 package org.radarbase.appserver.converter;
 
 import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.Project;
-import org.radarbase.appserver.entity.User;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -34,7 +32,6 @@ import org.springframework.stereotype.Component;
  *
  * @author yatharthranjan
  */
-
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ProjectConverter implements Converter<Project, ProjectDto> {

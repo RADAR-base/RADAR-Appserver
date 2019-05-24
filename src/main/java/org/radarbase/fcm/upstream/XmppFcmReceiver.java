@@ -30,7 +30,6 @@ import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.fcm.common.CcsClient;
-import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.config.ReconnectionEnabledXmppConnectionFactoryBean;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmAckMessage;

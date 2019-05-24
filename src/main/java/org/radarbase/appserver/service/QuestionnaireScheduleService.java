@@ -21,7 +21,12 @@
 
 package org.radarbase.appserver.service;
 
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.protocol.ProtocolGenerator;
@@ -41,15 +46,26 @@ public class QuestionnaireScheduleService {
   public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
     this.protocolGenerator = protocolGenerator;
     protocolGenerator.init();
+    subjectScheduleMap = new CachedMap<String, Schedule>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
     // log.info(String.valueOf(protocolGenerator.getProtocol("RADAR-MDD-KCL-s1").toString()));
   }
 
   // Use cached map of schedule of user
-  public void getProtocolForProject(String projectId) {}
+  public void getProtocolForProject(String projectId) throws IOException {
+    Map<String, Protocol> protocolMap = protocolGenerator.getAllProtocols();
+    subjectScheduleMap.get();
+  }
 
   public Schedule getScheduleForUser(User user) {
     return null;
   }
 
-  public void generateScheduleForUser(User user) {}
+  public Schedule generateScheduleForUser(User user) {
+    return null;
+  }
+
+  public Map<String, Schedule> getAllSchedules() {
+    // Check if protocol hash has changed. only then update the map
+    return Collections.emptyMap();
+  }
 }

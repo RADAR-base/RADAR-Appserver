@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
  *
  * @author yatharthranjan
  */
-
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UserConverter implements Converter<User, FcmUserDto> {

@@ -104,8 +104,9 @@ public class SchedulerServiceImpl implements SchedulerService {
   @SneakyThrows
   @Override
   public void deleteScheduledJobs(List<JobKey> jobKeys) {
-    jobKeys = jobKeys.stream().filter(unchecked(scheduler::checkExists)).collect(Collectors.toList());
-    scheduler.deleteJobs(jobKeys);
+    List<JobKey> jobKeysExist =
+        jobKeys.stream().filter(unchecked(scheduler::checkExists)).collect(Collectors.toList());
+    scheduler.deleteJobs(jobKeysExist);
   }
 
   @Synchronized
@@ -116,6 +117,4 @@ public class SchedulerServiceImpl implements SchedulerService {
       scheduler.deleteJob(jobKey);
     }
   }
-
-
 }

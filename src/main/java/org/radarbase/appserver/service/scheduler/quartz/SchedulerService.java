@@ -49,6 +49,4 @@ public interface SchedulerService {
   void deleteScheduledJobs(List<JobKey> jobKeys);
 
   void deleteScheduledJob(JobKey jobKey);
-
-
 }

@@ -102,7 +102,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
       protocolUriMap = projectProtocolUriMap.getCache();
     }
 
-    if(protocolUriMap == null) {
+    if (protocolUriMap == null) {
       return projectProtocolMap;
     }
     try {
@@ -148,7 +148,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
       if (isSuccessfulResponse(response)) {
         for (JsonNode jsonNode : getArrayNode(response.body().toString())) {
           String type = jsonNode.get("type").asText();
-          if (type.equals("dir")) {
+          if ("dir" .equals(type)) {
             protocolUriMap.put(
                 jsonNode.get("name").asText(),
                 URI.create(jsonNode.get("_links").get("self").asText()));

@@ -46,15 +46,15 @@ public class ProjectService {
   private final transient ProjectConverter projectConverter;
 
   @Autowired
-  public ProjectService(ProjectRepository projectRepository,
-      ProjectConverter projectConverter) {
+  public ProjectService(ProjectRepository projectRepository, ProjectConverter projectConverter) {
     this.projectRepository = projectRepository;
     this.projectConverter = projectConverter;
   }
 
   @Transactional(readOnly = true)
   public ProjectDtos getAllProjects() {
-    return new ProjectDtos().setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
+    return new ProjectDtos()
+        .setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
   }
 
   @Transactional(readOnly = true)
@@ -131,7 +131,7 @@ public class ProjectService {
       throw new NotFoundException("The project could not be found with details " + projectDto);
     }
 
-    Project savedProject= this.projectRepository.save(resultProject);
+    Project savedProject = this.projectRepository.save(resultProject);
     return projectConverter.entityToDto(savedProject);
   }
 }

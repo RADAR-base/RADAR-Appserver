@@ -52,7 +52,6 @@ class UserRepositoryTest {
 
   private transient Project project;
   private transient Long projectId;
-  private transient User user;
   private transient Long userId;
 
   @BeforeEach
@@ -61,15 +60,14 @@ class UserRepositoryTest {
     this.project = new Project().setProjectId("test-project");
     this.projectId = entityManager.persistAndGetId(project, Long.class);
 
-    this.user =
-        new User()
-            .setFcmToken(FCM_TOKEN_1)
-            .setEnrolmentDate(Instant.now())
-            .setProject(project)
-            .setTimezone(0d)
-            .setLanguage("en")
-            .setSubjectId(USER_ID);
-    this.userId = entityManager.persistAndGetId(this.user, Long.class);
+    User user = new User()
+        .setFcmToken(FCM_TOKEN_1)
+        .setEnrolmentDate(Instant.now())
+        .setProject(project)
+        .setTimezone(0d)
+        .setLanguage("en")
+        .setSubjectId(USER_ID);
+    this.userId = entityManager.persistAndGetId(user, Long.class);
     entityManager.flush();
   }
 

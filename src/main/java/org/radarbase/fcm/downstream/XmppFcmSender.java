@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import org.radarbase.fcm.common.CcsClient;
-import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.xmpp.XmppHeaders;

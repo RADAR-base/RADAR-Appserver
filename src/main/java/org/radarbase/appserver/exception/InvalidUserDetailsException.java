@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
 public class InvalidUserDetailsException extends RuntimeException {
 
-  static final long serialVersionUID = 914876638943766939L;
+  private static final long serialVersionUID = 914876638943766939L;
 
   public InvalidUserDetailsException(String message) {
     super(message);

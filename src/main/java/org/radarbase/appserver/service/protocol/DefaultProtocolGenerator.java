@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service.protocol;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;

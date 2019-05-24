@@ -83,8 +83,7 @@ public class FcmNotificationController {
               + "/"
               + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectIdAndSubjectId(
-      @Valid @PathVariable String projectId,
-      @Valid @PathVariable String subjectId) {
+      @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
     return ResponseEntity.ok(
         this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
   }

@@ -58,7 +58,6 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
     this.isPresenceUnavailable = false;
     this.isConnectionDraining = false;
 
-
     XMPPTCPConnection connection = getConnection();
 
     connection.setUseStreamManagement(false);
@@ -67,7 +66,6 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
     super.start();
 
     connection.addConnectionListener(this);
-
 
     ReconnectionManager manager = ReconnectionManager.getInstanceFor(connection);
     manager.enableAutomaticReconnection();
@@ -158,8 +156,8 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
   }
 
   /**
-   * Notification that the connection was closed due to an CustomExceptionHandler. When abruptly disconnected it
-   * is possible for the connection to try reconnecting to the server.
+   * Notification that the connection was closed due to an CustomExceptionHandler. When abruptly
+   * disconnected it is possible for the connection to try reconnecting to the server.
    *
    * @param e the CustomExceptionHandler.
    */

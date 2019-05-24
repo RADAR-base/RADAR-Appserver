@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.ALREADY_REPORTED)
 public class AlreadyExistsException extends RuntimeException {
 
-  static final long serialVersionUID = -793674245766939L;
+  private static final long serialVersionUID = -793674245766939L;
 
   public AlreadyExistsException(String message) {
     super(message);

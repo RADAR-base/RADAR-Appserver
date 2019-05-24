@@ -53,7 +53,8 @@ public class UserService {
   private final transient ProjectRepository projectRepository;
 
   @Autowired
-  public UserService(UserConverter userConverter,
+  public UserService(
+      UserConverter userConverter,
       UserRepository userRepository,
       ProjectRepository projectRepository) {
     this.userConverter = userConverter;

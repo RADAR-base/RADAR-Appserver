@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
 public class InvalidProjectDetailsException extends RuntimeException {
 
-  static final long serialVersionUID = -432767934508766939L;
+  private static final long serialVersionUID = -432767934508766939L;
 
   public InvalidProjectDetailsException(String message) {
     super(message);

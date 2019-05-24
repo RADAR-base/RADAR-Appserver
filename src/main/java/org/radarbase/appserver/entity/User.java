@@ -61,7 +61,7 @@ import org.radarbase.appserver.dto.fcm.FcmUserDto;
 @ToString
 public class User extends AuditModel implements Serializable {
 
-  static final long serialVersionUID = -87395866328519L;
+  private static final long serialVersionUID = -87395866328519L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

@@ -33,7 +33,6 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.quartz.utils.FindbugsSuppressWarnings;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 

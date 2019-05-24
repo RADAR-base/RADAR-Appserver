@@ -31,6 +31,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.radarbase.appserver.dto.ProjectDto;
 /**
@@ -42,9 +43,10 @@ import org.radarbase.appserver.dto.ProjectDto;
 @Entity
 @Getter
 @ToString
+@NoArgsConstructor
 public class Project extends AuditModel implements Serializable {
 
-  static final long serialVersionUID = 12312466855464L;
+  private static final long serialVersionUID = 12312466855464L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,8 +55,6 @@ public class Project extends AuditModel implements Serializable {
   @NotNull
   @Column(name = "project_id", unique = true, nullable = false)
   private String projectId;
-
-  public Project() {}
 
   public Project setId(Long id) {
     this.id = id;
