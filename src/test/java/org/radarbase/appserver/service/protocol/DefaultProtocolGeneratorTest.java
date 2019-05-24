@@ -47,9 +47,9 @@ import org.springframework.test.context.junit4.SpringRunner;
     classes = {GithubProtocolFetcherStrategy.class, DefaultProtocolGenerator.class})
 class DefaultProtocolGeneratorTest {
 
-  @Autowired DefaultProtocolGenerator protocolGenerator;
+  @Autowired private transient DefaultProtocolGenerator protocolGenerator;
 
-  @MockBean GithubProtocolFetcherStrategy protocolFetcherStrategy;
+  @MockBean private transient GithubProtocolFetcherStrategy protocolFetcherStrategy;
 
   @BeforeEach
   void setUp() throws IOException {

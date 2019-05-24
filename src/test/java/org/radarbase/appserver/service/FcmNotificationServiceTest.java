@@ -26,6 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.FCM_MESSAGE_ID;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_BODY;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_FCM_MESSAGE_ID;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_SOURCE_ID;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_TITLE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -56,45 +64,52 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 @RunWith(SpringRunner.class)
 @DataJpaTest
 class FcmNotificationServiceTest {
 
-  private final Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
-  @MockBean NotificationSchedulerService schedulerService;
+  private final transient Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
+  @MockBean private transient NotificationSchedulerService schedulerService;
 
   // TODO Make this generic when NotificationService interface is complete
-  @Autowired private FcmNotificationService notificationService;
-  @MockBean private NotificationRepository notificationRepository;
-  @MockBean private UserRepository userRepository;
-  @MockBean private ProjectRepository projectRepository;
+  @Autowired private transient FcmNotificationService notificationService;
+  @MockBean private transient NotificationRepository notificationRepository;
+  @MockBean private transient UserRepository userRepository;
+  @MockBean private transient ProjectRepository projectRepository;
+
+  private static final String NEW_SUFFIX = "-new";
+  private static final String NOTIFICATION_TITLE_1 = "Testing1";
+  private static final String NOTIFICATION_TITLE_2 = "Testing2";
+  private static final String NOTIFICATION_TITLE_3 = "Testing3";
+  private static final String NOTIFICATION_TITLE_4 = "Testing4";
 
   @BeforeEach
   void setUp() {
     // given
-    Project project = new Project().setProjectId("test-project").setId(1L);
+    Project project = new Project().setProjectId(PROJECT_ID).setId(1L);
 
     Mockito.when(projectRepository.findByProjectId(project.getProjectId()))
         .thenReturn(Optional.of(project));
 
-    Project projectNew = new Project().setProjectId("test-project").setId(2L);
+    Project projectNew = new Project().setProjectId(PROJECT_ID).setId(2L);
 
-    Mockito.when(projectRepository.save(new Project().setProjectId("test-project-new")))
+    Mockito.when(projectRepository.save(new Project().setProjectId(PROJECT_ID + NEW_SUFFIX)))
         .thenReturn(projectNew);
 
     User user =
         new User()
-            .setFcmToken("xxxx")
+            .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(Instant.now())
             .setProject(project)
             .setTimezone(0d)
             .setLanguage("en")
-            .setSubjectId("test-user")
+            .setSubjectId(USER_ID)
             .setId(1L);
 
     Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
 
-    Mockito.when(userRepository.findBySubjectIdAndProjectId("test-user", 1L))
+    Mockito.when(userRepository.findBySubjectIdAndProjectId(USER_ID, 1L))
         .thenReturn(Optional.of(user));
 
     Mockito.when(userRepository.findByProjectId(1L)).thenReturn(List.of(user));
@@ -103,8 +118,8 @@ class FcmNotificationServiceTest {
         new User()
             .setProject(projectNew)
             .setEnrolmentDate(Instant.now())
-            .setFcmToken("xxxx")
-            .setSubjectId("test-user-new")
+            .setFcmToken(FCM_TOKEN_1)
+            .setSubjectId(USER_ID + NEW_SUFFIX)
             .setId(2L);
 
     Mockito.when(userRepository.save(Mockito.any())).thenReturn(userNew);
@@ -112,11 +127,11 @@ class FcmNotificationServiceTest {
     Notification notification1 =
         new Notification()
             .setUser(user)
-            .setBody("Test notif")
-            .setTitle("Testing1")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
-            .setFcmMessageId("12345")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false)
             .setId(1L);
@@ -124,11 +139,11 @@ class FcmNotificationServiceTest {
     Notification notification2 =
         new Notification()
             .setUser(user)
-            .setBody("Test notif")
-            .setTitle("Testing2")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_2)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
-            .setFcmMessageId("123456")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false)
             .setId(2L);
@@ -139,10 +154,10 @@ class FcmNotificationServiceTest {
     Mockito.when(notificationRepository.findByUserId(1L))
         .thenReturn(List.of(notification1, notification2));
 
-    Mockito.when(notificationRepository.findByFcmMessageId("12345"))
+    Mockito.when(notificationRepository.findByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID))
         .thenReturn(Optional.of(notification1));
 
-    Mockito.when(notificationRepository.findByFcmMessageId("123456"))
+    Mockito.when(notificationRepository.findByFcmMessageId(FCM_MESSAGE_ID))
         .thenReturn(Optional.of(notification2));
 
     Mockito.when(notificationRepository.findById(1L)).thenReturn(Optional.of(notification1));
@@ -152,21 +167,33 @@ class FcmNotificationServiceTest {
     Mockito.when(
             notificationRepository
                 .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                    1L, "test", scheduledTime, "Testing1", "Test notif", null, 86400))
+                    1L,
+                    NOTIFICATION_SOURCE_ID,
+                    scheduledTime,
+                    NOTIFICATION_TITLE_1,
+                    NOTIFICATION_BODY,
+                    null,
+                    86400))
         .thenReturn(true);
 
     Mockito.when(
             notificationRepository
                 .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                    1L, "test", scheduledTime, "Testing2", "Test notif", null, 86400))
+                    1L,
+                    NOTIFICATION_SOURCE_ID,
+                    scheduledTime,
+                    NOTIFICATION_TITLE_2,
+                    NOTIFICATION_BODY,
+                    null,
+                    86400))
         .thenReturn(true);
 
     Notification notification3 =
         new Notification()
-            .setBody("Test notif")
-            .setTitle("Testing3")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_3)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setFcmMessageId("1234567")
             .setTtlSeconds(86400)
             .setDelivered(false)
@@ -180,15 +207,21 @@ class FcmNotificationServiceTest {
     Mockito.when(
             notificationRepository
                 .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                    1L, "test", scheduledTime, "Testing3", "Test notif", null, 86400))
+                    1L,
+                    NOTIFICATION_SOURCE_ID,
+                    scheduledTime,
+                    NOTIFICATION_TITLE_3,
+                    NOTIFICATION_BODY,
+                    null,
+                    86400))
         .thenReturn(false);
 
     Notification notification4 =
         new Notification()
-            .setBody("Test notif")
-            .setTitle("Testing4")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_4)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setFcmMessageId("12345678")
             .setTtlSeconds(86400)
             .setDelivered(false)
@@ -202,24 +235,30 @@ class FcmNotificationServiceTest {
     Mockito.when(
             notificationRepository
                 .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                    2L, "test", scheduledTime, "Testing4", "Test notif", null, 86400))
+                    2L,
+                    NOTIFICATION_SOURCE_ID,
+                    scheduledTime,
+                    NOTIFICATION_TITLE_4,
+                    NOTIFICATION_BODY,
+                    null,
+                    86400))
         .thenReturn(false);
 
     Notification notification5 =
         new Notification()
-            .setBody("Test notif Updated")
+            .setBody(NOTIFICATION_BODY + " Updated")
             .setTitle("Testing 2 Updated")
             .setUser(user)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
-            .setFcmMessageId("123456")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false)
             .setId(2L);
 
     Mockito.when(notificationRepository.save(notification5)).thenReturn(notification5);
 
-    Mockito.when(userRepository.findByFcmToken("xxxx")).thenReturn(Optional.of(user));
+    Mockito.when(userRepository.findByFcmToken(FCM_TOKEN_1)).thenReturn(Optional.of(user));
   }
 
   @Test
@@ -227,69 +266,69 @@ class FcmNotificationServiceTest {
     FcmNotifications fcmNotifications = notificationService.getAllNotifications();
 
     assertEquals(2, fcmNotifications.getNotifications().size());
-    assertEquals("Testing1", fcmNotifications.getNotifications().get(0).getTitle());
-    assertEquals("Testing2", fcmNotifications.getNotifications().get(1).getTitle());
+    assertEquals(NOTIFICATION_TITLE, fcmNotifications.getNotifications().get(0).getTitle());
+    assertEquals(NOTIFICATION_TITLE_2, fcmNotifications.getNotifications().get(1).getTitle());
   }
 
   @Test
   void getNotificationById() {
     FcmNotificationDto notificationDto = notificationService.getNotificationById(1L);
 
-    assertEquals("Testing1", notificationDto.getTitle());
+    assertEquals(NOTIFICATION_TITLE, notificationDto.getTitle());
     assertEquals(86400, notificationDto.getTtlSeconds());
-    assertEquals("test", notificationDto.getSourceId());
+    assertEquals(NOTIFICATION_SOURCE_ID, notificationDto.getSourceId());
   }
 
   @Test
   void getNotificationsBySubjectId() {
-    FcmNotifications fcmNotifications =
-        notificationService.getNotificationsBySubjectId("test-user");
+    FcmNotifications fcmNotifications = notificationService.getNotificationsBySubjectId(USER_ID);
 
     assertEquals(2, fcmNotifications.getNotifications().size());
-    assertEquals("Testing1", fcmNotifications.getNotifications().get(0).getTitle());
-    assertEquals("Testing2", fcmNotifications.getNotifications().get(1).getTitle());
+    assertEquals(NOTIFICATION_TITLE, fcmNotifications.getNotifications().get(0).getTitle());
+    assertEquals(NOTIFICATION_TITLE_2, fcmNotifications.getNotifications().get(1).getTitle());
   }
 
   @Test
   void getNotificationsByProjectIdAndSubjectId() {
     FcmNotifications notifications =
-        notificationService.getNotificationsByProjectIdAndSubjectId("test-project", "test-user");
+        notificationService.getNotificationsByProjectIdAndSubjectId(PROJECT_ID, USER_ID);
 
     assertEquals(2, notifications.getNotifications().size());
-    assertEquals("Testing1", notifications.getNotifications().get(0).getTitle());
-    assertEquals("Testing2", notifications.getNotifications().get(1).getTitle());
+    assertEquals(NOTIFICATION_TITLE, notifications.getNotifications().get(0).getTitle());
+    assertEquals(NOTIFICATION_TITLE_2, notifications.getNotifications().get(1).getTitle());
   }
 
   @Test
   void getNotificationsByProjectId() {
-    FcmNotifications notifications =
-        notificationService.getNotificationsByProjectId("test-project");
+    FcmNotifications notifications = notificationService.getNotificationsByProjectId(PROJECT_ID);
 
     assertEquals(2, notifications.getNotifications().size());
     assertTrue(
-        notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing1")));
+        notifications.getNotifications().stream()
+            .anyMatch(n -> n.getTitle().equals(NOTIFICATION_TITLE)));
     assertTrue(
-        notifications.getNotifications().stream().anyMatch(n -> n.getTitle().equals("Testing2")));
+        notifications.getNotifications().stream()
+            .anyMatch(n -> n.getTitle().equals(NOTIFICATION_TITLE_2)));
   }
 
   @Test
   void checkIfNotificationExists() {
     FcmNotificationDto notificationDto =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing2")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_2)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
-            .setFcmMessageId("123456")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false);
 
-    assertTrue(notificationService.checkIfNotificationExists(notificationDto, "test-user"));
+    assertTrue(notificationService.checkIfNotificationExists(notificationDto, USER_ID));
 
     // A random notification should not exist
     assertFalse(
         notificationService.checkIfNotificationExists(
-            new FcmNotificationDto().setScheduledTime(Instant.now()), "test-user"));
+            new FcmNotificationDto().setScheduledTime(Instant.now()), USER_ID));
   }
 
   @Test
@@ -300,42 +339,40 @@ class FcmNotificationServiceTest {
 
   @Test
   void addNotification() {
-    FcmNotificationDto notificationDto =
+    final FcmNotificationDto notificationDto =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing3")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_3)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setFcmMessageId("1234567")
             .setTtlSeconds(86400)
             .setDelivered(false);
 
-    notificationService.addNotification(notificationDto, "test-user", "test-project");
+    notificationService.addNotification(notificationDto, USER_ID, PROJECT_ID);
     FcmNotificationDto savedNotification = notificationService.getNotificationById(3L);
 
-    assertEquals("Testing3", savedNotification.getTitle());
+    assertEquals(NOTIFICATION_TITLE_3, savedNotification.getTitle());
     assertEquals("1234567", savedNotification.getFcmMessageId());
   }
 
   @Test
   void addNotification_whenUserNotFound() {
 
-    FcmNotificationDto notificationDto =
+    final FcmNotificationDto notificationDto =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing4")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_4)
             .setScheduledTime(Instant.now())
-            .setSourceId("test")
-            .setFcmMessageId("123456")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false);
 
     NotFoundException ex =
         assertThrows(
             NotFoundException.class,
-            () ->
-                notificationService.addNotification(
-                    notificationDto, "test-user-2", "test-project"));
+            () -> notificationService.addNotification(notificationDto, USER_ID + "-2", PROJECT_ID));
 
     assertTrue(ex.getMessage().contains("The supplied subject ID is invalid. No user found."));
   }
@@ -343,13 +380,13 @@ class FcmNotificationServiceTest {
   @Test
   void addNotification_whenProjectNotFound() {
 
-    FcmNotificationDto notificationDto =
+    final FcmNotificationDto notificationDto =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing4")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_4)
             .setScheduledTime(Instant.now())
-            .setSourceId("test")
-            .setFcmMessageId("123456")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false);
 
@@ -358,7 +395,7 @@ class FcmNotificationServiceTest {
             NotFoundException.class,
             () ->
                 notificationService.addNotification(
-                    notificationDto, "test-project-2", "test-user"));
+                    notificationDto, USER_ID, PROJECT_ID + "-2"));
 
     assertTrue(ex.getMessage().contains("Project Id does not exist"));
   }
@@ -368,27 +405,27 @@ class FcmNotificationServiceTest {
 
     FcmNotificationDto notificationDto =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing4")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE_4)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setFcmMessageId("12345678")
             .setTtlSeconds(86400)
             .setDelivered(false);
 
     FcmUserDto userDto =
         new FcmUserDto()
-            .setProjectId("test-project-new")
+            .setProjectId(PROJECT_ID + NEW_SUFFIX)
             .setEnrolmentDate(Instant.now())
-            .setFcmToken("xxxx")
-            .setSubjectId("test-user-new");
+            .setFcmToken(FCM_TOKEN_1)
+            .setSubjectId(USER_ID + NEW_SUFFIX);
 
     // Note we are using a project name and user name that does not exist yet.
-    notificationService.addNotificationForced(notificationDto, userDto, "test-project-new");
+    notificationService.addNotificationForced(notificationDto, userDto, PROJECT_ID + NEW_SUFFIX);
 
     FcmNotificationDto savedNotification = notificationService.getNotificationById(4L);
 
-    assertEquals("Testing4", savedNotification.getTitle());
+    assertEquals(NOTIFICATION_TITLE_4, savedNotification.getTitle());
     assertEquals("12345678", savedNotification.getFcmMessageId());
   }
 
@@ -397,16 +434,16 @@ class FcmNotificationServiceTest {
 
     FcmNotificationDto notificationDto =
         new FcmNotificationDto()
-            .setBody("Test notif Updated")
+            .setBody(NOTIFICATION_BODY + " Updated")
             .setTitle("Testing 2 Updated")
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
-            .setFcmMessageId("123456")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false)
             .setId(2L);
 
-    notificationService.updateNotification(notificationDto, "test-user", "test-project");
+    notificationService.updateNotification(notificationDto, USER_ID, PROJECT_ID);
 
     assertEquals("Test notif Updated", notificationService.getNotificationById(2L).getBody());
     assertEquals("Testing 2 Updated", notificationService.getNotificationById(2L).getTitle());
@@ -415,8 +452,7 @@ class FcmNotificationServiceTest {
   // If does not throw CustomExceptionHandler then test is valid
   @Test
   void removeNotificationsForUser() {
-    assertDoesNotThrow(
-        () -> notificationService.removeNotificationsForUser("test-project", "test-user"));
+    assertDoesNotThrow(() -> notificationService.removeNotificationsForUser(PROJECT_ID, USER_ID));
   }
 
   @Test
@@ -429,23 +465,25 @@ class FcmNotificationServiceTest {
   // Directly calls the repository so no need to assert. Just check that no excpetion is thrown
   @Test
   void deleteNotificationByFcmMessageId() {
-    assertDoesNotThrow(() -> notificationService.deleteNotificationByFcmMessageId("123456"));
+    assertDoesNotThrow(() -> notificationService.deleteNotificationByFcmMessageId(FCM_MESSAGE_ID));
   }
 
   // If does not throw CustomExceptionHandler then test is valid
   @Test
   void removeNotificationsForUserUsingFcmToken() {
-    assertDoesNotThrow(() -> notificationService.removeNotificationsForUserUsingFcmToken("xxxx"));
+    assertDoesNotThrow(
+        () -> notificationService.removeNotificationsForUserUsingFcmToken(FCM_TOKEN_1));
   }
 
   @TestConfiguration
   static class FcmNotificationServiceTestContextConfiguration {
-    private final NotificationConverter notificationConverter = new NotificationConverter();
-    private final UserConverter userConverter = new UserConverter();
-    @Autowired private NotificationRepository notificationRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private ProjectRepository projectRepository;
-    @Autowired private NotificationSchedulerService schedulerService;
+    private final transient NotificationConverter notificationConverter =
+        new NotificationConverter();
+    private final transient UserConverter userConverter = new UserConverter();
+    @Autowired private transient NotificationRepository notificationRepository;
+    @Autowired private transient UserRepository userRepository;
+    @Autowired private transient ProjectRepository projectRepository;
+    @Autowired private transient NotificationSchedulerService schedulerService;
 
     @Bean
     public NotificationService notificationService() {

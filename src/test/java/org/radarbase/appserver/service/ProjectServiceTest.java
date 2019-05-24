@@ -23,6 +23,7 @@ package org.radarbase.appserver.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,26 +46,25 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 class ProjectServiceTest {
 
-  @Autowired private ProjectService projectService;
+  @Autowired private transient ProjectService projectService;
 
-  @MockBean private ProjectRepository projectRepository;
+  @MockBean private transient ProjectRepository projectRepository;
 
   @BeforeEach
   void setUp() {
-    Project project = new Project().setProjectId("test-project");
+    Project project = new Project().setProjectId(PROJECT_ID);
 
-    when(projectRepository.findByProjectId("test-project"))
-        .thenReturn(Optional.of(project.setId(1L)));
+    when(projectRepository.findByProjectId(PROJECT_ID)).thenReturn(Optional.of(project.setId(1L)));
 
     when(projectRepository.findAll()).thenReturn(List.of(project.setId(1L)));
 
     when(projectRepository.findById(1L)).thenReturn(Optional.of(project.setId(1L)));
 
-    Project projectNew = new Project().setProjectId("test-project-new");
+    Project projectNew = new Project().setProjectId(PROJECT_ID + "-new");
 
     when(projectRepository.save(projectNew)).thenReturn(projectNew.setId(2L));
 
-    Project projectUpdated = new Project().setProjectId("test-project-updated").setId(1L);
+    Project projectUpdated = new Project().setProjectId(PROJECT_ID + "-updated").setId(1L);
 
     when(projectRepository.save(projectUpdated)).thenReturn(projectUpdated);
   }
@@ -73,56 +73,53 @@ class ProjectServiceTest {
   void getAllProjects() {
     ProjectDtos projectDtos = projectService.getAllProjects();
 
-    assertEquals("test-project", projectDtos.getProjects().get(0).getProjectId());
+    assertEquals(PROJECT_ID, projectDtos.getProjects().get(0).getProjectId());
     assertEquals(Long.valueOf(1L), projectDtos.getProjects().get(0).getId());
-
   }
 
   @Test
   void getProjectById() {
     ProjectDto projectDto = projectService.getProjectById(1L);
 
-    assertEquals("test-project", projectDto.getProjectId());
+    assertEquals(PROJECT_ID, projectDto.getProjectId());
     assertEquals(Long.valueOf(1L), projectDto.getId());
   }
 
   @Test
   void getProjectByProjectId() {
-    ProjectDto projectDto = projectService.getProjectByProjectId("test-project");
+    ProjectDto projectDto = projectService.getProjectByProjectId(PROJECT_ID);
 
-    assertEquals("test-project", projectDto.getProjectId());
+    assertEquals(PROJECT_ID, projectDto.getProjectId());
     assertEquals(Long.valueOf(1L), projectDto.getId());
   }
 
   @Test
   void addProject() {
-    ProjectDto projectDtoNew = new ProjectDto().setProjectId("test-project-new");
+    ProjectDto projectDtoNew = new ProjectDto().setProjectId(PROJECT_ID + "-new");
 
     ProjectDto projectDto = projectService.addProject(projectDtoNew);
 
-    assertEquals("test-project-new", projectDto.getProjectId());
+    assertEquals(PROJECT_ID + "-new", projectDto.getProjectId());
     assertEquals(Long.valueOf(2L), projectDto.getId());
-
   }
 
   @Test
   void updateProject() {
 
-    ProjectDto projectDtoUpdated = new ProjectDto().setProjectId("test-project-updated").setId(1L);
+    ProjectDto projectDtoUpdated = new ProjectDto().setProjectId(PROJECT_ID + "-updated").setId(1L);
 
     ProjectDto projectDto = projectService.updateProject(projectDtoUpdated);
 
-    assertEquals("test-project-updated", projectDto.getProjectId());
+    assertEquals(PROJECT_ID + "-updated", projectDto.getProjectId());
     assertEquals(Long.valueOf(1L), projectDto.getId());
-
   }
 
   @TestConfiguration
   static class ProjectServiceTestConfig {
 
-    @Autowired private ProjectRepository projectRepository;
+    @Autowired private transient ProjectRepository projectRepository;
 
-    private final ProjectConverter projectConverter = new ProjectConverter();
+    private final transient ProjectConverter projectConverter = new ProjectConverter();
 
     @Bean
     public ProjectService projectServiceBeanConfig() {

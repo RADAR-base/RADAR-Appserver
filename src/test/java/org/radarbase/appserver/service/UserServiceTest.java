@@ -22,6 +22,9 @@
 package org.radarbase.appserver.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -50,30 +53,30 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 class UserServiceTest {
 
-  @Autowired UserService userService;
+  @Autowired private transient UserService userService;
 
-  @MockBean UserRepository userRepository;
+  @MockBean private transient UserRepository userRepository;
 
-  @MockBean ProjectRepository projectRepository;
+  @MockBean private transient ProjectRepository projectRepository;
 
-  private Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
+  private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
   @BeforeEach
   void setUp() {
     // given
-    Project project = new Project().setProjectId("test-project").setId(1L);
+    Project project = new Project().setProjectId(PROJECT_ID).setId(1L);
 
     Mockito.when(projectRepository.findByProjectId(project.getProjectId()))
         .thenReturn(Optional.of(project));
 
     User user =
         new User()
-            .setFcmToken("xxxx")
+            .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(enrolmentDate)
             .setProject(project)
             .setTimezone(0d)
             .setLanguage("en")
-            .setSubjectId("test-user")
+            .setSubjectId(USER_ID)
             .setId(1L);
 
     Mockito.when(userRepository.findAll()).thenReturn(List.of(user));
@@ -82,15 +85,15 @@ class UserServiceTest {
 
     Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
 
-    Mockito.when(userRepository.findBySubjectIdAndProjectId("test-user", 1L))
+    Mockito.when(userRepository.findBySubjectIdAndProjectId(USER_ID, 1L))
         .thenReturn(Optional.of(user));
 
     Mockito.when(userRepository.findByProjectId(1L)).thenReturn(List.of(user));
 
     User userNew =
         new User()
-            .setSubjectId("test-user-2")
-            .setFcmToken("xxxx")
+            .setSubjectId(USER_ID + "-2")
+            .setFcmToken(FCM_TOKEN_1)
             .setProject(project)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
@@ -100,7 +103,7 @@ class UserServiceTest {
 
     User userUpdated =
         new User()
-            .setSubjectId("test-user")
+            .setSubjectId(USER_ID)
             .setFcmToken("xxxxyyy")
             .setProject(project)
             .setEnrolmentDate(enrolmentDate)
@@ -116,9 +119,9 @@ class UserServiceTest {
   void getAllRadarUsers() {
     FcmUsers users = userService.getAllRadarUsers();
 
-    assertEquals("test-user", users.getUsers().get(0).getSubjectId());
+    assertEquals(USER_ID, users.getUsers().get(0).getSubjectId());
     assertEquals("en", users.getUsers().get(0).getLanguage(), "en");
-    assertEquals("test-project", users.getUsers().get(0).getProjectId());
+    assertEquals(PROJECT_ID, users.getUsers().get(0).getProjectId());
   }
 
   @Test
@@ -126,28 +129,28 @@ class UserServiceTest {
 
     FcmUserDto userDto = userService.getUserById(1L);
 
-    assertEquals("test-user", userDto.getSubjectId());
+    assertEquals(USER_ID, userDto.getSubjectId());
     assertEquals("en", userDto.getLanguage());
-    assertEquals("test-project", userDto.getProjectId());
+    assertEquals(PROJECT_ID, userDto.getProjectId());
   }
 
   @Test
   void getUserBySubjectId() {
-    FcmUserDto userDto = userService.getUserBySubjectId("test-user");
+    FcmUserDto userDto = userService.getUserBySubjectId(USER_ID);
 
-    assertEquals("test-user", userDto.getSubjectId());
+    assertEquals(USER_ID, userDto.getSubjectId());
     assertEquals("en", userDto.getLanguage());
-    assertEquals("test-project", userDto.getProjectId());
+    assertEquals(PROJECT_ID, userDto.getProjectId());
     assertEquals(Long.valueOf(1L), userDto.getId());
   }
 
   @Test
   void getUsersByProjectId() {
-    FcmUsers users = userService.getUsersByProjectId("test-project");
+    FcmUsers users = userService.getUsersByProjectId(PROJECT_ID);
 
-    assertEquals("test-user", users.getUsers().get(0).getSubjectId());
+    assertEquals(USER_ID, users.getUsers().get(0).getSubjectId());
     assertEquals("en", users.getUsers().get(0).getLanguage(), "en");
-    assertEquals("test-project", users.getUsers().get(0).getProjectId());
+    assertEquals(PROJECT_ID, users.getUsers().get(0).getProjectId());
   }
 
   @Test
@@ -155,18 +158,18 @@ class UserServiceTest {
 
     FcmUserDto userDtoNew =
         new FcmUserDto()
-            .setSubjectId("test-user-2")
-            .setFcmToken("xxxx")
-            .setProjectId("test-project")
+            .setSubjectId(USER_ID + "-2")
+            .setFcmToken(FCM_TOKEN_1)
+            .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
             .setTimezone(0d);
 
     FcmUserDto userDto = userService.saveUserInProject(userDtoNew);
 
-    assertEquals("test-user-2", userDto.getSubjectId());
+    assertEquals(USER_ID + "-2", userDto.getSubjectId());
     assertEquals("es", userDto.getLanguage());
-    assertEquals("test-project", userDto.getProjectId());
+    assertEquals(PROJECT_ID, userDto.getProjectId());
     assertEquals(Long.valueOf(2L), userDto.getId());
   }
 
@@ -175,9 +178,9 @@ class UserServiceTest {
 
     FcmUserDto userDtoNew =
         new FcmUserDto()
-            .setSubjectId("test-user")
+            .setSubjectId(USER_ID)
             .setFcmToken("xxxxyyy")
-            .setProjectId("test-project")
+            .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
             .setLastDelivered(enrolmentDate)
@@ -186,9 +189,9 @@ class UserServiceTest {
 
     FcmUserDto userDto = userService.updateUser(userDtoNew);
 
-    assertEquals("test-user", userDto.getSubjectId());
+    assertEquals(USER_ID, userDto.getSubjectId());
     assertEquals("es", userDto.getLanguage());
-    assertEquals("test-project", userDto.getProjectId());
+    assertEquals(PROJECT_ID, userDto.getProjectId());
     assertEquals(72d, userDto.getTimezone());
     assertEquals("xxxxyyy", userDto.getFcmToken());
     assertEquals(Long.valueOf(1L), userDto.getId());
@@ -197,11 +200,11 @@ class UserServiceTest {
   @TestConfiguration
   static class UserServiceConfig {
 
-    @Autowired UserRepository userRepository;
+    @Autowired private transient UserRepository userRepository;
 
-    @Autowired ProjectRepository projectRepository;
+    @Autowired private transient ProjectRepository projectRepository;
 
-    private final UserConverter userConverter = new UserConverter();
+    private final transient UserConverter userConverter = new UserConverter();
 
     @Bean
     public UserService userServiceBeanConfig() {

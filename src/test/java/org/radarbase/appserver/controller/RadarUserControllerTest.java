@@ -23,6 +23,9 @@ package org.radarbase.appserver.controller;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
+import static org.radarbase.appserver.controller.RadarProjectControllerTest.ID_JSON_PATH;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,23 +50,30 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(RadarUserController.class)
-class RadarUserControllerTest {
+public class RadarUserControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired private transient MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+  @Autowired private transient ObjectMapper objectMapper;
 
-  @MockBean private UserService userService;
+  @MockBean private transient UserService userService;
 
-  private Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
+  public static final String FCM_TOKEN_1 = "xxxx";
+  private static final String FCM_TOKEN_2 = "xxxxyyy";
+  private static final String FCM_TOKEN_3 = "xxxxyyyzzz";
+  private static final String FCM_TOKEN_JSON_PATH = "$.fcmToken";
+  private static final String LANGUAGE_JSON_PATH = "$.language";
+  private static final String ENROLMENT_DATE_JSON_PATH = "$.enrolmentDate";
+
+  private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
   @BeforeEach
   void setUp() {
     FcmUserDto userDto =
         new FcmUserDto()
-            .setSubjectId("test-user")
-            .setFcmToken("xxxx")
-            .setProjectId("test-project")
+            .setSubjectId(USER_ID)
+            .setFcmToken(FCM_TOKEN_1)
+            .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
             .setTimezone(0d);
@@ -73,16 +83,16 @@ class RadarUserControllerTest {
 
     given(userService.getUserById(1L)).willReturn(userDto.setId(1L));
 
-    given(userService.getUserBySubjectId("test-user")).willReturn(userDto.setId(1L));
+    given(userService.getUserBySubjectId(USER_ID)).willReturn(userDto.setId(1L));
 
-    given(userService.getUsersByProjectId("test-project"))
+    given(userService.getUsersByProjectId(PROJECT_ID))
         .willReturn(new FcmUsers().setUsers(List.of(userDto.setId(1L))));
 
     FcmUserDto userDtoNew =
         new FcmUserDto()
-            .setSubjectId("test-user-new")
-            .setFcmToken("xxxxyyy")
-            .setProjectId("test-project")
+            .setSubjectId(USER_ID + "-new")
+            .setFcmToken(FCM_TOKEN_2)
+            .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("en")
             .setTimezone(0d)
@@ -92,9 +102,9 @@ class RadarUserControllerTest {
 
     FcmUserDto userUpdated =
         new FcmUserDto()
-            .setSubjectId("test-user-updated")
-            .setFcmToken("xxxxyyyzzz")
-            .setProjectId("test-project")
+            .setSubjectId(USER_ID + "-updated")
+            .setFcmToken(FCM_TOKEN_3)
+            .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("da")
             .setTimezone(0d)
@@ -107,9 +117,9 @@ class RadarUserControllerTest {
   void addUser() throws Exception {
     FcmUserDto userDtoNew =
         new FcmUserDto()
-            .setSubjectId("test-user-new")
-            .setFcmToken("xxxxyyy")
-            .setProjectId("test-project")
+            .setSubjectId(USER_ID + "-new")
+            .setFcmToken(FCM_TOKEN_2)
+            .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("en")
             .setTimezone(0d)
@@ -121,18 +131,18 @@ class RadarUserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDtoNew)))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.fcmToken", is("xxxxyyy")))
-        .andExpect(jsonPath("$.language", is("en")))
-        .andExpect(jsonPath("$.enrolmentDate", is(enrolmentDate.toString())))
-        .andExpect(jsonPath("$.id", is(2)));
+        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_2)))
+        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
+        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+        .andExpect(jsonPath(ID_JSON_PATH, is(2)));
   }
 
   @Test
   void addUserToProject() throws Exception {
     FcmUserDto userDtoNew =
         new FcmUserDto()
-            .setSubjectId("test-user-new")
-            .setFcmToken("xxxxyyy")
+            .setSubjectId(USER_ID + "-new")
+            .setFcmToken(FCM_TOKEN_2)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("en")
             .setTimezone(0d)
@@ -144,10 +154,10 @@ class RadarUserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDtoNew)))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.fcmToken", is("xxxxyyy")))
-        .andExpect(jsonPath("$.language", is("en")))
-        .andExpect(jsonPath("$.enrolmentDate", is(enrolmentDate.toString())))
-        .andExpect(jsonPath("$.id", is(2)));
+        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_2)))
+        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
+        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+        .andExpect(jsonPath(ID_JSON_PATH, is(2)));
   }
 
   @Test
@@ -155,7 +165,7 @@ class RadarUserControllerTest {
     FcmUserDto userDtoUpdated =
         new FcmUserDto()
             .setSubjectId("test-user-updated")
-            .setFcmToken("xxxxyyyzzz")
+            .setFcmToken(FCM_TOKEN_3)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("da")
             .setTimezone(0d)
@@ -167,10 +177,10 @@ class RadarUserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDtoUpdated)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.fcmToken", is("xxxxyyyzzz")))
-        .andExpect(jsonPath("$.language", is("da")))
-        .andExpect(jsonPath("$.enrolmentDate", is(enrolmentDate.toString())))
-        .andExpect(jsonPath("$.id", is(1)));
+        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)))
+        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("da")))
+        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
   }
 
   @Test
@@ -178,7 +188,7 @@ class RadarUserControllerTest {
     FcmUserDto userDtoUpdated =
         new FcmUserDto()
             .setSubjectId("test-user-updated")
-            .setFcmToken("xxxxyyyzzz")
+            .setFcmToken(FCM_TOKEN_3)
             .setProjectId("test-project")
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("da")
@@ -191,10 +201,10 @@ class RadarUserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDtoUpdated)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.fcmToken", is("xxxxyyyzzz")))
-        .andExpect(jsonPath("$.language", is("da")))
-        .andExpect(jsonPath("$.enrolmentDate", is(enrolmentDate.toString())))
-        .andExpect(jsonPath("$.id", is(1)));
+        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)))
+        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("da")))
+        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
   }
 
   @Test
@@ -202,7 +212,7 @@ class RadarUserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/users")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.users[0].fcmToken", is("xxxx")))
+        .andExpect(jsonPath("$.users[0].fcmToken", is(FCM_TOKEN_1)))
         .andExpect(jsonPath("$.users[0].language", is("es")))
         .andExpect(jsonPath("$.users[0].enrolmentDate", is(enrolmentDate.toString())));
   }
@@ -212,9 +222,9 @@ class RadarUserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/users/user?id=1")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.fcmToken", is("xxxx")))
-        .andExpect(jsonPath("$.language", is("es")))
-        .andExpect(jsonPath("$.enrolmentDate", is(enrolmentDate.toString())));
+        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_1)))
+        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("es")))
+        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())));
   }
 
   @Test
@@ -222,9 +232,9 @@ class RadarUserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/users/test-user")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.fcmToken", is("xxxx")))
-        .andExpect(jsonPath("$.language", is("es")))
-        .andExpect(jsonPath("$.enrolmentDate", is(enrolmentDate.toString())));
+        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_1)))
+        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("es")))
+        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())));
   }
 
   @Test
@@ -232,7 +242,7 @@ class RadarUserControllerTest {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/projects/test-project/users")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.users[0].fcmToken", is("xxxx")))
+        .andExpect(jsonPath("$.users[0].fcmToken", is(FCM_TOKEN_1)))
         .andExpect(jsonPath("$.users[0].language", is("es")))
         .andExpect(jsonPath("$.users[0].enrolmentDate", is(enrolmentDate.toString())));
   }

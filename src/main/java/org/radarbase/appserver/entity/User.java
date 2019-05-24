@@ -22,6 +22,7 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -58,7 +59,9 @@ import org.radarbase.appserver.dto.fcm.FcmUserDto;
 @Entity
 @Getter
 @ToString
-public class User extends AuditModel {
+public class User extends AuditModel implements Serializable {
+
+  static final long serialVersionUID = -87395866328519L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

@@ -75,21 +75,24 @@ import org.springframework.test.context.junit4.SpringRunner;
     })
 class NotificationSchedulerServiceTest {
 
-  private Notification notification;
-  @Autowired private NotificationSchedulerService notificationSchedulerService;
-  @Autowired private Scheduler scheduler;
+  private static Notification notification;
+  @Autowired private transient NotificationSchedulerService notificationSchedulerService;
+  @Autowired private transient Scheduler scheduler;
+
+  private static final String JOB_DETAIL_ID = "notification-jobdetail-test-subject-1";
 
   @BeforeEach
   void setUp() throws SchedulerException {
     scheduler.clear();
-    User user = new User()
-        .setId(1L)
-        .setSubjectId("test-subject")
-        .setLanguage("en")
-        .setTimezone(0d)
-        .setProject(new Project())
-        .setEnrolmentDate(Instant.now())
-        .setFcmToken("xxxx");
+    User user =
+        new User()
+            .setId(1L)
+            .setSubjectId("test-subject")
+            .setLanguage("en")
+            .setTimezone(0d)
+            .setProject(new Project())
+            .setEnrolmentDate(Instant.now())
+            .setFcmToken("xxxx");
 
     notification =
         new Notification()
@@ -147,14 +150,11 @@ class NotificationSchedulerServiceTest {
     // when
     notificationSchedulerService.updateScheduledNotification(notification);
 
-    assertTrue(scheduler.checkExists(new JobKey("notification-jobdetail-test-subject-1")));
+    assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
     Notification notificationNew =
         (Notification)
-            scheduler
-                .getJobDetail(new JobKey("notification-jobdetail-test-subject-1"))
-                .getJobDataMap()
-                .get("notification");
+            scheduler.getJobDetail(new JobKey(JOB_DETAIL_ID)).getJobDataMap().get("notification");
 
     assertEquals("New body", notificationNew.getBody());
     assertEquals("New Title", notificationNew.getTitle());
@@ -163,7 +163,8 @@ class NotificationSchedulerServiceTest {
         notification.getScheduledTime().truncatedTo(ChronoUnit.MILLIS),
         scheduler
             .getTrigger(new TriggerKey("notification-trigger-test-subject-1"))
-            .getStartTime().toInstant());
+            .getStartTime()
+            .toInstant());
   }
 
   @Test
@@ -175,12 +176,12 @@ class NotificationSchedulerServiceTest {
         NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
     scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
-    assertTrue(scheduler.checkExists(new JobKey("notification-jobdetail-test-subject-1")));
+    assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
     // when
     notificationSchedulerService.deleteScheduledNotifications(List.of(notification));
 
-    assertFalse(scheduler.checkExists(new JobKey("notification-jobdetail-test-subject-1")));
+    assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
   }
 
   @Test
@@ -193,17 +194,17 @@ class NotificationSchedulerServiceTest {
         NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
     scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
-    assertTrue(scheduler.checkExists(new JobKey("notification-jobdetail-test-subject-1")));
+    assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
     // when
     notificationSchedulerService.deleteScheduledNotification(notification);
 
-    assertFalse(scheduler.checkExists(new JobKey("notification-jobdetail-test-subject-1")));
+    assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
   }
 
   @TestConfiguration
   static class SchedulerServiceTestConfig {
-    @Autowired Scheduler scheduler;
+    @Autowired private transient Scheduler scheduler;
 
     @Bean
     public NotificationSchedulerService schedulerServiceBeanConfig() {

@@ -44,13 +44,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @EnableJpaAuditing
 public class NotificationRepositoryTest {
-  @Autowired private TestEntityManager entityManager;
+  @Autowired private transient TestEntityManager entityManager;
 
-  @Autowired private NotificationRepository notificationRepository;
+  @Autowired private transient NotificationRepository notificationRepository;
 
-  private Long id;
-  private User user;
-  private Instant scheduledTime;
+  private transient Long id;
+  private transient User user;
+  private transient Instant scheduledTime;
+
+  public static final String NOTIFICATION_BODY = "Test notif";
+  public static final String NOTIFICATION_TITLE = "Testing";
+  public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
+  public static final String NOTIFICATION_SOURCE_ID = "test";
 
   /** Insert a Notification Before each test. */
   @Before
@@ -74,11 +79,11 @@ public class NotificationRepositoryTest {
     Notification notification =
         new Notification()
             .setUser(user)
-            .setBody("Test notif")
-            .setTitle("Testing")
-            .setFcmMessageId("12345")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE)
+            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
             .setScheduledTime(this.scheduledTime)
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false);
 
@@ -92,11 +97,11 @@ public class NotificationRepositoryTest {
     Notification notification =
         new Notification()
             .setUser(new User())
-            .setBody("Test notif")
-            .setTitle("Testing")
-            .setFcmMessageId("12345")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE)
+            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
             .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false);
 
@@ -116,11 +121,11 @@ public class NotificationRepositoryTest {
     // given
     Notification notification =
         new Notification()
-            .setBody("Test notif")
-            .setTitle("Testing")
-            .setFcmMessageId("12345")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE)
+            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
             .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false);
 
@@ -157,11 +162,11 @@ public class NotificationRepositoryTest {
     Notification notification =
         new Notification()
             .setUser(user)
-            .setBody("Test notif")
-            .setTitle("Testing")
-            .setFcmMessageId("12345")
+            .setBody(NOTIFICATION_BODY)
+            .setTitle(NOTIFICATION_TITLE)
+            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
             .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-            .setSourceId("test")
+            .setSourceId(NOTIFICATION_SOURCE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false);
 
@@ -184,10 +189,10 @@ public class NotificationRepositoryTest {
         notificationRepository
             .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
                 this.user.getId(),
-                "test",
+                NOTIFICATION_SOURCE_ID,
                 this.scheduledTime,
-                "Testing",
-                "Test notif",
+                NOTIFICATION_TITLE,
+                NOTIFICATION_BODY,
                 null,
                 86400);
 
@@ -199,7 +204,7 @@ public class NotificationRepositoryTest {
   @Test
   public void whenDeleteNotificationByFcmMessageId_thenExistsFalse() {
     // when
-    notificationRepository.deleteByFcmMessageId("12345");
+    notificationRepository.deleteByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
 
     // then
     Notification notification = entityManager.find(Notification.class, this.id);

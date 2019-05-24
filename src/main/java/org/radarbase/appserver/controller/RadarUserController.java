@@ -61,7 +61,7 @@ public class RadarUserController {
   @PostMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity addUserToProject(
       @Valid @RequestBody FcmUserDto userDto,
-      @Valid @PathVariable(value = Paths.PROJECT_ID_CONSTANT) String projectId)
+      @Valid @PathVariable String projectId)
       throws URISyntaxException {
     userDto.setProjectId(projectId);
     FcmUserDto user = this.userService.saveUserInProject(userDto);
@@ -72,7 +72,7 @@ public class RadarUserController {
   @PutMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity updateUserInProject(
       @Valid @RequestBody FcmUserDto userDto,
-      @Valid @PathVariable(value = Paths.PROJECT_ID_CONSTANT) String projectId)
+      @Valid @PathVariable String projectId)
       throws URISyntaxException {
     userDto.setProjectId(projectId);
     FcmUserDto user = this.userService.updateUser(userDto);
@@ -101,13 +101,13 @@ public class RadarUserController {
 
   @GetMapping("/" + Paths.USER_PATH + "/" + Paths.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
-      @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
+      @PathVariable String subjectId) {
     return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
   }
 
   @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity<FcmUsers> getUsersUsingProjectId(
-      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId) {
+      @Valid @PathVariable String projectId) {
     return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
   }
 
@@ -121,8 +121,8 @@ public class RadarUserController {
           + "/"
           + Paths.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getUsersUsingProjectIdAndSubjectId(
-      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId,
-      @Valid @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
+      @Valid @PathVariable String projectId,
+      @Valid @PathVariable String subjectId) {
 
     return ResponseEntity.ok(
         this.userService.getUsersByProjectIdAndSubjectId(projectId, subjectId));

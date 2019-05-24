@@ -84,7 +84,9 @@ dependencies {
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
     //compile('org.liquibase.ext:liquibase-hibernate5:3.6')
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit', module: 'junit'
+    }
     testImplementation('org.junit.jupiter:junit-jupiter-api')
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine')
 }

@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,7 +42,9 @@ import org.radarbase.appserver.dto.ProjectDto;
 @Entity
 @Getter
 @ToString
-public class Project extends AuditModel {
+public class Project extends AuditModel implements Serializable {
+
+  static final long serialVersionUID = 12312466855464L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

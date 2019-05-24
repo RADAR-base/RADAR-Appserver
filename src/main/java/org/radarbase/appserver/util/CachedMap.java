@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
 /**
  * Map that caches the result of a list for a limited time.
  *
- * <p>This class is thread-safe if given retriever and key extractors are thread-safe.
+ * <p>This class is thread-safe if given retriever is thread-safe.
  */
 public class CachedMap<S, T> {
 
@@ -39,7 +39,7 @@ public class CachedMap<S, T> {
   private final transient Duration invalidateAfter;
   private final transient Duration retryAfter;
   private transient Temporal lastFetch;
-  private Map<S, T> cache;
+  private transient Map<S, T> cache;
 
   /**
    * Map that retrieves data from a supplier and converts that to a map with given key extractor.
@@ -67,10 +67,6 @@ public class CachedMap<S, T> {
    */
   public Map<S, T> get() throws IOException {
     return get(false);
-  }
-
-  void setCache(Map<S, T> cache) {
-    this.cache = cache;
   }
 
   /**
@@ -103,7 +99,9 @@ public class CachedMap<S, T> {
    * @return map of data
    */
   public Map<S, T> getCache() {
-    return cache;
+    synchronized (this) {
+      return cache;
+    }
   }
 
   /**

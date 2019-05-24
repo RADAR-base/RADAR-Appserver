@@ -22,6 +22,7 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -74,8 +75,9 @@ import org.springframework.lang.Nullable;
 @Entity
 @Getter
 @ToString
-public class Notification extends AuditModel implements Scheduled {
+public class Notification extends AuditModel implements Serializable, Scheduled {
 
+  static final long serialVersionUID = -367424816328519L;
   // TODO Add STATUS as enum of (ADDED, SCHEDULED, CANCELLED, EXECUTED, DELIVERED, ERRORED)
 
   @Id

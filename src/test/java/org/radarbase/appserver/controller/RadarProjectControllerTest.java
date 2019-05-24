@@ -23,6 +23,7 @@ package org.radarbase.appserver.controller;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,36 +48,39 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(RadarProjectController.class)
 class RadarProjectControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired private transient MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+  @Autowired private transient ObjectMapper objectMapper;
 
-  @MockBean private ProjectService projectService;
+  @MockBean private transient ProjectService projectService;
+
+  private static final String PROJECT_ID_JSON_PATH = "$.projectId";
+  public static final String ID_JSON_PATH = "$.id";
 
   @BeforeEach
   void setUp() {
 
-    ProjectDto projectDto = new ProjectDto().setProjectId("test-project").setId(1L);
+    ProjectDto projectDto = new ProjectDto().setProjectId(PROJECT_ID).setId(1L);
 
     given(projectService.getAllProjects())
         .willReturn(new ProjectDtos().setProjects(List.of(projectDto)));
 
     given(projectService.getProjectById(1L)).willReturn(projectDto);
 
-    given(projectService.getProjectByProjectId("test-project")).willReturn(projectDto);
+    given(projectService.getProjectByProjectId(PROJECT_ID)).willReturn(projectDto);
 
-    ProjectDto projectDtoNew = new ProjectDto().setProjectId("test-project-new");
+    ProjectDto projectDtoNew = new ProjectDto().setProjectId(PROJECT_ID + "-new");
 
     given(projectService.addProject(projectDtoNew)).willReturn(projectDtoNew.setId(2L));
 
-    ProjectDto projectDtoUpdated = new ProjectDto().setProjectId("test-project-updated").setId(1L);
+    ProjectDto projectDtoUpdated = new ProjectDto().setProjectId(PROJECT_ID + "-updated").setId(1L);
 
     given(projectService.updateProject(projectDtoUpdated)).willReturn(projectDtoUpdated);
   }
 
   @Test
   void addProject() throws Exception {
-    ProjectDto projectDtoNew = new ProjectDto().setProjectId("test-project-new").setId(2L);
+    ProjectDto projectDtoNew = new ProjectDto().setProjectId(PROJECT_ID + "-new").setId(2L);
 
     mockMvc
         .perform(
@@ -84,13 +88,13 @@ class RadarProjectControllerTest {
                 .content(objectMapper.writeValueAsString(projectDtoNew))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.projectId", is("test-project-new")))
-        .andExpect(jsonPath("$.id", is(2)));
+        .andExpect(jsonPath(PROJECT_ID_JSON_PATH, is(PROJECT_ID + "-new")))
+        .andExpect(jsonPath(ID_JSON_PATH, is(2)));
   }
 
   @Test
   void updateProject() throws Exception {
-    ProjectDto projectDtoUpdated = new ProjectDto().setId(1L).setProjectId("test-project-updated");
+    ProjectDto projectDtoUpdated = new ProjectDto().setId(1L).setProjectId(PROJECT_ID + "-updated");
 
     mockMvc
         .perform(
@@ -98,30 +102,31 @@ class RadarProjectControllerTest {
                 .content(objectMapper.writeValueAsString(projectDtoUpdated))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.projectId", is("test-project-updated")))
-        .andExpect(jsonPath("$.id", is(1)));
-
+        .andExpect(jsonPath(PROJECT_ID_JSON_PATH, is(PROJECT_ID + "-updated")))
+        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
   }
 
   @Test
   void getAllProjects() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get(new URI("/projects")))
-        .andExpect(jsonPath("$.projects[0].projectId", is("test-project")))
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(new URI("/projects")))
+        .andExpect(jsonPath("$.projects[0].projectId", is(PROJECT_ID)))
         .andExpect(jsonPath("$.projects[0].id", is(1)));
   }
 
   @Test
   void getProjectsUsingId() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get(new URI("/projects/project?id=1")))
-        .andExpect(jsonPath("$.projectId", is("test-project")))
-        .andExpect(jsonPath("$.id", is(1)));
-
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(new URI("/projects/project?id=1")))
+        .andExpect(jsonPath(PROJECT_ID_JSON_PATH, is(PROJECT_ID)))
+        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
   }
 
   @Test
   void getProjectsUsingProjectId() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get(new URI("/projects/test-project")))
-        .andExpect(jsonPath("$.projectId", is("test-project")))
-        .andExpect(jsonPath("$.id", is(1)));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get(new URI("/projects/test-project")))
+        .andExpect(jsonPath(PROJECT_ID_JSON_PATH, is(PROJECT_ID)))
+        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
   }
 }

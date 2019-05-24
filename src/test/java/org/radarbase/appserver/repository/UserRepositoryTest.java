@@ -24,6 +24,8 @@ package org.radarbase.appserver.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
 
 import java.time.Instant;
 import javax.persistence.PersistenceException;
@@ -44,14 +46,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 @EnableJpaAuditing
 class UserRepositoryTest {
 
-  @Autowired private TestEntityManager entityManager;
+  @Autowired private transient TestEntityManager entityManager;
 
-  @Autowired private UserRepository userRepository;
+  @Autowired private transient UserRepository userRepository;
 
-  private Project project;
-  private Long projectId;
-  private User user;
-  private Long userId;
+  private transient Project project;
+  private transient Long projectId;
+  private transient User user;
+  private transient Long userId;
 
   @BeforeEach
   void setUp() {
@@ -61,12 +63,12 @@ class UserRepositoryTest {
 
     this.user =
         new User()
-            .setFcmToken("xxxx")
+            .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(Instant.now())
             .setProject(project)
             .setTimezone(0d)
             .setLanguage("en")
-            .setSubjectId("test-user");
+            .setSubjectId(USER_ID);
     this.userId = entityManager.persistAndGetId(this.user, Long.class);
     entityManager.flush();
   }
@@ -75,17 +77,20 @@ class UserRepositoryTest {
   public void whenInsertWithTransientProject_thenThrowException() {
     User user1 =
         new User()
-            .setFcmToken("xxxx")
+            .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(Instant.now())
             .setProject(new Project())
             .setTimezone(0d)
             .setLanguage("en")
-            .setSubjectId("test-user");
+            .setSubjectId(USER_ID);
 
-    IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-      entityManager.persist(user1);
-      entityManager.flush();
-    });
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> {
+              entityManager.persist(user1);
+              entityManager.flush();
+            });
 
     assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
   }
@@ -93,43 +98,48 @@ class UserRepositoryTest {
   @Test
   public void whenFindUserBySubjectId_thenReturnUser() {
 
-    assertEquals(userRepository.findBySubjectId("test-user").get(),
-        entityManager.find(User.class, this.userId));
+    assertEquals(
+        userRepository.findBySubjectId(USER_ID).get(), entityManager.find(User.class, this.userId));
   }
 
   @Test
   public void whenFindByProjectId_thenReturnUsers() {
-    assertEquals(userRepository.findByProjectId(this.projectId).get(0),
+    assertEquals(
+        userRepository.findByProjectId(this.projectId).get(0),
         entityManager.find(User.class, this.userId));
   }
 
   @Test
   public void whenFindBySubjectIdAndProjectId_thenReturnUser() {
-    assertEquals(userRepository.findBySubjectIdAndProjectId("test-user", this.projectId).get(),
+    assertEquals(
+        userRepository.findBySubjectIdAndProjectId(USER_ID, this.projectId).get(),
         entityManager.find(User.class, this.userId));
   }
 
   @Test
   public void whenFindByFcmToken_thenReturnUser() {
-    assertEquals(userRepository.findByFcmToken("xxxx").get(),
-        entityManager.find(User.class, this.userId));
+    assertEquals(
+        userRepository.findByFcmToken(FCM_TOKEN_1).get(), entityManager.find(User.class, this.userId));
   }
 
   @Test
   public void whenInsertWithExistingFcmToken_thenThrowException() {
     User user1 =
         new User()
-            .setFcmToken("xxxx")
+            .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(Instant.now())
             .setProject(this.project)
             .setTimezone(0d)
             .setLanguage("en")
-            .setSubjectId("test-user-2");
+            .setSubjectId(USER_ID + "-2");
 
-    PersistenceException ex = assertThrows(PersistenceException.class, () -> {
-      entityManager.persistAndGetId(user1, Long.class);
-      entityManager.flush();
-    });
+    PersistenceException ex =
+        assertThrows(
+            PersistenceException.class,
+            () -> {
+              entityManager.persistAndGetId(user1, Long.class);
+              entityManager.flush();
+            });
 
     assertEquals(ConstraintViolationException.class, ex.getCause().getClass());
   }

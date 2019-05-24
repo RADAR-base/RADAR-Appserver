@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.util.CachedMap;
@@ -61,7 +62,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
   }
 
   @Override
-  public Map<String, Protocol> getAllProtocols() {
+  public @NonNull Map<String, Protocol> getAllProtocols() {
     try {
       return cachedProtocolMap.get();
     } catch (IOException ex) {

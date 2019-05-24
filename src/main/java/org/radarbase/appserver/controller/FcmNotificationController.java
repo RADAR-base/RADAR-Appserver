@@ -83,8 +83,8 @@ public class FcmNotificationController {
               + "/"
               + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectIdAndSubjectId(
-      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId,
-      @Valid @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
+      @Valid @PathVariable String projectId,
+      @Valid @PathVariable String subjectId) {
     return ResponseEntity.ok(
         this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
   }
@@ -92,14 +92,14 @@ public class FcmNotificationController {
   @GetMapping(
       "/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectId(
-      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId) {
+      @Valid @PathVariable String projectId) {
     return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId));
   }
 
   @GetMapping(
       "/" + Paths.USER_PATH + "/" + Paths.SUBJECT_ID_CONSTANT + "/" + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingSubjectId(
-      @Valid @PathVariable(Paths.SUBJECT_ID_CONSTANT) String subjectId) {
+      @Valid @PathVariable String subjectId) {
     return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
   }
 

@@ -95,7 +95,7 @@ public class RadarProjectController {
 
   @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT)
   public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
-      @Valid @PathVariable(Paths.PROJECT_ID_CONSTANT) String projectId) {
+      @Valid @PathVariable String projectId) {
     return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
   }
 }
