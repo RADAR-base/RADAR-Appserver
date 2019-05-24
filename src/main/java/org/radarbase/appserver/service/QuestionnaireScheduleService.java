@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.protocol.ProtocolGenerator;
