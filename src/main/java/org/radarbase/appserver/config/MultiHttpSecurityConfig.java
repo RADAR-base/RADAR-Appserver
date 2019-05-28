@@ -47,7 +47,7 @@ public class MultiHttpSecurityConfig {
   private transient String adminPassword;
 
   @Bean
-  public UserDetailsService userDetailsService() throws Exception {
+  public UserDetailsService userDetailsService() {
 
     // ensure the passwords are encoded properly
     PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -70,7 +70,8 @@ public class MultiHttpSecurityConfig {
       http.antMatcher("/actuator/**")
           .authorizeRequests()
           .anyRequest()
-          .hasRole("ADMIN")
+          .permitAll()
+          //.hasRole("ADMIN")
           .and()
           .httpBasic();
     }

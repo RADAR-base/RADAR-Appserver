@@ -60,14 +60,14 @@ public class FcmNotificationControllerTest {
   @Autowired private transient ObjectMapper objectMapper;
   @MockBean private transient FcmNotificationService notificationService;
 
-  public static final String TITLE_1 = "Testing 1";
+  private static final String TITLE_1 = "Testing 1";
   public static final String FCM_MESSAGE_ID = "123456";
   public static final String PROJECT_ID = "test-project";
   public static final String USER_ID = "test-user";
-  public static final String SOURCE_TYPE = "aRMT";
-  public static final String NOTIFICATIONS_JSON_PATH = "$.notifications";
-  public static final String NOTIFICATION_TITLE_JSON_PATH = "$.notifications[0].title";
-  public static final String NOTIFICATION_FCMID_JSON_PATH = "$.notifications[0].fcmMessageId";
+  private static final String SOURCE_TYPE = "aRMT";
+  private static final String NOTIFICATIONS_JSON_PATH = "$.notifications";
+  private static final String NOTIFICATION_TITLE_JSON_PATH = "$.notifications[0].title";
+  private static final String NOTIFICATION_FCMID_JSON_PATH = "$.notifications[0].fcmMessageId";
 
   @BeforeEach
   public void setUp() {
@@ -243,6 +243,7 @@ public class FcmNotificationControllerTest {
                             + Paths.NOTIFICATION_PATH))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(notificationDto2)))
+        .andExpect(status().isCreated())
         .andExpect(jsonPath("$.title", is("Testing 2")))
         .andExpect(jsonPath("$.fcmMessageId", is(FCM_MESSAGE_ID + "7")))
         .andExpect(jsonPath("$.id", is(2)));

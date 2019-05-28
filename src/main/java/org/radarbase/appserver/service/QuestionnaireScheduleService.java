@@ -39,14 +39,13 @@ public class QuestionnaireScheduleService {
 
   private transient ProtocolGenerator protocolGenerator;
 
-  private CachedMap<String, Schedule> subjectScheduleMap;
+  private transient CachedMap<String, Schedule> subjectScheduleMap;
 
   @Autowired
   public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
     this.protocolGenerator = protocolGenerator;
     protocolGenerator.init();
-    subjectScheduleMap = new CachedMap<String, Schedule>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
-    // log.info(String.valueOf(protocolGenerator.getProtocol("RADAR-MDD-KCL-s1").toString()));
+    subjectScheduleMap = new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
   }
 
   // Use cached map of schedule of user

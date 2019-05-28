@@ -58,10 +58,7 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
     this.isConnectionDraining = false;
 
     XMPPTCPConnection connection = getConnection();
-
-    connection.setUseStreamManagement(false);
-    connection.setUseStreamManagementResumption(false);
-
+    
     super.start();
 
     connection.addConnectionListener(this);
@@ -87,10 +84,9 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
            */
           if (stanza instanceof Presence && !((Presence) stanza).isAvailable()) {
             logger.info("Reconnect after server requested disconnection.");
-            // reconnect();
             isPresenceUnavailable = true;
           }
-          log.info("Sent: {}", stanza.toXML(GcmPacketExtension.NAMESPACE));
+          log.debug("Sent: {}", stanza.toXML(GcmPacketExtension.NAMESPACE));
         },
         ForEveryStanza.INSTANCE);
   }
@@ -131,7 +127,6 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
         isConnectionDraining,
         isPresenceUnavailable);
     if (this.isConnectionDraining || this.isPresenceUnavailable) {
-      // super.stop();
       reconnect();
     }
   }

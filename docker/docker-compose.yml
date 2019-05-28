@@ -36,6 +36,11 @@ services:
       - hsqldb
       - spring-boot-admin
     environment:
+      JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
+      FCMSERVER_SENDERID: "1043784930865"
+      FCMSERVER_SERVERKEY: "AAAA8wZuFjE:APA91bGpJQ3Sft0mZAaVMjDJGNLjFsdDLTo-37ZN69r4lKlHiRN78t4bCfkNKcXG5c9cJg-eGtWB7FqceQUDVtf7B1Zvw_2ycynqwKe2YqXFeyaq83Gf0R3AS1EKSWFS60GCr8eUEliz"
+      RADAR_ADMIN_USER: "radar"
+      RADAR_ADMIN_PASSWORD: "radar"
       SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
       SPRING.BOOT.ADMIN.CLIENT.INSTANCE.NAME: radar-appserver
 

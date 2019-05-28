@@ -139,7 +139,7 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
 
   @Nullable
   @ElementCollection
-  @MapKeyColumn(name = "additional_key")
+  @MapKeyColumn(name = "additional_key", nullable = true)
   @Column(name = "additional_value")
   private Map<String, String> additionalData;
 

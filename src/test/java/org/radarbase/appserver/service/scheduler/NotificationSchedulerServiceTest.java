@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -75,13 +76,13 @@ import org.springframework.test.context.junit4.SpringRunner;
     })
 class NotificationSchedulerServiceTest {
 
+  private static final String JOB_DETAIL_ID = "notification-jobdetail-test-subject-1";
   private static Notification notification;
   @Autowired private transient NotificationSchedulerService notificationSchedulerService;
   @Autowired private transient Scheduler scheduler;
 
-  private static final String JOB_DETAIL_ID = "notification-jobdetail-test-subject-1";
-
   @BeforeEach
+  @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
   void setUp() throws SchedulerException {
     scheduler.clear();
     User user =
@@ -215,7 +216,7 @@ class NotificationSchedulerServiceTest {
     }
   }
 
-  private class TestJobListener implements JobListener {
+  private static class TestJobListener implements JobListener {
 
     /** Get the name of the <code>JobListener</code>. */
     @Override

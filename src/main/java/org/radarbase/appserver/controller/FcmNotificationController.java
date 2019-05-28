@@ -21,6 +21,8 @@
 
 package org.radarbase.appserver.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
@@ -116,9 +118,13 @@ public class FcmNotificationController {
   public ResponseEntity<FcmNotificationDto> addSingleNotification(
       @PathVariable String projectId,
       @PathVariable String subjectId,
-      @Valid @RequestBody FcmNotificationDto notification) {
-    return ResponseEntity.ok(
-        this.notificationService.addNotification(notification, subjectId, projectId));
+      @Valid @RequestBody FcmNotificationDto notification)
+      throws URISyntaxException {
+    FcmNotificationDto notificationDto =
+        this.notificationService.addNotification(notification, subjectId, projectId);
+    return ResponseEntity.created(
+            new URI("/" + Paths.NOTIFICATION_PATH + "/" + notificationDto.getId()))
+        .body(notificationDto);
   }
 
   @PutMapping(

@@ -22,6 +22,7 @@
 package org.radarbase.appserver.entity;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -47,7 +48,9 @@ import org.springframework.lang.Nullable;
 @Getter
 @ToString
 @SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
-public class UserMetrics extends AuditModel {
+public class UserMetrics extends AuditModel implements Serializable {
+
+  private static final long serialVersionUID = 9182735866328519L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

@@ -76,7 +76,7 @@ public class XmppFcmReceiver implements CcsClient {
     @Cleanup JsonParser parser = mapper.getFactory().createParser(message.getPayload());
     final JsonNode tree = mapper.readTree(parser);
 
-    final Optional<Object> from = Optional.ofNullable(message.getHeaders().get(XmppHeaders.FROM));
+    final Optional<Object> from = Optional.ofNullable(tree.get("from"));
     from.ifPresent(fromHeader -> sendAck(tree));
 
     final Optional<JsonNode> messageTypeObj = Optional.ofNullable(tree.get("message_type"));
@@ -140,7 +140,7 @@ public class XmppFcmReceiver implements CcsClient {
 
     FcmAckMessage ackMessage =
         FcmAckMessage.builder()
-            .messageId(jsonMessage.get("from").textValue())
+            .messageId(jsonMessage.get("message_id").textValue())
             .to(jsonMessage.get("from").textValue())
             .build();
     fcmSender.send(ackMessage);
