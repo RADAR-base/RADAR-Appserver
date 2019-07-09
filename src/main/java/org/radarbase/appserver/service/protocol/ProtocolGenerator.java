@@ -19,38 +19,18 @@
  *
  */
 
-package org.radarbase.appserver.dto;
+package org.radarbase.appserver.service.protocol;
 
-import lombok.Data;
+import java.util.Map;
+import org.radarbase.appserver.dto.protocol.Protocol;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+@Service
+public interface ProtocolGenerator {
 
-/**
- * Wrapper for a list of {@link ProjectDto} objects.
- *
- * @author yatharthranjan
- */
-@Data
-public class Projects {
+  void init();
 
-    private List<ProjectDto> projects;
+  Map<String, Protocol> getAllProtocols();
 
-    public Projects() {
-        this.projects = new ArrayList<>();
-    }
-
-    public List<ProjectDto> getProjects() {
-        return projects;
-    }
-
-    public Projects setProjects(List<ProjectDto> projects) {
-        this.projects = projects;
-        return this;
-    }
-
-    public Projects addProject(ProjectDto project) {
-        this.projects.add(project);
-        return this;
-    }
+  Protocol getProtocol(String projectId);
 }

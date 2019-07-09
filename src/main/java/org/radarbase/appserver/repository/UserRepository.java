@@ -21,26 +21,21 @@
 
 package org.radarbase.appserver.repository;
 
+import java.util.List;
+import java.util.Optional;
 import org.radarbase.appserver.entity.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findBySubjectId(String subjectId);
+  Optional<User> findBySubjectId(String subjectId);
 
-    List<User> findByProjectId(Long projectId);
+  List<User> findByProjectId(Long projectId);
 
-    Optional<User> findBySubjectIdAndProjectId(String subjectId, Long projectId);
+  Optional<User> findBySubjectIdAndProjectId(String subjectId, Long projectId);
 
-    Optional<User> findByFcmToken(String fcmToken);
+  Optional<User> findByFcmToken(String fcmToken);
 }

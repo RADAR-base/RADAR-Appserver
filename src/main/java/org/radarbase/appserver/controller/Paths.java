@@ -28,7 +28,10 @@ package org.radarbase.appserver.controller;
  */
 public class Paths {
 
-    public static final String USER_PATH = "users";
-    public static final String PROJECT_PATH = "projects";
-    public static final String NOTIFICATION_PATH = "notifications";
+  public static final String USER_PATH = "users";
+  public static final String PROJECT_PATH = "projects";
+  public static final String NOTIFICATION_PATH = "notifications";
+  public static final String PROTOCOL_PATH = "protocols";
+  public static final String PROJECT_ID_CONSTANT = "{projectId}";
+  public static final String SUBJECT_ID_CONSTANT = "{subjectId}";
 }

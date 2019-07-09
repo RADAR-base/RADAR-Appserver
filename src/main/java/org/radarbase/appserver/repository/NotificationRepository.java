@@ -21,30 +21,31 @@
 
 package org.radarbase.appserver.repository;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByUserId(Long userId);
+  List<Notification> findByUserId(Long userId);
 
-    void deleteByUserId(Long userId);
+  void deleteByUserId(Long userId);
 
-    boolean existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-            Long userId, String sourceId, Instant scheduledTime,
-            String title, String body,
-            String type, int ttlSeconds);
+  boolean existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+      Long userId,
+      String sourceId,
+      Instant scheduledTime,
+      String title,
+      String body,
+      String type,
+      int ttlSeconds);
 
-    void deleteByFcmMessageId(String fcmMessageId);
+  void deleteByFcmMessageId(String fcmMessageId);
 
-    Optional<Notification> findByFcmMessageId(String fcmMessageId);
+  Optional<Notification> findByFcmMessageId(String fcmMessageId);
 }

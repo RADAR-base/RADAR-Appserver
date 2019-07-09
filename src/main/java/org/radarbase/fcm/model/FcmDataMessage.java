@@ -23,18 +23,15 @@ package org.radarbase.fcm.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Map;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
-
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
+@SuppressFBWarnings("URF_UNREAD_FIELD")
 public class FcmDataMessage extends FcmDownstreamMessage {
 
-    @JsonProperty
-    private Map<String,Object> data;
-
+  @JsonProperty private Map<String, Object> data;
 }

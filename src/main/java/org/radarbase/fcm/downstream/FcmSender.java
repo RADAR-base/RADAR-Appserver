@@ -28,12 +28,11 @@ import org.radarbase.fcm.model.FcmDownstreamMessage;
  *
  * @see XmppFcmSender
  * @see AdminSdkFcmSender
- *
  * @author yatharthranjan
  */
 public interface FcmSender {
 
-    void send(FcmDownstreamMessage message) throws Exception;
+  void send(FcmDownstreamMessage message) throws Exception;
 
-    boolean doesProvideDeliveryReceipt();
+  boolean doesProvideDeliveryReceipt();
 }

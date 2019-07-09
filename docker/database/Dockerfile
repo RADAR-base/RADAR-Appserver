@@ -9,6 +9,7 @@ ENV LOG4J_VERSION 1.2.17
 
 ENV SERVER_PROPERTY_PATH /etc/opt/hsqldb/conf/server.properties
 ENV SQL_TOOL_RC_PATH /etc/opt/hsqldb/conf/sqltool.rc
+ENV JAVA_OPTS -Xmx1g
 
 RUN apk update \
     && apk add ca-certificates wget openssl \
@@ -35,4 +36,4 @@ RUN apk update \
 EXPOSE 9001
 #USER hsqldb
 
-CMD java -cp /opt/hsqldb/lib/*:/etc/opt/hsqldb/conf org.hsqldb.server.Server --props ${SERVER_PROPERTY_PATH}
+CMD java ${JAVA_OPTS} -cp /opt/hsqldb/lib/*:/etc/opt/hsqldb/conf org.hsqldb.server.Server --props ${SERVER_PROPERTY_PATH}

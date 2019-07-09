@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1554740802000-01
+      author: yatharth
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: notifAddDataPK
+                  name: id
+                  type: BIGINT
+              - column:
+                    name: additional_key
+                    type: VARCHAR(255)
+              - column:
+                    name: additional_value
+                    type: VARCHAR(12500)
+              - column:
+                  name: notification_id
+                  type: BIGINT
+            tableName: notification_additional_data
+  - changeSet:
+      id: 154351162088-9
+      author: yatharth (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: notification_id
+            baseTableName: notification_additional_data
+            constraintName: FK65c9asnnjs3q8237gfs03mvcv
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: notifications
+            validate: true
+

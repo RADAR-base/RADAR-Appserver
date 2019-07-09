@@ -21,65 +21,81 @@
 
 package org.radarbase.appserver.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.Projects;
+import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.websocket.server.PathParam;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Resource Endpoint for getting and adding projects.
- * Each user {@link org.radarbase.appserver.entity.User} needs to be associated to a project.
- * A project may represent a Management Portal project.
- * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
+ * Resource Endpoint for getting and adding projects. Each user {@link
+ * org.radarbase.appserver.entity.User} needs to be associated to a project. A project may represent
+ * a Management Portal project.
  *
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
  * @author yatharthranjan
  */
 @RestController
 public class RadarProjectController {
 
-    @Autowired
-    private ProjectService projectService;
+  @Autowired private transient ProjectService projectService;
 
-    /**
-     * Method for updating a project.
-     * @param projectDto The project info to update
-     * @return The updated Project DTO.
-     * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
-     */
-    @PostMapping(value = "/" + Paths.PROJECT_PATH, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<ProjectDto> addProject(@Valid @RequestBody ProjectDto projectDto) {
-        return ResponseEntity.ok(this.projectService.addProject(projectDto));
-    }
+  /**
+   * Method for updating a project.
+   *
+   * @param projectDto The project info to update
+   * @return The updated Project DTO. Throws {@link
+   *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
+   */
+  @PostMapping(
+      value = "/" + Paths.PROJECT_PATH,
+      consumes = {MediaType.APPLICATION_JSON_VALUE})
+  public ResponseEntity<ProjectDto> addProject(@Valid @RequestBody ProjectDto projectDto)
+      throws URISyntaxException {
 
-    /**
-     * Method for updating a project.
-     * @param projectDto The project info to update
-     * @return The updated Project DTO.
-     * Throws {@link org.radarbase.appserver.exception.NotFoundException} if project was not found.
-     */
-    @PutMapping(value = "/" + Paths.PROJECT_PATH, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<ProjectDto> updateProject(@Valid @RequestBody ProjectDto projectDto) {
-        return ResponseEntity.ok(this.projectService.updateProject(projectDto));
-    }
+    ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
+    return ResponseEntity.created(new URI("/projects/project?id=" + projectDtoNew.getId()))
+        .body(projectDtoNew);
+  }
 
-    @GetMapping("/" + Paths.PROJECT_PATH)
-    public ResponseEntity<Projects> getAllProjects() {
-        return ResponseEntity.ok(this.projectService.getAllProjects());
-    }
+  /**
+   * Method for updating a project.
+   *
+   * @param projectDto The project info to update
+   * @return The updated Project DTO. Throws {@link
+   *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
+   */
+  @PutMapping(
+      value = "/" + Paths.PROJECT_PATH,
+      consumes = {MediaType.APPLICATION_JSON_VALUE})
+  public ResponseEntity<ProjectDto> updateProject(@Valid @RequestBody ProjectDto projectDto) {
+    return ResponseEntity.ok(this.projectService.updateProject(projectDto));
+  }
 
-    @GetMapping("/"+ Paths.PROJECT_PATH + "/project")
-    public ResponseEntity<ProjectDto> getProjectsUsingId(@Valid @PathParam("id") Long id) {
-        return ResponseEntity.ok(this.projectService.getProjectById(id));
-    }
+  @GetMapping("/" + Paths.PROJECT_PATH)
+  public ResponseEntity<ProjectDtos> getAllProjects() {
+    return ResponseEntity.ok(this.projectService.getAllProjects());
+  }
 
-    @GetMapping("/" + Paths.PROJECT_PATH + "/{projectId}")
-    public ResponseEntity<ProjectDto> getProjectsUsingProjectId(@Valid @PathVariable("projectId") String projectId) {
-        return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
-    }
+  @GetMapping("/" + Paths.PROJECT_PATH + "/project")
+  public ResponseEntity<ProjectDto> getProjectsUsingId(@Valid @PathParam("id") Long id) {
+    return ResponseEntity.ok(this.projectService.getProjectById(id));
+  }
+
+  @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT)
+  public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
+      @Valid @PathVariable String projectId) {
+    return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
+  }
 }

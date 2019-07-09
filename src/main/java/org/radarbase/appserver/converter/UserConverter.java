@@ -21,48 +21,55 @@
 
 package org.radarbase.appserver.converter;
 
-import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.entity.UserMetrics;
-import org.radarbase.fcm.dto.FcmUserDto;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.entity.UserMetrics;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Converter {@link Converter} class for {@link User} entity and {@link FcmUserDto} DTO.
  *
  * @author yatharthranjan
  */
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UserConverter implements Converter<User, FcmUserDto> {
 
-    @Override
-    public User dtoToEntity(FcmUserDto fcmUserDto) {
-
-
-        return new User().setFcmToken(fcmUserDto.getFcmToken())
-                .setSubjectId(fcmUserDto.getSubjectId())
-                .setUserMetrics(getValidUserMetrics(fcmUserDto))
-                .setEnrolmentDate(fcmUserDto.getEnrolmentDate().toInstant(ZoneOffset.UTC))
-                .setTimezone(fcmUserDto.getTimezone());
+  public static UserMetrics getValidUserMetrics(FcmUserDto fcmUserDto) {
+    UserMetrics userMetrics;
+    if (fcmUserDto.getLastOpened() == null && fcmUserDto.getLastDelivered() == null) {
+      userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), null);
+    } else if (fcmUserDto.getLastDelivered() == null) {
+      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), null);
+    } else if (fcmUserDto.getLastOpened() == null) {
+      userMetrics =
+          new UserMetrics(
+              LocalDateTime.now().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered());
+    } else {
+      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), fcmUserDto.getLastDelivered());
     }
 
-    @Override
-    public FcmUserDto entityToDto(User user) {
-        return new FcmUserDto(user);
-    }
+    return userMetrics;
+  }
 
-    public static UserMetrics getValidUserMetrics(FcmUserDto fcmUserDto) {
-        UserMetrics userMetrics;
-        if (fcmUserDto.getLastOpened() == null && fcmUserDto.getLastDelivered() == null) {
-            userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), null);
-        } else if (fcmUserDto.getLastDelivered() == null) {
-            userMetrics = new UserMetrics(fcmUserDto.getLastOpened().toInstant(ZoneOffset.UTC), null);
-        } else if (fcmUserDto.getLastOpened() == null) {
-            userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered().toInstant(ZoneOffset.UTC));
-        } else {
-            userMetrics = new UserMetrics(fcmUserDto.getLastOpened().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered().toInstant(ZoneOffset.UTC));
-        }
+  @Override
+  public User dtoToEntity(FcmUserDto fcmUserDto) {
 
-        return userMetrics;
-    }
+    return new User()
+        .setFcmToken(fcmUserDto.getFcmToken())
+        .setSubjectId(fcmUserDto.getSubjectId())
+        .setUserMetrics(getValidUserMetrics(fcmUserDto))
+        .setEnrolmentDate(fcmUserDto.getEnrolmentDate())
+        .setTimezone(fcmUserDto.getTimezone())
+        .setLanguage(fcmUserDto.getLanguage());
+  }
+
+  @Override
+  public FcmUserDto entityToDto(User user) {
+    return new FcmUserDto(user);
+  }
 }

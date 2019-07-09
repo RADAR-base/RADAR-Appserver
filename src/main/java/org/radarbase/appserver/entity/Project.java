@@ -21,13 +21,19 @@
 
 package org.radarbase.appserver.entity;
 
+import java.io.Serializable;
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.radarbase.appserver.dto.ProjectDto;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.*;
 /**
  * {@link Entity} for persisting projects. The corresponding DTO is {@link ProjectDto}.
  *
@@ -35,41 +41,45 @@ import java.util.*;
  */
 @Table(name = "projects")
 @Entity
-
 @Getter
 @ToString
-public class Project extends AuditModel{
+@NoArgsConstructor
+public class Project extends AuditModel implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+  private static final long serialVersionUID = 12312466855464L;
 
-    @NotNull
-    @Column(name = "project_id", unique = true, nullable = false)
-    private String projectId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    public Project() {
+  @NotNull
+  @Column(name = "project_id", unique = true, nullable = false)
+  private String projectId;
+
+  public Project setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public Project setProjectId(String projectId) {
+    this.projectId = projectId;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public void setId(Long id) {
-        this.id = id;
+    if (!(o instanceof Project)) {
+      return false;
     }
+    Project project = (Project) o;
+    return Objects.equals(getProjectId(), project.getProjectId());
+  }
 
-    public Project setProjectId(String projectId) {
-        this.projectId = projectId;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Project)) return false;
-        Project project = (Project) o;
-        return Objects.equals(getProjectId(), project.getProjectId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getProjectId());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getProjectId());
+  }
 }

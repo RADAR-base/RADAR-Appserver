@@ -23,16 +23,15 @@ package org.radarbase.fcm.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Locale;
 import lombok.experimental.SuperBuilder;
 import org.radarbase.fcm.upstream.FcmMessageType;
 
-/**
- * @author yatharthranjan
- */
+/** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
 public class FcmAckMessage extends FcmDownstreamMessage {
 
-    @JsonProperty("message_type")
-    private final String messageType = FcmMessageType.ACK.toString().toLowerCase();
+  @JsonProperty("message_type")
+  private final String messageType = FcmMessageType.ACK.toString().toLowerCase(Locale.UK);
 }

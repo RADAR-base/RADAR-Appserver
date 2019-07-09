@@ -20,7 +20,8 @@ MAINTAINER Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>
 
 LABEL description="RADAR-base App server"
 
-ENV JAVA_OPTS -Xmx2G -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=prod
+ENV JDK_JAVA_OPTIONS '-Xmx2G -Djava.security.egd=file:/dev/./urandom'
+ENV SPRING_PROFILES_ACTIVE prod
 
 VOLUME /tmp
 ARG DEPENDENCY=/code/build/dependency

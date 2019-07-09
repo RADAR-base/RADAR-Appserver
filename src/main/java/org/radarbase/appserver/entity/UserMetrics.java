@@ -21,66 +21,73 @@
 
 package org.radarbase.appserver.entity;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.Serializable;
+import java.time.Instant;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import javax.persistence.*;
-import java.time.Instant;
-
 /**
- * {@link Entity} for persisting important metrics about the {@link User}.
- * A {@link User} can have exactly one {@link UserMetrics} (One-to-One).
+ * {@link Entity} for persisting important metrics about the {@link User}. A {@link User} can have
+ * exactly one {@link UserMetrics} (One-to-One).
  *
  * @author yatharthranjan
  */
 @Table(name = "user_metrics")
 @Entity
-@ToString
 @Getter
-public class UserMetrics extends AuditModel{
+@ToString
+@SuppressFBWarnings("NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
+public class UserMetrics extends AuditModel implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Setter private Long id;
+  private static final long serialVersionUID = 9182735866328519L;
 
-    // The most recent time when the app was opened
-    @Nullable
-    @Column(name = "last_opened")
-    private Instant lastOpened;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Setter
+  private Long id;
 
-    // The most recent time when a notification for the app was delivered.
-    @Nullable
-    @Column(name = "last_delivered")
-    private Instant lastDelivered;
+  // The most recent time when the app was opened
+  @Nullable
+  @Column(name = "last_opened")
+  private Instant lastOpened;
 
-    @NonNull
-    @OneToOne
-    private User user;
+  // The most recent time when a notification for the app was delivered.
+  @Nullable
+  @Column(name = "last_delivered")
+  private Instant lastDelivered;
 
-    public UserMetrics(Instant lastOpened, Instant lastDelivered) {
-        this.lastOpened = lastOpened;
-        this.lastDelivered = lastDelivered;
-    }
+  @ToString.Exclude @NonNull @OneToOne private User user;
 
-    public UserMetrics() {
+  public UserMetrics(Instant lastOpened, Instant lastDelivered) {
+    this.lastOpened = lastOpened;
+    this.lastDelivered = lastDelivered;
+  }
 
-    }
+  public UserMetrics() {}
 
-    public UserMetrics setLastOpened(Instant lastOpened) {
-        this.lastOpened = lastOpened;
-        return this;
-    }
+  public UserMetrics setLastOpened(Instant lastOpened) {
+    this.lastOpened = lastOpened;
+    return this;
+  }
 
-    public UserMetrics setLastDelivered(Instant lastDelivered) {
-        this.lastDelivered = lastDelivered;
-        return this;
-    }
+  public UserMetrics setLastDelivered(Instant lastDelivered) {
+    this.lastDelivered = lastDelivered;
+    return this;
+  }
 
-    public UserMetrics setUser(User user) {
-        this.user = user;
-        return this;
-    }
+  public UserMetrics setUser(User user) {
+    this.user = user;
+    return this;
+  }
 }

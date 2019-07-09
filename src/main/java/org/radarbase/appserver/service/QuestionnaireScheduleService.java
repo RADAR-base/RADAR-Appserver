@@ -21,29 +21,49 @@
 
 package org.radarbase.appserver.service;
 
-import org.radarbase.appserver.entity.Notification;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.service.protocol.ProtocolGenerator;
+import org.radarbase.appserver.util.CachedMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-
+@Slf4j
 @Service
 public class QuestionnaireScheduleService {
 
+  private transient ProtocolGenerator protocolGenerator;
 
-    // TODO get github protocol and generate schedule using enrolmentDate
-    // Use cached map of protocols per project
-    // Use cached map of schedule of user
+  private transient CachedMap<String, Schedule> subjectScheduleMap;
 
-    public void getProtocolForProject(String projectId) {
+  @Autowired
+  public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
+    this.protocolGenerator = protocolGenerator;
+    protocolGenerator.init();
+    subjectScheduleMap = new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
+  }
 
-    }
+  // Use cached map of schedule of user
+  public void getProtocolForProject(String projectId) throws IOException {
+    protocolGenerator.getAllProtocols();
+    subjectScheduleMap.get();
+  }
 
-    public Set<Notification> getScheduleForUser(User user) {
-        return null;
-    }
+  public Schedule getScheduleForUser(User user) {
+    return null;
+  }
 
-    public void generateScheduleForUser(User user) {
+  public Schedule generateScheduleForUser(User user) {
+    return null;
+  }
 
-    }
+  public Map<String, Schedule> getAllSchedules() {
+    // Check if protocol hash has changed. only then update the map
+    return Collections.emptyMap();
+  }
 }

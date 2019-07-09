@@ -26,5 +26,4 @@ package org.radarbase.fcm.common;
  *
  * @author yatharthranjan
  */
-public interface CcsClient {
-}
+public interface CcsClient {}

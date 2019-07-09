@@ -21,83 +21,102 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
-import lombok.SneakyThrows;
-import lombok.Synchronized;
-import org.quartz.*;
-import org.quartz.impl.triggers.SimpleTriggerImpl;
-import org.radarbase.appserver.entity.Scheduled;
-import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static com.pivovarit.function.ThrowingPredicate.unchecked;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.SneakyThrows;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
+import org.quartz.impl.triggers.SimpleTriggerImpl;
+import org.radarbase.appserver.entity.Scheduled;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 /**
- * An implementation of the {@link SchedulerService} providing Synchronized access to schedule, update and delete Jobs.
+ * An implementation of the {@link SchedulerService} providing Synchronized access to schedule,
+ * update and delete Jobs.
  *
  * @author yatharthranjan
  */
 @Service
 public class SchedulerServiceImpl implements SchedulerService {
 
-    @Autowired
-    private Scheduler scheduler;
+  private transient Scheduler scheduler;
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
-        scheduler.scheduleJob(jobDetail, trigger);
+  public SchedulerServiceImpl(@Autowired Scheduler scheduler) {
+    this.scheduler = scheduler;
+  }
+
+  @Async
+  @SneakyThrows
+  @Override
+  public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
+    scheduler.scheduleJob(jobDetail, trigger);
+  }
+
+  @Async
+  @SneakyThrows
+  @Override
+  public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap) {
+    scheduler.scheduleJobs(jobDetailTriggerMap, true);
+  }
+
+
+  @Async
+  @SneakyThrows
+  @Override
+  public void updateScheduledJob(
+      JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject) {
+
+    if (!scheduler.checkExists(jobKey)) {
+      throw new IllegalArgumentException("The Specified Job Key does not exist : " + jobKey);
     }
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap) {
-        scheduler.scheduleJobs(jobDetailTriggerMap, true);
+    if (!scheduler.checkExists(triggerKey)) {
+      throw new IllegalArgumentException("The Specified Trigger Key does not exist :" + triggerKey);
     }
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void updateScheduledJob(JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject) {
+    JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+    jobDetail.getJobDataMap().putAll(jobDataMap.getWrappedMap());
 
-        if(!scheduler.checkExists(jobKey)) {
-            throw new IllegalArgumentException("The Specified Job Key does not exist : " + jobKey);
-        }
+    SimpleTriggerImpl trigger = (SimpleTriggerImpl) scheduler.getTrigger(triggerKey);
+    trigger.getJobDataMap().putAll(jobDataMap.getWrappedMap());
 
-        if(!scheduler.checkExists(triggerKey)) {
-            throw new IllegalArgumentException("The Specified Trigger Key does not exist :" + triggerKey);
-        }
-
-        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-        jobDetail.getJobDataMap().putAll(jobDataMap.getWrappedMap());
-
-        SimpleTriggerImpl trigger = (SimpleTriggerImpl) scheduler.getTrigger(triggerKey);
-        trigger.getJobDataMap().putAll(jobDataMap.getWrappedMap());
-
-        if(associatedObject instanceof Scheduled) {
-            Scheduled scheduledObject = (Scheduled) associatedObject;
-            trigger.setStartTime(new Date(scheduledObject.getScheduledTime().toEpochMilli()));
-        }
-
-        scheduler.rescheduleJob(triggerKey, trigger);
+    if (associatedObject instanceof Scheduled) {
+      Scheduled scheduledObject = (Scheduled) associatedObject;
+      trigger.setStartTime(new Date(scheduledObject.getScheduledTime().toEpochMilli()));
     }
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void deleteScheduledJobs(List<JobKey> jobKeys) {
-        scheduler.deleteJobs(jobKeys);
-    }
+    scheduler.addJob(jobDetail, true);
 
-    @Synchronized
-    @SneakyThrows
-    @Override
-    public void deleteScheduledJob(JobKey jobKey) {
-        scheduler.deleteJob(jobKey);
+    scheduler.rescheduleJob(triggerKey, trigger);
+  }
+
+  @Async
+  @SneakyThrows
+  @Override
+  public void deleteScheduledJobs(List<JobKey> jobKeys) {
+    List<JobKey> jobKeysExist =
+        jobKeys.stream().filter(unchecked(scheduler::checkExists)).collect(Collectors.toList());
+    scheduler.deleteJobs(jobKeysExist);
+  }
+
+
+  @Async
+  @SneakyThrows
+  @Override
+  public void deleteScheduledJob(JobKey jobKey) {
+    if (scheduler.checkExists(jobKey)) {
+      scheduler.deleteJob(jobKey);
     }
+  }
 }

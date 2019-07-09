@@ -22,160 +22,224 @@
 package org.radarbase.appserver.service.fcm;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.time.Instant;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
+import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.fcm.common.ObjectMapperFactory;
-import org.radarbase.fcm.downstream.FcmSender;
-import org.radarbase.fcm.dto.FcmNotificationDto;
+import org.radarbase.appserver.service.ProjectService;
+import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * {@link UpstreamMessageHandler} for handling messages messages coming through the {@link org.radarbase.fcm.upstream.XmppFcmReceiver}
+ * {@link UpstreamMessageHandler} for handling messages messages coming through the {@link
+ * org.radarbase.fcm.upstream.XmppFcmReceiver}
  *
  * @see org.radarbase.fcm.upstream.XmppFcmReceiver
  * @see UpstreamMessageHandler
- *
  * @author yatharthranjan
  */
 @Service
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
-    @Autowired
-    private ObjectMapperFactory mapperFactory;
+  private transient FcmNotificationService notificationService;
 
-    @Autowired
-    @Qualifier("fcmSenderProps")
-    private FcmSender fcmSender;
+  private transient UserService userService;
 
-    @Autowired
-    private FcmNotificationService notificationService;
+  private transient ProjectService projectService;
 
-    /**
-     * Performs {@link Action} based on the value supplied by the {@link org.jivesoftware.smack.packet.Stanza} through the
-     * {@link org.radarbase.fcm.upstream.XmppFcmReceiver}.
-     *
-     * @param jsonMessage The {@link JsonNode} containing the data from an upstream XMPP message request.
-     */
-    @Override
-    public void handleUpstreamMessage(JsonNode jsonMessage) {
-        log.info("Normal Message: {}", jsonMessage.toString());
+  public FcmMessageReceiverService(
+      FcmNotificationService notificationService,
+      UserService userService,
+      ProjectService projectService) {
+    this.notificationService = notificationService;
+    this.userService = userService;
+    this.projectService = projectService;
+  }
 
-        Optional<JsonNode> jsonData = Optional.ofNullable(jsonMessage.get("data"));
+  /**
+   * Performs {@link Action} based on the value supplied by the {@link
+   * org.jivesoftware.smack.packet.Stanza} through the {@link
+   * org.radarbase.fcm.upstream.XmppFcmReceiver}.
+   *
+   * @param jsonMessage The {@link JsonNode} containing the data from an upstream XMPP message
+   *     request.
+   */
+  @Override
+  public void handleUpstreamMessage(JsonNode jsonMessage) {
+    log.info("Normal Message: {}", jsonMessage.toString());
 
-        jsonData.ifPresentOrElse(data -> {
+    Optional<JsonNode> jsonData = Optional.ofNullable(jsonMessage.get("data"));
 
-            Optional<JsonNode> action = Optional.ofNullable(jsonData.get().get("action"));
+    jsonData.ifPresentOrElse(
+        (JsonNode data) -> {
+          Optional<JsonNode> action = Optional.ofNullable(data.get("action"));
 
-            action.ifPresentOrElse(act -> {
+          action.ifPresentOrElse(
+              act -> {
                 switch (Action.valueOf(act.asText())) {
-                    case ECHO:
-                        log.info("Got an ECHO request");
-                        break;
+                  case ECHO:
+                    log.info("Got an ECHO request");
+                    break;
 
-                    case SCHEDULE:
-                        log.info("Got a SCHEDULE Request");
-                        notificationService.addNotificationForced(notificationDtoMapper(
-                                jsonData.get()), jsonMessage.get("from").asText(),
-                                jsonMessage.get("subjectId") == null ? "unknown-user" : jsonMessage.get("subjectId").asText(),
-                                jsonMessage.get("projectId") == null ? "unknown-project" : jsonMessage.get("projectId").asText());
-                        break;
+                  case SCHEDULE:
+                    log.info("Got a SCHEDULE Request");
+                    handleScheduleNotification(
+                        notificationDtoMapper(data),
+                        userDtoMapper(jsonMessage.get("from").asText(), data),
+                        jsonMessage.get("projectId") == null
+                            ? "unknown-project"
+                            : jsonMessage.get("projectId").asText());
+                    break;
 
-                    case CANCEL:
-                        log.info("Got a CANCEL Request");
-                        break;
+                  case CANCEL:
+                    log.info("Got a CANCEL Request");
+                    break;
                 }
-            }, () -> {
+              },
+              () -> {
                 log.warn("No Action provided");
-                throw new IllegalStateException("Action must not be null! Options: 'ECHO', 'SCHEDULE', 'CANCEL'");
-            });
-                }, () ->  {
-                log.warn("No Data provided");
-                throw new IllegalStateException("Data must not be null!");
-            }
-        );
+                throw new IllegalStateException(
+                    "Action must not be null! Options: 'ECHO', 'SCHEDULE', 'CANCEL'");
+              });
+        },
+        () -> {
+          log.warn("No Data provided");
+          throw new IllegalStateException("Data must not be null!");
+        });
+  }
+
+  @Override
+  public void handleAckReceipt(JsonNode jsonMessage) {
+    log.info("Ack Receipt: {}", jsonMessage.toString());
+  }
+
+  @Override
+  public void handleNackReceipt(JsonNode jsonMessage) {
+    log.warn("Nack Receipt: {}", jsonMessage.toString());
+
+    Optional<String> errorCodeObj = Optional.ofNullable(jsonMessage.get("error").asText());
+    if (errorCodeObj.isEmpty()) {
+      log.error("Received null FCM Error Code.");
+      return;
     }
 
-    @Override
-    public void handleAckReceipt(JsonNode jsonMessage) {
-        log.info("Ack Receipt: {}", jsonMessage.toString());
+    final String errorCode = errorCodeObj.get();
+
+    if (errorCode.equals("DEVICE_UNREGISTERED")) {
+      log.info("The FCM device unregistered. Removing all notifications: {}", errorCode);
+      this.notificationService.removeNotificationsForUserUsingFcmToken(
+          jsonMessage.get("from").asText());
     }
+  }
 
-    @Override
-    public void handleNackReceipt(JsonNode jsonMessage) {
-        log.warn("Nack Receipt: {}", jsonMessage.toString());
-
-        Optional<String> errorCodeObj = Optional.ofNullable(jsonMessage.get("error").asText());
-        if (errorCodeObj.isEmpty()) {
-            log.error("Received null FCM Error Code.");
-            return;
+  @Override
+  public void handleStatusReceipt(JsonNode jsonMessage) {
+    log.info("Status Receipt: {}", jsonMessage.toString());
+    Optional<JsonNode> jsonData = Optional.ofNullable(jsonMessage.get("data"));
+    if (jsonData.isPresent()) {
+      Optional<String> messageStatus =
+          Optional.ofNullable(jsonData.get().get("message_status").asText());
+      if (messageStatus.isPresent()) {
+        if (messageStatus.get().equals("MESSAGE_SENT_TO_DEVICE")) {
+          // notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
+          notificationService.updateDeliveryStatus(
+              jsonData.get().get("original_message_id").asText(), true);
         }
+      }
+    }
+  }
 
-        final String errorCode = errorCodeObj.get();
+  @Override
+  public void handleControlMessage(JsonNode jsonMessage) {
+    log.info("Control Message: {}", jsonMessage.toString());
+  }
 
-        if (errorCode.equals("DEVICE_UNREGISTERED")) {
-            log.info("The FCM device unregistered. Removing all notifications: {}", errorCode);
-            this.notificationService.removeNotificationsForUserUsingFcmToken(jsonMessage.get("from").asText());
+  @Override
+  public void handleOthers(JsonNode jsonMessage) {
+    log.debug("Message Type not recognised {}", jsonMessage.toString());
+  }
+
+  @SneakyThrows
+  private FcmNotificationDto notificationDtoMapper(JsonNode jsonMessage) {
+
+    if (jsonMessage.get("notificationTitle") == null
+        || jsonMessage.get("notificationMessage") == null
+        || jsonMessage.get("time") == null) {
+      throw new InvalidNotificationDetailsException(
+          "The notifications details are invalid: " + jsonMessage);
+    }
+
+    Instant scheduledTime = Instant.ofEpochSecond(jsonMessage.get("time").asLong() / 1000L);
+
+    if (scheduledTime.isBefore(Instant.now())) {
+      throw new InvalidNotificationDetailsException(
+          "The notification scheduled " + "time cannot be before current time");
+    }
+
+    return new FcmNotificationDto()
+        .setTitle(jsonMessage.get("notificationTitle").asText())
+        .setBody(jsonMessage.get("notificationMessage").asText())
+        .setScheduledTime(scheduledTime)
+        .setAppPackage(
+            jsonMessage.get("appPackage") == null
+                ? "unknown"
+                : jsonMessage.get("appPackage").asText())
+        .setDelivered(false)
+        .setSourceId(
+            jsonMessage.get("sourceId") == null ? "unknown" : jsonMessage.get("sourceId").asText())
+        .setSourceType(
+            jsonMessage.get("sourceType") == null
+                ? "unknown"
+                : jsonMessage.get("sourceType").asText())
+        .setTtlSeconds(
+            jsonMessage.get("ttlSeconds") == null ? 86400 : jsonMessage.get("ttlSeconds").asInt())
+        .setType(jsonMessage.get("type") == null ? "Unknown" : jsonMessage.get("type").asText());
+  }
+
+  private FcmUserDto userDtoMapper(String fcmToken, JsonNode jsonMessage) {
+    return new FcmUserDto()
+        .setFcmToken(fcmToken)
+        .setSubjectId(
+            jsonMessage.get("subjectId") == null
+                ? "unknown-user"
+                : jsonMessage.get("subjectId").asText())
+        .setLanguage(
+            jsonMessage.get("language") == null ? "en" : jsonMessage.get("subjectId").asText())
+        .setEnrolmentDate(
+            jsonMessage.get("enrolmentDate") == null
+                ? Instant.now()
+                : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L));
+  }
+
+  @Transactional
+  private void handleScheduleNotification(
+      FcmNotificationDto notificationDto, FcmUserDto userDto, String projectId) {
+    try {
+      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
+    } catch (NotFoundException ex) {
+      if (ex.getMessage().contains("Project")) {
+        try {
+          projectService.addProject(new ProjectDto().setProjectId(projectId));
+          userService.saveUserInProject(userDto.setProjectId(projectId));
+        } catch (Exception e) {
+          log.warn("Exception while adding notification.", ex);
         }
+      } else if (ex.getMessage().contains("Subject")) {
+        userService.saveUserInProject(userDto.setProjectId(projectId));
+      }
+      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
+    } catch (AlreadyExistsException ex) {
+      log.warn("The Notification Already Exists.", ex);
     }
-
-    @Override
-    public void handleStatusReceipt(JsonNode jsonMessage) {
-        log.info("Status Receipt: {}", jsonMessage.toString());
-        Optional<JsonNode> jsonData = Optional.ofNullable(jsonMessage.get("data"));
-         if(jsonData.isPresent()) {
-             Optional<String> messageStatus = Optional.ofNullable(jsonData.get().get("message_status").asText());
-             if(messageStatus.isPresent()){
-                if(messageStatus.get().equals("MESSAGE_SENT_TO_DEVICE")) {
-                    //notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
-                    notificationService.updateDeliveryStatus(jsonData.get().get("original_message_id").asText(), true);
-                }
-             }
-         }
-    }
-
-    @Override
-    public void handleControlMessage(JsonNode jsonMessage) {
-        log.info("Control Message: {}", jsonMessage.toString());
-    }
-
-    @Override
-    public void handleOthers(JsonNode jsonMessage) {
-        log.debug("Message Type not recognised {}", jsonMessage.toString());
-    }
-
-    @SneakyThrows
-    private FcmNotificationDto notificationDtoMapper(JsonNode jsonMessage) {
-
-        if(jsonMessage.get("notificationTitle") == null
-                || jsonMessage.get("notificationMessage") == null || jsonMessage.get("time") == null) {
-            throw new InvalidNotificationDetailsException("The notifications details are invalid: " + jsonMessage);
-        }
-
-        LocalDateTime scheduledTime = LocalDateTime.ofEpochSecond(jsonMessage.get("time").asLong()/1000L
-                , 0, ZoneOffset.UTC);
-
-        if(scheduledTime.isBefore(LocalDateTime.now())) {
-            throw new InvalidNotificationDetailsException("The notification scheduled time cannot be before current time");
-        }
-
-        return new FcmNotificationDto().setTitle(jsonMessage.get("notificationTitle").asText())
-                .setBody(jsonMessage.get("notificationMessage").asText())
-                .setScheduledTime(scheduledTime)
-                .setAppPackage(jsonMessage.get("appPackage") == null ? "unknown" : jsonMessage.get("appPackage").asText())
-                .setDelivered(false)
-                .setSourceId(jsonMessage.get("sourceId") == null ? "unknown" : jsonMessage.get("sourceId").asText())
-                .setSourceType(jsonMessage.get("sourceType") == null ? "unknown" : jsonMessage.get("sourceType").asText())
-                .setTtlSeconds(jsonMessage.get("ttlSeconds") == null ? 86400 : jsonMessage.get("ttlSeconds").asInt())
-                .setType(jsonMessage.get("type") == null ? "Unknown" : jsonMessage.get("type").asText());
-    }
+  }
 }

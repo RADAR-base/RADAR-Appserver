@@ -21,25 +21,27 @@
 
 package org.radarbase.appserver.exception;
 
-import org.radarbase.fcm.dto.FcmNotificationDto;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Exception thrown when a supplied {@link org.radarbase.appserver.entity.Notification} or {@link FcmNotificationDto}
- * is invalid.
- * If accessed by REST API then gives a HTTP status {@link HttpStatus#EXPECTATION_FAILED}.
+ * Exception thrown when a supplied {@link org.radarbase.appserver.entity.Notification} or {@link
+ * FcmNotificationDto} is invalid. If accessed by REST API then gives a HTTP status {@link
+ * HttpStatus#EXPECTATION_FAILED}.
  *
  * @author yatharthranjan
  */
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
 public class InvalidNotificationDetailsException extends RuntimeException {
 
-    public InvalidNotificationDetailsException(String message) {
-        super(message);
-    }
+  private static final long serialVersionUID = 793602934508766939L;
 
-    public InvalidNotificationDetailsException(FcmNotificationDto notificationDto) {
-        super("Invalid details of the Notification supplied : " + notificationDto);
-    }
+  public InvalidNotificationDetailsException(String message) {
+    super(message);
+  }
+
+  public InvalidNotificationDetailsException(FcmNotificationDto notificationDto) {
+    super("Invalid details of the Notification supplied : " + notificationDto);
+  }
 }

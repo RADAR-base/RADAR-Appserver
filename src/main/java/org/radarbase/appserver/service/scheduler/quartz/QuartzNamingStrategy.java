@@ -19,24 +19,11 @@
  *
  */
 
-package org.radarbase.fcm.dto;
+package org.radarbase.appserver.service.scheduler.quartz;
 
-import lombok.*;
+public interface QuartzNamingStrategy {
 
-import java.util.List;
+  String getTriggerName(String userName, String notificationId);
 
-/**
- * @author yatharthranjan
- */
-@ToString
-@Getter
-@EqualsAndHashCode
-public class FcmUsers {
-
-    private List<FcmUserDto> users;
-
-    public FcmUsers setUsers(List<FcmUserDto> users) {
-        this.users = users;
-        return this;
-    }
+  String getJobKeyName(String userName, String notificationId);
 }

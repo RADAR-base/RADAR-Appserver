@@ -21,11 +21,11 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:int="http://www.springframework.org/schema/integration"
-       xmlns:int-xmpp="http://www.springframework.org/schema/integration/xmpp"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:int="http://www.springframework.org/schema/integration"
+  xmlns:int-xmpp="http://www.springframework.org/schema/integration/xmpp"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context.xsd
@@ -34,12 +34,12 @@
 	http://www.springframework.org/schema/integration/xmpp
 	http://www.springframework.org/schema/integration/xmpp/spring-integration-xmpp.xsd">
 
-    <context:component-scan base-package="org.radarbase.fcm" />
+  <context:component-scan base-package="org.radarbase.fcm"/>
 
-    <int:channel id="xmppOutbound" />
+  <int:channel id="xmppOutbound"/>
 
-    <int-xmpp:outbound-channel-adapter id="xmppOutboundAdapter"
-                                       channel="xmppOutbound" xmpp-connection="xmppConnection"
-                                       extension-provider="gcmExtension"
-                                       auto-startup="true" />
+  <int-xmpp:outbound-channel-adapter id="xmppOutboundAdapter"
+    channel="xmppOutbound" xmpp-connection="xmppConnection"
+    extension-provider="gcmExtension"
+    auto-startup="true"/>
 </beans>

@@ -21,32 +21,38 @@
 
 package org.radarbase.appserver.converter;
 
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.fcm.dto.FcmNotificationDto;
-
-import java.time.ZoneOffset;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Converter {@link Converter} class for {@link Notification} entity.
  *
  * @author yatharthranjan
  */
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class NotificationConverter implements Converter<Notification, FcmNotificationDto> {
-    @Override
-    public Notification dtoToEntity(FcmNotificationDto notificationDto) {
-        return new Notification().setBody(notificationDto.getBody())
-                .setScheduledTime(notificationDto.getScheduledTime().toInstant(ZoneOffset.UTC))
-                .setTitle(notificationDto.getTitle())
-                .setSourceId(notificationDto.getSourceId())
-                .setType(notificationDto.getType())
-                .setTtlSeconds(notificationDto.getTtlSeconds())
-                .setFcmMessageId(String.valueOf(notificationDto.hashCode()))
-                .setAppPackage(notificationDto.getAppPackage())
-                .setSourceType(notificationDto.getSourceType());
-    }
 
-    @Override
-    public FcmNotificationDto entityToDto(Notification notification) {
-        return new FcmNotificationDto(notification);
-    }
+  @Override
+  public Notification dtoToEntity(FcmNotificationDto notificationDto) {
+    return new Notification()
+        .setBody(notificationDto.getBody())
+        .setScheduledTime(notificationDto.getScheduledTime())
+        .setTitle(notificationDto.getTitle())
+        .setSourceId(notificationDto.getSourceId())
+        .setType(notificationDto.getType())
+        .setTtlSeconds(notificationDto.getTtlSeconds())
+        .setFcmMessageId(String.valueOf(notificationDto.hashCode()))
+        .setAppPackage(notificationDto.getAppPackage())
+        .setSourceType(notificationDto.getSourceType())
+        .setAdditionalData(notificationDto.getAdditionalData());
+  }
+
+  @Override
+  public FcmNotificationDto entityToDto(Notification notification) {
+    return new FcmNotificationDto(notification);
+  }
 }

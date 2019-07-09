@@ -23,5 +23,5 @@ package org.radarbase.appserver.service;
 
 public class ManagementPortalService {
 
-    //TODO WIP - Add MP client and get subjects and projects info if missing in any request.
+  // TODO WIP - Add MP client and get subjects and projects info if missing in any request.
 }

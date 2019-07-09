@@ -22,8 +22,8 @@
 package org.radarbase.fcm.upstream;
 
 public enum FcmMessageType {
-    ACK,
-    RECEIPT,
-    CONTROL,
-    NACK
+  ACK,
+  RECEIPT,
+  CONTROL,
+  NACK
 }

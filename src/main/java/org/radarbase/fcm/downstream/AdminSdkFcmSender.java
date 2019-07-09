@@ -25,19 +25,21 @@ import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
 import org.springframework.stereotype.Component;
 
-/** TODO: WIP
+/**
+ * TODO: WIP
+ *
  * @author yatharthranjan
  */
 @Component
 public class AdminSdkFcmSender implements CcsClient, FcmSender {
 
+  @Override
+  public void send(FcmDownstreamMessage downstreamMessage) {
+    // TODO
+  }
 
-    @Override
-    public void send(FcmDownstreamMessage downstreamMessage) {
-    }
-
-    @Override
-    public boolean doesProvideDeliveryReceipt() {
-        return false;
-    }
+  @Override
+  public boolean doesProvideDeliveryReceipt() {
+    return false;
+  }
 }

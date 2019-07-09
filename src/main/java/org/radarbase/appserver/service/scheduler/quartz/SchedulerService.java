@@ -21,11 +21,15 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
-import org.quartz.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
 
 /**
  * Generic Service for implementing an interface to the {@link Scheduler}.
@@ -35,13 +39,14 @@ import java.util.Set;
  */
 public interface SchedulerService {
 
-    void scheduleJob(JobDetail jobDetail, Trigger trigger);
+  void scheduleJob(JobDetail jobDetail, Trigger trigger);
 
-    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap);
+  void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap);
 
-    void updateScheduledJob(JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject);
+  void updateScheduledJob(
+      JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject);
 
-    void deleteScheduledJobs(List<JobKey> jobKeys);
+  void deleteScheduledJobs(List<JobKey> jobKeys);
 
-    void deleteScheduledJob(JobKey jobKey);
+  void deleteScheduledJob(JobKey jobKey);
 }

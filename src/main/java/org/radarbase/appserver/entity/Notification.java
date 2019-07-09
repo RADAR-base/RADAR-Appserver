@@ -22,189 +22,241 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.util.Objects;
-
 /**
- * {@link Entity} for persisting notifications. The corresponding DTO is {@link org.radarbase.fcm.dto.FcmNotificationDto}.
- * This also includes information for scheduling the notification through the Firebase Cloud Messaging(FCM) system.
+ * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
+ * This also includes information for scheduling the notification through the Firebase Cloud
+ * Messaging(FCM) system.
  *
  * @see Scheduled
  * @see org.radarbase.appserver.service.scheduler.NotificationSchedulerService
  * @see org.radarbase.appserver.service.fcm.FcmMessageReceiverService
- *
  * @author yatharthranjan
  */
-@Table(name = "notifications", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "source_id", "scheduled_time",
-                "title", "body", "type", "ttl_seconds", "delivered", "dry_run"
-        })})
+@Table(
+    name = "notifications",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          columnNames = {
+            "user_id",
+            "source_id",
+            "scheduled_time",
+            "title",
+            "body",
+            "type",
+            "ttl_seconds",
+            "delivered",
+            "dry_run"
+          })
+    })
 @Entity
-@ToString
 @Getter
-public class Notification extends AuditModel implements Scheduled {
+@ToString
+public class Notification extends AuditModel implements Serializable, Scheduled {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+  private static final long serialVersionUID = -367424816328519L;
+  // TODO Add STATUS as enum of (ADDED, SCHEDULED, CANCELLED, EXECUTED, DELIVERED, ERRORED)
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private User user;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    @Nullable
-    @Column(name = "source_id")
-    private String sourceId;
+  @NotNull
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JsonIgnore
+  private User user;
 
-    @NotNull
-    @Column(name = "scheduled_time", nullable = false)
-    private Instant scheduledTime;
+  @Nullable
+  @Column(name = "source_id")
+  private String sourceId;
 
-    @NotNull
-    @Column(nullable = false)
-    private String title;
+  @NotNull
+  @Column(name = "scheduled_time", nullable = false)
+  private Instant scheduledTime;
 
-    private String body;
+  @NotNull
+  @Column(nullable = false)
+  private String title;
 
-    // Type of notification. In terms of aRMT - PHQ8, RSES, ESM, etc.
-    @Nullable
-    private String type;
+  private String body;
 
-    @Column(name = "ttl_seconds")
-    private int ttlSeconds;
+  // Type of notification. In terms of aRMT - PHQ8, RSES, ESM, etc.
+  @Nullable private String type;
 
-    @Column(name = "fcm_message_id", unique = true)
-    private String fcmMessageId;
+  @Column(name = "ttl_seconds")
+  private int ttlSeconds;
 
-    @Column(name = "fcm_topic")
-    // for use with the FCM admin SDK
-    @Nullable
-    private String fcmTopic;
+  @Column(name = "fcm_message_id", unique = true)
+  private String fcmMessageId;
 
-    @Nullable
-    private boolean delivered;
+  @Column(name = "fcm_topic")
+  // for use with the FCM admin SDK
+  @Nullable
+  private String fcmTopic;
 
-    @Nullable
-    private boolean validated;
+  @Nullable private boolean delivered;
 
-    @Nullable
-    @Column(name = "app_package")
-    private String appPackage;
+  @Nullable private boolean validated;
 
-    // Source Type from the Management Portal
-    @Nullable
-    @Column(name = "source_type")
-    private String sourceType;
+  @Nullable
+  @Column(name = "app_package")
+  private String appPackage;
 
-    @Column(name = "dry_run")
-    // for use with the FCM admin SDK
-    @Nullable
-    private boolean dryRun;
+  // Source Type from the Management Portal
+  @Nullable
+  @Column(name = "source_type")
+  private String sourceType;
 
-    public Notification setUser(User user) {
-        this.user = user;
-        return this;
+  @Column(name = "dry_run")
+  // for use with the FCM admin SDK
+  @Nullable
+  private boolean dryRun;
+
+  @Nullable
+  @ElementCollection
+  @MapKeyColumn(name = "additional_key", nullable = true)
+  @Column(name = "additional_value")
+  private Map<String, String> additionalData;
+
+  public Notification setUser(User user) {
+    this.user = user;
+    return this;
+  }
+
+  public Notification setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+    return this;
+  }
+
+  public Notification setScheduledTime(Instant scheduledTime) {
+    this.scheduledTime = scheduledTime;
+    return this;
+  }
+
+  public Notification setTitle(String title) {
+    this.title = title;
+    return this;
+  }
+
+  public Notification setBody(String body) {
+    this.body = body;
+    return this;
+  }
+
+  public Notification setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  public Notification setTtlSeconds(int ttlSeconds) {
+    this.ttlSeconds = ttlSeconds;
+    return this;
+  }
+
+  public Notification setFcmMessageId(String fcmMessageId) {
+    this.fcmMessageId = fcmMessageId;
+    return this;
+  }
+
+  public Notification setFcmTopic(String fcmTopic) {
+    this.fcmTopic = fcmTopic;
+    return this;
+  }
+
+  public Notification setDelivered(boolean delivered) {
+    this.delivered = delivered;
+    return this;
+  }
+
+  public Notification setDryRun(boolean dryRun) {
+    this.dryRun = dryRun;
+    return this;
+  }
+
+  public Notification setValidated(boolean validated) {
+    this.validated = validated;
+    return this;
+  }
+
+  public Notification setAppPackage(String appPackage) {
+    this.appPackage = appPackage;
+    return this;
+  }
+
+  public Notification setSourceType(String sourceType) {
+    this.sourceType = sourceType;
+    return this;
+  }
+
+  public Notification setAdditionalData(Map<String, String> additionalData) {
+    this.additionalData = additionalData;
+    return this;
+  }
+
+  public Notification setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public Notification setSourceId(String sourceId) {
-        this.sourceId = sourceId;
-        return this;
+    if (!(o instanceof Notification)) {
+      return false;
     }
+    Notification that = (Notification) o;
+    return getTtlSeconds() == that.getTtlSeconds()
+        && isDelivered() == that.isDelivered()
+        && isDryRun() == that.isDryRun()
+        && Objects.equals(getUser(), that.getUser())
+        && Objects.equals(getSourceId(), that.getSourceId())
+        && Objects.equals(getScheduledTime(), that.getScheduledTime())
+        && Objects.equals(getTitle(), that.getTitle())
+        && Objects.equals(getBody(), that.getBody())
+        && Objects.equals(getType(), that.getType())
+        && Objects.equals(getAppPackage(), that.getAppPackage());
+  }
 
-    public Notification setScheduledTime(Instant scheduledTime) {
-        this.scheduledTime = scheduledTime;
-        return this;
-    }
-
-    public Notification setTitle(String title) {
-        this.title = title;
-        return this;
-    }
-
-    public Notification setBody(String body) {
-        this.body = body;
-        return this;
-    }
-
-    public Notification setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-    public Notification setTtlSeconds(int ttlSeconds) {
-        this.ttlSeconds = ttlSeconds;
-        return this;
-    }
-
-    public Notification setFcmMessageId(String fcmMessageId) {
-        this.fcmMessageId = fcmMessageId;
-        return this;
-    }
-
-    public Notification setFcmTopic(String fcmTopic) {
-        this.fcmTopic = fcmTopic;
-        return this;
-    }
-
-    public Notification setDelivered(boolean delivered) {
-        this.delivered = delivered;
-        return this;
-    }
-
-    public Notification setDryRun(boolean dryRun) {
-        this.dryRun = dryRun;
-        return this;
-    }
-
-    public Notification setValidated(boolean validated) {
-        this.validated = validated;
-        return this;
-    }
-
-    public Notification setAppPackage(String appPackage) {
-        this.appPackage = appPackage;
-        return this;
-    }
-
-    public Notification setSourceType(String sourceType) {
-        this.sourceType = sourceType;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Notification)) return false;
-        Notification that = (Notification) o;
-        return getTtlSeconds() == that.getTtlSeconds() &&
-                isDelivered() == that.isDelivered() &&
-                isDryRun() == that.isDryRun() &&
-                Objects.equals(getUser(), that.getUser()) &&
-                Objects.equals(getSourceId(), that.getSourceId()) &&
-                Objects.equals(getScheduledTime(), that.getScheduledTime()) &&
-                Objects.equals(getTitle(), that.getTitle()) &&
-                Objects.equals(getBody(), that.getBody()) &&
-                Objects.equals(getType(), that.getType()) &&
-                Objects.equals(getAppPackage(), that.getAppPackage()) &&
-                Objects.equals(getSourceType(), that.getSourceType());
-    }
-
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getUser(), getSourceId(), getScheduledTime(),
-                getTitle(), getBody(), getType(), getTtlSeconds(), isDelivered(), isDryRun(), getAppPackage(), getSourceType());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getUser(),
+        getSourceId(),
+        getScheduledTime(),
+        getTitle(),
+        getBody(),
+        getType(),
+        getTtlSeconds(),
+        isDelivered(),
+        isDryRun(),
+        getAppPackage(),
+        getSourceType());
+  }
 }

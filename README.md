@@ -91,7 +91,7 @@ The raw json is present at the `<your-base-url/v2/api-docs>`. By default this sh
 The Swagger UI is shown below.
 It is present at `<your-base-url/swagger-ui.html`
 
-![Alt text](/images/swagger-ui.png "Swagger UI Api Docs")
+![swagger UI](/images/swagger-ui.png "Swagger UI Api Docs")
 
 The Swagger API docs are also available at [Swagger Hub](https://app.swaggerhub.com/apis-docs/RADAR-Base/RADAR-Appserver) but may not be most up-to-date. Please check the version matches the app-server that you have deployed.
 
@@ -99,7 +99,7 @@ The Swagger API docs are also available at [Swagger Hub](https://app.swaggerhub.
 The Java docs are also available as static content when you build and deploy the app-server. 
 These are stored in the `/src/main/resources/static/java-docs` path automatically when building and spring picks this up and exposes it on the path `<your-base-url/java-docs/index.html>` as shown below - 
 
-![Alt text](/images/java-docs.png "Java Docs")
+![java documentation](/images/java-docs.png "Java Docs")
 
 
 # Client
@@ -141,3 +141,47 @@ sudo docker-compose up -d
 Then go to the browser to the URL : `https://localhost:8888` and login with credentials `radar:appserver` to see the Spring Boot Admin Server in action.
 
 Deploying the Spring Boot Admin server and the client as different components makes sure that the same Server can be used to register multiple client apps and the server's lifecycle is not associated with the client. This also means that our client app is lighter and production ready.
+
+# Performance Testing
+
+The app server supports performance testing using Gatling and Scala. The simulations are located in the folder `src/gatling/simulations`.
+
+First run the application and then run the gatling test using the command -
+
+```bash
+  ./gradlew gatlingRun
+```
+
+To run a particular simulation you can run it like follows - 
+```bash
+   ./gradlew gatlingRun-org.radarbase.appserver.BatchingApiGatlingSimulationTest
+```
+
+You can modify the number of iterations of the requests by change the variables the the top of the file `src/gatling/simulations/org/radarbase/appserver/ApiGatlingSimulationTest.scala` like -
+```scala
+  val numOfProjects = 5
+  val numOfUsersPerProject = 300
+  val numOfNotificationsPerUser = 300
+  val numOfSimultaneousClients = 2
+```
+
+You can also edit the base URL of your deployed instance of the server by changing the value of 
+```scala
+
+``` 
+
+Ideally deploy the server on a remote instance using a persisted database instead of in-memory for real-world testing. Running on your local machine may not reflect the best results.
+
+The reports will be generated at the path `build/reports/gatling/` and the folders will be named `apigatlingsimulationtest-{date-time}`. Open the folder with the correct date time and open the `index.html` file in a browser to view the results. Example result is shown in the screengrab below- 
+
+![gatling test](/images/gatling-results.png "Gatling Test Results")
+
+# Code-Style and Quality
+
+Various tools are enabled to ensure code quality and styling while also doing static code analysis for bugs. PMD, CheckStyle and SpotBugs is included and all of these can be run with the command -
+```bash
+./gradlew check
+```
+
+The reports are generated in the `build/reports` folder. The config files for rules are present in the `config` folder.
+A style template following the Google Java style guidelines is also provided for use with IntellJ Idea ([style plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format)) in `config/codestyles` folder.

@@ -20,40 +20,40 @@
  */
 
 package org.radarbase.appserver.entity;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.EntityListeners;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-
-
 /**
- * Enables Auditing on various JPA entities.
- * This automatically adds and updates the `create at` and `updated at` attributes
- * for any entity that extends this class.
- * @see AuditingEntityListener
+ * Enables Auditing on various JPA entities. This automatically adds and updates the `create at` and
+ * `updated at` attributes for any entity that extends this class.
  *
+ * @see AuditingEntityListener
  * @author yatharthranjan
  */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(
-        value = {"createdAt", "updatedAt"},
-        allowGetters = true
-)
+    value = {"createdAt", "updatedAt"},
+    allowGetters = true)
 @Data
-abstract class AuditModel implements Serializable {
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreatedDate
-    private Date createdAt;
+abstract class AuditModel {
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "created_at", nullable = false, updatable = false)
+  @CreatedDate
+  private Date createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at", nullable = false)
-    @LastModifiedDate
-    private Date updatedAt;
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "updated_at", nullable = false)
+  @LastModifiedDate
+  private Date updatedAt;
 }

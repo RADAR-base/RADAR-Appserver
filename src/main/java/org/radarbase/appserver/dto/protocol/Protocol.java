@@ -19,40 +19,28 @@
  *
  */
 
-package org.radarbase.fcm.dto;
+package org.radarbase.appserver.dto.protocol;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-
-import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
 /**
+ * Data Transfer object (DTO) for Protocol. A project may represent a Protcol for scheduling
+ * questionnaires.
+ *
+ * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
  * @author yatharthranjan
  */
-@Getter
-@EqualsAndHashCode
-@ToString
-public class FcmNotifications {
+@Data
+public class Protocol {
 
-    private List<FcmNotificationDto>  notifications;
+  private String version;
 
-    public FcmNotifications() {
-        notifications = new ArrayList<>();
-    }
+  private String schemaVersion;
 
-    public FcmNotifications setNotifications(List<FcmNotificationDto> notifications) {
-        this.notifications = notifications;
-        return this;
-    }
+  private String name;
 
-    public FcmNotifications addNotification(FcmNotificationDto notificationDto) {
+  private List<String> healthIssues;
 
-        if(!notifications.contains(notificationDto)) {
-            this.notifications.add(notificationDto);
-        }
-        return this;
-    }
-
+  private List<Assessment> protocols;
 }

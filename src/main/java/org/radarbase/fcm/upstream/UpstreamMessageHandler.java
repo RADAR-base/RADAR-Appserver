@@ -25,26 +25,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Service;
 
 /**
- * An interface used by {@link XmppFcmReceiver} to forward messages received from FCM to the class implementing this.
- * Forwards each type of message to the functions as apparent from the function's name. Please add the {@link Service}
- * annotation to the implementing class so that the receiver can pick up through {@link org.springframework.beans.factory.annotation.Autowired}.
+ * An interface used by {@link XmppFcmReceiver} to forward messages received from FCM to the class
+ * implementing this. Forwards each type of message to the functions as apparent from the function's
+ * name. Please add the {@link Service} annotation to the implementing class so that the receiver
+ * can pick up through {@link org.springframework.beans.factory.annotation.Autowired}.
  *
  * @see org.radarbase.appserver.service.fcm.FcmMessageReceiverService
- *
  * @author yatharthranjan
  */
 @Service
 public interface UpstreamMessageHandler {
 
-    void handleUpstreamMessage(JsonNode jsonMessage);
+  void handleUpstreamMessage(JsonNode jsonMessage);
 
-    void handleAckReceipt(JsonNode jsonMessage);
+  void handleAckReceipt(JsonNode jsonMessage);
 
-    void handleNackReceipt(JsonNode jsonMessage);
+  void handleNackReceipt(JsonNode jsonMessage);
 
-    void handleStatusReceipt(JsonNode jsonMessage);
+  void handleStatusReceipt(JsonNode jsonMessage);
 
-    void handleControlMessage(JsonNode jsonMessage);
+  void handleControlMessage(JsonNode jsonMessage);
 
-    void handleOthers(JsonNode jsonMessage);
+  void handleOthers(JsonNode jsonMessage);
 }

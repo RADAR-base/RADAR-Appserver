@@ -21,30 +21,31 @@
 
 package org.radarbase.appserver.exception;
 
-import org.radarbase.fcm.dto.FcmUserDto;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Exception thrown when a supplied {@link org.radarbase.appserver.entity.User} or {@link FcmUserDto}
- * is invalid.
- * If accessed by REST API then gives a HTTP status {@link HttpStatus#EXPECTATION_FAILED}.
+ * Exception thrown when a supplied {@link org.radarbase.appserver.entity.User} or {@link
+ * FcmUserDto} is invalid. If accessed by REST API then gives a HTTP status {@link
+ * HttpStatus#EXPECTATION_FAILED}.
  *
  * @author yatharthranjan
  */
 @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
-public class InvalidUserDetailsException extends RuntimeException{
+public class InvalidUserDetailsException extends RuntimeException {
 
+  private static final long serialVersionUID = 914876638943766939L;
 
-    public InvalidUserDetailsException(String message) {
-        super(message);
-    }
+  public InvalidUserDetailsException(String message) {
+    super(message);
+  }
 
-    public InvalidUserDetailsException(FcmUserDto userDto) {
-        super("Invalid details supplied for the user " + userDto);
-    }
+  public InvalidUserDetailsException(FcmUserDto userDto) {
+    super("Invalid details supplied for the user " + userDto);
+  }
 
-    public InvalidUserDetailsException(FcmUserDto userDto, Throwable cause) {
-        super("Invalid details supplied for the user " + userDto, cause);
-    }
+  public InvalidUserDetailsException(FcmUserDto userDto, Throwable cause) {
+    super("Invalid details supplied for the user " + userDto, cause);
+  }
 }

@@ -21,8 +21,10 @@
 
 package org.radarbase.fcm.downstream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 import org.radarbase.fcm.common.CcsClient;
-import org.radarbase.fcm.common.ObjectMapperFactory;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.xmpp.XmppHeaders;
@@ -32,38 +34,35 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol.
- * This uses an outbound-adapter configured in classpath to send messages.
+ * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol. This uses
+ * an outbound-adapter configured in classpath to send messages.
  *
  * @author yatharthranjan
  */
 @Component
 public class XmppFcmSender implements CcsClient, FcmSender {
 
-    @Autowired
-    private MessageChannel xmppOutbound;
+  @Autowired private transient MessageChannel xmppOutbound;
 
-    @Autowired
-    private ObjectMapperFactory mapperFactory;
+  @Autowired private transient ObjectMapper mapper;
 
-    private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
+  private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
 
-    @Override
-    public void send(FcmDownstreamMessage message) throws Exception {
+  @Override
+  public void send(FcmDownstreamMessage message) throws Exception {
 
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT);
-        Message outMessage = MessageBuilder.createMessage(mapperFactory.getObject().writerFor(message.getClass()).writeValueAsString(message),
-                new MessageHeaders(headers));
-        xmppOutbound.send(outMessage);
-    }
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT);
+    Message outMessage =
+        MessageBuilder.createMessage(
+            mapper.writerFor(message.getClass()).writeValueAsString(message),
+            new MessageHeaders(headers));
+    xmppOutbound.send(outMessage);
+  }
 
-    @Override
-    public boolean doesProvideDeliveryReceipt() {
-        return true;
-    }
+  @Override
+  public boolean doesProvideDeliveryReceipt() {
+    return true;
+  }
 }

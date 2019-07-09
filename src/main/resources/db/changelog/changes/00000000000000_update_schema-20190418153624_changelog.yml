@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1554740802000-01
+      author: yatharth
+      changes:
+        - addUniqueConstraint:
+            columnNames: fcm_token
+            tableName: users

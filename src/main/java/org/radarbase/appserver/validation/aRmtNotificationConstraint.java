@@ -21,23 +21,29 @@
 
 package org.radarbase.appserver.validation;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import java.lang.annotation.*;
 
 /**
- * {@link Constraint} to be used in {@link javax.validation.Validator} {@link aRmtNotificationValidator} to validate
- * incoming notification requests acording to their schedule via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
+ * {@link Constraint} to be used in {@link javax.validation.Validator} {@link
+ * ARmtNotificationValidator} to validate incoming notification requests according to their schedule
+ * via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
  *
  * @author yatharthranjan
  */
 @Documented
-@Constraint(validatedBy = aRmtNotificationValidator.class)
-@Target( { ElementType.METHOD, ElementType.FIELD })
+@Constraint(validatedBy = ARmtNotificationValidator.class)
+@Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface aRmtNotificationConstraint {
-    String message() default "Notification does not conform to the schedule.";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
-}
+  String message() default "Notification does not conform to the schedule.";
 
+  Class<?>[] groups() default {};
+
+  Class<? extends Payload>[] payload() default {};
+}
