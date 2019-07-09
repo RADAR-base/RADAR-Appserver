@@ -45,7 +45,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.radarbase.appserver.converter.NotificationConverter;
-import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.entity.Notification;

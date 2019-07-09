@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import lombok.Synchronized;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -41,7 +40,6 @@ import org.radarbase.appserver.entity.Scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * An implementation of the {@link SchedulerService} providing Synchronized access to schedule,
@@ -58,14 +56,14 @@ public class SchedulerServiceImpl implements SchedulerService {
     this.scheduler = scheduler;
   }
 
-  @Transactional
+  @Async
   @SneakyThrows
   @Override
   public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
     scheduler.scheduleJob(jobDetail, trigger);
   }
 
-  @Transactional
+  @Async
   @SneakyThrows
   @Override
   public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap) {
@@ -73,7 +71,7 @@ public class SchedulerServiceImpl implements SchedulerService {
   }
 
 
-  @Transactional
+  @Async
   @SneakyThrows
   @Override
   public void updateScheduledJob(
@@ -103,7 +101,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     scheduler.rescheduleJob(triggerKey, trigger);
   }
 
-  @Transactional
+  @Async
   @SneakyThrows
   @Override
   public void deleteScheduledJobs(List<JobKey> jobKeys) {
@@ -113,7 +111,7 @@ public class SchedulerServiceImpl implements SchedulerService {
   }
 
 
-  @Transactional
+  @Async
   @SneakyThrows
   @Override
   public void deleteScheduledJob(JobKey jobKey) {

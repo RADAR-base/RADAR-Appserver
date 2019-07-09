@@ -35,9 +35,7 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.appserver.service.UserService;
-import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
