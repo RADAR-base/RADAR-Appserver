@@ -53,8 +53,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
-  private transient FcmSender fcmSender;
-
   private transient FcmNotificationService notificationService;
 
   private transient UserService userService;
@@ -62,11 +60,9 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
   private transient ProjectService projectService;
 
   public FcmMessageReceiverService(
-      @Qualifier("fcmSenderProps") FcmSender fcmSender,
       FcmNotificationService notificationService,
       UserService userService,
       ProjectService projectService) {
-    this.fcmSender = fcmSender;
     this.notificationService = notificationService;
     this.userService = userService;
     this.projectService = projectService;

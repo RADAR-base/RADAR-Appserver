@@ -437,11 +437,11 @@ class FcmNotificationServiceTest {
 
     FcmNotifications savedNotifications = notificationService.getNotificationsBySubjectId(USER_ID);
 
-    //    assertEquals(2, savedNotifications.getNotifications().size());
-    //    assertTrue(
-    //        savedNotifications.getNotifications().stream()
-    //            .anyMatch(notificationDto1 ->
-    // notificationDto1.getBody().equals(NOTIFICATION_BODY)));
+    assertEquals(2, savedNotifications.getNotifications().size());
+        assertTrue(
+            savedNotifications.getNotifications().stream()
+                .anyMatch(notificationDto1 ->
+     notificationDto1.getBody().equals(NOTIFICATION_BODY)));
   }
 
   @Test
@@ -494,7 +494,6 @@ class FcmNotificationServiceTest {
   static class FcmNotificationServiceTestContextConfiguration {
     private final transient NotificationConverter notificationConverter =
         new NotificationConverter();
-    private final transient UserConverter userConverter = new UserConverter();
     @Autowired private transient NotificationRepository notificationRepository;
     @Autowired private transient UserRepository userRepository;
     @Autowired private transient ProjectRepository projectRepository;
@@ -507,8 +506,7 @@ class FcmNotificationServiceTest {
           userRepository,
           projectRepository,
           schedulerService,
-          notificationConverter,
-          userConverter);
+          notificationConverter);
     }
   }
 }

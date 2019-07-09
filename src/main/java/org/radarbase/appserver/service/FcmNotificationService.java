@@ -53,6 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author yatharthranjan
  */
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 @Service
 public class FcmNotificationService implements NotificationService {
 
@@ -66,7 +67,6 @@ public class FcmNotificationService implements NotificationService {
   private final transient ProjectRepository projectRepository;
   private final transient NotificationSchedulerService schedulerService;
   private final transient NotificationConverter notificationConverter;
-  private final transient UserConverter userConverter;
 
   @Autowired
   public FcmNotificationService(
@@ -74,14 +74,12 @@ public class FcmNotificationService implements NotificationService {
       UserRepository userRepository,
       ProjectRepository projectRepository,
       NotificationSchedulerService schedulerService,
-      NotificationConverter notificationConverter,
-      UserConverter userConverter) {
+      NotificationConverter notificationConverter) {
     this.notificationRepository = notificationRepository;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.schedulerService = schedulerService;
     this.notificationConverter = notificationConverter;
-    this.userConverter = userConverter;
   }
 
   @Transactional(readOnly = true)

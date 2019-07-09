@@ -59,7 +59,11 @@ public class FcmNotificationControllerTest {
   public static final String PROJECT_ID = "test-project";
   public static final String USER_ID = "test-user";
   private static final String TITLE_1 = "Testing 1";
+  private static final String TITLE_2 = "Testing 2";
+  private static final String BODY = "Test notif";
   private static final String SOURCE_TYPE = "aRMT";
+  private static final String SOURCE_ID = "test";
+  private static final String TYPE = "ESM";
   private static final String NOTIFICATIONS_JSON_PATH = "$.notifications";
   private static final String NOTIFICATION_TITLE_JSON_PATH = "$.notifications[0].title";
   private static final String NOTIFICATION_FCMID_JSON_PATH = "$.notifications[0].fcmMessageId";
@@ -72,10 +76,10 @@ public class FcmNotificationControllerTest {
   public void setUp() {
     FcmNotificationDto notificationDto =
         new FcmNotificationDto()
-            .setBody("Test notif")
+            .setBody(BODY)
             .setTitle(TITLE_1)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(SOURCE_ID)
             .setFcmMessageId(FCM_MESSAGE_ID)
             .setTtlSeconds(86400)
             .setDelivered(false)
@@ -97,13 +101,13 @@ public class FcmNotificationControllerTest {
 
     FcmNotificationDto notificationDto2 =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing 2")
+            .setBody(BODY)
+            .setTitle(TITLE_2)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(SOURCE_ID)
             .setFcmMessageId(FCM_MESSAGE_ID + "7")
             .setSourceType(SOURCE_TYPE)
-            .setType("ESM")
+            .setType(TYPE)
             .setAppPackage(SOURCE_TYPE)
             .setTtlSeconds(86400)
             .setDelivered(false)
@@ -117,10 +121,10 @@ public class FcmNotificationControllerTest {
             .setBody("Test notif 3")
             .setTitle("Testing 3")
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(SOURCE_ID)
             .setFcmMessageId(FCM_MESSAGE_ID + "7")
             .setSourceType(SOURCE_TYPE)
-            .setType("ESM")
+            .setType(TYPE)
             .setAppPackage(SOURCE_TYPE)
             .setTtlSeconds(86400)
             .setDelivered(false);
@@ -226,13 +230,13 @@ public class FcmNotificationControllerTest {
 
     FcmNotificationDto notificationDto2 =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing 2")
+            .setBody(BODY)
+            .setTitle(TITLE_2)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(SOURCE_ID)
             .setFcmMessageId(FCM_MESSAGE_ID + "7")
             .setSourceType(SOURCE_TYPE)
-            .setType("ESM")
+            .setType(TYPE)
             .setAppPackage(SOURCE_TYPE)
             .setTtlSeconds(86400)
             .setDelivered(false);
@@ -254,7 +258,7 @@ public class FcmNotificationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(notificationDto2)))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.title", is("Testing 2")))
+        .andExpect(jsonPath("$.title", is(TITLE_2)))
         .andExpect(jsonPath("$.fcmMessageId", is(FCM_MESSAGE_ID + "7")))
         .andExpect(jsonPath("$.id", is(2)));
   }
@@ -264,13 +268,13 @@ public class FcmNotificationControllerTest {
 
     FcmNotificationDto notificationDto2 =
         new FcmNotificationDto()
-            .setBody("Test notif")
-            .setTitle("Testing 2")
+            .setBody(BODY)
+            .setTitle(TITLE_2)
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(SOURCE_ID)
             .setFcmMessageId(FCM_MESSAGE_ID + "7")
             .setSourceType(SOURCE_TYPE)
-            .setType("ESM")
+            .setType(TYPE)
             .setAppPackage(SOURCE_TYPE)
             .setTtlSeconds(86400)
             .setDelivered(false);
@@ -280,10 +284,10 @@ public class FcmNotificationControllerTest {
             .setBody("Test notif 3")
             .setTitle("Testing 3")
             .setScheduledTime(scheduledTime)
-            .setSourceId("test")
+            .setSourceId(SOURCE_ID)
             .setFcmMessageId(FCM_MESSAGE_ID + "7")
             .setSourceType(SOURCE_TYPE)
-            .setType("ESM")
+            .setType(TYPE)
             .setAppPackage(SOURCE_TYPE)
             .setTtlSeconds(86400)
             .setDelivered(false);
@@ -310,7 +314,7 @@ public class FcmNotificationControllerTest {
                 .content(objectMapper.writeValueAsBytes(fcmNotifications)))
         .andExpect(status().isOk())
         .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(2)))
-        .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is("Testing 2")))
+        .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_2)))
         .andExpect(jsonPath(NOTIFICATION_FCMID_JSON_PATH, is(FCM_MESSAGE_ID + "7")));
   }
 

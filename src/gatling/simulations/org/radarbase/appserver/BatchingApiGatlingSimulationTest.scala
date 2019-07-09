@@ -64,7 +64,7 @@ class BatchingApiGatlingSimulationTest extends Simulation {
 
   val baseUrl = "http://localhost:8080"
 
-  var fcmNotifications: FcmNotifications = new FcmNotifications()
+  val fcmNotifications: FcmNotifications = new FcmNotifications()
 
   val objectMapper = new ObjectMapper().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false).registerModule(new JavaTimeModule())
 

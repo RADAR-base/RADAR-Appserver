@@ -39,7 +39,9 @@ import org.quartz.TriggerKey;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.radarbase.appserver.entity.Scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * An implementation of the {@link SchedulerService} providing Synchronized access to schedule,
@@ -56,21 +58,22 @@ public class SchedulerServiceImpl implements SchedulerService {
     this.scheduler = scheduler;
   }
 
-  @Synchronized
+  @Transactional
   @SneakyThrows
   @Override
   public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
     scheduler.scheduleJob(jobDetail, trigger);
   }
 
-  @Synchronized
+  @Transactional
   @SneakyThrows
   @Override
   public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap) {
     scheduler.scheduleJobs(jobDetailTriggerMap, true);
   }
 
-  @Synchronized
+
+  @Transactional
   @SneakyThrows
   @Override
   public void updateScheduledJob(
@@ -100,7 +103,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     scheduler.rescheduleJob(triggerKey, trigger);
   }
 
-  @Synchronized
+  @Transactional
   @SneakyThrows
   @Override
   public void deleteScheduledJobs(List<JobKey> jobKeys) {
@@ -109,7 +112,8 @@ public class SchedulerServiceImpl implements SchedulerService {
     scheduler.deleteJobs(jobKeysExist);
   }
 
-  @Synchronized
+
+  @Transactional
   @SneakyThrows
   @Override
   public void deleteScheduledJob(JobKey jobKey) {
