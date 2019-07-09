@@ -55,19 +55,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(FcmNotificationController.class)
 public class FcmNotificationControllerTest {
 
-  private final transient Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
-  @Autowired private transient MockMvc mockMvc;
-  @Autowired private transient ObjectMapper objectMapper;
-  @MockBean private transient FcmNotificationService notificationService;
-
-  private static final String TITLE_1 = "Testing 1";
   public static final String FCM_MESSAGE_ID = "123456";
   public static final String PROJECT_ID = "test-project";
   public static final String USER_ID = "test-user";
+  private static final String TITLE_1 = "Testing 1";
   private static final String SOURCE_TYPE = "aRMT";
   private static final String NOTIFICATIONS_JSON_PATH = "$.notifications";
   private static final String NOTIFICATION_TITLE_JSON_PATH = "$.notifications[0].title";
   private static final String NOTIFICATION_FCMID_JSON_PATH = "$.notifications[0].fcmMessageId";
+  private final transient Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
+  @Autowired private transient MockMvc mockMvc;
+  @Autowired private transient ObjectMapper objectMapper;
+  @MockBean private transient FcmNotificationService notificationService;
 
   @BeforeEach
   public void setUp() {
@@ -113,6 +112,25 @@ public class FcmNotificationControllerTest {
     given(notificationService.addNotification(notificationDto2, USER_ID, PROJECT_ID))
         .willReturn(notificationDto2);
 
+    FcmNotificationDto notificationDto3 =
+        new FcmNotificationDto()
+            .setBody("Test notif 3")
+            .setTitle("Testing 3")
+            .setScheduledTime(scheduledTime)
+            .setSourceId("test")
+            .setFcmMessageId(FCM_MESSAGE_ID + "7")
+            .setSourceType(SOURCE_TYPE)
+            .setType("ESM")
+            .setAppPackage(SOURCE_TYPE)
+            .setTtlSeconds(86400)
+            .setDelivered(false);
+
+    FcmNotifications fcmNotifications =
+        new FcmNotifications().setNotifications(List.of(notificationDto2, notificationDto3));
+
+    given(notificationService.addNotifications(fcmNotifications, USER_ID, PROJECT_ID))
+        .willReturn(fcmNotifications);
+
     given(notificationService.getNotificationById(2L)).willReturn(notificationDto2);
 
     doAnswer(
@@ -132,8 +150,7 @@ public class FcmNotificationControllerTest {
   @Test
   void getAllNotifications() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(URI.create("/" + Paths.NOTIFICATION_PATH)))
+        .perform(MockMvcRequestBuilders.get(URI.create("/" + Paths.NOTIFICATION_PATH)))
         .andExpect(status().isOk())
         .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(1)))
         .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_1)))
@@ -143,8 +160,7 @@ public class FcmNotificationControllerTest {
   @Test
   void getNotificationUsingId() throws Exception {
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(URI.create("/" + Paths.NOTIFICATION_PATH + "/1")))
+        .perform(MockMvcRequestBuilders.get(URI.create("/" + Paths.NOTIFICATION_PATH + "/1")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.title", is(TITLE_1)))
         .andExpect(jsonPath("$.fcmMessageId", is(FCM_MESSAGE_ID)));
@@ -162,17 +178,17 @@ public class FcmNotificationControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                    URI.create(
-                        "/"
-                            + Paths.PROJECT_PATH
-                            + "/"
-                            + PROJECT_ID
-                            + "/"
-                            + Paths.USER_PATH
-                            + "/"
-                            + USER_ID
-                            + "/"
-                            + Paths.NOTIFICATION_PATH)))
+                URI.create(
+                    "/"
+                        + Paths.PROJECT_PATH
+                        + "/"
+                        + PROJECT_ID
+                        + "/"
+                        + Paths.USER_PATH
+                        + "/"
+                        + USER_ID
+                        + "/"
+                        + Paths.NOTIFICATION_PATH)))
         .andExpect(status().isOk())
         .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(1)))
         .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_1)))
@@ -185,13 +201,8 @@ public class FcmNotificationControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                    URI.create(
-                        "/"
-                            + Paths.PROJECT_PATH
-                            + "/"
-                            + PROJECT_ID
-                            + "/"
-                            + Paths.NOTIFICATION_PATH)))
+                URI.create(
+                    "/" + Paths.PROJECT_PATH + "/" + PROJECT_ID + "/" + Paths.NOTIFICATION_PATH)))
         .andExpect(status().isOk())
         .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(1)))
         .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_1)))
@@ -203,8 +214,7 @@ public class FcmNotificationControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                    URI.create(
-                        "/" + Paths.USER_PATH + "/" + USER_ID + "/" + Paths.NOTIFICATION_PATH)))
+                URI.create("/" + Paths.USER_PATH + "/" + USER_ID + "/" + Paths.NOTIFICATION_PATH)))
         .andExpect(status().isOk())
         .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(1)))
         .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_1)))
@@ -250,19 +260,74 @@ public class FcmNotificationControllerTest {
   }
 
   @Test
+  void addBatchNotifications() throws Exception {
+
+    FcmNotificationDto notificationDto2 =
+        new FcmNotificationDto()
+            .setBody("Test notif")
+            .setTitle("Testing 2")
+            .setScheduledTime(scheduledTime)
+            .setSourceId("test")
+            .setFcmMessageId(FCM_MESSAGE_ID + "7")
+            .setSourceType(SOURCE_TYPE)
+            .setType("ESM")
+            .setAppPackage(SOURCE_TYPE)
+            .setTtlSeconds(86400)
+            .setDelivered(false);
+
+    FcmNotificationDto notificationDto3 =
+        new FcmNotificationDto()
+            .setBody("Test notif 3")
+            .setTitle("Testing 3")
+            .setScheduledTime(scheduledTime)
+            .setSourceId("test")
+            .setFcmMessageId(FCM_MESSAGE_ID + "7")
+            .setSourceType(SOURCE_TYPE)
+            .setType("ESM")
+            .setAppPackage(SOURCE_TYPE)
+            .setTtlSeconds(86400)
+            .setDelivered(false);
+
+    FcmNotifications fcmNotifications =
+        new FcmNotifications().setNotifications(List.of(notificationDto2, notificationDto3));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    URI.create(
+                        "/"
+                            + Paths.PROJECT_PATH
+                            + "/"
+                            + PROJECT_ID
+                            + "/"
+                            + Paths.USER_PATH
+                            + "/"
+                            + USER_ID
+                            + "/"
+                            + Paths.NOTIFICATION_PATH
+                            + "/batch"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(fcmNotifications)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(2)))
+        .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is("Testing 2")))
+        .andExpect(jsonPath(NOTIFICATION_FCMID_JSON_PATH, is(FCM_MESSAGE_ID + "7")));
+  }
+
+  @Test
   void deleteNotificationsForUser() throws Exception {
     mockMvc.perform(
         MockMvcRequestBuilders.delete(
-                URI.create(
-                    "/"
-                        + Paths.PROJECT_PATH
-                        + "/"
-                        + PROJECT_ID
-                        + "/"
-                        + Paths.USER_PATH
-                        + "/"
-                        + USER_ID
-                        + "/"
-                        + Paths.NOTIFICATION_PATH)));
+            URI.create(
+                "/"
+                    + Paths.PROJECT_PATH
+                    + "/"
+                    + PROJECT_ID
+                    + "/"
+                    + Paths.USER_PATH
+                    + "/"
+                    + USER_ID
+                    + "/"
+                    + Paths.NOTIFICATION_PATH)));
   }
 }

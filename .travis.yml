@@ -2,6 +2,12 @@ language: java
 jdk:
   - openjdk11
 
+services:
+  - docker
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.24.1
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -9,6 +15,13 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - cd docker && docker-compose up -d hsqldb
 
 install:
   - ./gradlew assemble

@@ -241,8 +241,7 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
         && Objects.equals(getTitle(), that.getTitle())
         && Objects.equals(getBody(), that.getBody())
         && Objects.equals(getType(), that.getType())
-        && Objects.equals(getAppPackage(), that.getAppPackage())
-        && Objects.equals(getSourceType(), that.getSourceType());
+        && Objects.equals(getAppPackage(), that.getAppPackage());
   }
 
   @Override

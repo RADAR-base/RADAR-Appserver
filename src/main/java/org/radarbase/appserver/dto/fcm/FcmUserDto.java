@@ -27,6 +27,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.radarbase.appserver.entity.User;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -35,9 +36,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @EqualsAndHashCode
 @ToString
+@NoArgsConstructor
 public class FcmUserDto implements Serializable {
-
-  // TODO add updated and created at
 
   private static final long serialVersionUID = 1L;
 
@@ -56,6 +56,12 @@ public class FcmUserDto implements Serializable {
 
   // The most recent time when a notification for the app was delivered.
   private Instant lastDelivered;
+
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private Instant createdAt;
+
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private Instant updatedAt;
 
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -80,12 +86,22 @@ public class FcmUserDto implements Serializable {
     this.enrolmentDate = user.getEnrolmentDate();
     this.timezone = user.getTimezone();
     this.language = user.getLanguage();
+    this.createdAt = user.getCreatedAt().toInstant();
+    this.updatedAt = user.getUpdatedAt().toInstant();
   }
-
-  public FcmUserDto() {}
 
   public FcmUserDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public FcmUserDto setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public FcmUserDto setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 

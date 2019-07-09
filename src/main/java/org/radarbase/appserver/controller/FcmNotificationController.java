@@ -127,6 +127,26 @@ public class FcmNotificationController {
         .body(notificationDto);
   }
 
+  @PostMapping(
+      "/"
+          + Paths.PROJECT_PATH
+          + "/"
+          + Paths.PROJECT_ID_CONSTANT
+          + "/"
+          + Paths.USER_PATH
+          + "/"
+          + Paths.SUBJECT_ID_CONSTANT
+          + "/"
+          + Paths.NOTIFICATION_PATH
+          + "/batch")
+  public ResponseEntity<FcmNotifications> addBatchNotifications(
+      @PathVariable String projectId,
+      @PathVariable String subjectId,
+      @Valid @RequestBody FcmNotifications notifications) {
+    return ResponseEntity.ok(
+        this.notificationService.addNotifications(notifications, subjectId, projectId));
+  }
+
   @PutMapping(
       "/"
           + Paths.PROJECT_PATH

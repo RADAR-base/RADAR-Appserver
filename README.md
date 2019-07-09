@@ -152,11 +152,17 @@ First run the application and then run the gatling test using the command -
   ./gradlew gatlingRun
 ```
 
+To run a particular simulation you can run it like follows - 
+```bash
+   ./gradlew gatlingRun-org.radarbase.appserver.BatchingApiGatlingSimulationTest
+```
+
 You can modify the number of iterations of the requests by change the variables the the top of the file `src/gatling/simulations/org/radarbase/appserver/ApiGatlingSimulationTest.scala` like -
 ```scala
   val numOfProjects = 5
   val numOfUsersPerProject = 300
   val numOfNotificationsPerUser = 300
+  val numOfSimultaneousClients = 2
 ```
 
 You can also edit the base URL of your deployed instance of the server by changing the value of 

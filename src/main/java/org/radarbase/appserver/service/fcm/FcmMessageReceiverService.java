@@ -26,15 +26,20 @@ import java.time.Instant;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
+import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.ProjectService;
+import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * {@link UpstreamMessageHandler} for handling messages messages coming through the {@link
@@ -48,13 +53,24 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
-  // TODO Try to use REST endpoints for consistency.
-
-  @Autowired
-  @Qualifier("fcmSenderProps")
   private transient FcmSender fcmSender;
 
-  @Autowired private transient FcmNotificationService notificationService;
+  private transient FcmNotificationService notificationService;
+
+  private transient UserService userService;
+
+  private transient ProjectService projectService;
+
+  public FcmMessageReceiverService(
+      @Qualifier("fcmSenderProps") FcmSender fcmSender,
+      FcmNotificationService notificationService,
+      UserService userService,
+      ProjectService projectService) {
+    this.fcmSender = fcmSender;
+    this.notificationService = notificationService;
+    this.userService = userService;
+    this.projectService = projectService;
+  }
 
   /**
    * Performs {@link Action} based on the value supplied by the {@link
@@ -83,7 +99,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
                   case SCHEDULE:
                     log.info("Got a SCHEDULE Request");
-                    notificationService.addNotificationForced(
+                    handleScheduleNotification(
                         notificationDtoMapper(data),
                         userDtoMapper(jsonMessage.get("from").asText(), data),
                         jsonMessage.get("projectId") == null
@@ -209,5 +225,27 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
             jsonMessage.get("enrolmentDate") == null
                 ? Instant.now()
                 : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L));
+  }
+
+  @Transactional
+  private void handleScheduleNotification(
+      FcmNotificationDto notificationDto, FcmUserDto userDto, String projectId) {
+    try {
+      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
+    } catch (NotFoundException ex) {
+      if (ex.getMessage().contains("Project")) {
+        try {
+          projectService.addProject(new ProjectDto().setProjectId(projectId));
+          userService.saveUserInProject(userDto.setProjectId(projectId));
+        } catch (Exception e) {
+          log.warn("Exception while adding notification.", ex);
+        }
+      } else if (ex.getMessage().contains("Subject")) {
+        userService.saveUserInProject(userDto.setProjectId(projectId));
+      }
+      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
+    } catch (AlreadyExistsException ex) {
+      log.warn("The Notification Already Exists.", ex);
+    }
   }
 }

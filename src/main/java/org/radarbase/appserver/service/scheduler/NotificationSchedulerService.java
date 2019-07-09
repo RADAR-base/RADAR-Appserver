@@ -110,7 +110,7 @@ public class NotificationSchedulerService {
     JobDetail jobDetail = getJobDetailForNotification(notification).getObject();
 
     if (jobDetail != null) {
-      log.info("Job Detail = {}", jobDetail);
+      log.debug("Job Detail = {}", jobDetail);
       Trigger trigger = getTriggerForNotification(notification, jobDetail).getObject();
 
       schedulerService.scheduleJob(jobDetail, trigger);
@@ -123,16 +123,16 @@ public class NotificationSchedulerService {
 
     notifications.forEach(
         (Notification notification) -> {
-          log.info("Notification = {}", notification);
+          log.debug("Notification = {}", notification);
           JobDetail jobDetail = getJobDetailForNotification(notification).getObject();
 
-          log.info("Job Detail = {}", jobDetail);
+          log.debug("Job Detail = {}", jobDetail);
           Set<Trigger> triggerSet = new HashSet<>();
           triggerSet.add(getTriggerForNotification(notification, jobDetail).getObject());
 
           jobDetailSetMap.putIfAbsent(jobDetail, triggerSet);
         });
-
+    log.info("Scheduling {} notifications", notifications.size());
     schedulerService.scheduleJobs(jobDetailSetMap);
   }
 

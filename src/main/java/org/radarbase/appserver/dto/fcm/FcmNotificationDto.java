@@ -23,11 +23,13 @@ package org.radarbase.appserver.dto.fcm;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Objects;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,9 +38,8 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 /** @author yatharthranjan */
 @Getter
 @ToString
+@NoArgsConstructor
 public class FcmNotificationDto implements Serializable {
-
-  // TODO add updated and created at
 
   private static final long serialVersionUID = 3L;
 
@@ -68,6 +69,12 @@ public class FcmNotificationDto implements Serializable {
 
   private Map<String, String> additionalData;
 
+  @DateTimeFormat(iso = ISO.DATE_TIME)
+  private Instant createdAt;
+
+  @DateTimeFormat(iso = ISO.DATE_TIME)
+  private Instant updatedAt;
+
   public FcmNotificationDto(Notification notificationEntity) {
     this.id = notificationEntity.getId();
     this.scheduledTime = notificationEntity.getScheduledTime();
@@ -81,9 +88,19 @@ public class FcmNotificationDto implements Serializable {
     this.sourceType = notificationEntity.getSourceType();
     this.ttlSeconds = notificationEntity.getTtlSeconds();
     this.additionalData = notificationEntity.getAdditionalData();
+    this.createdAt = notificationEntity.getCreatedAt().toInstant();
+    this.updatedAt = notificationEntity.getUpdatedAt().toInstant();
   }
 
-  public FcmNotificationDto() {}
+  public FcmNotificationDto setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public FcmNotificationDto setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
 
   public FcmNotificationDto setId(Long id) {
     this.id = id;

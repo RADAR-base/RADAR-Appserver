@@ -48,7 +48,6 @@ import org.radarbase.appserver.converter.NotificationConverter;
 import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -404,7 +403,7 @@ class FcmNotificationServiceTest {
   }
 
   @Test
-  void addNotificationForced() {
+  void addNotifications() {
 
     FcmNotificationDto notificationDto =
         new FcmNotificationDto()
@@ -416,20 +415,27 @@ class FcmNotificationServiceTest {
             .setTtlSeconds(86400)
             .setDelivered(false);
 
-    FcmUserDto userDto =
-        new FcmUserDto()
-            .setProjectId(PROJECT_ID + NEW_SUFFIX)
-            .setEnrolmentDate(Instant.now())
-            .setFcmToken(FCM_TOKEN_1)
-            .setSubjectId(USER_ID + NEW_SUFFIX);
+    FcmNotificationDto notificationDto2 =
+        new FcmNotificationDto()
+            .setBody(NOTIFICATION_BODY + "2")
+            .setTitle(NOTIFICATION_TITLE_4 + "3")
+            .setScheduledTime(scheduledTime)
+            .setSourceId(NOTIFICATION_SOURCE_ID)
+            .setFcmMessageId("12345678")
+            .setTtlSeconds(86400)
+            .setDelivered(false);
 
-    // Note we are using a project name and user name that does not exist yet.
-    notificationService.addNotificationForced(notificationDto, userDto, PROJECT_ID + NEW_SUFFIX);
+    notificationService.addNotifications(
+        new FcmNotifications().setNotifications(List.of(notificationDto, notificationDto2)),
+        USER_ID,
+        PROJECT_ID);
 
-    FcmNotificationDto savedNotification = notificationService.getNotificationById(4L);
+    FcmNotifications savedNotifications = notificationService.getNotificationsBySubjectId(USER_ID);
 
-    assertEquals(NOTIFICATION_TITLE_4, savedNotification.getTitle());
-    assertEquals("12345678", savedNotification.getFcmMessageId());
+//    assertEquals(2, savedNotifications.getNotifications().size());
+//    assertTrue(
+//        savedNotifications.getNotifications().stream()
+//            .anyMatch(notificationDto1 -> notificationDto1.getBody().equals(NOTIFICATION_BODY)));
   }
 
   @Test

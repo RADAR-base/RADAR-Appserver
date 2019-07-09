@@ -21,18 +21,17 @@
 
 package org.radarbase.appserver.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import lombok.SneakyThrows;
+import java.util.stream.Collectors;
 import org.radarbase.appserver.converter.NotificationConverter;
 import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -57,12 +56,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FcmNotificationService implements NotificationService {
 
-  // TODO: Implement this as a publisher
   // TODO Add option to specify a scheduling provider (default will be fcm)
   // TODO: Use strategy pattern for handling notifications for scheduling and adding to database
 
   private static final String INVALID_SUBJECT_ID_MESSAGE =
-      "The supplied subject ID is invalid. No user found. Please Create a User First.";
+      "The supplied Subject ID is invalid. No user found. Please Create a User First.";
   private final transient NotificationRepository notificationRepository;
   private final transient UserRepository userRepository;
   private final transient ProjectRepository projectRepository;
@@ -113,19 +111,9 @@ public class FcmNotificationService implements NotificationService {
   @Transactional(readOnly = true)
   public FcmNotifications getNotificationsByProjectIdAndSubjectId(
       String projectId, String subjectId) {
-    Optional<Project> project = projectRepository.findByProjectId(projectId);
+    User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
-    if (project.isEmpty()) {
-      throw new NotFoundException("Project not found with projectId " + projectId);
-    }
-
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
-    if (user.isEmpty()) {
-      throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
-    }
-
-    List<Notification> notifications = notificationRepository.findByUserId(user.get().getId());
+    List<Notification> notifications = notificationRepository.findByUserId(user.getId());
     return new FcmNotifications()
         .setNotifications(notificationConverter.entitiesToDtos(notifications));
   }
@@ -171,24 +159,14 @@ public class FcmNotificationService implements NotificationService {
     return null;
   }
 
-  // TODO Also update users lastOpened metric
   @Transactional
   public FcmNotificationDto addNotification(
       FcmNotificationDto notificationDto, String subjectId, String projectId) {
-    Optional<Project> project = this.projectRepository.findByProjectId(projectId);
-    if (project.isEmpty()) {
-      throw new NotFoundException(
-          "Project Id does not exist. Please create a project with the ID first");
-    }
 
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
-    if (user.isEmpty()) {
-      throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
-    }
+    User user = subjectAndProjectExistElseThrow(subjectId, projectId);
     if (!notificationRepository
         .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-            user.get().getId(),
+            user.getId(),
             notificationDto.getSourceId(),
             notificationDto.getScheduledTime(),
             notificationDto.getTitle(),
@@ -198,57 +176,12 @@ public class FcmNotificationService implements NotificationService {
 
       Notification notificationSaved =
           this.notificationRepository.save(
-              notificationConverter.dtoToEntity(notificationDto).setUser(user.get()));
+              notificationConverter.dtoToEntity(notificationDto).setUser(user));
       this.schedulerService.scheduleNotification(notificationSaved);
-
+      user.getUsermetrics().setLastOpened(Instant.now());
+      this.userRepository.save(user);
       return notificationConverter.entityToDto(notificationSaved);
 
-    } else {
-      throw new AlreadyExistsException(
-          "The Notification Already exists. Please Use update endpoint", notificationDto);
-    }
-  }
-
-  @SneakyThrows
-  @Transactional
-  public FcmNotificationDto addNotificationForced(
-      FcmNotificationDto notificationDto, FcmUserDto userDto, String projectId) {
-    Optional<Project> project = this.projectRepository.findByProjectId(projectId);
-    Project newProject;
-    if (project.isEmpty()) {
-      Project project1 = new Project();
-      newProject = this.projectRepository.save(project1.setProjectId(projectId));
-    } else {
-      newProject = project.get();
-    }
-
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(userDto.getSubjectId(), newProject.getId());
-    AtomicReference<User> newUser = new AtomicReference<>();
-
-    user.ifPresentOrElse(
-        newUser::set,
-        () ->
-            newUser.set(
-                this.userRepository.save(
-                    userConverter.dtoToEntity(userDto).setProject(newProject))));
-
-    if (!notificationRepository
-        .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-            newUser.get().getId(),
-            notificationDto.getSourceId(),
-            notificationDto.getScheduledTime(),
-            notificationDto.getTitle(),
-            notificationDto.getBody(),
-            notificationDto.getType(),
-            notificationDto.getTtlSeconds())) {
-      Notification notification =
-          this.notificationRepository.save(
-              notificationConverter.dtoToEntity(notificationDto).setUser(newUser.get()));
-
-      this.schedulerService.scheduleNotification(notification);
-
-      return notificationConverter.entityToDto(notification);
     } else {
       throw new AlreadyExistsException(
           "The Notification Already exists. Please Use update endpoint", notificationDto);
@@ -264,18 +197,7 @@ public class FcmNotificationService implements NotificationService {
           "ID must be supplied for updating the notification");
     }
 
-    Optional<Project> project = this.projectRepository.findByProjectId(projectId);
-    if (project.isEmpty()) {
-      throw new NotFoundException(
-          "Project Id does not exist. Please create a project with the ID first");
-    }
-
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
-    if (user.isEmpty()) {
-      throw new NotFoundException(
-          "The supplied subject ID is invalid. No user found. Please Create a User First.");
-    }
+    User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
     Optional<Notification> notification =
         this.notificationRepository.findById(notificationDto.getId());
@@ -293,7 +215,7 @@ public class FcmNotificationService implements NotificationService {
             .setTitle(notificationDto.getTitle())
             .setTtlSeconds(notificationDto.getTtlSeconds())
             .setType(notificationDto.getType())
-            .setUser(user.get())
+            .setUser(user)
             .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
     Notification notificationSaved = this.notificationRepository.save(newNotification);
 
@@ -305,23 +227,12 @@ public class FcmNotificationService implements NotificationService {
 
   @Transactional
   public void removeNotificationsForUser(String projectId, String subjectId) {
-    Optional<Project> project = projectRepository.findByProjectId(projectId);
+    User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
-    if (project.isEmpty()) {
-      throw new NotFoundException("Project not found with projectId " + projectId);
-    }
-
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
-    if (user.isEmpty()) {
-      throw new NotFoundException(
-          "The supplied subject ID is invalid. No user found in the project ID provided. Please Create a User First.");
-    }
-
-    List<Notification> notifications = this.notificationRepository.findByUserId(user.get().getId());
+    List<Notification> notifications = this.notificationRepository.findByUserId(user.getId());
     this.schedulerService.deleteScheduledNotifications(notifications);
 
-    this.notificationRepository.deleteByUserId(user.get().getId());
+    this.notificationRepository.deleteByUserId(user.getId());
   }
 
   @Transactional
@@ -359,5 +270,39 @@ public class FcmNotificationService implements NotificationService {
         });
   }
 
-  // TODO add batch adding of notifications. The scheduler function is already there.
+  @Transactional
+  public FcmNotifications addNotifications(
+      FcmNotifications notificationDtos, String subjectId, String projectId) {
+    final User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+    List<Notification> notifications = notificationRepository.findByUserId(user.getId());
+
+    List<Notification> newNotifications =
+        notificationDtos.getNotifications().stream()
+            .map(notificationConverter::dtoToEntity)
+            .filter(notification -> !notifications.contains(notification))
+            .map(n -> n.setUser(user))
+            .collect(Collectors.toList());
+
+    List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
+    this.schedulerService.scheduleNotifications(savedNotifications);
+
+    return new FcmNotifications()
+        .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
+  }
+
+  private User subjectAndProjectExistElseThrow(String subjectId, String projectId) {
+    Optional<Project> project = this.projectRepository.findByProjectId(projectId);
+    if (project.isEmpty()) {
+      throw new NotFoundException(
+          "Project Id does not exist. Please create a project with the ID first");
+    }
+
+    Optional<User> user =
+        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
+    if (user.isEmpty()) {
+      throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
+    }
+
+    return user.get();
+  }
 }

@@ -39,23 +39,6 @@ import org.springframework.stereotype.Component;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UserConverter implements Converter<User, FcmUserDto> {
 
-  @Override
-  public User dtoToEntity(FcmUserDto fcmUserDto) {
-
-    return new User()
-        .setFcmToken(fcmUserDto.getFcmToken())
-        .setSubjectId(fcmUserDto.getSubjectId())
-        .setUserMetrics(getValidUserMetrics(fcmUserDto))
-        .setEnrolmentDate(fcmUserDto.getEnrolmentDate())
-        .setTimezone(fcmUserDto.getTimezone())
-        .setLanguage(fcmUserDto.getLanguage());
-  }
-
-  @Override
-  public FcmUserDto entityToDto(User user) {
-    return new FcmUserDto(user);
-  }
-
   public static UserMetrics getValidUserMetrics(FcmUserDto fcmUserDto) {
     UserMetrics userMetrics;
     if (fcmUserDto.getLastOpened() == null && fcmUserDto.getLastDelivered() == null) {
@@ -71,5 +54,22 @@ public class UserConverter implements Converter<User, FcmUserDto> {
     }
 
     return userMetrics;
+  }
+
+  @Override
+  public User dtoToEntity(FcmUserDto fcmUserDto) {
+
+    return new User()
+        .setFcmToken(fcmUserDto.getFcmToken())
+        .setSubjectId(fcmUserDto.getSubjectId())
+        .setUserMetrics(getValidUserMetrics(fcmUserDto))
+        .setEnrolmentDate(fcmUserDto.getEnrolmentDate())
+        .setTimezone(fcmUserDto.getTimezone())
+        .setLanguage(fcmUserDto.getLanguage());
+  }
+
+  @Override
+  public FcmUserDto entityToDto(User user) {
+    return new FcmUserDto(user);
   }
 }
