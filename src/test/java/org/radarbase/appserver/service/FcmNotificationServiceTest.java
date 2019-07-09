@@ -51,6 +51,7 @@ import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.entity.UserMetrics;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
@@ -97,6 +98,8 @@ class FcmNotificationServiceTest {
             .setEnrolmentDate(Instant.now())
             .setFcmToken(FCM_TOKEN_1)
             .setSubjectId(USER_ID + NEW_SUFFIX)
+            .setUserMetrics(
+                new UserMetrics().setLastOpened(Instant.now()).setLastDelivered(Instant.now()))
             .setId(2L);
 
     Mockito.when(userRepository.save(Mockito.any())).thenReturn(userNew);
@@ -189,6 +192,8 @@ class FcmNotificationServiceTest {
             .setTimezone(0d)
             .setLanguage("en")
             .setSubjectId(USER_ID)
+            .setUserMetrics(
+                new UserMetrics().setLastOpened(Instant.now()).setLastDelivered(Instant.now()))
             .setId(1L);
 
     Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
@@ -378,7 +383,7 @@ class FcmNotificationServiceTest {
             NotFoundException.class,
             () -> notificationService.addNotification(notificationDto, USER_ID + "-2", PROJECT_ID));
 
-    assertTrue(ex.getMessage().contains("The supplied subject ID is invalid. No user found."));
+    assertTrue(ex.getMessage().contains("The supplied Subject ID is invalid. No user found. Please Create a User First."));
   }
 
   @Test
@@ -432,10 +437,11 @@ class FcmNotificationServiceTest {
 
     FcmNotifications savedNotifications = notificationService.getNotificationsBySubjectId(USER_ID);
 
-//    assertEquals(2, savedNotifications.getNotifications().size());
-//    assertTrue(
-//        savedNotifications.getNotifications().stream()
-//            .anyMatch(notificationDto1 -> notificationDto1.getBody().equals(NOTIFICATION_BODY)));
+    //    assertEquals(2, savedNotifications.getNotifications().size());
+    //    assertTrue(
+    //        savedNotifications.getNotifications().stream()
+    //            .anyMatch(notificationDto1 ->
+    // notificationDto1.getBody().equals(NOTIFICATION_BODY)));
   }
 
   @Test

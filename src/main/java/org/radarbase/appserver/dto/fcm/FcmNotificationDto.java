@@ -23,7 +23,6 @@ package org.radarbase.appserver.dto.fcm;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Objects;
 import javax.validation.constraints.NotEmpty;
@@ -88,8 +87,12 @@ public class FcmNotificationDto implements Serializable {
     this.sourceType = notificationEntity.getSourceType();
     this.ttlSeconds = notificationEntity.getTtlSeconds();
     this.additionalData = notificationEntity.getAdditionalData();
-    this.createdAt = notificationEntity.getCreatedAt().toInstant();
-    this.updatedAt = notificationEntity.getUpdatedAt().toInstant();
+    if (notificationEntity.getCreatedAt() != null) {
+      this.createdAt = notificationEntity.getCreatedAt().toInstant();
+    }
+    if (notificationEntity.getUpdatedAt() != null) {
+      this.updatedAt = notificationEntity.getUpdatedAt().toInstant();
+    }
   }
 
   public FcmNotificationDto setCreatedAt(Instant createdAt) {

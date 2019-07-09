@@ -86,8 +86,12 @@ public class FcmUserDto implements Serializable {
     this.enrolmentDate = user.getEnrolmentDate();
     this.timezone = user.getTimezone();
     this.language = user.getLanguage();
-    this.createdAt = user.getCreatedAt().toInstant();
-    this.updatedAt = user.getUpdatedAt().toInstant();
+    if (user.getCreatedAt() != null) {
+      this.createdAt = user.getCreatedAt().toInstant();
+    }
+    if (user.getUpdatedAt() != null) {
+      this.updatedAt = user.getUpdatedAt().toInstant();
+    }
   }
 
   public FcmUserDto setId(Long id) {

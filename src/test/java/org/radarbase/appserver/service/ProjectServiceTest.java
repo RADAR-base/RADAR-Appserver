@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,8 @@ class ProjectServiceTest {
   @BeforeEach
   void setUp() {
     Project project = new Project().setProjectId(PROJECT_ID);
+    project.setCreatedAt(new Date());
+    project.setUpdatedAt(new Date());
 
     when(projectRepository.findByProjectId(PROJECT_ID)).thenReturn(Optional.of(project.setId(1L)));
 
@@ -61,10 +64,14 @@ class ProjectServiceTest {
     when(projectRepository.findById(1L)).thenReturn(Optional.of(project.setId(1L)));
 
     Project projectNew = new Project().setProjectId(PROJECT_ID + "-new");
+    projectNew.setCreatedAt(new Date());
+    projectNew.setUpdatedAt(new Date());
 
     when(projectRepository.save(projectNew)).thenReturn(projectNew.setId(2L));
 
     Project projectUpdated = new Project().setProjectId(PROJECT_ID + "-updated").setId(1L);
+    projectUpdated.setCreatedAt(new Date());
+    projectUpdated.setUpdatedAt(new Date());
 
     when(projectRepository.save(projectUpdated)).thenReturn(projectUpdated);
   }
