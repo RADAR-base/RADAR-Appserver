@@ -71,7 +71,7 @@ dependencies {
     compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
 
-    compile 'org.scala-lang:scala-library:2.12.8'
+    compile 'org.scala-lang:scala-library:2.13.0'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
