@@ -382,7 +382,10 @@ class FcmNotificationServiceTest {
             NotFoundException.class,
             () -> notificationService.addNotification(notificationDto, USER_ID + "-2", PROJECT_ID));
 
-    assertTrue(ex.getMessage().contains("The supplied Subject ID is invalid. No user found. Please Create a User First."));
+    assertTrue(
+        ex.getMessage()
+            .contains(
+                "The supplied Subject ID is invalid. No user found. Please Create a User First."));
   }
 
   @Test
@@ -437,10 +440,9 @@ class FcmNotificationServiceTest {
     FcmNotifications savedNotifications = notificationService.getNotificationsBySubjectId(USER_ID);
 
     assertEquals(2, savedNotifications.getNotifications().size());
-        assertTrue(
-            savedNotifications.getNotifications().stream()
-                .anyMatch(notificationDto1 ->
-     notificationDto1.getBody().equals(NOTIFICATION_BODY)));
+    assertTrue(
+        savedNotifications.getNotifications().stream()
+            .anyMatch(notificationDto1 -> notificationDto1.getBody().equals(NOTIFICATION_BODY)));
   }
 
   @Test

@@ -32,6 +32,7 @@ repositories {
     jcenter()
     maven { url "https://jitpack.io" }
     maven { url "http://dl.bintray.com/typesafe/maven-releases" }
+    maven { url 'https://dl.bintray.com/radar-cns/org.radarcns' }
 }
 
 configurations { codacy }
@@ -49,6 +50,7 @@ ext {
     lombokVersion = '1.18.4'
     bootAdminVersion = '2.1.1'
     throwingFunctionVersion = '1.5.0'
+    mpVersion = '0.5.6'
 }
 
 dependencies {
@@ -62,7 +64,8 @@ dependencies {
     implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
 
     compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion
-
+    implementation group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion
+    compile group: 'org.radarcns', name: 'radar-auth', version: mpVersion
     // XMPP
     compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
     compile group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion

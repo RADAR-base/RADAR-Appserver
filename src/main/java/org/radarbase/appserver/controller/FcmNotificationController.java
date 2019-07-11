@@ -30,6 +30,7 @@ import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,10 +51,12 @@ public class FcmNotificationController {
   @Autowired private transient FcmNotificationService notificationService;
 
   @GetMapping("/" + Paths.NOTIFICATION_PATH)
+  @PreAuthorize("hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')")
   public ResponseEntity<FcmNotifications> getAllNotifications() {
     return ResponseEntity.ok(this.notificationService.getAllNotifications());
   }
 
+  @PreAuthorize("hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')")
   @GetMapping("/" + Paths.NOTIFICATION_PATH + "/{id}")
   public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.notificationService.getNotificationById(id));
@@ -72,6 +75,12 @@ public class FcmNotificationController {
             type, delivered, ttlSeconds, startTime, endTime, limit));
   }
 
+  @PreAuthorize(
+      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, #"
+          + "projectId"
+          + ", #"
+          + "subjectId"
+          + ")")
   @GetMapping(
       value =
           "/"

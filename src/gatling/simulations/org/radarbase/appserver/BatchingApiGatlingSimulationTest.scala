@@ -66,7 +66,7 @@ class BatchingApiGatlingSimulationTest extends Simulation {
 
   val fcmNotifications: FcmNotifications = new FcmNotifications()
 
-  val objectMapper = new ObjectMapper().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false).registerModule(new JavaTimeModule())
+  val objectMapper: ObjectMapper = new ObjectMapper().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false).registerModule(new JavaTimeModule())
 
   val scn: ScenarioBuilder = scenario("Add5ProjectsThen1000UsersThen1000NotificationsPerUserPerProject").repeat(s"$numOfProjects", "np") {
     exec(session => {

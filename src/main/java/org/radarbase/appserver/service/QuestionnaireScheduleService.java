@@ -45,7 +45,8 @@ public class QuestionnaireScheduleService {
   public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
     this.protocolGenerator = protocolGenerator;
     protocolGenerator.init();
-    subjectScheduleMap = new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
+    subjectScheduleMap =
+        new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
   }
 
   // Use cached map of schedule of user

@@ -48,13 +48,13 @@ class ApiGatlingSimulationTest extends Simulation {
       val uuid: UUID = UUID.randomUUID()
       session.set("uuid", uuid)
     })
-    .exec(
-      http("AddProject-API")
-        .post(s"$baseUrl" + "/projects")
-        .header("Content-Type", "application/json")
-        .body(StringBody(projectTemplate))
-        .check(status.is(201))
-    ).exitHereIfFailed
+      .exec(
+        http("AddProject-API")
+          .post(s"$baseUrl" + "/projects")
+          .header("Content-Type", "application/json")
+          .body(StringBody(projectTemplate))
+          .check(status.is(201))
+      ).exitHereIfFailed
       .repeat(s"$numOfUsersPerProject", "nu") {
         exec(
           http("AddUser-API")

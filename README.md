@@ -117,12 +117,12 @@ To make this work,
 - Run an instance of the Spring Boot Admin server (various examples on the internet and also via Docker) on the machine and then 
 - configure the client to point to the Admin Server for registration by adding the following to your `application.properties` file - 
        
-        ```properties
+        ```
         spring.boot.admin.client.url = http://localhost:8888
         ```
    In this case, the Spring Boot admin server was running on `http://localhost:8888`. If http basic auth is enabled on the server also add the following to the `application.properties` file -
         
-        ```properties
+        ```
         spring.boot.admin.client.url = http://localhost:8888
         spring.boot.admin.client".username = admin-server-username
         spring.boot.admin.client".password = admin-server-password

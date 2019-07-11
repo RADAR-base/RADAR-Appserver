@@ -57,3 +57,22 @@ services:
       SPRING_BOOT_ADMIN_USER_PASSWORD: appserver
       SPRING_BOOT_ADMIN_TITLE: RADAR-appserver
       SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"username":"radar","password":"appserver","title":"RADAR-appserver"}}}}'
+
+  #---------------------------------------------------------------------------#
+  # Management Portal                                                         #
+  #---------------------------------------------------------------------------#
+  managementportal:
+    image: radarbase/management-portal:0.5.6
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8081
+      MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET: ""
+      MANAGEMENTPORTAL_COMMON_BASE_URL: http://localhost:8081
+      MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL: http://localhost:8081
+      MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE: /mp-includes/config/oauth_client_details.csv
+      MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT: 'false'
+      JAVA_OPTS: -Xmx256m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
+    volumes:
+      - ./etc/:/mp-includes/

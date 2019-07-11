@@ -55,7 +55,12 @@ public class MultiHttpSecurityConfig {
     User.UserBuilder users = User.builder().passwordEncoder(encoder::encode);
     InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
     manager.createUser(
-        users.username(adminUsername).password(adminPassword).roles("ADMIN").build());
+        users
+            .username(adminUsername)
+            .password(adminPassword)
+            .roles("ADMIN")
+            .authorities("ROLE_SYS_ADMIN")
+            .build());
     // manager.createUser(users.username("default").password("radar").roles("USER","ADMIN").build());
     return manager;
   }
@@ -71,7 +76,7 @@ public class MultiHttpSecurityConfig {
           .authorizeRequests()
           .anyRequest()
           .permitAll()
-          //.hasRole("ADMIN")
+          // .hasRole("ADMIN")
           .and()
           .httpBasic();
     }
