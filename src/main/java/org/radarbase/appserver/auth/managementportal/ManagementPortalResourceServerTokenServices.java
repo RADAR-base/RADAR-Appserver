@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.auth.managementportal;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,7 +98,7 @@ public class ManagementPortalResourceServerTokenServices implements ResourceServ
             null);
 
     OAuth2Authentication result = new OAuth2Authentication(request, null);
-    log.debug(result.toString());
+    log.warn(result.toString());
 
     if (result == null) {
       // in case of race condition
@@ -173,8 +172,6 @@ public class ManagementPortalResourceServerTokenServices implements ResourceServ
             return accessTokenRadar.getToken();
           }
         };
-
     return oAuth2AccessToken;
-    //    return new DefaultOAuth2AccessToken(accessToken);
   }
 }

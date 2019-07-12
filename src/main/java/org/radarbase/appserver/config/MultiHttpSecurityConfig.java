@@ -73,6 +73,7 @@ public class MultiHttpSecurityConfig {
     protected void configure(HttpSecurity http) throws Exception {
 
       http.antMatcher("/actuator/**")
+          .antMatcher("/console/**")
           .authorizeRequests()
           .anyRequest()
           .permitAll()

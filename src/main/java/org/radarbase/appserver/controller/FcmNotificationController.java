@@ -76,10 +76,12 @@ public class FcmNotificationController {
   }
 
   @PreAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, #"
-          + "projectId"
-          + ", #"
-          + "subjectId"
+      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
+          + AuthContants.ACCESSOR
+          + AuthContants.PROJECT_ID
+          + ", "
+          + AuthContants.ACCESSOR
+          + AuthContants.SUBJECT_ID
           + ")")
   @GetMapping(
       value =
@@ -99,6 +101,11 @@ public class FcmNotificationController {
         this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
   }
 
+  @PreAuthorize(
+      "hasPermissionOnProject(T(org.radarcns.auth.authorization.Permission).PROJECT_READ, "
+          + AuthContants.ACCESSOR
+          + AuthContants.PROJECT_ID
+          + ")")
   @GetMapping(
       "/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectId(
@@ -106,6 +113,8 @@ public class FcmNotificationController {
     return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId));
   }
 
+  // TODO: Edit this as this needs to be on the Subject level.
+  @PreAuthorize("hasPermission(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ" + ")")
   @GetMapping(
       "/" + Paths.USER_PATH + "/" + Paths.SUBJECT_ID_CONSTANT + "/" + Paths.NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingSubjectId(
@@ -113,6 +122,14 @@ public class FcmNotificationController {
     return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
   }
 
+  @PreAuthorize(
+      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthContants.ACCESSOR
+          + AuthContants.PROJECT_ID
+          + ", "
+          + AuthContants.ACCESSOR
+          + AuthContants.SUBJECT_ID
+          + ")")
   @PostMapping(
       "/"
           + Paths.PROJECT_PATH
@@ -136,6 +153,14 @@ public class FcmNotificationController {
         .body(notificationDto);
   }
 
+  @PreAuthorize(
+      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthContants.ACCESSOR
+          + AuthContants.PROJECT_ID
+          + ", "
+          + AuthContants.ACCESSOR
+          + AuthContants.SUBJECT_ID
+          + ")")
   @PostMapping(
       "/"
           + Paths.PROJECT_PATH
@@ -156,6 +181,14 @@ public class FcmNotificationController {
         this.notificationService.addNotifications(notifications, subjectId, projectId));
   }
 
+  @PreAuthorize(
+      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthContants.ACCESSOR
+          + AuthContants.PROJECT_ID
+          + ", "
+          + AuthContants.ACCESSOR
+          + AuthContants.SUBJECT_ID
+          + ")")
   @PutMapping(
       "/"
           + Paths.PROJECT_PATH
@@ -176,6 +209,14 @@ public class FcmNotificationController {
         this.notificationService.updateNotification(notification, subjectId, projectId));
   }
 
+  @PreAuthorize(
+      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthContants.ACCESSOR
+          + AuthContants.PROJECT_ID
+          + ", "
+          + AuthContants.ACCESSOR
+          + AuthContants.SUBJECT_ID
+          + ")")
   @DeleteMapping(
       "/"
           + Paths.PROJECT_PATH

@@ -31,6 +31,8 @@ import org.radarbase.appserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,6 +60,11 @@ public class RadarProjectController {
    * @return The updated Project DTO. Throws {@link
    *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
    */
+  @PreAuthorize(
+      AuthContants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+          + AuthContants.ACCESSOR
+          + "projectDto.getProjectId()"
+          + ")")
   @PostMapping(
       value = "/" + Paths.PROJECT_PATH,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -76,6 +83,11 @@ public class RadarProjectController {
    * @return The updated Project DTO. Throws {@link
    *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
    */
+  @PreAuthorize(
+      AuthContants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+          + AuthContants.ACCESSOR
+          + "projectDto.getProjectId()"
+          + ")")
   @PutMapping(
       value = "/" + Paths.PROJECT_PATH,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -83,16 +95,26 @@ public class RadarProjectController {
     return ResponseEntity.ok(this.projectService.updateProject(projectDto));
   }
 
+  @PreAuthorize("hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')")
   @GetMapping("/" + Paths.PROJECT_PATH)
   public ResponseEntity<ProjectDtos> getAllProjects() {
     return ResponseEntity.ok(this.projectService.getAllProjects());
   }
 
+  @PostAuthorize(
+      AuthContants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+          + "returnObject.body.getProjectId()"
+          + ")")
   @GetMapping("/" + Paths.PROJECT_PATH + "/project")
   public ResponseEntity<ProjectDto> getProjectsUsingId(@Valid @PathParam("id") Long id) {
     return ResponseEntity.ok(this.projectService.getProjectById(id));
   }
 
+  @PreAuthorize(
+      AuthContants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+          + AuthContants.ACCESSOR
+          + AuthContants.PROJECT_ID
+          + ")")
   @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT)
   public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
       @Valid @PathVariable String projectId) {
