@@ -10,7 +10,7 @@ networks:
 
 services:
   hsqldb:
-    build: ./database/
+    build: database
     image: yatharthranjan89/hsqldb
     restart: always
     networks:
@@ -24,7 +24,7 @@ services:
       - ./database/sqltool.rc:/etc/opt/hsqldb/conf/sqltool.rc
 
   appserver:
-    build: ../
+    build: ../../../..
     restart: always
     networks:
       - db
