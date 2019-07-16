@@ -95,7 +95,7 @@ public class RadarProjectController {
     return ResponseEntity.ok(this.projectService.updateProject(projectDto));
   }
 
-  @PreAuthorize("hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')")
+  @PreAuthorize(AuthContants.IS_ADMIN)
   @GetMapping("/" + Paths.PROJECT_PATH)
   public ResponseEntity<ProjectDtos> getAllProjects() {
     return ResponseEntity.ok(this.projectService.getAllProjects());

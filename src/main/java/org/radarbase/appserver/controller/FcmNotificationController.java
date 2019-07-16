@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Resource Endpoint for getting and adding (scheduling) notifications on Firbase Cloud Messaging.
+ * Resource Endpoint for getting and adding (scheduling) notifications on Firebase Cloud Messaging.
  *
  * @author yatharthranjan
  */
@@ -51,12 +51,12 @@ public class FcmNotificationController {
   @Autowired private transient FcmNotificationService notificationService;
 
   @GetMapping("/" + Paths.NOTIFICATION_PATH)
-  @PreAuthorize("hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')")
+  @PreAuthorize(AuthContants.IS_ADMIN)
   public ResponseEntity<FcmNotifications> getAllNotifications() {
     return ResponseEntity.ok(this.notificationService.getAllNotifications());
   }
 
-  @PreAuthorize("hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')")
+  @PreAuthorize(AuthContants.IS_ADMIN)
   @GetMapping("/" + Paths.NOTIFICATION_PATH + "/{id}")
   public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.notificationService.getNotificationById(id));

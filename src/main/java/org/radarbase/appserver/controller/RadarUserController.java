@@ -54,7 +54,7 @@ public class RadarUserController {
   @Autowired private transient UserService userService;
 
   @PreAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).MEASUREMENT_CREATE, "
+      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
           + AuthContants.ACCESSOR
           + "userDto.getProjectId()"
           + ", "
@@ -70,7 +70,7 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).MEASUREMENT_CREATE, "
+      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
           + AuthContants.ACCESSOR
           + AuthContants.PROJECT_ID
           + ", "
@@ -88,7 +88,7 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).MEASUREMENT_CREATE, "
+      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
           + AuthContants.ACCESSOR
           + AuthContants.PROJECT_ID
           + ", "
@@ -119,14 +119,14 @@ public class RadarUserController {
     return ResponseEntity.ok(user);
   }
 
-  @PreAuthorize("hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')")
+  @PreAuthorize(AuthContants.IS_ADMIN)
   @GetMapping("/" + Paths.USER_PATH)
   public ResponseEntity<FcmUsers> getAllRadarUsers() {
     return ResponseEntity.ok(this.userService.getAllRadarUsers());
   }
 
   @PostAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
+      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
           + "returnObject.body.getProjectId()"
           + ", "
           + "returnObject.body.getSubjectId()"
@@ -140,7 +140,7 @@ public class RadarUserController {
   }
 
   @PostAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
+      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
           + "returnObject.body.getProjectId()"
           + ", "
           + "returnObject.body.getSubjectId()"
@@ -151,7 +151,7 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      "hasPermissionOnProject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
+      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
           + AuthContants.ACCESSOR
           + AuthContants.PROJECT_ID
           + ")")
@@ -161,7 +161,7 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
+      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
           + AuthContants.ACCESSOR
           + AuthContants.PROJECT_ID
           + ", "

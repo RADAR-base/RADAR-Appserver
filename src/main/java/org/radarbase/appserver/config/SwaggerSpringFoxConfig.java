@@ -32,7 +32,6 @@ public class SwaggerSpringFoxConfig {
         .build();
   }
 
-
   @Bean
   public ModelMapper modelMapper() {
     return new ModelMapperImpl();
