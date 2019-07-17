@@ -22,6 +22,7 @@
 package org.radarbase.appserver.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.radarbase.appserver.auth.ProjectEndpointAuthTest.createURLWithPort;
 
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,22 +50,23 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class UserEndpointAuthTest {
 
+  public static final String USER_PATH = "/users";
+  public static final String DEFAULT_PROJECT = "/radar";
   private static final HttpHeaders HEADERS = new HttpHeaders();
   private static HttpHeaders AUTH_HEADER;
-  private static String ACCESS_TOKEN;
   private static OAuthHelper oAuthHelper;
   private static TestRestTemplate restTemplate = new TestRestTemplate();
-  @LocalServerPort private int port;
-
-  private final FcmUserDto userDto =
+  private final transient FcmUserDto userDto =
       new FcmUserDto()
           .setProjectId("radar")
           .setLanguage("en")
           .setEnrolmentDate(Instant.now())
           .setFcmToken("xxx")
           .setSubjectId("sub-1");
+  @LocalServerPort private transient int port;
 
   @BeforeAll
   static void init() {
@@ -78,12 +80,11 @@ public class UserEndpointAuthTest {
     ProjectDto projectDto = new ProjectDto().setProjectId("radar");
     HttpEntity<ProjectDto> projectEntity = new HttpEntity<>(projectDto, AUTH_HEADER);
 
-    ResponseEntity<ProjectDto> responseEntity =
-        restTemplate.exchange(
-            "http://localhost:" + port + "/projects",
-            HttpMethod.POST,
-            projectEntity,
-            ProjectDto.class);
+    restTemplate.exchange(
+        createURLWithPort(port, ProjectEndpointAuthTest.PROJECT_PATH),
+        HttpMethod.POST,
+        projectEntity,
+        ProjectDto.class);
   }
 
   @Test
@@ -93,7 +94,10 @@ public class UserEndpointAuthTest {
 
     ResponseEntity<FcmUserDto> responseEntity =
         restTemplate.exchange(
-            "http://localhost:" + port + "/projects" + "/radar" + "/users" + "/sub-1",
+            createURLWithPort(port, ProjectEndpointAuthTest.PROJECT_PATH)
+                + DEFAULT_PROJECT
+                + USER_PATH
+                + "/sub-1",
             HttpMethod.GET,
             userDtoHttpEntity,
             FcmUserDto.class);
@@ -107,7 +111,8 @@ public class UserEndpointAuthTest {
 
     ResponseEntity<FcmUserDto> responseEntity =
         restTemplate.exchange(
-            "http://localhost:" + port + "/projects" + "/radar" + "/users",
+            createURLWithPort(
+                port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH),
             HttpMethod.POST,
             userDtoHttpEntity,
             FcmUserDto.class);
@@ -122,12 +127,13 @@ public class UserEndpointAuthTest {
 
     ResponseEntity<FcmUserDto> responseEntity =
         restTemplate.exchange(
-            "http://localhost:" + port + "/projects" + "/radar" + "/users",
+            createURLWithPort(
+                port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH),
             HttpMethod.POST,
             userDtoHttpEntity,
             FcmUserDto.class);
 
-    if(responseEntity.getStatusCode().equals(HttpStatus.EXPECTATION_FAILED)) {
+    if (responseEntity.getStatusCode().equals(HttpStatus.EXPECTATION_FAILED)) {
       // The auth was successful but expectation failed if the user already exits.
       // Since this is just an auth test we can return.
       return;
@@ -143,7 +149,9 @@ public class UserEndpointAuthTest {
 
     ResponseEntity<FcmUserDto> responseEntity =
         restTemplate.exchange(
-            "http://localhost:" + port + "/projects" + "/radar" + "/users" + "/sub-1",
+            createURLWithPort(
+                port,
+                ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH + "/sub-1"),
             HttpMethod.GET,
             userDtoHttpEntity,
             FcmUserDto.class);
@@ -158,7 +166,8 @@ public class UserEndpointAuthTest {
 
     ResponseEntity<FcmUsers> responseEntity =
         restTemplate.exchange(
-            "http://localhost:" + port + "/projects" + "/radar" + "/users",
+            createURLWithPort(
+                port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH),
             HttpMethod.GET,
             userDtoHttpEntity,
             FcmUsers.class);
@@ -173,7 +182,7 @@ public class UserEndpointAuthTest {
 
     ResponseEntity<FcmUsers> responseEntity =
         restTemplate.exchange(
-            "http://localhost:" + port + "/projects" + "/test" + "/users",
+            createURLWithPort(port, ProjectEndpointAuthTest.PROJECT_PATH + "/test" + USER_PATH),
             HttpMethod.GET,
             userDtoHttpEntity,
             FcmUsers.class);
@@ -188,10 +197,7 @@ public class UserEndpointAuthTest {
 
     ResponseEntity<FcmUsers> responseEntity =
         restTemplate.exchange(
-            "http://localhost:" + port + "/users",
-            HttpMethod.GET,
-            userDtoHttpEntity,
-            FcmUsers.class);
+            createURLWithPort(port, USER_PATH), HttpMethod.GET, userDtoHttpEntity, FcmUsers.class);
 
     assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
   }

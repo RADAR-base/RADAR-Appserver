@@ -34,6 +34,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class MPOAuthHelper implements OAuthHelper {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final String ACCESS_TOKEN;

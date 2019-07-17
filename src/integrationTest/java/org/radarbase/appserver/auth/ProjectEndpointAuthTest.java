@@ -47,12 +47,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @TestMethodOrder(OrderAnnotation.class)
 public class ProjectEndpointAuthTest {
 
+  public static final String PROJECT_PATH = "/projects";
   private static final HttpHeaders HEADERS = new HttpHeaders();
   private static HttpHeaders AUTH_HEADER;
-  private static String ACCESS_TOKEN;
   private static OAuthHelper oAuthHelper;
-  TestRestTemplate restTemplate = new TestRestTemplate();
-  @LocalServerPort private int port;
+  private final transient TestRestTemplate restTemplate = new TestRestTemplate();
+  @LocalServerPort private transient int port;
 
   @BeforeAll
   static void init() {
@@ -69,7 +69,7 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort("/projects"), HttpMethod.POST, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH), HttpMethod.POST, projectEntity, ProjectDto.class);
     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
   }
 
@@ -80,7 +80,7 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort("/projects"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH), HttpMethod.GET, projectEntity, ProjectDto.class);
     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
   }
 
@@ -91,7 +91,7 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort("/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
   }
 
@@ -101,7 +101,7 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort("/projects"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH), HttpMethod.GET, projectEntity, ProjectDto.class);
 
     // Only Admins can view the list of all projects
     assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
@@ -115,9 +115,9 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort("/projects"), HttpMethod.POST, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH), HttpMethod.POST, projectEntity, ProjectDto.class);
 
-    if(responseEntity.getStatusCode().equals(HttpStatus.EXPECTATION_FAILED)) {
+    if (responseEntity.getStatusCode().equals(HttpStatus.EXPECTATION_FAILED)) {
       // The auth was successful but expectation failed if the project already exits.
       // Since this is just an auth test we can return.
       return;
@@ -132,7 +132,7 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort("/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
 
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
@@ -144,13 +144,13 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort("/projects/test"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/test"), HttpMethod.GET, projectEntity, ProjectDto.class);
 
     // Access denied as the user has only access to the project that it is part of.
     assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
   }
 
-  private String createURLWithPort(String uri) {
+  public static String createURLWithPort(int port, String uri) {
     return "http://localhost:" + port + uri;
   }
 }
