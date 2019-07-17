@@ -54,12 +54,12 @@ public class RadarUserController {
   @Autowired private transient UserService userService;
 
   @PreAuthorize(
-      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthContants.ACCESSOR
+      AuthConstants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstants.ACCESSOR
           + "userDto.getProjectId()"
           + ", "
-          + AuthContants.ACCESSOR
-          + AuthContants.USER_DTO_SUBJECT_ID
+          + AuthConstants.ACCESSOR
+          + AuthConstants.USER_DTO_SUBJECT_ID
           + ")")
   @PostMapping("/users")
   public ResponseEntity<FcmUserDto> addUser(@Valid @RequestBody FcmUserDto userDto)
@@ -70,12 +70,12 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthContants.ACCESSOR
-          + AuthContants.PROJECT_ID
+      AuthConstants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstants.ACCESSOR
+          + AuthConstants.PROJECT_ID
           + ", "
-          + AuthContants.ACCESSOR
-          + AuthContants.USER_DTO_SUBJECT_ID
+          + AuthConstants.ACCESSOR
+          + AuthConstants.USER_DTO_SUBJECT_ID
           + ")")
   @PostMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity addUserToProject(
@@ -88,12 +88,12 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      AuthContants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthContants.ACCESSOR
-          + AuthContants.PROJECT_ID
+      AuthConstants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstants.ACCESSOR
+          + AuthConstants.PROJECT_ID
           + ", "
-          + AuthContants.ACCESSOR
-          + AuthContants.USER_DTO_SUBJECT_ID
+          + AuthConstants.ACCESSOR
+          + AuthConstants.USER_DTO_SUBJECT_ID
           + ")")
   @PutMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity updateUserInProject(
@@ -106,11 +106,11 @@ public class RadarUserController {
 
   @PreAuthorize(
       "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_UPDATE, "
-          + AuthContants.ACCESSOR
+          + AuthConstants.ACCESSOR
           + "userDto.getProjectId()"
           + ", "
-          + AuthContants.ACCESSOR
-          + AuthContants.USER_DTO_SUBJECT_ID
+          + AuthConstants.ACCESSOR
+          + AuthConstants.USER_DTO_SUBJECT_ID
           + ")")
   @PutMapping("/" + Paths.USER_PATH)
   public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
@@ -119,14 +119,14 @@ public class RadarUserController {
     return ResponseEntity.ok(user);
   }
 
-  @PreAuthorize(AuthContants.IS_ADMIN)
+  @PreAuthorize(AuthConstants.IS_ADMIN)
   @GetMapping("/" + Paths.USER_PATH)
   public ResponseEntity<FcmUsers> getAllRadarUsers() {
     return ResponseEntity.ok(this.userService.getAllRadarUsers());
   }
 
   @PostAuthorize(
-      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
+      AuthConstants.PERMISSION_ON_SUBJECT_SUBJECT_READ
           + "returnObject.body.getProjectId()"
           + ", "
           + "returnObject.body.getSubjectId()"
@@ -140,7 +140,7 @@ public class RadarUserController {
   }
 
   @PostAuthorize(
-      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
+      AuthConstants.PERMISSION_ON_SUBJECT_SUBJECT_READ
           + "returnObject.body.getProjectId()"
           + ", "
           + "returnObject.body.getSubjectId()"
@@ -151,9 +151,9 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      AuthContants.PERMISSION_ON_PROJECT_SUBJECT_READ
-          + AuthContants.ACCESSOR
-          + AuthContants.PROJECT_ID
+      AuthConstants.PERMISSION_ON_PROJECT_SUBJECT_READ
+          + AuthConstants.ACCESSOR
+          + AuthConstants.PROJECT_ID
           + ")")
   @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
   public ResponseEntity<FcmUsers> getUsersUsingProjectId(@Valid @PathVariable String projectId) {
@@ -161,12 +161,12 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
-          + AuthContants.ACCESSOR
-          + AuthContants.PROJECT_ID
+      AuthConstants.PERMISSION_ON_SUBJECT_SUBJECT_READ
+          + AuthConstants.ACCESSOR
+          + AuthConstants.PROJECT_ID
           + ", "
-          + AuthContants.ACCESSOR
-          + AuthContants.SUBJECT_ID
+          + AuthConstants.ACCESSOR
+          + AuthConstants.SUBJECT_ID
           + ")")
   @GetMapping(
       "/"
