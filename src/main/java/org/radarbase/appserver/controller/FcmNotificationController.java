@@ -102,7 +102,7 @@ public class FcmNotificationController {
   }
 
   @PreAuthorize(
-      "hasPermissionOnProject(T(org.radarcns.auth.authorization.Permission).PROJECT_READ, "
+      "hasPermissionOnProject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
           + AuthContants.ACCESSOR
           + AuthContants.PROJECT_ID
           + ")")

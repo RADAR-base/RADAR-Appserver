@@ -151,7 +151,7 @@ public class RadarUserController {
   }
 
   @PreAuthorize(
-      AuthContants.PERMISSION_ON_SUBJECT_SUBJECT_READ
+      AuthContants.PERMISSION_ON_PROJECT_SUBJECT_READ
           + AuthContants.ACCESSOR
           + AuthContants.PROJECT_ID
           + ")")

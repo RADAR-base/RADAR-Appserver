@@ -30,6 +30,9 @@ public class AuthContants {
       "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).MEASUREMENT_CREATE, ";
   public static final String PERMISSION_ON_PROJECT_MEASUREMENT_CREATE =
       "hasPermissionOnProject(T(org.radarcns.auth.authorization.Permission).MEASUREMENT_CREATE, ";
-  public static final String PERMISSION_ON_SUBJECT_SUBJECT_READ = "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, ";
+  public static final String PERMISSION_ON_SUBJECT_SUBJECT_READ =
+      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, ";
+  public static final String PERMISSION_ON_PROJECT_SUBJECT_READ =
+      "hasPermissionOnProject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, ";
   public static final String IS_ADMIN = "hasAuthority('ROLE_SYS_ADMIN') or hasRole('ADMIN')";
 }
