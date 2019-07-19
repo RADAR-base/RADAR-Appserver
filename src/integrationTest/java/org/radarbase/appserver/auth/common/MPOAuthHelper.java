@@ -44,6 +44,19 @@ public class MPOAuthHelper implements OAuthHelper {
   private static final String USER = "sub-1";
   private static final String ADMIN_USER = "admin";
   private static final String ADMIN_PASSWORD = "admin";
+  private static final String MpPairUri =
+      UriComponentsBuilder.fromHttpUrl(MP_URL)
+          .path("api")
+          .path("/")
+          .path("oauth-clients")
+          .path("/")
+          .path("pair")
+          .queryParam("clientId", REST_CLIENT)
+          .queryParam("login", USER)
+          .toUriString();
+
+  private static final String MpTokenUri =
+      UriComponentsBuilder.fromHttpUrl(MP_URL).path("oauth").path("/").path("token").toUriString();
 
   static {
     // Get valid token from Management Portal
@@ -57,12 +70,6 @@ public class MPOAuthHelper implements OAuthHelper {
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.setBasicAuth(MP_CLIENT, "");
 
-    String MpTokenUri =
-        UriComponentsBuilder.fromHttpUrl(MP_URL)
-            .path("oauth")
-            .path("/")
-            .path("token")
-            .toUriString();
     HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, httpHeaders);
     ResponseEntity<String> response =
         restTemplate.exchange(MpTokenUri, HttpMethod.POST, request, String.class);
@@ -72,18 +79,6 @@ public class MPOAuthHelper implements OAuthHelper {
     httpHeaders.setBearerAuth(adminAccessToken);
 
     request = new HttpEntity<>(null, httpHeaders);
-
-    String MpPairUri =
-        UriComponentsBuilder.fromHttpUrl(MP_URL)
-            .path("api")
-            .path("/")
-            .path("oauth-clients")
-            .path("/")
-            .path("pair")
-            .queryParam("clientId", REST_CLIENT)
-            .queryParam("login", USER)
-            .toUriString();
-
     response = restTemplate.exchange(MpPairUri, HttpMethod.GET, request, String.class);
     String tokenUrl = getProperty(response, "tokenUrl");
 
@@ -100,7 +95,6 @@ public class MPOAuthHelper implements OAuthHelper {
     map.add("grant_type", "refresh_token");
 
     request = new HttpEntity<>(map, httpHeaders);
-
     response = restTemplate.exchange(MpTokenUri, HttpMethod.POST, request, String.class);
 
     ACCESS_TOKEN = getProperty(response, "access_token");

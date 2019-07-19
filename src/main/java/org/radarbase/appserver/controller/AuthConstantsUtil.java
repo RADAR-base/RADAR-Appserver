@@ -21,7 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
-public class AuthConstants {
+public class AuthConstantsUtil {
   public static final String PROJECT_ID = "projectId";
   public static final String SUBJECT_ID = "subjectId";
   public static final String ACCESSOR = "#";

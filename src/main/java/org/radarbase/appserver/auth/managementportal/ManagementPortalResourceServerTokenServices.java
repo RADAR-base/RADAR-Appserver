@@ -66,6 +66,23 @@ public class ManagementPortalResourceServerTokenServices implements ResourceServ
 
   private transient ClientDetailsService clientDetailsService;
 
+  private static OAuth2Request getRequest(RadarToken accessToken) {
+    Set<GrantedAuthority> grantedAuthorities =
+        accessToken.getAuthorities().stream()
+            .map(a -> (GrantedAuthority) () -> a)
+            .collect(Collectors.toSet());
+    return new OAuth2Request(
+        null,
+        null,
+        grantedAuthorities,
+        true,
+        new HashSet<>(accessToken.getScopes()),
+        new HashSet<>(accessToken.getAudience()),
+        null,
+        null,
+        null);
+  }
+
   public OAuth2Authentication loadAuthentication(String accessTokenValue)
       throws AuthenticationException, InvalidTokenException {
     RadarToken accessToken;
@@ -81,23 +98,7 @@ public class ManagementPortalResourceServerTokenServices implements ResourceServ
       throw new InvalidTokenException("Access token expired: " + accessTokenValue);
     }
 
-    Set<GrantedAuthority> grantedAuthorities =
-        accessToken.getAuthorities().stream()
-            .map(a -> (GrantedAuthority) () -> a)
-            .collect(Collectors.toSet());
-    OAuth2Request request =
-        new OAuth2Request(
-            null,
-            null,
-            grantedAuthorities,
-            true,
-            new HashSet<>(accessToken.getScopes()),
-            new HashSet<>(accessToken.getAudience()),
-            null,
-            null,
-            null);
-
-    OAuth2Authentication result = new OAuth2Authentication(request, null);
+    OAuth2Authentication result = new OAuth2Authentication(getRequest(accessToken), null);
     log.warn(result.toString());
 
     if (result == null) {

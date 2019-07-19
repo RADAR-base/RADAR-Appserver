@@ -61,8 +61,8 @@ public class RadarProjectController {
    *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
    */
   @PreAuthorize(
-      AuthConstants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
-          + AuthConstants.ACCESSOR
+      AuthConstantsUtil.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
           + "projectDto.getProjectId()"
           + ")")
   @PostMapping(
@@ -84,8 +84,8 @@ public class RadarProjectController {
    *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
    */
   @PreAuthorize(
-      AuthConstants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
-          + AuthConstants.ACCESSOR
+      AuthConstantsUtil.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
           + "projectDto.getProjectId()"
           + ")")
   @PutMapping(
@@ -95,14 +95,14 @@ public class RadarProjectController {
     return ResponseEntity.ok(this.projectService.updateProject(projectDto));
   }
 
-  @PreAuthorize(AuthConstants.IS_ADMIN)
+  @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
   @GetMapping("/" + Paths.PROJECT_PATH)
   public ResponseEntity<ProjectDtos> getAllProjects() {
     return ResponseEntity.ok(this.projectService.getAllProjects());
   }
 
   @PostAuthorize(
-      AuthConstants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+      AuthConstantsUtil.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
           + "returnObject.body.getProjectId()"
           + ")")
   @GetMapping("/" + Paths.PROJECT_PATH + "/project")
@@ -111,9 +111,9 @@ public class RadarProjectController {
   }
 
   @PreAuthorize(
-      AuthConstants.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
-          + AuthConstants.ACCESSOR
-          + AuthConstants.PROJECT_ID
+      AuthConstantsUtil.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
           + ")")
   @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT)
   public ResponseEntity<ProjectDto> getProjectsUsingProjectId(

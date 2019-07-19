@@ -51,12 +51,12 @@ public class FcmNotificationController {
   @Autowired private transient FcmNotificationService notificationService;
 
   @GetMapping("/" + Paths.NOTIFICATION_PATH)
-  @PreAuthorize(AuthConstants.IS_ADMIN)
+  @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
   public ResponseEntity<FcmNotifications> getAllNotifications() {
     return ResponseEntity.ok(this.notificationService.getAllNotifications());
   }
 
-  @PreAuthorize(AuthConstants.IS_ADMIN)
+  @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
   @GetMapping("/" + Paths.NOTIFICATION_PATH + "/{id}")
   public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.notificationService.getNotificationById(id));
@@ -77,11 +77,11 @@ public class FcmNotificationController {
 
   @PreAuthorize(
       "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
-          + AuthConstants.ACCESSOR
-          + AuthConstants.PROJECT_ID
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
           + ", "
-          + AuthConstants.ACCESSOR
-          + AuthConstants.SUBJECT_ID
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
           + ")")
   @GetMapping(
       value =
@@ -103,8 +103,8 @@ public class FcmNotificationController {
 
   @PreAuthorize(
       "hasPermissionOnProject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
-          + AuthConstants.ACCESSOR
-          + AuthConstants.PROJECT_ID
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
           + ")")
   @GetMapping(
       "/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.NOTIFICATION_PATH)
@@ -123,12 +123,12 @@ public class FcmNotificationController {
   }
 
   @PreAuthorize(
-      AuthConstants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstants.ACCESSOR
-          + AuthConstants.PROJECT_ID
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
           + ", "
-          + AuthConstants.ACCESSOR
-          + AuthConstants.SUBJECT_ID
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
           + ")")
   @PostMapping(
       "/"
@@ -154,12 +154,12 @@ public class FcmNotificationController {
   }
 
   @PreAuthorize(
-      AuthConstants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstants.ACCESSOR
-          + AuthConstants.PROJECT_ID
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
           + ", "
-          + AuthConstants.ACCESSOR
-          + AuthConstants.SUBJECT_ID
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
           + ")")
   @PostMapping(
       "/"
@@ -182,12 +182,12 @@ public class FcmNotificationController {
   }
 
   @PreAuthorize(
-      AuthConstants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstants.ACCESSOR
-          + AuthConstants.PROJECT_ID
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
           + ", "
-          + AuthConstants.ACCESSOR
-          + AuthConstants.SUBJECT_ID
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
           + ")")
   @PutMapping(
       "/"
@@ -210,12 +210,12 @@ public class FcmNotificationController {
   }
 
   @PreAuthorize(
-      AuthConstants.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstants.ACCESSOR
-          + AuthConstants.PROJECT_ID
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
           + ", "
-          + AuthConstants.ACCESSOR
-          + AuthConstants.SUBJECT_ID
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
           + ")")
   @DeleteMapping(
       "/"
