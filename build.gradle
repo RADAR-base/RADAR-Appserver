@@ -52,6 +52,7 @@ ext {
     throwingFunctionVersion = '1.5.0'
     mpVersion = '0.5.6'
     junit5Version = "5.4.0"
+    jacksonVersion = '2.9.9.1'
 }
 
 sourceSets {
@@ -68,17 +69,32 @@ sourceSets {
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('org.springframework.boot:spring-boot-starter-data-rest')
-    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-starter-data-rest'){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    implementation('org.springframework.boot:spring-boot-starter-web'){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
     implementation('org.springframework.boot:spring-boot-starter-integration')
     implementation('org.springframework.boot:spring-boot-starter-quartz')
     implementation('org.springframework.boot:spring-boot-starter-security')
-    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-actuator'){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
     implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
 
-    compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion
-    implementation group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion
-    compile group: 'org.radarcns', name: 'radar-auth', version: mpVersion
+    compile (group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    implementation (group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    compile (group: 'org.radarcns', name: 'radar-auth', version: mpVersion){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    compile (group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion) {
+        force = true
+    }
     // XMPP
     compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
     compile group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion
