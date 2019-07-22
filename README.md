@@ -121,8 +121,10 @@ managementportal.security.enabled=true
 This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
 All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
 
+You can provide the Management Portal specific config in [radar_is.yml](radar_is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
+
 ## Other Security Providers
-For using other type of security providers, configure them in the spring context and add any necessary classes. See [Management Portal Security](#management-portal) section for more info.
+For using other type of security providers, set `managementportal.security.enabled=false` and configure the security provider in the spring context and add any necessary classes. See [Management Portal Security](#management-portal) section for an example.
 
 Then you will need to change the `Pre` and `Post` Authorise annotations for each endpoint method according to the semantics provided by your provider. Currently, these are configured to work with Management portal.
 
