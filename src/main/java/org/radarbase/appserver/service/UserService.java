@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -183,6 +184,19 @@ public class UserService {
       // maintain a bi-directional relationship
       updatedUser.getUsermetrics().setUser(updatedUser);
       return userConverter.entityToDto(this.userRepository.save(updatedUser));
+    }
+  }
+
+  @Transactional
+  public void updateLastDelivered(String fcmToken, Instant lastDelivered) {
+    Optional<User> user = userRepository.findByFcmToken(fcmToken);
+
+    if (user.isEmpty()) {
+      throw new InvalidUserDetailsException("The user with specified FCM Token " + fcmToken);
+    } else {
+      User user1 = user.get();
+      user1.getUsermetrics().setLastDelivered(lastDelivered);
+      userRepository.save(user1);
     }
   }
 }

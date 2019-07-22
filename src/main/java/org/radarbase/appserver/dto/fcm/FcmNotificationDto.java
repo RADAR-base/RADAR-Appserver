@@ -60,6 +60,11 @@ public class FcmNotificationDto implements Serializable {
 
   private String fcmMessageId;
 
+  private String fcmTopic;
+
+  // for use with the FCM admin SDK
+  private String fcmCondition;
+
   @NotEmpty private String type;
 
   @NotEmpty private String appPackage;
@@ -67,6 +72,40 @@ public class FcmNotificationDto implements Serializable {
   @NotEmpty private String sourceType;
 
   private Map<String, String> additionalData;
+
+  private String priority;
+
+  private String sound;
+
+  // For IOS
+  private String badge;
+
+  // For IOS
+  private String subtitle;
+
+  // For android
+  private String icon;
+
+  // For android. Color of the icon
+  private String color;
+
+  private String bodyLocKey;
+
+  private String bodyLocArgs;
+
+  private String titleLocKey;
+
+  private String titleLocArgs;
+
+  // For android
+  private String androidChannelId;
+
+  // For android
+  private String tag;
+
+  private String clickAction;
+
+  private boolean mutableContent;
 
   @DateTimeFormat(iso = ISO.DATE_TIME)
   private Instant createdAt;
@@ -93,6 +132,23 @@ public class FcmNotificationDto implements Serializable {
     if (notificationEntity.getUpdatedAt() != null) {
       this.updatedAt = notificationEntity.getUpdatedAt().toInstant();
     }
+
+    this.fcmTopic = notificationEntity.getFcmTopic();
+    this.fcmCondition = notificationEntity.getFcmCondition();
+    this.priority = notificationEntity.getPriority();
+    this.sound = notificationEntity.getSound();
+    this.badge = notificationEntity.getBadge();
+    this.subtitle = notificationEntity.getSubtitle();
+    this.icon = notificationEntity.getIcon();
+    this.color = notificationEntity.getColor();
+    this.bodyLocKey = notificationEntity.getBodyLocKey();
+    this.bodyLocArgs = notificationEntity.getBodyLocArgs();
+    this.titleLocKey = notificationEntity.getTitleLocKey();
+    this.titleLocArgs = notificationEntity.getTitleLocArgs();
+    this.androidChannelId = notificationEntity.getAndroidChannelId();
+    this.tag = notificationEntity.getTag();
+    this.clickAction = notificationEntity.getClickAction();
+    this.mutableContent = notificationEntity.isMutableContent();
   }
 
   public FcmNotificationDto setCreatedAt(Instant createdAt) {
@@ -162,6 +218,86 @@ public class FcmNotificationDto implements Serializable {
 
   public FcmNotificationDto setAdditionalData(Map<String, String> additionalData) {
     this.additionalData = additionalData;
+    return this;
+  }
+
+  public FcmNotificationDto setFcmTopic(String fcmTopic) {
+    this.fcmTopic = fcmTopic;
+    return this;
+  }
+
+  public FcmNotificationDto setFcmCondition(String fcmCondition) {
+    this.fcmCondition = fcmCondition;
+    return this;
+  }
+
+  public FcmNotificationDto setPriority(String priority) {
+    this.priority = priority;
+    return this;
+  }
+
+  public FcmNotificationDto setSound(String sound) {
+    this.sound = sound;
+    return this;
+  }
+
+  public FcmNotificationDto setBadge(String badge) {
+    this.badge = badge;
+    return this;
+  }
+
+  public FcmNotificationDto setSubtitle(String subtitle) {
+    this.subtitle = subtitle;
+    return this;
+  }
+
+  public FcmNotificationDto setIcon(String icon) {
+    this.icon = icon;
+    return this;
+  }
+
+  public FcmNotificationDto setColor(String color) {
+    this.color = color;
+    return this;
+  }
+
+  public FcmNotificationDto setBodyLocKey(String bodyLocKey) {
+    this.bodyLocKey = bodyLocKey;
+    return this;
+  }
+
+  public FcmNotificationDto setBodyLocArgs(String bodyLocArgs) {
+    this.bodyLocArgs = bodyLocArgs;
+    return this;
+  }
+
+  public FcmNotificationDto setTitleLocKey(String titleLocKey) {
+    this.titleLocKey = titleLocKey;
+    return this;
+  }
+
+  public FcmNotificationDto setTitleLocArgs(String titleLocArgs) {
+    this.titleLocArgs = titleLocArgs;
+    return this;
+  }
+
+  public FcmNotificationDto setAndroidChannelId(String androidChannelId) {
+    this.androidChannelId = androidChannelId;
+    return this;
+  }
+
+  public FcmNotificationDto setTag(String tag) {
+    this.tag = tag;
+    return this;
+  }
+
+  public FcmNotificationDto setClickAction(String clickAction) {
+    this.clickAction = clickAction;
+    return this;
+  }
+
+  public FcmNotificationDto setMutableContent(boolean mutableContent) {
+    this.mutableContent = mutableContent;
     return this;
   }
 

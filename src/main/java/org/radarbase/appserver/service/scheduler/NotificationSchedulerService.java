@@ -182,10 +182,55 @@ public class NotificationSchedulerService {
     Map<String, Object> notificationMap = new HashMap<>();
     notificationMap.put("body", notification.getBody());
     notificationMap.put("title", notification.getTitle());
-    notificationMap.put("sound", "default");
+    if (notification.getSound() != null) {
+      notificationMap.put("sound", notification.getSound());
+    } else {
+      notificationMap.put("sound", "default");
+    }
+    if (notification.getBadge() != null) {
+      notificationMap.put("badge", notification.getBadge());
+    }
+    if (notification.getClickAction() != null) {
+      notificationMap.put("click_action", notification.getClickAction());
+    }
+    if (notification.getSubtitle() != null) {
+      notificationMap.put("subtitle", notification.getSubtitle());
+    }
+    if (notification.getBodyLocKey() != null) {
+      notificationMap.put("body_loc_key", notification.getBodyLocKey());
+    }
+    if (notification.getBodyLocArgs() != null) {
+      notificationMap.put("body_loc_args", notification.getBodyLocArgs());
+    }
+    if (notification.getTitleLocKey() != null) {
+      notificationMap.put("title_loc_key", notification.getTitleLocKey());
+    }
+    if (notification.getTitleLocArgs() != null) {
+      notificationMap.put("title_loc_args", notification.getTitleLocArgs());
+    }
 
+    if (notification.getAndroidChannelId() != null) {
+      notificationMap.put("android_channel_id", notification.getAndroidChannelId());
+    }
+    if (notification.getIcon() != null) {
+      notificationMap.put("icon", notification.getIcon());
+    }
+    if (notification.getTag() != null) {
+      notificationMap.put("tag", notification.getTag());
+    }
+    if (notification.getColor() != null) {
+      notificationMap.put("color", notification.getColor());
+    }
+
+    String to =
+        notification.getFcmTopic() == null
+            ? notification.getUser().getFcmToken()
+            : notification.getFcmTopic();
     return FcmNotificationMessage.builder()
-        .to(notification.getUser().getFcmToken())
+        .to(to)
+        .condition(notification.getFcmCondition())
+        .priority(notification.getPriority())
+        .mutableContent(notification.isMutableContent())
         .deliveryReceiptRequested(true)
         .messageId(String.valueOf(notification.getFcmMessageId()))
         .timeToLive(notification.getTtlSeconds())

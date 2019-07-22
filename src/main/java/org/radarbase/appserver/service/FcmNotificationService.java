@@ -178,7 +178,6 @@ public class FcmNotificationService implements NotificationService {
       user.getUsermetrics().setLastOpened(Instant.now());
       this.userRepository.save(user);
       return notificationConverter.entityToDto(notificationSaved);
-
     } else {
       throw new AlreadyExistsException(
           "The Notification Already exists. Please Use update endpoint", notificationDto);

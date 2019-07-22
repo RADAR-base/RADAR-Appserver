@@ -154,6 +154,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
           // notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
           notificationService.updateDeliveryStatus(
               jsonData.get().get("original_message_id").asText(), true);
+          userService.updateLastDelivered(
+              jsonData.get().get("device_registration_id").asText(), Instant.now());
         }
       }
     }
