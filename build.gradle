@@ -32,6 +32,7 @@ repositories {
     jcenter()
     maven { url "https://jitpack.io" }
     maven { url "http://dl.bintray.com/typesafe/maven-releases" }
+    maven { url 'https://dl.bintray.com/radar-cns/org.radarcns' }
 }
 
 configurations { codacy }
@@ -49,19 +50,63 @@ ext {
     lombokVersion = '1.18.4'
     bootAdminVersion = '2.1.1'
     throwingFunctionVersion = '1.5.0'
+    mpVersion = '0.5.6'
+    junit5Version = "5.4.0"
+    jacksonVersion = '2.9.9.1'
 }
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output + test.compileClasspath
+            runtimeClasspath += main.output + test.output + test.runtimeClasspath
+            srcDir file('src/integrationTest/java')
+        }
+        resources.srcDir file('src/integrationTest/resources')
+    }
+}
+
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('org.springframework.boot:spring-boot-starter-data-rest')
-    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-starter-data-rest'){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    implementation('org.springframework.boot:spring-boot-starter-web'){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
     implementation('org.springframework.boot:spring-boot-starter-integration')
     implementation('org.springframework.boot:spring-boot-starter-quartz')
-    implementation('org.springframework.boot:spring-boot-starter-security')
-    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-security') {
+        exclude group: 'org.springframework.security', module: 'spring-security-core'
+    }
+    implementation('org.springframework.boot:spring-boot-starter-actuator'){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
     implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
 
-    compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion
+    compile (group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+    implementation (group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+        exclude group: 'org.springframework.security.oauth', module: 'spring-security-oauth2'
+    }
+    compile (group: 'org.radarcns', name: 'radar-auth', version: mpVersion){
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+    }
+
+    // Fix potential vulnerabilities
+    compile (group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion) {
+        force = true
+    }
+    compile (group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.6.RELEASE') {
+        force = true
+        exclude group: 'org.springframework.security', module: 'spring-security-core'
+    }
+    compile (group: 'org.springframework.security', name: 'spring-security-core', version: '5.1.5.RELEASE') {
+        force = true
+    }
 
     // XMPP
     compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
@@ -81,9 +126,10 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     compile group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
+    annotationProcessor "org.springframework:spring-context-indexer:5.1.8.RELEASE"
+
     compileOnly 'net.jcip:jcip-annotations:1.0'
     compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.12'
-    //compileOnly("org.springframework:spring-context-indexer")
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
@@ -92,8 +138,11 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
     }
-    testImplementation('org.junit.jupiter:junit-jupiter-api')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine')
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: junit5Version
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit5Version
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit5Version
+    testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.4.0'
+    testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.4.0'
     testCompileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.3'
 
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
@@ -118,7 +167,9 @@ wrapper {
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform() {
+        excludeEngines 'junit-vintage'
+    }
 }
 
 task unpack(type: Copy) {
@@ -154,3 +205,20 @@ task loadTest(type: JavaExec) {
             "--bodies-folder", sourceSets.main.resources.srcDirs.toList().first().toString() + "/gatling/bodies",
     ]
 }
+
+task integrationTest(type: Test) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+
+    shouldRunAfter test
+}
+
+check.dependsOn integrationTest
+
+integrationTest {
+    useJUnitPlatform() {
+        excludeEngines 'junit-vintage'
+    }
+    environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
+}
+

@@ -13,11 +13,11 @@ databaseChangeLog:
                   name: id
                   type: BIGINT
               - column:
-                    name: additional_key
-                    type: VARCHAR(255)
+                  name: additional_key
+                  type: VARCHAR(255)
               - column:
-                    name: additional_value
-                    type: VARCHAR(12500)
+                  name: additional_value
+                  type: VARCHAR(12500)
               - column:
                   name: notification_id
                   type: BIGINT

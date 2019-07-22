@@ -44,18 +44,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @EnableJpaAuditing
 public class NotificationRepositoryTest {
-  @Autowired private transient TestEntityManager entityManager;
-
-  @Autowired private transient NotificationRepository notificationRepository;
-
-  private transient Long id;
-  private transient User user;
-  private transient Instant scheduledTime;
-
   public static final String NOTIFICATION_BODY = "Test notif";
   public static final String NOTIFICATION_TITLE = "Testing";
   public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
   public static final String NOTIFICATION_SOURCE_ID = "test";
+  @Autowired private transient TestEntityManager entityManager;
+  @Autowired private transient NotificationRepository notificationRepository;
+  private transient Long id;
+  private transient User user;
+  private transient Instant scheduledTime;
 
   /** Insert a Notification Before each test. */
   @Before
@@ -182,8 +179,7 @@ public class NotificationRepositoryTest {
   }
 
   @Test
-  public void
-      whenExistsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds_thenReturnTrue() {
+  public void whenExists_thenReturnTrue() {
     // when
     boolean exists =
         notificationRepository

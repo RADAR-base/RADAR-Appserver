@@ -70,7 +70,6 @@ public class SchedulerServiceImpl implements SchedulerService {
     scheduler.scheduleJobs(jobDetailTriggerMap, true);
   }
 
-
   @Async
   @SneakyThrows
   @Override
@@ -109,7 +108,6 @@ public class SchedulerServiceImpl implements SchedulerService {
         jobKeys.stream().filter(unchecked(scheduler::checkExists)).collect(Collectors.toList());
     scheduler.deleteJobs(jobKeysExist);
   }
-
 
   @Async
   @SneakyThrows

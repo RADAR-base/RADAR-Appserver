@@ -108,6 +108,26 @@ You can generate a client in 40 different languages for the api using [Swagger C
 
 **TODO**: generate a java client and post to bintray.
 
+# Security
+
+By Default, no OAuth 2.0 security is enabled for the endpoints. Only basic Auth is present on Admin endpoints.
+To enable security of specific provider, please read the sections below.
+
+## Management Portal
+To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), set the following property -
+```
+managementportal.security.enabled=true
+```
+This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
+All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
+
+You can provide the Management Portal specific config in [radar_is.yml](radar_is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
+
+## Other Security Providers
+For using other type of security providers, set `managementportal.security.enabled=false` and configure the security provider in the spring context and add any necessary classes. See [Management Portal Security](#management-portal) section for an example.
+
+Then you will need to change the `Pre` and `Post` Authorise annotations for each endpoint method according to the semantics provided by your provider. Currently, these are configured to work with Management portal.
+
 # Monitoring
 
 The App server has built in support for the [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready) and can be accessed via the default REST endpoints `<your-base-url>/actuator/*`. To see all the features provided please refer to the [official docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints) of Spring boot actuator.
@@ -117,12 +137,12 @@ To make this work,
 - Run an instance of the Spring Boot Admin server (various examples on the internet and also via Docker) on the machine and then 
 - configure the client to point to the Admin Server for registration by adding the following to your `application.properties` file - 
        
-        ```properties
+        ```
         spring.boot.admin.client.url = http://localhost:8888
         ```
    In this case, the Spring Boot admin server was running on `http://localhost:8888`. If http basic auth is enabled on the server also add the following to the `application.properties` file -
         
-        ```properties
+        ```
         spring.boot.admin.client.url = http://localhost:8888
         spring.boot.admin.client".username = admin-server-username
         spring.boot.admin.client".password = admin-server-password
@@ -182,6 +202,31 @@ Various tools are enabled to ensure code quality and styling while also doing st
 ```bash
 ./gradlew check
 ```
+Note: This will also run the test and integrationTest.
 
 The reports are generated in the `build/reports` folder. The config files for rules are present in the `config` folder.
 A style template following the Google Java style guidelines is also provided for use with IntellJ Idea ([style plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format)) in `config/codestyles` folder.
+
+
+# Unit and Integration Testing
+
+[Unit Tests](/src/test/java/org/radarbase/appserver) and [Integration Tests](/src/integrationTest/java/org/radarbase/appserver) are provided with the AppServer. These can be run as follows-
+```bash
+# For Unit tests
+./gradlew test
+```
+
+```bash
+# For Integration Tests
+./gradlew integrationTest
+```
+ 
+ The integration tests are currently provided for Management Portal as the security provider and uses a running instance of Management Portal to get a valid client token and provide access to resources.
+ To change the security provider implement the interface [OAuthHelper](/src/integrationTest/java/org/radarbase/appserver/auth/common/OAuthHelper.java) and provide a valid Access Token in `getAccessToken()` using your security provider.
+ Then just use this instance in static Initialisation of the Tests. For more info take a look at [MPOAuthHelper](/src/integrationTest/java/org/radarbase/appserver/auth/common/MPOAuthHelper.java).
+ 
+ You can also run all the checks and tests in a single command using -
+```bash
+./gradlew check
+```
+This will run checkstyle, PMD, spot bugs, unit tests and integration tests.

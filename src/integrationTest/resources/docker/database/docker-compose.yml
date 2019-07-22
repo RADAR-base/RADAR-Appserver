@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   hsqldb:
-    build: ./
+    build: ""
     #image: yatharthranjan89/hsqldb
     ports:
       - 9001:9001

@@ -58,7 +58,7 @@ public class ReconnectionEnabledXmppConnectionFactoryBean extends XmppConnection
     this.isConnectionDraining = false;
 
     XMPPTCPConnection connection = getConnection();
-    
+
     super.start();
 
     connection.addConnectionListener(this);

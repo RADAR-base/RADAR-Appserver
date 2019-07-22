@@ -11,6 +11,7 @@ env:
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
     - $HOME/.gradle/caches/
@@ -21,10 +22,12 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - docker-compose -f docker/docker-compose.yml up -d hsqldb
+  - docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d hsqldb managementportal
+  # Wait for services to start up.
+  - sleep 50
 
 install:
   - ./gradlew assemble
 
 script:
-  - ./gradlew test
+  - ./gradlew check

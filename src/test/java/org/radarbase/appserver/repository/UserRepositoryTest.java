@@ -60,13 +60,14 @@ class UserRepositoryTest {
     this.project = new Project().setProjectId("test-project");
     this.projectId = entityManager.persistAndGetId(project, Long.class);
 
-    User user = new User()
-        .setFcmToken(FCM_TOKEN_1)
-        .setEnrolmentDate(Instant.now())
-        .setProject(project)
-        .setTimezone(0d)
-        .setLanguage("en")
-        .setSubjectId(USER_ID);
+    User user =
+        new User()
+            .setFcmToken(FCM_TOKEN_1)
+            .setEnrolmentDate(Instant.now())
+            .setProject(project)
+            .setTimezone(0d)
+            .setLanguage("en")
+            .setSubjectId(USER_ID);
     this.userId = entityManager.persistAndGetId(user, Long.class);
     entityManager.flush();
   }
@@ -117,7 +118,8 @@ class UserRepositoryTest {
   @Test
   public void whenFindByFcmToken_thenReturnUser() {
     assertEquals(
-        userRepository.findByFcmToken(FCM_TOKEN_1).get(), entityManager.find(User.class, this.userId));
+        userRepository.findByFcmToken(FCM_TOKEN_1).get(),
+        entityManager.find(User.class, this.userId));
   }
 
   @Test

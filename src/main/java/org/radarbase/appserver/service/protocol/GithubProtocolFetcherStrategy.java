@@ -148,7 +148,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
       if (isSuccessfulResponse(response)) {
         for (JsonNode jsonNode : getArrayNode(response.body().toString())) {
           String type = jsonNode.get("type").asText();
-          if ("dir" .equals(type)) {
+          if ("dir".equals(type)) {
             protocolUriMap.put(
                 jsonNode.get("name").asText(),
                 URI.create(jsonNode.get("_links").get("self").asText()));
