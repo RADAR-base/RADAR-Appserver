@@ -25,6 +25,7 @@ import lombok.SneakyThrows;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,6 +40,7 @@ public class NotificationJob implements Job {
 
   @Autowired private transient NotificationSchedulerService schedulerService;
 
+  @Autowired private transient FcmNotificationService notificationService;
   /**
    * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}
    * </code> fires that is associated with the <code>Job</code>.
@@ -55,7 +57,12 @@ public class NotificationJob implements Job {
   @Override
   public void execute(JobExecutionContext context) {
     Notification notification =
-        (Notification) context.getJobDetail().getJobDataMap().get("notification");
+        notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+            context.getJobDetail().getJobDataMap().getString("projectId"),
+            context.getJobDetail().getJobDataMap().getString("subjectId"),
+            context.getJobDetail().getJobDataMap().getLong("notificationId"));
+//    Notification notification =
+//        (Notification) context.getJobDetail().getJobDataMap().get("notification");
     schedulerService.sendNotification(notification);
   }
 }

@@ -95,7 +95,10 @@ public class NotificationSchedulerService {
         NAMING_STRATEGY.getJobKeyName(
             notification.getUser().getSubjectId(), notification.getId().toString()));
     Map<String, Object> map = new HashMap<>();
-    map.put("notification", notification);
+//    map.put("notification", notification);
+    map.put("subjectId", notification.getUser().getSubjectId());
+    map.put("projectId", notification.getUser().getProject().getProjectId());
+    map.put("notificationId", notification.getId());
     jobDetailFactory.setJobDataAsMap(map);
     jobDetailFactory.afterPropertiesSet();
     return jobDetailFactory;

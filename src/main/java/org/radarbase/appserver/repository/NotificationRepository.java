@@ -48,4 +48,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
   void deleteByFcmMessageId(String fcmMessageId);
 
   Optional<Notification> findByFcmMessageId(String fcmMessageId);
+
+  Optional<Notification> findByIdAndUserId(long id, long userId);
 }

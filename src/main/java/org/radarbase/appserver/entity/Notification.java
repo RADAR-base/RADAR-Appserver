@@ -143,7 +143,7 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
   private boolean dryRun;
 
   @Nullable
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @MapKeyColumn(name = "additional_key", nullable = true)
   @Column(name = "additional_value")
   private Map<String, String> additionalData;

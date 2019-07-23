@@ -301,4 +301,24 @@ public class FcmNotificationService implements NotificationService {
 
     return user.get();
   }
+
+  @Transactional(readOnly = true)
+  public Notification getNotificationByProjectIdAndSubjectIdAndNotificationId(
+      String projectId, String subjectId, long notificationId) {
+    User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+
+    Optional<Notification> notification =
+        notificationRepository.findByIdAndUserId(notificationId, user.getId());
+
+    if (notification.isEmpty()) {
+      throw new InvalidNotificationDetailsException(
+          "The Notification with Id "
+              + notificationId
+              + " does not exist in project "
+              + projectId
+              + " for user "
+              + subjectId);
+    }
+    return notification.get();
+  }
 }
