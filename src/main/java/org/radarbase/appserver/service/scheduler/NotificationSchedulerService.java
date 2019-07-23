@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.radarbase.appserver.entity.Notification;
@@ -83,6 +84,7 @@ public class NotificationSchedulerService {
     triggerFactoryBean.setRepeatInterval(0L);
     triggerFactoryBean.setStartTime(new Date(notification.getScheduledTime().toEpochMilli()));
     triggerFactoryBean.afterPropertiesSet();
+    triggerFactoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
     return triggerFactoryBean;
   }
 

@@ -42,7 +42,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
- * An implementation of the {@link SchedulerService} providing Synchronized access to schedule,
+ * An implementation of the {@link SchedulerService} providing asynchronised access to schedule,
  * update and delete Jobs.
  *
  * @author yatharthranjan
