@@ -192,7 +192,8 @@ public class UserService {
     Optional<User> user = userRepository.findByFcmToken(fcmToken);
 
     if (user.isEmpty()) {
-      throw new InvalidUserDetailsException("The user with specified FCM Token " + fcmToken);
+      throw new InvalidUserDetailsException(
+          "The user with specified FCM Token " + fcmToken + " does not exist.");
     } else {
       User user1 = user.get();
       user1.getUsermetrics().setLastDelivered(lastDelivered);

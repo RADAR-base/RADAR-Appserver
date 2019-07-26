@@ -51,6 +51,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
+  // TODO: Add batching of schedule requests (The database service function is already there)
+
   private transient FcmNotificationService notificationService;
 
   private transient UserService userService;

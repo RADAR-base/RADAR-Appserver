@@ -78,7 +78,6 @@ import org.springframework.lang.Nullable;
 public class Notification extends AuditModel implements Serializable, Scheduled {
 
   private static final long serialVersionUID = -367424816328519L;
-  // TODO Add STATUS as enum of (ADDED, SCHEDULED, CANCELLED, EXECUTED, DELIVERED, ERRORED)
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

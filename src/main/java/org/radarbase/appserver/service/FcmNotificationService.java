@@ -34,6 +34,8 @@ import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -43,6 +45,7 @@ import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +69,7 @@ public class FcmNotificationService implements NotificationService {
   private final transient ProjectRepository projectRepository;
   private final transient NotificationSchedulerService schedulerService;
   private final transient NotificationConverter notificationConverter;
+  private final transient ApplicationEventPublisher notificationStateEventPublisher;
 
   @Autowired
   public FcmNotificationService(
@@ -73,12 +77,14 @@ public class FcmNotificationService implements NotificationService {
       UserRepository userRepository,
       ProjectRepository projectRepository,
       NotificationSchedulerService schedulerService,
-      NotificationConverter notificationConverter) {
+      NotificationConverter notificationConverter,
+      ApplicationEventPublisher eventPublisher) {
     this.notificationRepository = notificationRepository;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
     this.schedulerService = schedulerService;
     this.notificationConverter = notificationConverter;
+    this.notificationStateEventPublisher = eventPublisher;
   }
 
   @Transactional(readOnly = true)
@@ -177,10 +183,21 @@ public class FcmNotificationService implements NotificationService {
       this.schedulerService.scheduleNotification(notificationSaved);
       user.getUsermetrics().setLastOpened(Instant.now());
       this.userRepository.save(user);
+      addNotificationStateEvent(
+          notificationSaved, NotificationState.ADDED, notificationSaved.getCreatedAt().toInstant());
       return notificationConverter.entityToDto(notificationSaved);
     } else {
       throw new AlreadyExistsException(
           "The Notification Already exists. Please Use update endpoint", notificationDto);
+    }
+  }
+
+  private void addNotificationStateEvent(
+      Notification notification, NotificationState state, Instant time) {
+    if (notificationStateEventPublisher != null) {
+      NotificationStateEvent notificationStateEvent =
+          new NotificationStateEvent(this, notification, state, null, time);
+      notificationStateEventPublisher.publishEvent(notificationStateEvent);
     }
   }
 
@@ -214,7 +231,8 @@ public class FcmNotificationService implements NotificationService {
             .setUser(user)
             .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
     Notification notificationSaved = this.notificationRepository.save(newNotification);
-
+    addNotificationStateEvent(
+        notificationSaved, NotificationState.UPDATED, notificationSaved.getUpdatedAt().toInstant());
     if (!notification.get().isDelivered()) {
       this.schedulerService.updateScheduledNotification(notificationSaved);
     }
@@ -247,6 +265,7 @@ public class FcmNotificationService implements NotificationService {
         });
   }
 
+  // TODO: Investigate if notifications can be marked in the state CANCELLED when deleted.
   @Transactional
   public void deleteNotificationByFcmMessageId(String fcmMessageId) {
     this.notificationRepository.deleteByFcmMessageId(fcmMessageId);
@@ -281,7 +300,8 @@ public class FcmNotificationService implements NotificationService {
 
     List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
     this.schedulerService.scheduleNotifications(savedNotifications);
-
+    savedNotifications.forEach(
+        n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant()));
     return new FcmNotifications()
         .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
   }

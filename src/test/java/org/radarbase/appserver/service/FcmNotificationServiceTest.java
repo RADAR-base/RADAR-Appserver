@@ -37,6 +37,7 @@ import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTI
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -114,6 +116,7 @@ class FcmNotificationServiceTest {
             .setDelivered(false)
             .setUser(user)
             .setId(3L);
+    notification3.setCreatedAt(new Date());
 
     Mockito.when(notificationRepository.save(notification3)).thenReturn(notification3);
 
@@ -143,6 +146,8 @@ class FcmNotificationServiceTest {
             .setUser(userNew)
             .setId(4L);
 
+    notification4.setCreatedAt(new Date());
+    notification4.setUpdatedAt(new Date());
     Mockito.when(notificationRepository.save(notification4)).thenReturn(notification4);
 
     Mockito.when(notificationRepository.findById(4L)).thenReturn(Optional.of(notification4));
@@ -171,6 +176,8 @@ class FcmNotificationServiceTest {
             .setDelivered(false)
             .setId(2L);
 
+    notification5.setCreatedAt(new Date());
+    notification5.setUpdatedAt(new Date());
     Mockito.when(notificationRepository.save(notification5)).thenReturn(notification5);
 
     Mockito.when(userRepository.findByFcmToken(FCM_TOKEN_1)).thenReturn(Optional.of(user));
@@ -499,6 +506,7 @@ class FcmNotificationServiceTest {
     @Autowired private transient UserRepository userRepository;
     @Autowired private transient ProjectRepository projectRepository;
     @Autowired private transient NotificationSchedulerService schedulerService;
+    @Autowired private transient ApplicationEventPublisher eventPublisher;
 
     @Bean
     public NotificationService notificationService() {
@@ -507,7 +515,8 @@ class FcmNotificationServiceTest {
           userRepository,
           projectRepository,
           schedulerService,
-          notificationConverter);
+          notificationConverter,
+          eventPublisher);
     }
   }
 }
