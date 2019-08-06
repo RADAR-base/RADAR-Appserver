@@ -23,12 +23,16 @@ package org.radarbase.appserver.service.fcm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
@@ -36,6 +40,7 @@ import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,19 +58,20 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
   // TODO: Add batching of schedule requests (The database service function is already there)
 
+  private final transient ApplicationEventPublisher notificationStateEventPublisher;
   private transient FcmNotificationService notificationService;
-
   private transient UserService userService;
-
   private transient ProjectService projectService;
 
   public FcmMessageReceiverService(
       FcmNotificationService notificationService,
       UserService userService,
-      ProjectService projectService) {
+      ProjectService projectService,
+      ApplicationEventPublisher notificationStateEventPublisher) {
     this.notificationService = notificationService;
     this.userService = userService;
     this.projectService = projectService;
+    this.notificationStateEventPublisher = notificationStateEventPublisher;
   }
 
   /**
@@ -141,6 +147,19 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
       log.info("The FCM device unregistered. Removing all notifications: {}", errorCode);
       this.notificationService.removeNotificationsForUserUsingFcmToken(
           jsonMessage.get("from").asText());
+    } else {
+      Map<String, String> additionalInfo = new HashMap<>();
+      additionalInfo.put("error", jsonMessage.get("error").asText());
+      additionalInfo.put("error_description", jsonMessage.get("error_description").asText());
+      NotificationStateEvent notificationStateEvent =
+          new NotificationStateEvent(
+              this,
+              notificationService.getNotificationByMessageId(
+                  jsonMessage.get("message_id").asText()),
+              NotificationState.ERRORED,
+              null,
+              Instant.now());
+      notificationStateEventPublisher.publishEvent(notificationStateEvent);
     }
   }
 
@@ -156,6 +175,18 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
           // notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
           notificationService.updateDeliveryStatus(
               jsonData.get().get("original_message_id").asText(), true);
+
+          NotificationStateEvent notificationStateEvent =
+              new NotificationStateEvent(
+                  this,
+                  notificationService.getNotificationByMessageId(
+                      jsonData.get().get("original_message_id").asText()),
+                  NotificationState.DELIVERED,
+                  null,
+                  Instant.now());
+          notificationStateEventPublisher.publishEvent(notificationStateEvent);
+
+
           userService.updateLastDelivered(
               jsonData.get().get("device_registration_id").asText(), Instant.now());
         }

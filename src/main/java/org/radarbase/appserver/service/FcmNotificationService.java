@@ -341,4 +341,14 @@ public class FcmNotificationService implements NotificationService {
     }
     return notification.get();
   }
+
+  @Transactional(readOnly = true)
+  public Notification getNotificationByMessageId(String messageId) {
+    Optional<Notification> notification = this.notificationRepository.findByFcmMessageId(messageId);
+    if (notification.isEmpty()) {
+      throw new InvalidNotificationDetailsException(
+          "The Notification with FCM Message Id " + messageId + "does not exist.");
+    }
+    return notification.get();
+  }
 }

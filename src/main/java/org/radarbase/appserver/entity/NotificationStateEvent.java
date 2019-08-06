@@ -57,10 +57,12 @@ public class NotificationStateEvent {
   @JsonIgnore
   private Notification notification;
 
+  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private NotificationState state;
 
+  @NotNull
   @Column(nullable = false)
   private Instant time;
 
