@@ -271,6 +271,7 @@ public class FcmNotificationService implements NotificationService {
     this.notificationRepository.deleteByFcmMessageId(fcmMessageId);
   }
 
+  @Transactional
   public void removeNotificationsForUserUsingFcmToken(String fcmToken) {
     Optional<User> user = this.userRepository.findByFcmToken(fcmToken);
 
@@ -294,11 +295,13 @@ public class FcmNotificationService implements NotificationService {
     List<Notification> newNotifications =
         notificationDtos.getNotifications().stream()
             .map(notificationConverter::dtoToEntity)
+            .map(n -> n.setUser(user))
             .filter(notification -> !notifications.contains(notification))
             .map(n -> n.setUser(user))
             .collect(Collectors.toList());
 
     List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
+    this.notificationRepository.flush();
     savedNotifications.forEach(
         n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant()));
     this.schedulerService.scheduleNotifications(savedNotifications);
