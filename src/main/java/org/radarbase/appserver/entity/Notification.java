@@ -123,6 +123,7 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
   @Nullable
   private String fcmCondition;
 
+  // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
   @Nullable private boolean delivered;
 
   @Nullable private boolean validated;

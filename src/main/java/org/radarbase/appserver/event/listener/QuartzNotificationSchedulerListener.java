@@ -21,6 +21,9 @@
 
 package org.radarbase.appserver.event.listener;
 
+import java.time.Instant;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -28,8 +31,30 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerListener;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
+import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.repository.NotificationRepository;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
+@Slf4j
+@Component
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class QuartzNotificationSchedulerListener implements SchedulerListener {
+
+  private final transient ApplicationEventPublisher notificationStateEventPublisher;
+  private final transient NotificationRepository notificationRepository;
+  private final transient Scheduler scheduler;
+
+  public QuartzNotificationSchedulerListener(
+      ApplicationEventPublisher notificationStateEventPublisher,
+      NotificationRepository notificationRepository,
+      Scheduler scheduler) {
+    this.notificationStateEventPublisher = notificationStateEventPublisher;
+    this.notificationRepository = notificationRepository;
+    this.scheduler = scheduler;
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> is
@@ -37,7 +62,25 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
    */
   @Override
   public void jobScheduled(Trigger trigger) {
-    //update state to scheduled
+    JobDetail jobDetail;
+    try {
+      jobDetail = scheduler.getJobDetail(trigger.getJobKey());
+    } catch (SchedulerException exc) {
+      log.warn("Encountered error while getting job information from Trigger: ", exc);
+      return;
+    }
+
+    Optional<Notification> notification =
+        notificationRepository.findById(jobDetail.getJobDataMap().getLongValue("notificationId"));
+
+    if (notification.isEmpty()) {
+      log.warn("The notification does not exist in database and yet was scheduled.");
+      return;
+    }
+    NotificationStateEvent notificationStateEvent =
+        new NotificationStateEvent(
+            this, notification.get(), NotificationState.SCHEDULED, null, Instant.now());
+    notificationStateEventPublisher.publishEvent(notificationStateEvent);
   }
 
   /**
@@ -48,7 +91,25 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
    */
   @Override
   public void jobUnscheduled(TriggerKey triggerKey) {
-    // update state to cancelled
+    JobDetail jobDetail;
+    try {
+      jobDetail = scheduler.getJobDetail(scheduler.getTrigger(triggerKey).getJobKey());
+    } catch (SchedulerException exc) {
+      log.warn("Encountered error while getting job information from Trigger: ", exc);
+      return;
+    }
+
+    Optional<Notification> notification =
+        notificationRepository.findById(jobDetail.getJobDataMap().getLongValue("notificationId"));
+
+    if (notification.isEmpty()) {
+      log.warn("The notification does not exist in database and yet was unscheduled.");
+      return;
+    }
+    NotificationStateEvent notificationStateEvent =
+        new NotificationStateEvent(
+            this, notification.get(), NotificationState.CANCELLED, null, Instant.now());
+    notificationStateEventPublisher.publishEvent(notificationStateEvent);
   }
 
   /**

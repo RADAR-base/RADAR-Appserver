@@ -178,13 +178,13 @@ public class FcmNotificationService implements NotificationService {
             notificationDto.getTtlSeconds())) {
 
       Notification notificationSaved =
-          this.notificationRepository.save(
+          this.notificationRepository.saveAndFlush(
               notificationConverter.dtoToEntity(notificationDto).setUser(user));
-      this.schedulerService.scheduleNotification(notificationSaved);
       user.getUsermetrics().setLastOpened(Instant.now());
       this.userRepository.save(user);
       addNotificationStateEvent(
           notificationSaved, NotificationState.ADDED, notificationSaved.getCreatedAt().toInstant());
+      this.schedulerService.scheduleNotification(notificationSaved);
       return notificationConverter.entityToDto(notificationSaved);
     } else {
       throw new AlreadyExistsException(
@@ -230,7 +230,7 @@ public class FcmNotificationService implements NotificationService {
             .setType(notificationDto.getType())
             .setUser(user)
             .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
-    Notification notificationSaved = this.notificationRepository.save(newNotification);
+    Notification notificationSaved = this.notificationRepository.saveAndFlush(newNotification);
     addNotificationStateEvent(
         notificationSaved, NotificationState.UPDATED, notificationSaved.getUpdatedAt().toInstant());
     if (!notification.get().isDelivered()) {
@@ -299,9 +299,9 @@ public class FcmNotificationService implements NotificationService {
             .collect(Collectors.toList());
 
     List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
-    this.schedulerService.scheduleNotifications(savedNotifications);
     savedNotifications.forEach(
         n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant()));
+    this.schedulerService.scheduleNotifications(savedNotifications);
     return new FcmNotifications()
         .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
   }

@@ -119,6 +119,7 @@ class FcmNotificationServiceTest {
     notification3.setCreatedAt(new Date());
 
     Mockito.when(notificationRepository.save(notification3)).thenReturn(notification3);
+    Mockito.when(notificationRepository.saveAndFlush(notification3)).thenReturn(notification3);
 
     Mockito.when(notificationRepository.findById(3L)).thenReturn(Optional.of(notification3));
 
@@ -149,6 +150,7 @@ class FcmNotificationServiceTest {
     notification4.setCreatedAt(new Date());
     notification4.setUpdatedAt(new Date());
     Mockito.when(notificationRepository.save(notification4)).thenReturn(notification4);
+    Mockito.when(notificationRepository.saveAndFlush(notification4)).thenReturn(notification4);
 
     Mockito.when(notificationRepository.findById(4L)).thenReturn(Optional.of(notification4));
 
@@ -179,6 +181,7 @@ class FcmNotificationServiceTest {
     notification5.setCreatedAt(new Date());
     notification5.setUpdatedAt(new Date());
     Mockito.when(notificationRepository.save(notification5)).thenReturn(notification5);
+    Mockito.when(notificationRepository.saveAndFlush(notification5)).thenReturn(notification5);
 
     Mockito.when(userRepository.findByFcmToken(FCM_TOKEN_1)).thenReturn(Optional.of(user));
   }
@@ -222,6 +225,8 @@ class FcmNotificationServiceTest {
             .setTtlSeconds(86400)
             .setDelivered(false)
             .setId(1L);
+    notification1.setUpdatedAt(new Date());
+    notification1.setCreatedAt(new Date());
 
     Notification notification2 =
         new Notification()
@@ -234,6 +239,9 @@ class FcmNotificationServiceTest {
             .setTtlSeconds(86400)
             .setDelivered(false)
             .setId(2L);
+
+    notification2.setCreatedAt(new Date());
+    notification2.setUpdatedAt(new Date());
 
     Mockito.when(notificationRepository.findAll())
         .thenReturn(List.of(notification1, notification2));

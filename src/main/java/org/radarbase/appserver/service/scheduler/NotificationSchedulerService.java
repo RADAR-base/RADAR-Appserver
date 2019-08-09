@@ -97,7 +97,7 @@ public class NotificationSchedulerService {
         NAMING_STRATEGY.getJobKeyName(
             notification.getUser().getSubjectId(), notification.getId().toString()));
     Map<String, Object> map = new HashMap<>();
-//    map.put("notification", notification);
+    //    map.put("notification", notification);
     map.put("subjectId", notification.getUser().getSubjectId());
     map.put("projectId", notification.getUser().getProject().getProjectId());
     map.put("notificationId", notification.getId());
@@ -181,8 +181,7 @@ public class NotificationSchedulerService {
     schedulerService.deleteScheduledJob(key);
   }
 
-  private FcmNotificationMessage createMessageFromNotification(Notification notification)
-      throws Exception {
+  private FcmNotificationMessage createMessageFromNotification(Notification notification) {
 
     Map<String, Object> notificationMap = new HashMap<>();
     notificationMap.put("body", notification.getBody());

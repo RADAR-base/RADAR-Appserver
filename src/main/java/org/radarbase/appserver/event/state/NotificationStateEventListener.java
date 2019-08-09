@@ -53,7 +53,7 @@ public class NotificationStateEventListener {
         log.warn("error processing event: {}", event.toString());
       }
     }
-
+    log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());
     org.radarbase.appserver.entity.NotificationStateEvent eventEntity =
         new org.radarbase.appserver.entity.NotificationStateEvent(
             event.getNotification(), event.getState(), event.getTime(), info);

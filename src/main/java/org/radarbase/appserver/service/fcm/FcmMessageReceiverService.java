@@ -157,7 +157,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
               notificationService.getNotificationByMessageId(
                   jsonMessage.get("message_id").asText()),
               NotificationState.ERRORED,
-              null,
+              additionalInfo,
               Instant.now());
       notificationStateEventPublisher.publishEvent(notificationStateEvent);
     }
