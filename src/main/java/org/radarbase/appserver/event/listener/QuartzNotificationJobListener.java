@@ -32,7 +32,6 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.Trigger;
-import org.quartz.TriggerListener;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.event.state.NotificationState;
 import org.radarbase.appserver.event.state.NotificationStateEvent;
@@ -64,23 +63,27 @@ public class QuartzNotificationJobListener implements JobListener {
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> is about to
    * be executed (an associated <code>{@link Trigger}</code> has occurred).
    *
-   * <p>This method will not be invoked if the execution of the Job was vetoed by a <code>{@link
+   * <p>This method will not be invoked if the execution of the Job was vetoed by a <code>{
    * TriggerListener}</code>.
    *
    * @see #jobExecutionVetoed(JobExecutionContext)
    */
   @Override
-  public void jobToBeExecuted(JobExecutionContext context) {}
+  public void jobToBeExecuted(JobExecutionContext context) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> was about to
-   * be executed (an associated <code>{@link Trigger}</code> has occurred), but a <code>{@link
+   * be executed (an associated <code>{@link Trigger}</code> has occurred), but a <code>{
    * TriggerListener}</code> vetoed it's execution.
    *
    * @see #jobToBeExecuted(JobExecutionContext)
    */
   @Override
-  public void jobExecutionVetoed(JobExecutionContext context) {}
+  public void jobExecutionVetoed(JobExecutionContext context) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> after a <code>{@link JobDetail}</code> has been

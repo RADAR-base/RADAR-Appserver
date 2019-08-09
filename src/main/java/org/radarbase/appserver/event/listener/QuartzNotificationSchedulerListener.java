@@ -117,14 +117,18 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
    * the condition in which it will never fire again.
    */
   @Override
-  public void triggerFinalized(Trigger trigger) {}
+  public void triggerFinalized(Trigger trigger) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link Trigger}</code> has been
    * paused.
    */
   @Override
-  public void triggerPaused(TriggerKey triggerKey) {}
+  public void triggerPaused(TriggerKey triggerKey) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a group of <code>{@link Trigger}s</code> has
@@ -135,42 +139,54 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
    * @param triggerGroup the paused group, or null if all were paused
    */
   @Override
-  public void triggersPaused(String triggerGroup) {}
+  public void triggersPaused(String triggerGroup) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link Trigger}</code> has been
    * un-paused.
    */
   @Override
-  public void triggerResumed(TriggerKey triggerKey) {}
+  public void triggerResumed(TriggerKey triggerKey) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a group of <code>{@link Trigger}s</code> has
    * been un-paused.
    */
   @Override
-  public void triggersResumed(String triggerGroup) {}
+  public void triggersResumed(String triggerGroup) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> has been
    * added.
    */
   @Override
-  public void jobAdded(JobDetail jobDetail) {}
+  public void jobAdded(JobDetail jobDetail) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> has been
    * deleted.
    */
   @Override
-  public void jobDeleted(JobKey jobKey) {}
+  public void jobDeleted(JobKey jobKey) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> has been
    * paused.
    */
   @Override
-  public void jobPaused(JobKey jobKey) {}
+  public void jobPaused(JobKey jobKey) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a group of <code>{@link JobDetail}s</code>
@@ -179,21 +195,27 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
    * @param jobGroup the paused group, or null if all were paused
    */
   @Override
-  public void jobsPaused(String jobGroup) {}
+  public void jobsPaused(String jobGroup) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> has been
    * un-paused.
    */
   @Override
-  public void jobResumed(JobKey jobKey) {}
+  public void jobResumed(JobKey jobKey) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a group of <code>{@link JobDetail}s</code>
    * has been un-paused.
    */
   @Override
-  public void jobsResumed(String jobGroup) {}
+  public void jobsResumed(String jobGroup) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> when a serious error has occurred within the
@@ -204,38 +226,52 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
    * determine more specific information about the type of error that was encountered.
    */
   @Override
-  public void schedulerError(String msg, SchedulerException cause) {}
+  public void schedulerError(String msg, SchedulerException cause) {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> to inform the listener that it has move to standby
    * mode.
    */
   @Override
-  public void schedulerInStandbyMode() {}
+  public void schedulerInStandbyMode() {
+    // Not implemented
+  }
 
   /** Called by the <code>{@link Scheduler}</code> to inform the listener that it has started. */
   @Override
-  public void schedulerStarted() {}
+  public void schedulerStarted() {
+    // Not implemented
+  }
 
   /** Called by the <code>{@link Scheduler}</code> to inform the listener that it is starting. */
   @Override
-  public void schedulerStarting() {}
+  public void schedulerStarting() {
+    // Not implemented
+  }
 
   /** Called by the <code>{@link Scheduler}</code> to inform the listener that it has shutdown. */
   @Override
-  public void schedulerShutdown() {}
+  public void schedulerShutdown() {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> to inform the listener that it has begun the
    * shutdown sequence.
    */
   @Override
-  public void schedulerShuttingdown() {}
+  public void schedulerShuttingdown() {
+    // Not implemented
+  }
 
   /**
    * Called by the <code>{@link Scheduler}</code> to inform the listener that all jobs, triggers and
    * calendars were deleted.
    */
   @Override
-  public void schedulingDataCleared() {}
+  public void schedulingDataCleared() {
+    // Not implemented
+  }
 }
