@@ -52,7 +52,6 @@ public class NotificationStateEventService {
     EXTERNAL_EVENTS.add(NotificationState.ERRORED);
   }
 
-  // TODO Create State Event DTO to interact with the outside world.
   private final transient NotificationStateEventRepository notificationStateEventRepository;
   private final transient FcmNotificationService notificationService;
   private final transient ApplicationEventPublisher notificationApplicationEventPublisher;

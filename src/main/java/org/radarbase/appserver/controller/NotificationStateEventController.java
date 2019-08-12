@@ -53,6 +53,14 @@ public class NotificationStateEventController {
         notificationStateEventService.getNotificationStateEventsByNotificationId(notificationId));
   }
 
+  @PreAuthorize(
+      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
+          + ", "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
+          + ")")
   @GetMapping(
       value =
           "/"
@@ -78,6 +86,14 @@ public class NotificationStateEventController {
             projectId, subjectId, notificationId));
   }
 
+  @PreAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
+          + ", "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
+          + ")")
   @PostMapping(
       value =
           "/"
