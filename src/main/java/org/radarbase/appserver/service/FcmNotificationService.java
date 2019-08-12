@@ -309,7 +309,7 @@ public class FcmNotificationService implements NotificationService {
         .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
   }
 
-  private User subjectAndProjectExistElseThrow(String subjectId, String projectId) {
+  public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {
     Optional<Project> project = this.projectRepository.findByProjectId(projectId);
     if (project.isEmpty()) {
       throw new NotFoundException(

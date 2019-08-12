@@ -34,4 +34,6 @@ public class Paths {
   public static final String PROTOCOL_PATH = "protocols";
   public static final String PROJECT_ID_CONSTANT = "{projectId}";
   public static final String SUBJECT_ID_CONSTANT = "{subjectId}";
+  public static final String NOTIFICATION_ID_CONSTANT = "{notificationId}";
+  public static final String NOTIFICATION_STATE_EVENTS_PATH = "state_events";
 }

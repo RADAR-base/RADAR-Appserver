@@ -23,6 +23,7 @@ package org.radarbase.appserver.event.state;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.service.NotificationStateEventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,14 +46,7 @@ public class NotificationStateEventListener {
   @EventListener(value = NotificationStateEvent.class)
   @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   public void onNotificationStateChange(NotificationStateEvent event) {
-    String info = null;
-    if (event.getAdditionalInfo() != null) {
-      try {
-        info = objectMapper.writeValueAsString(event.getAdditionalInfo());
-      } catch (JsonProcessingException exc) {
-        log.warn("error processing event: {}", event.toString());
-      }
-    }
+    String info = convertMapToString(event.getAdditionalInfo());
     log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());
     org.radarbase.appserver.entity.NotificationStateEvent eventEntity =
         new org.radarbase.appserver.entity.NotificationStateEvent(
@@ -60,5 +54,16 @@ public class NotificationStateEventListener {
     notificationStateEventService.addNotificationStateEvent(eventEntity);
   }
 
+  public String convertMapToString(Map<String, String> additionalInfoMap) {
+    String info = null;
+    if (additionalInfoMap != null) {
+      try {
+        info = objectMapper.writeValueAsString(additionalInfoMap);
+      } catch (JsonProcessingException exc) {
+        log.warn("error processing event's additional info: {}", additionalInfoMap);
+      }
+    }
+    return info;
+  }
   // we can add more event listeners by annotating with @EventListener
 }

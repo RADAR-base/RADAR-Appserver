@@ -36,6 +36,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.event.state.NotificationState;
@@ -43,6 +44,7 @@ import org.radarbase.appserver.event.state.NotificationState;
 @Entity
 @Getter
 @Table(name = "notification_state_events")
+@NoArgsConstructor
 public class NotificationStateEvent {
   private static final long serialVersionUID = 876253616328519L;
 

@@ -19,14 +19,26 @@
  *
  */
 
-package org.radarbase.appserver.repository;
+package org.radarbase.appserver.dto;
 
-import java.util.List;
-import org.radarbase.appserver.entity.NotificationStateEvent;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.radarbase.appserver.event.state.NotificationState;
 
-public interface NotificationStateEventRepository extends
-    JpaRepository<NotificationStateEvent, Long> {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class NotificationStateEventDto {
 
-  List<NotificationStateEvent> findByNotificationId(long notificationId);
+  private Long id;
+
+  private Long notificationId;
+
+  private NotificationState state;
+
+  private Instant time;
+
+  private String associatedInfo;
 }

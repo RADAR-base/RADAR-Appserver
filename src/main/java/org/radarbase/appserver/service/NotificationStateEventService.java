@@ -21,23 +21,130 @@
 
 package org.radarbase.appserver.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.radarbase.appserver.dto.NotificationStateEventDto;
+import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.NotificationStateEvent;
+import org.radarbase.appserver.event.state.NotificationState;
 import org.radarbase.appserver.repository.NotificationStateEventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NotificationStateEventService {
 
-  private transient NotificationStateEventRepository notificationStateEventRepository;
+  private static final Set<NotificationState> EXTERNAL_EVENTS = new HashSet<>();
+
+  static {
+    EXTERNAL_EVENTS.add(NotificationState.DELIVERED);
+    EXTERNAL_EVENTS.add(NotificationState.DISMISSED);
+    EXTERNAL_EVENTS.add(NotificationState.OPENED);
+    EXTERNAL_EVENTS.add(NotificationState.UNKNOWN);
+    EXTERNAL_EVENTS.add(NotificationState.ERRORED);
+  }
+
+  // TODO Create State Event DTO to interact with the outside world.
+  private final transient NotificationStateEventRepository notificationStateEventRepository;
+  private final transient FcmNotificationService notificationService;
+  private final transient ApplicationEventPublisher notificationApplicationEventPublisher;
+  @Autowired private ObjectMapper objectMapper;
 
   public NotificationStateEventService(
-      NotificationStateEventRepository notificationStateEventRepository) {
+      NotificationStateEventRepository notificationStateEventRepository,
+      FcmNotificationService fcmNotificationService,
+      ApplicationEventPublisher notificationApplicationEventPublisher) {
     this.notificationStateEventRepository = notificationStateEventRepository;
+    this.notificationService = fcmNotificationService;
+    this.notificationApplicationEventPublisher = notificationApplicationEventPublisher;
   }
 
   @Transactional
-  public void addNotificationStateEvent(NotificationStateEvent notificationStateEvent){
+  public void addNotificationStateEvent(NotificationStateEvent notificationStateEvent) {
     notificationStateEventRepository.save(notificationStateEvent);
+  }
+
+  @Transactional(readOnly = true)
+  public List<NotificationStateEventDto> getNotificationStateEvents(
+      String projectId, String subjectId, long notificationId) {
+    notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+        projectId, subjectId, notificationId);
+    List<NotificationStateEvent> stateEvents =
+        notificationStateEventRepository.findByNotificationId(notificationId);
+    return stateEvents.stream()
+        .map(
+            ns ->
+                new NotificationStateEventDto(
+                    ns.getId(),
+                    ns.getNotification().getId(),
+                    ns.getState(),
+                    ns.getTime(),
+                    ns.getAssociatedInfo()))
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<NotificationStateEventDto> getNotificationStateEventsByNotificationId(
+      long notificationId) {
+    List<NotificationStateEvent> stateEvents =
+        notificationStateEventRepository.findByNotificationId(notificationId);
+    return stateEvents.stream()
+        .map(
+            ns ->
+                new NotificationStateEventDto(
+                    ns.getId(),
+                    ns.getNotification().getId(),
+                    ns.getState(),
+                    ns.getTime(),
+                    ns.getAssociatedInfo()))
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public void publishNotificationStateEventExternal(
+      String projectId,
+      String subjectId,
+      long notificationId,
+      NotificationStateEventDto notificationStateEventDto) {
+    if (EXTERNAL_EVENTS.contains(notificationStateEventDto.getState())) {
+      Notification notification =
+          notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+              projectId, subjectId, notificationId);
+
+      Map<String, String> additionalInfo = null;
+      if (!notificationStateEventDto.getAssociatedInfo().isEmpty()) {
+        try {
+          additionalInfo =
+              objectMapper.readValue(
+                  notificationStateEventDto.getAssociatedInfo(),
+                  new TypeReference<Map<String, String>>() {});
+        } catch (IOException exc) {
+          throw new IllegalStateException(
+              "Cannot convert additionalInfo to Map<String, String>. Please check its format.");
+        }
+      }
+
+      org.radarbase.appserver.event.state.NotificationStateEvent stateEvent =
+          new org.radarbase.appserver.event.state.NotificationStateEvent(
+              this,
+              notification,
+              notificationStateEventDto.getState(),
+              additionalInfo,
+              notificationStateEventDto.getTime());
+      notificationApplicationEventPublisher.publishEvent(stateEvent);
+    } else {
+      throw new IllegalStateException(
+          "The state "
+              + notificationStateEventDto.getState()
+              + " is not an external state and cannot be updated by this endpoint.");
+    }
   }
 }
