@@ -110,47 +110,28 @@ public class NotificationSchedulerService {
     Map<String, Object> notificationMap = new HashMap<>();
     notificationMap.put("body", notification.getBody());
     notificationMap.put("title", notification.getTitle());
-    if (notification.getSound() != null) {
-      notificationMap.put("sound", notification.getSound());
-    } else {
-      notificationMap.put("sound", "default");
-    }
-    if (notification.getBadge() != null) {
-      notificationMap.put("badge", notification.getBadge());
-    }
-    if (notification.getClickAction() != null) {
-      notificationMap.put("click_action", notification.getClickAction());
-    }
-    if (notification.getSubtitle() != null) {
-      notificationMap.put("subtitle", notification.getSubtitle());
-    }
-    if (notification.getBodyLocKey() != null) {
-      notificationMap.put("body_loc_key", notification.getBodyLocKey());
-    }
-    if (notification.getBodyLocArgs() != null) {
-      notificationMap.put("body_loc_args", notification.getBodyLocArgs());
-    }
-    if (notification.getTitleLocKey() != null) {
-      notificationMap.put("title_loc_key", notification.getTitleLocKey());
-    }
-    if (notification.getTitleLocArgs() != null) {
-      notificationMap.put("title_loc_args", notification.getTitleLocArgs());
-    }
+    notificationMap.put("sound", "default");
 
-    if (notification.getAndroidChannelId() != null) {
-      notificationMap.put("android_channel_id", notification.getAndroidChannelId());
-    }
-    if (notification.getIcon() != null) {
-      notificationMap.put("icon", notification.getIcon());
-    }
-    if (notification.getTag() != null) {
-      notificationMap.put("tag", notification.getTag());
-    }
-    if (notification.getColor() != null) {
-      notificationMap.put("color", notification.getColor());
-    }
+    putIfNotNull(notificationMap, "sound", notification.getSound());
+    putIfNotNull(notificationMap, "badge", notification.getBadge());
+    putIfNotNull(notificationMap, "click_action", notification.getClickAction());
+    putIfNotNull(notificationMap, "subtitle", notification.getSubtitle());
+    putIfNotNull(notificationMap, "body_loc_key", notification.getBodyLocKey());
+    putIfNotNull(notificationMap, "body_loc_args", notification.getBodyLocArgs());
+    putIfNotNull(notificationMap, "title_loc_key", notification.getTitleLocKey());
+    putIfNotNull(notificationMap, "title_loc_args", notification.getTitleLocArgs());
+    putIfNotNull(notificationMap, "android_channel_id", notification.getAndroidChannelId());
+    putIfNotNull(notificationMap, "icon", notification.getIcon());
+    putIfNotNull(notificationMap, "tag", notification.getTag());
+    putIfNotNull(notificationMap, "color", notification.getColor());
 
     return notificationMap;
+  }
+
+  private static void putIfNotNull(Map<String, Object> map, String key, Object value) {
+    if (value != null) {
+      map.put(key, value);
+    }
   }
 
   private static FcmNotificationMessage createMessageFromNotification(Notification notification) {
