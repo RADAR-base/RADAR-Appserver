@@ -109,9 +109,9 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                     scheduleNotificationHandler.handleScheduleNotification(
                         notificationDtoMapper(data),
                         userDtoMapper(jsonMessage.get("from").asText(), data),
-                        jsonMessage.get("projectId") == null
+                        data.get("projectId") == null
                             ? "unknown-project"
-                            : jsonMessage.get("projectId").asText());
+                            : data.get("projectId").asText());
                     break;
 
                   case CANCEL:

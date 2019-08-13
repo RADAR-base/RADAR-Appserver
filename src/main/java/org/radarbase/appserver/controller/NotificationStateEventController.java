@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class NotificationStateEventController {
 
-  @Autowired NotificationStateEventService notificationStateEventService;
+  @Autowired private transient NotificationStateEventService notificationStateEventService;
 
   @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
   @GetMapping(

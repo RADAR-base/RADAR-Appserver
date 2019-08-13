@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class NotificationStateEventListener {
 
   @Autowired private transient ObjectMapper objectMapper;
@@ -44,7 +45,6 @@ public class NotificationStateEventListener {
    */
   @Async
   @EventListener(value = NotificationStateEvent.class)
-  @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   public void onNotificationStateChange(NotificationStateEvent event) {
     String info = convertMapToString(event.getAdditionalInfo());
     log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());

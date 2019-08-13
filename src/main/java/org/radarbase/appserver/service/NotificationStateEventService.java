@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class NotificationStateEventService {
 
   private static final Set<NotificationState> EXTERNAL_EVENTS = new HashSet<>();
@@ -55,7 +56,7 @@ public class NotificationStateEventService {
   private final transient NotificationStateEventRepository notificationStateEventRepository;
   private final transient FcmNotificationService notificationService;
   private final transient ApplicationEventPublisher notificationApplicationEventPublisher;
-  @Autowired private ObjectMapper objectMapper;
+  @Autowired private transient ObjectMapper objectMapper;
 
   public NotificationStateEventService(
       NotificationStateEventRepository notificationStateEventRepository,
