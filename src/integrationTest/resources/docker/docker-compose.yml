@@ -19,7 +19,7 @@ services:
     ports:
       - 9001:9001
     volumes:
-      - ../db:/usr/hsql/
+      - ../../../../db:/usr/hsql/
       - ./database/server.properties:/etc/opt/hsqldb/conf/server.properties
       - ./database/sqltool.rc:/etc/opt/hsqldb/conf/sqltool.rc
 
@@ -42,7 +42,7 @@ services:
       RADAR_ADMIN_USER: "radar"
       RADAR_ADMIN_PASSWORD: "radar"
       SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
-      SPRING.BOOT.ADMIN.CLIENT.INSTANCE.NAME: radar-appserver
+      SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
 
   spring-boot-admin:
     image: slydeveloper/spring-boot-admin:latest

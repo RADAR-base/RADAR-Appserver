@@ -22,22 +22,29 @@
 package org.radarbase.appserver.service.fcm;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
-import org.radarbase.appserver.exception.AlreadyExistsException;
+import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
-import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * {@link UpstreamMessageHandler} for handling messages messages coming through the {@link
@@ -51,19 +58,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
+  // TODO: Add batching of schedule requests (The database service function is already there)
+
+  private final transient ApplicationEventPublisher notificationStateEventPublisher;
   private transient FcmNotificationService notificationService;
-
   private transient UserService userService;
-
   private transient ProjectService projectService;
+  private transient ScheduleNotificationHandler scheduleNotificationHandler;
 
   public FcmMessageReceiverService(
       FcmNotificationService notificationService,
       UserService userService,
-      ProjectService projectService) {
+      ProjectService projectService,
+      ApplicationEventPublisher notificationStateEventPublisher,
+      ScheduleNotificationHandler scheduleNotificationHandler) {
     this.notificationService = notificationService;
     this.userService = userService;
     this.projectService = projectService;
+    this.notificationStateEventPublisher = notificationStateEventPublisher;
+    this.scheduleNotificationHandler = scheduleNotificationHandler;
   }
 
   /**
@@ -93,23 +106,26 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
                   case SCHEDULE:
                     log.info("Got a SCHEDULE Request");
-                    handleScheduleNotification(
+                    scheduleNotificationHandler.handleScheduleNotification(
                         notificationDtoMapper(data),
                         userDtoMapper(jsonMessage.get("from").asText(), data),
-                        jsonMessage.get("projectId") == null
+                        data.get("projectId") == null
                             ? "unknown-project"
-                            : jsonMessage.get("projectId").asText());
+                            : data.get("projectId").asText());
                     break;
 
                   case CANCEL:
                     log.info("Got a CANCEL Request");
+                    //TODO: Don't delete but change the state to CANCELLED.
+                    this.notificationService.removeNotificationsForUserUsingFcmToken(
+                        jsonMessage.get("from").asText());
                     break;
                 }
               },
               () -> {
                 log.warn("No Action provided");
                 throw new IllegalStateException(
-                    "Action must not be null! Options: 'ECHO', 'SCHEDULE', 'CANCEL'");
+                    "Action must not be null! Options: " + Arrays.toString(Action.values()));
               });
         },
         () -> {
@@ -139,6 +155,19 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
       log.info("The FCM device unregistered. Removing all notifications: {}", errorCode);
       this.notificationService.removeNotificationsForUserUsingFcmToken(
           jsonMessage.get("from").asText());
+    } else {
+      Map<String, String> additionalInfo = new HashMap<>();
+      additionalInfo.put("error", jsonMessage.get("error").asText());
+      additionalInfo.put("error_description", jsonMessage.get("error_description").asText());
+      NotificationStateEvent notificationStateEvent =
+          new NotificationStateEvent(
+              this,
+              notificationService.getNotificationByMessageId(
+                  jsonMessage.get("message_id").asText()),
+              NotificationState.ERRORED,
+              additionalInfo,
+              Instant.now());
+      notificationStateEventPublisher.publishEvent(notificationStateEvent);
     }
   }
 
@@ -154,6 +183,19 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
           // notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
           notificationService.updateDeliveryStatus(
               jsonData.get().get("original_message_id").asText(), true);
+
+          NotificationStateEvent notificationStateEvent =
+              new NotificationStateEvent(
+                  this,
+                  notificationService.getNotificationByMessageId(
+                      jsonData.get().get("original_message_id").asText()),
+                  NotificationState.DELIVERED,
+                  null,
+                  Instant.now());
+          notificationStateEventPublisher.publishEvent(notificationStateEvent);
+
+          userService.updateLastDelivered(
+              jsonData.get().get("device_registration_id").asText(), Instant.now());
         }
       }
     }
@@ -221,25 +263,30 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                 : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L));
   }
 
-  @Transactional
-  private void handleScheduleNotification(
-      FcmNotificationDto notificationDto, FcmUserDto userDto, String projectId) {
-    try {
-      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
-    } catch (NotFoundException ex) {
-      if (ex.getMessage().contains("Project")) {
-        try {
-          projectService.addProject(new ProjectDto().setProjectId(projectId));
-          userService.saveUserInProject(userDto.setProjectId(projectId));
-        } catch (Exception e) {
-          log.warn("Exception while adding notification.", ex);
-        }
-      } else if (ex.getMessage().contains("Subject")) {
-        userService.saveUserInProject(userDto.setProjectId(projectId));
-      }
-      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
-    } catch (AlreadyExistsException ex) {
-      log.warn("The Notification Already Exists.", ex);
+  @Configuration
+  public static class ScheduleNotificationHandlerConfig {
+
+    @Value("${fcm.xmpp.schedule.batch.maxSize:100}")
+    transient int maxSize;
+
+    @Value("${fcm.xmpp.schedule.batch.expiry.seconds:50}")
+    transient int expiryInSeconds;
+
+    @Value("${fcm.xmpp.schedule.batch.flushAfter.seconds:120}")
+    transient int flushAfterSeconds;
+
+    @Autowired private transient FcmNotificationService notificationService;
+    @Autowired private transient UserService userService;
+    @Autowired private transient ProjectService projectService;
+
+    @Bean
+    public ScheduleNotificationHandler getScheduleNotificationHandler() {
+
+      Duration expiry = Duration.ofSeconds(expiryInSeconds);
+      //      return new SimpleScheduleNotificationHandler(
+      //          notificationService, projectService, userService);
+      return new BatchedScheduleNotificationHandler(
+          notificationService, projectService, userService, maxSize, expiry, flushAfterSeconds);
     }
   }
 }

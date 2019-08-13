@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.radarbase.appserver.entity.Notification;
@@ -83,6 +84,7 @@ public class NotificationSchedulerService {
     triggerFactoryBean.setRepeatInterval(0L);
     triggerFactoryBean.setStartTime(new Date(notification.getScheduledTime().toEpochMilli()));
     triggerFactoryBean.afterPropertiesSet();
+    triggerFactoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
     return triggerFactoryBean;
   }
 
@@ -95,10 +97,60 @@ public class NotificationSchedulerService {
         NAMING_STRATEGY.getJobKeyName(
             notification.getUser().getSubjectId(), notification.getId().toString()));
     Map<String, Object> map = new HashMap<>();
-    map.put("notification", notification);
+    //    map.put("notification", notification);
+    map.put("subjectId", notification.getUser().getSubjectId());
+    map.put("projectId", notification.getUser().getProject().getProjectId());
+    map.put("notificationId", notification.getId());
     jobDetailFactory.setJobDataAsMap(map);
     jobDetailFactory.afterPropertiesSet();
     return jobDetailFactory;
+  }
+
+  private static Map getNotificationMap(Notification notification) {
+    Map<String, Object> notificationMap = new HashMap<>();
+    notificationMap.put("body", notification.getBody());
+    notificationMap.put("title", notification.getTitle());
+    notificationMap.put("sound", "default");
+
+    putIfNotNull(notificationMap, "sound", notification.getSound());
+    putIfNotNull(notificationMap, "badge", notification.getBadge());
+    putIfNotNull(notificationMap, "click_action", notification.getClickAction());
+    putIfNotNull(notificationMap, "subtitle", notification.getSubtitle());
+    putIfNotNull(notificationMap, "body_loc_key", notification.getBodyLocKey());
+    putIfNotNull(notificationMap, "body_loc_args", notification.getBodyLocArgs());
+    putIfNotNull(notificationMap, "title_loc_key", notification.getTitleLocKey());
+    putIfNotNull(notificationMap, "title_loc_args", notification.getTitleLocArgs());
+    putIfNotNull(notificationMap, "android_channel_id", notification.getAndroidChannelId());
+    putIfNotNull(notificationMap, "icon", notification.getIcon());
+    putIfNotNull(notificationMap, "tag", notification.getTag());
+    putIfNotNull(notificationMap, "color", notification.getColor());
+
+    return notificationMap;
+  }
+
+  private static void putIfNotNull(Map<String, Object> map, String key, Object value) {
+    if (value != null) {
+      map.put(key, value);
+    }
+  }
+
+  private static FcmNotificationMessage createMessageFromNotification(Notification notification) {
+
+    String to =
+        notification.getFcmTopic() == null
+            ? notification.getUser().getFcmToken()
+            : notification.getFcmTopic();
+    return FcmNotificationMessage.builder()
+        .to(to)
+        .condition(notification.getFcmCondition())
+        .priority(notification.getPriority())
+        .mutableContent(notification.isMutableContent())
+        .deliveryReceiptRequested(true)
+        .messageId(String.valueOf(notification.getFcmMessageId()))
+        .timeToLive(notification.getTtlSeconds())
+        .notification(getNotificationMap(notification))
+        .data(notification.getAdditionalData())
+        .build();
   }
 
   public void sendNotification(Notification notification) throws Exception {
@@ -174,23 +226,5 @@ public class NotificationSchedulerService {
             NAMING_STRATEGY.getJobKeyName(
                 notification.getUser().getSubjectId(), notification.getId().toString()));
     schedulerService.deleteScheduledJob(key);
-  }
-
-  private FcmNotificationMessage createMessageFromNotification(Notification notification)
-      throws Exception {
-
-    Map<String, Object> notificationMap = new HashMap<>();
-    notificationMap.put("body", notification.getBody());
-    notificationMap.put("title", notification.getTitle());
-    notificationMap.put("sound", "default");
-
-    return FcmNotificationMessage.builder()
-        .to(notification.getUser().getFcmToken())
-        .deliveryReceiptRequested(true)
-        .messageId(String.valueOf(notification.getFcmMessageId()))
-        .timeToLive(notification.getTtlSeconds())
-        .notification(notificationMap)
-        .data(notification.getAdditionalData())
-        .build();
   }
 }

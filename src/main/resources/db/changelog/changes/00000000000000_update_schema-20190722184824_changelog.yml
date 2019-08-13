@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 11563817761000-01
+      author: yatharth
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: android_channel_id
+                  type: varchar(255)
+            tableName: notifications

@@ -19,21 +19,26 @@
  *
  */
 
-package org.radarbase.appserver.controller;
+package org.radarbase.appserver.dto;
 
-/**
- * Contains Path constants to be used in various resource endpoints.
- *
- * @author yatharthranjan
- */
-public class Paths {
+import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.radarbase.appserver.event.state.NotificationState;
 
-  public static final String USER_PATH = "users";
-  public static final String PROJECT_PATH = "projects";
-  public static final String NOTIFICATION_PATH = "notifications";
-  public static final String PROTOCOL_PATH = "protocols";
-  public static final String PROJECT_ID_CONSTANT = "{projectId}";
-  public static final String SUBJECT_ID_CONSTANT = "{subjectId}";
-  public static final String NOTIFICATION_ID_CONSTANT = "{notificationId}";
-  public static final String NOTIFICATION_STATE_EVENTS_PATH = "state_events";
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class NotificationStateEventDto {
+
+  private Long id;
+
+  private Long notificationId;
+
+  private NotificationState state;
+
+  private Instant time;
+
+  private String associatedInfo;
 }

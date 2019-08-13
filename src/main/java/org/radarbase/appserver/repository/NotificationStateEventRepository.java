@@ -19,21 +19,14 @@
  *
  */
 
-package org.radarbase.appserver.controller;
+package org.radarbase.appserver.repository;
 
-/**
- * Contains Path constants to be used in various resource endpoints.
- *
- * @author yatharthranjan
- */
-public class Paths {
+import java.util.List;
+import org.radarbase.appserver.entity.NotificationStateEvent;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-  public static final String USER_PATH = "users";
-  public static final String PROJECT_PATH = "projects";
-  public static final String NOTIFICATION_PATH = "notifications";
-  public static final String PROTOCOL_PATH = "protocols";
-  public static final String PROJECT_ID_CONSTANT = "{projectId}";
-  public static final String SUBJECT_ID_CONSTANT = "{subjectId}";
-  public static final String NOTIFICATION_ID_CONSTANT = "{notificationId}";
-  public static final String NOTIFICATION_STATE_EVENTS_PATH = "state_events";
+public interface NotificationStateEventRepository extends
+    JpaRepository<NotificationStateEvent, Long> {
+
+  List<NotificationStateEvent> findByNotificationId(long notificationId);
 }

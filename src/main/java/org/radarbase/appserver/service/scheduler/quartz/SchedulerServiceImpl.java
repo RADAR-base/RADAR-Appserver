@@ -29,31 +29,46 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.JobListener;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerListener;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.radarbase.appserver.entity.Scheduled;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
- * An implementation of the {@link SchedulerService} providing Synchronized access to schedule,
+ * An implementation of the {@link SchedulerService} providing asynchronised access to schedule,
  * update and delete Jobs.
  *
  * @author yatharthranjan
  */
 @Service
+@Slf4j
 public class SchedulerServiceImpl implements SchedulerService {
 
   private transient Scheduler scheduler;
 
-  public SchedulerServiceImpl(@Autowired Scheduler scheduler) {
+  public SchedulerServiceImpl(
+      Scheduler scheduler, JobListener jobListener, SchedulerListener schedulerListener) {
     this.scheduler = scheduler;
+    if (jobListener != null && schedulerListener != null) {
+      try {
+        scheduler.getListenerManager().addJobListener(jobListener);
+        scheduler.getListenerManager().addSchedulerListener(schedulerListener);
+      } catch (SchedulerException exc) {
+        log.warn("The Listeners could not be added to the scheduler", exc);
+      }
+    } else {
+      log.warn("The Listeners cannot be null and will not be added to the scheduler");
+    }
   }
 
   @Async

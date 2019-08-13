@@ -68,7 +68,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(
     webEnvironment = NONE,
     classes = {
-      SchedulerServiceImpl.class,
       DataSourceAutoConfiguration.class,
       QuartzAutoConfiguration.class,
       SchedulerConfig.class,
@@ -212,7 +211,7 @@ class NotificationSchedulerServiceTest {
 
       // mock FCM as we do not want to connect to the server
       return new NotificationSchedulerService(
-          mock(FcmSender.class), new SchedulerServiceImpl(scheduler));
+          mock(FcmSender.class), new SchedulerServiceImpl(scheduler, null, null));
     }
   }
 

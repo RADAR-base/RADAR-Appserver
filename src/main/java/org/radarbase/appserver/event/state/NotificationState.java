@@ -19,21 +19,20 @@
  *
  */
 
-package org.radarbase.appserver.controller;
+package org.radarbase.appserver.event.state;
 
-/**
- * Contains Path constants to be used in various resource endpoints.
- *
- * @author yatharthranjan
- */
-public class Paths {
+public enum NotificationState {
+  // Database controlled
+  ADDED, UPDATED, CANCELLED,
 
-  public static final String USER_PATH = "users";
-  public static final String PROJECT_PATH = "projects";
-  public static final String NOTIFICATION_PATH = "notifications";
-  public static final String PROTOCOL_PATH = "protocols";
-  public static final String PROJECT_ID_CONSTANT = "{projectId}";
-  public static final String SUBJECT_ID_CONSTANT = "{subjectId}";
-  public static final String NOTIFICATION_ID_CONSTANT = "{notificationId}";
-  public static final String NOTIFICATION_STATE_EVENTS_PATH = "state_events";
+  // Scheduler Controlled
+  SCHEDULED,
+  EXECUTED,
+
+  // Controlled by entities outside the appserver.
+  // These will need to be reported to the appserver.
+  DELIVERED, OPENED, DISMISSED,
+
+  // Misc
+  ERRORED, UNKNOWN
 }

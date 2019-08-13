@@ -48,7 +48,23 @@ public class NotificationConverter implements Converter<Notification, FcmNotific
         .setFcmMessageId(String.valueOf(notificationDto.hashCode()))
         .setAppPackage(notificationDto.getAppPackage())
         .setSourceType(notificationDto.getSourceType())
-        .setAdditionalData(notificationDto.getAdditionalData());
+        .setAdditionalData(notificationDto.getAdditionalData())
+        .setAndroidChannelId(notificationDto.getAndroidChannelId())
+        .setBodyLocArgs(notificationDto.getBodyLocArgs())
+        .setBodyLocKey(notificationDto.getBodyLocKey())
+        .setTitleLocKey(notificationDto.getTitleLocKey())
+        .setTitleLocArgs(notificationDto.getTitleLocArgs())
+        .setBadge(notificationDto.getBadge())
+        .setClickAction(notificationDto.getClickAction())
+        .setColor(notificationDto.getColor())
+        .setFcmCondition(notificationDto.getFcmCondition())
+        .setFcmTopic(notificationDto.getFcmTopic())
+        .setIcon(notificationDto.getIcon())
+        .setMutableContent(notificationDto.isMutableContent())
+        .setPriority(notificationDto.getPriority())
+        .setSound(notificationDto.getSound())
+        .setSubtitle(notificationDto.getSubtitle())
+        .setTag(notificationDto.getTag());
   }
 
   @Override
