@@ -14,17 +14,17 @@ There is also support for legacy XMPP protocol for FCM.
 
 # Getting Started
 
-1. First you will need to create a Firebase project for your application and add it to your app. This will give you access to all the Firebase services. Follow the instructions on the [official docs](https://firebase.google.com/docs/) according to your platform.  
+ 1. First you will need to create a Firebase project for your application and add it to your app. This will give you access to all the Firebase services. Follow the instructions on the [official docs](https://firebase.google.com/docs/) according to your platform.  
 
-2. Configure the Server Key and Sender ID (obtained from FCM) in application.properties. 
+ 2. Configure the Server Key and Sender ID (obtained from FCM) in application.properties. 
 
-3. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
+ 3. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
     ```bash
     ./gradlew bootRun
     ```
     You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
     
-4. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
+ 4. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
     ```javascript
     {
      "data":
@@ -40,11 +40,11 @@ There is also support for legacy XMPP protocol for FCM.
           ...
      }
     ```
-5. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
+ 5. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
 
-6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
+ 6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
 
-7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
+ 7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
 # REST API
 
@@ -52,16 +52,16 @@ There is also support for legacy XMPP protocol for FCM.
 
 The same result as stated in [Getting Started](#getting-started) can be achieved using REST endpoints of the AppServer.
 
-1. Run the AppServer by following the first 3 steps in the [Getting Started](#getting-started) section.
+ 1. Run the AppServer by following the first 3 steps in the [Getting Started](#getting-started) section.
 
-2. Create a new Project by making a `POST` request to the endpoint `http://localhost:8080/projects` with the following body- 
+ 2. Create a new Project by making a `POST` request to the endpoint `http://localhost:8080/projects` with the following body- 
     ```json
       {
       "projectId": "radar"
       }
     ```
 
-3. Create a new User in the Project by making a `POST` request to the endpoint `http://localhost:8080/project/test/users` with the following body-
+ 3. Create a new User in the Project by making a `POST` request to the endpoint `http://localhost:8080/project/test/users` with the following body-
     ```json
       {
       "subjectId": "sub-1",
@@ -89,7 +89,7 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
     ```
     Please update the `scheduledTime` to the desired time of notification delivery.
   
-  5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for the user.
+ 5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for the user.
   There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.
     
 # FCM
