@@ -1,3 +1,5 @@
+[![BCH compliance](https://bettercodehub.com/edge/badge/RADAR-base/RADAR-Appserver?branch=master)](https://bettercodehub.com/) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/929e89d29be7469fbba811938fa4b94a)](https://www.codacy.com/app/yatharthranjan89/RADAR-Appserver?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-base/RADAR-Appserver&amp;utm_campaign=Badge_Grade) [![Build Status](https://travis-ci.org/RADAR-base/RADAR-Appserver.svg?branch=master)](https://travis-ci.org/RADAR-base/RADAR-Appserver) [![Known Vulnerabilities](https://snyk.io//test/github/RADAR-base/RADAR-Appserver/badge.svg?targetFile=build.gradle)](https://snyk.io//test/github/RADAR-base/RADAR-Appserver?targetFile=build.gradle)
+
 General purpose application server for the radar platform currently with capability to schedule push notifications.
 
 # Introduction
@@ -45,43 +47,223 @@ There is also support for legacy XMPP protocol for FCM.
 7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
 # REST API
-// TODO 
 
+## Quickstart
+
+The same result as stated in [Getting Started](#getting-started) can be achieved using REST endpoints of the AppServer.
+
+1. Run the AppServer by following the first 3 steps in the [Getting Started](#getting-started) section.
+
+2. Create a new Project by making a `POST` request to the endpoint `http://localhost:8080/projects` with the following body- 
+    ```json
+      {
+      "projectId": "radar"
+      }
+    ```
+
+3. Create a new User in the Project by making a `POST` request to the endpoint `http://localhost:8080/project/test/users` with the following body-
+    ```json
+      {
+      "subjectId": "sub-1",
+      "fcmToken" : "get-this-from-the-device",
+      "enrolmentDate": "2019-07-29T00:00:00Z",
+      "timezone": 7200,
+      "language": "en"
+      }
+    ```
+    **Note:** You will need to get the FCM token from the device and the app. Please see the [setup info](https://firebase.google.com/docs/cloud-messaging) for your platform.
+  
+ 4. Add (and schedule) a notification for the above user by making a `POST` request to the endpoint `http://localhost:8080/project/test/users/sub-1/notifications` with the following body-
+    ```json
+      {
+        "title" : "Test Title",
+        "body": "Test Body",
+        "ttlSeconds": 86400,
+        "sourceId": "z",
+        "fcmMessageId": "12864132148",
+        "type": "ESM",
+        "sourceType": "aRMT",
+        "appPackage": "aRMT",
+        "scheduledTime": "2019-06-29T15:25:58.054Z"
+       }
+    ```
+    Please update the `scheduledTime` to the desired time of notification delivery.
+  
+  5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for the user.
+  There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.
+    
 # FCM
-// TODO
+The FCM related code is provided in the `org.radarbase.fcm` package. This can be explored in java-docs as mention in the [Documentation](#documentation) section.
+To use Firebase Cloud Messaging(FCM), you will need to configure the following properties -
 
-# Current Features
-- Provides a general purpose FCM library with facility to send and receive messages using XMPP protocol. Admin SDK support to be added later.
-- Can configure which type of FCM sender to use via properties (so can be changed dynamically if required).
-- Provides functionality of scheduling notifications via FCM.
-- Acts as a data store for important user and app related data (like FCM token to subject mapping, notifications, user metrics, etc).
-- Can be easily extended for different apps.
-- Uses [Liquibase](https://www.liquibase.org/) for easy evolution of database.
-- Contains swagger integration for easy API documentation and generation of Java client.
-- Uses [lombok.data](https://projectlombok.org/) in most places to reduce boiler plate code and make it more readable.
-- Has support for Auditing of database entities.
-- Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
-- Extends `XmppConnectionFactoryBean` with support for Reconnection and connection draining implementation using a Back-off strategy.
+|       Property      | Description                                                                               |                    Default                   | Required? |
+|:-------------------:|-------------------------------------------------------------------------------------------|:--------------------------------------------:|:---------:|
+| fcmserver.senderid | Sender ID from FCM. Can be found in the FCM project settings                              |                      NA                      |    Yes    |
+| fcmserver.serverkey | Server Key from FCM. Can be found in the FCM project settings                             |                      NA                      |    Yes    |
+| fcmserver.fcmsender | The Sender to use for sending messages. There is a choice of using XMPP or FCM Admin SDK. | `org.radarbase.fcm.downstream.XmppFcmSender` |    No   |
 
-// WIP
+**Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
 
-# TODO
+# Architecture
+Here is a high level architecture and data flow diagram for the AppServer and its example interaction with a Cordova application (hybrid) like the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire).
 
-- Add better documentation.
-- Add validation of notification requests using the protocol and enrolment date of the user.
-- Add endpoint to filter notifications based on different params.
-- Update lastOpened metric for user when a request is received.
-- Add batch scheduling of notifications.
-- Add Management Portal service for getting any missing info not present in a request.
-- Add support for sending messages via Firebase Admin SDK.
-- ~~Make the Xmpp Connection more robust by adding reconnection logic.~~
-- Break out the org.radarbase.fcm package into its own module to be used as a library.
-- Add docker builds.
-- Add a Angular UI to view, update and schedule/send notifications to subjects.
-- Investigate the feasibility of adding as an integration to the Management Portal for various tasks. (For instance, a new token can be sent via push notification using a button on MP to the device if the token has expired).
-- Add security to the application using MP OAuth client resource.
+```                                                                                                                                                   
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+                                                                                                                                                      
+             ┌───────────────────┐                                 Downstream                                                                         
+             │Device (Google Play│◀─────────────────────────────────Message                                             .───────────.                 
+             │  Services/Apple   │                                        │                                         _.─'             `──.             
+             │       IPNS)       │                                        └───────────────────────────────────────,'                     `.           
+             └────────▲────┬─────┴─────────────────────────────────────┐                                        ,'                         `.         
+                      │    │                                           │                                       ╱                             ╲        
+                      │    │                                         XMPP                                     ;                               :       
+                      │    │                                       Upstream                                   │   Firebase Cloud Messaging    │       
+                     .┴────▼─.                                     Message───────────────────────────────────▶│            Service            │       
+                   ,'         `.                                                                              :                               ;       
+                  ; Native Code :                                                                              ╲                             ╱        
+                  :(IOS/Android);                                                                               ╲                           ╱         
+                   ╲           ╱                                                                                 `.                       ,'│         
+                    `▲       ,'                                                                                    `.                   ,'  │         
+                     │`─────│                                                                                       ▲`──.           _.─'    │         
+                     │      │                                                                                       │    `──▲──────'▲       │         
+                     │      │                                                                                       │                       │         
+                     │      │                                                                                       │       ┃       ┃       │         
+                     │      │                                                                                       │     XMPP              │ Read    
+                     │      │                                                                                       │  Connection   ┃       Upstream  
+                     │──────▼.                                                                                    Send                     Message and
+                  ,─'         '─.                                                                              downstream   ┃       ┃       Schedule  
+                 ╱  Cordova FCM  ╲                                                                             Message at                   message   
+                ;     Plugin      :                                                                             Scheduled   ┃       ┃      for future 
+                :                 ;                                                                               Time                      delivery  
+                 ╲               ╱                                                                                  │       ┃       ┃       │         
+                  ╲             ╱                                                                                   │            FCM Admin  │         
+                   '─▲       ,─'                                                                                    │       ┃    SDK (Only  │         
+                     │`─────'│                                                                                      │           downstream  │         
+                     │       │                                                                                      │       ┃   messaging)  │         
+                     │       │                                                                                      │                       │         
+                     │       │                                                                                      │       ┃       ┃       │         
+                     │       │                                                                                      │                       │         
+                     │       │                                                                                 ┌────┴───────▼───────┻───────▼────┐    
+                     │       │                                                                                 │                                 │    
+               ┌─────┴───────▼─────────┐                                                                       │                                 │    
+               │                       │                                   ┌───────────────────────────────────▶                                 │    
+               │                       │                           Schedule message                            │                                 │    
+               │                       │                          for future delivery                          │        New App Server           │    
+               │                       │                            using HTTP REST                            │                                 │    
+               │                       ├───────────────────────────────────┘                                   │     (XMPP, HTTP Protocol)       │    
+               │  CORDOVA APPLICATION  │                                                                       │  (REST API and FCM Admin SDK)   │    
+               │                       │                          Get confirmation of ─────────────────────────┤                                 │    
+               │                       ◀───────────────────────success for each request.                       │                                 │    
+               │                       │                                                                       │                                 │    
+               │                       │                                   ┌───────────────────────────────────▶                                 │    
+               │                       │                                   │                                   │                                 │    
+               │                       │                       Get/Set user metrics,                           │                                 │    
+               │                       ├───────────────────schedule, notifications, etc                        │                                 │    
+               │                       │                                                                       │                                 │    
+               │                       │                               More                                    │                                 │    
+               │                       ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ functionality ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ▶                                 │    
+               └───────────────────────┘                               .....                                   └─────────────────────────────────┘    
+```                                                                                                                                                   
 
-// WIP
+# Notification Lifecycle
+
+The Appserver manages the lifecycle of the Notifications through state change events. It uses Pub/Sub paradigm utilising Spring Events so other subscribers can also hook up to the Events as listeners. Currently, there are 10 possible states as follows - 
+
+```
+  // Database controlled
+  ADDED, UPDATED, CANCELLED
+
+  // Scheduler Controlled
+  SCHEDULED, EXECUTED
+
+  // Controlled by entities outside the appserver.
+  // These will need to be reported to the appserver.
+  DELIVERED, OPENED, DISMISSED
+
+  // Miscellaneous
+  ERRORED, UNKNOWN
+``` 
+REST Endpoints are provided to update and query the STATE. Update can only be made to any of the ones above that can be updated by external entities(i.e.  DELIVERED, OPENED, DISMISSED, ERRORED and UNKNOWN ).  
+
+Here is a simple flow between the states --
+```
+                                                                                 ┌───────────────────────────────────────────────────────┐
+                                                                                 │                                                       │
+                                                                                 ▼                                                       │
+                                                                        .─────────────────.                                     .─────────────────.
+                                                                   _.──'                   `───.                           _.──'                   `───.
+                                                                  ╱                             ╲                         ╱                             ╲
+                                                          ┌─────▶(           SCHEDULED           ) ─────────────────────▶(            UPDATED            )
+                                                          │       `.                           ,────────────┐             `.                           ,'
+                                                          │         `───.                 _.──'             │               `───.                 _.──'
+                                                          │              `───────────────'                  │                    `───────────────'
+              ┌─────────────────────────────────┐         │                      │                          │                            │
+              │                                 │         │                      │                          │                            │
+              │                                 ▼         │                      │                          │                            │
+      ┌───────────────┐                .──────────────────┘                      │                          │                            │
+      │               │           _.──'                   `───.                  └────────┐ ┌───────────────│────────────────────────────┘
+      │    REST       │          ╱                             ╲                          │ │               │
+      │               │────┐    ▲             ADDED             )────┐                    │ │               │
+      │               │    │    │`.                           ,'     │                    │ │               │
+      └───────────────┘    │    │  `───.                 _.──'       │                    ▼ ▼               │
+              ▲            │    │       `───────────────'            │           .─────────────────.        │                   .─────────────────.
+    ┌─────────┘            │    │                                    │      _.──'                   `───.   │              _.──'                   `───.
+┌───┴─────┐                │    │                                    │     ╱                             ╲  │             ╱                             ╲
+│ Request │           ┌────┼────┘                                    ├───▶(            ERRORED            ) └───────────▶(           EXECUTED            )
+└─────────┴───┐       │    │                                         │     `.                           ,'                `.                           ,'
+              ▼       │    │                                         │       `───.                 ◀─────────┐              `───.                 _.──'
+      ┌───────────────┤    │                                         │            `───────────────'          │                   `───────────────'
+      │               │    │            .─────────────────.          │                    ▲                  │                           │
+      │               │    │       _.──'                   `───.     │                    │                  │                           │
+      │     XMPP      │    │      ╱                             ╲    │                    └──────────────────┼───────────────────────────┤
+      │               │    └────▶(           CANCELLED           )───┘                                       │                           │
+      │               │           `.                           ,'                                            │                           │
+      └───────────────┘             `───.                 _.──'                                              │                           │
+              │                          `───────────────'                                                   │                           │
+              │                                  ▲                                                           │                           │
+              │                                  │                                                           │                           ▼
+              └──────────────────────────────────┘                                                           │                  .─────────────────.
+                                                                                                             │             _.──'                   `───.
+                                                                                                             │            ╱                             ╲
+                                                                                                             └───────────(           DELIVERED           )
+                                                                                                                          `.                           ,'
+                                                                                                                            `───.                 _.──'
+                                                                                        ┌──────────────────────┐                 `───────────────'
+                                        .───────────.                                   │                      │                         │
+                                     ,─'             '─.                                ▼                      │                         │
+                                   ,'                   `.                       .─────────────.               └─────────────────────────┤
+                                  ;                       :                  _.─'               `──.                                ┌────┘
+                                  :        UNKNOWN        ;                ,'                       `.                              │
+                                   ╲                     ╱                ;         DISMISSED         :                             │
+                                    `.                 ,'                 :                           ;                             │
+                                      '─.           ,─'                    ╲                         ╱                              ▼
+                                         `─────────'                        `.                     ,'                      .─────────────────.
+                                                                              `──.             _.─'                   _.──'                   `───.
+                                                                                  `───────────'                      ╱                             ╲
+                                                                                                                    (            OPENED             )
+                                                                                                                     `.                           ,'
+                                                                                                                       `───.                 _.──'
+                                                                                                                            `───────────────'
+```
+
+# Protocols
+The AppServer has support for providing Protocols for the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire) application. Currently, one strategy for getting the protocols from Github(Take a look at [RADAR-aRMT-protocols](https://github.com/RADAR-base/RADAR-aRMT-protocols/)) is provided. The AppServer also caches the protocols, so they are still available if there are any issues with GitHub. Later, we intend to extend this functionality to add protocols directly in the AppServer possibly by a UI.
+You can host your own protocols and configure the following properties - 
+
+|                    Property                   | Description                                                    |              Default              | Required? |
+|:---------------------------------------------:|----------------------------------------------------------------|:---------------------------------:|:---------:|
+| radar.questionnaire.protocol.github.repo.path | The Github repo where protocols are hosted.                    | `RADAR-base/RADAR-aRMT-protocols` |     No    |
+| radar.questionnaire.protocol.github.file.name | The filename containing the Protocol for each Project.         |          `protocol.json`          |     No    |
+|   radar.questionnaire.protocol.github.branch  | The Branch of the Repository from which to fetch the protocols |              `master`             |     No    |
 
 # Documentation
 
@@ -202,7 +384,7 @@ Various tools are enabled to ensure code quality and styling while also doing st
 ```bash
 ./gradlew check
 ```
-Note: This will also run the test and integrationTest.
+**Note:** This will also run the test and integrationTest.
 
 The reports are generated in the `build/reports` folder. The config files for rules are present in the `config` folder.
 A style template following the Google Java style guidelines is also provided for use with IntellJ Idea ([style plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format)) in `config/codestyles` folder.
@@ -230,3 +412,33 @@ A style template following the Google Java style guidelines is also provided for
 ./gradlew check
 ```
 This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
+
+
+# Current Features
+- Provides a general purpose FCM library with facility to send and receive messages using XMPP protocol. Admin SDK support to be added later.
+- Can configure which type of FCM sender to use via properties (so can be changed dynamically if required).
+- Provides functionality of scheduling notifications via FCM.
+- Acts as a data store for important user and app related data (like FCM token to subject mapping, notifications, user metrics, etc).
+- Can be easily extended for different apps.
+- Uses [Liquibase](https://www.liquibase.org/) for easy evolution of database.
+- Contains swagger integration for easy API documentation and generation of Java client.
+- Uses [lombok.data](https://projectlombok.org/) in most places to reduce boiler plate code and make it more readable.
+- Has support for Auditing of database entities.
+- Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
+- Extends `XmppConnectionFactoryBean` with support for Reconnection and connection draining implementation using a Back-off strategy.
+
+# TODO
+
+- Add better documentation.
+- Add validation of notification requests using the protocol and enrolment date of the user.
+- Add endpoint to filter notifications based on different params.
+- ~~Update lastOpened metric for user when a request is received.~~
+- ~~Add batch scheduling of notifications.~~
+- Add Management Portal service for getting any missing info not present in a request.
+- Add support for sending messages via Firebase Admin SDK.
+- ~~Make the Xmpp Connection more robust by adding reconnection logic.~~
+- Break out the org.radarbase.fcm package into its own module to be used as a library.
+- ~~Add docker builds.~~
+- Add a Angular UI to view, update and schedule/send notifications to subjects.
+- Investigate the feasibility of adding as an integration to the Management Portal for various tasks. (For instance, a new token can be sent via push notification using a button on MP to the device if the token has expired).
+- ~~Add security to the application using MP OAuth client resource.~~
