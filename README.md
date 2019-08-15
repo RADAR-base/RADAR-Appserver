@@ -1,8 +1,10 @@
+# RADAR-Appserver
+
 [![BCH compliance](https://bettercodehub.com/edge/badge/RADAR-base/RADAR-Appserver?branch=master)](https://bettercodehub.com/) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/929e89d29be7469fbba811938fa4b94a)](https://www.codacy.com/app/yatharthranjan89/RADAR-Appserver?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-base/RADAR-Appserver&amp;utm_campaign=Badge_Grade) [![Build Status](https://travis-ci.org/RADAR-base/RADAR-Appserver.svg?branch=master)](https://travis-ci.org/RADAR-base/RADAR-Appserver) [![Known Vulnerabilities](https://snyk.io//test/github/RADAR-base/RADAR-Appserver/badge.svg?targetFile=build.gradle)](https://snyk.io//test/github/RADAR-base/RADAR-Appserver?targetFile=build.gradle)
 
 General purpose application server for the radar platform currently with capability to schedule push notifications.
 
-# Introduction
+## Introduction
 
 This is an app server which provides facilities to store app information (User related) and scheduling of push notifications using Firebase Cloud Messaging. 
 
@@ -12,7 +14,7 @@ The app server provides REST endpoints to interact with the entities and data. F
 There is also support for legacy XMPP protocol for FCM.
 
 
-# Getting Started
+## Getting Started
 
 1. First you will need to create a Firebase project for your application and add it to your app. This will give you access to all the Firebase services. Follow the instructions on the [official docs](https://firebase.google.com/docs/) according to your platform.  
 
@@ -46,9 +48,9 @@ There is also support for legacy XMPP protocol for FCM.
 
 7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
-# REST API
+## REST API
 
-## Quickstart
+### Quickstart
 
 The same result as stated in [Getting Started](#getting-started) can be achieved using REST endpoints of the AppServer.
 
@@ -92,7 +94,7 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
 5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for the user.
   There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.
     
-# FCM
+## FCM
 The FCM related code is provided in the `org.radarbase.fcm` package. This can be explored in java-docs as mention in the [Documentation](#documentation) section.
 To use Firebase Cloud Messaging(FCM), you will need to configure the following properties -
 
@@ -104,7 +106,7 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 
 **Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
 
-# Architecture
+## Architecture
 Here is a high level architecture and data flow diagram for the AppServer and its example interaction with a Cordova application (hybrid) like the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire).
 
 ```                                                                                                                                                   
@@ -174,7 +176,7 @@ Here is a high level architecture and data flow diagram for the AppServer and it
                └───────────────────────┘                               .....                                   └─────────────────────────────────┘    
 ```                                                                                                                                                   
 
-# Notification Lifecycle
+## Notification Lifecycle
 
 The Appserver manages the lifecycle of the Notifications through state change events. It uses Pub/Sub paradigm utilising Spring Events so other subscribers can also hook up to the Events as listeners. Currently, there are 10 possible states as follows - 
 
@@ -255,7 +257,7 @@ Here is a simple flow between the states --
                                                                                                                             `───────────────'
 ```
 
-# Protocols
+## Protocols
 The AppServer has support for providing Protocols for the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire) application. Currently, one strategy for getting the protocols from Github(Take a look at [RADAR-aRMT-protocols](https://github.com/RADAR-base/RADAR-aRMT-protocols/)) is provided. The AppServer also caches the protocols, so they are still available if there are any issues with GitHub. Later, we intend to extend this functionality to add protocols directly in the AppServer possibly by a UI.
 You can host your own protocols and configure the following properties - 
 
@@ -265,7 +267,7 @@ You can host your own protocols and configure the following properties -
 | radar.questionnaire.protocol.github.file.name | The filename containing the Protocol for each Project.         |          `protocol.json`          |     No    |
 |   radar.questionnaire.protocol.github.branch  | The Branch of the Repository from which to fetch the protocols |              `master`             |     No    |
 
-# Documentation
+## Documentation
 
 Api docs are available through swagger open api 2 config. 
 The raw json is present at the `<your-base-url/v2/api-docs>`. By default this should be `http://localhost:8080/v2/api-docs`
@@ -284,18 +286,18 @@ These are stored in the `/src/main/resources/static/java-docs` path automaticall
 ![java documentation](/images/java-docs.png "Java Docs")
 
 
-# Client
+## Client
 
 You can generate a client in 40 different languages for the api using [Swagger Codegen](https://swagger.io/tools/swagger-codegen/) tool. There is even a [javascript library](https://github.com/swagger-api/swagger-codegen#where-is-javascript) that is completely dynamic and does not require static code generation.
 
 **TODO**: generate a java client and post to bintray.
 
-# Security
+## Security
 
 By Default, no OAuth 2.0 security is enabled for the endpoints. Only basic Auth is present on Admin endpoints.
 To enable security of specific provider, please read the sections below.
 
-## Management Portal
+### Management Portal
 To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), set the following property -
 ```
 managementportal.security.enabled=true
@@ -305,12 +307,12 @@ All the classes are located in [/src/main/java/org/radarbase/appserver/auth/mana
 
 You can provide the Management Portal specific config in [radar_is.yml](radar_is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
 
-## Other Security Providers
+### Other Security Providers
 For using other type of security providers, set `managementportal.security.enabled=false` and configure the security provider in the spring context and add any necessary classes. See [Management Portal Security](#management-portal) section for an example.
 
 Then you will need to change the `Pre` and `Post` Authorise annotations for each endpoint method according to the semantics provided by your provider. Currently, these are configured to work with Management portal.
 
-# Monitoring
+## Monitoring
 
 The App server has built in support for the [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready) and can be accessed via the default REST endpoints `<your-base-url>/actuator/*`. To see all the features provided please refer to the [official docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints) of Spring boot actuator.
 
@@ -344,7 +346,7 @@ Then go to the browser to the URL : `https://localhost:8888` and login with cred
 
 Deploying the Spring Boot Admin server and the client as different components makes sure that the same Server can be used to register multiple client apps and the server's lifecycle is not associated with the client. This also means that our client app is lighter and production ready.
 
-# Performance Testing
+## Performance Testing
 
 The app server supports performance testing using Gatling and Scala. The simulations are located in the folder `src/gatling/simulations`.
 
@@ -378,7 +380,7 @@ The reports will be generated at the path `build/reports/gatling/` and the folde
 
 ![gatling test](/images/gatling-results.png "Gatling Test Results")
 
-# Code-Style and Quality
+## Code-Style and Quality
 
 Various tools are enabled to ensure code quality and styling while also doing static code analysis for bugs. PMD, CheckStyle and SpotBugs is included and all of these can be run with the command -
 ```bash
@@ -390,7 +392,7 @@ The reports are generated in the `build/reports` folder. The config files for ru
 A style template following the Google Java style guidelines is also provided for use with IntellJ Idea ([style plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format)) in `config/codestyles` folder.
 
 
-# Unit and Integration Testing
+## Unit and Integration Testing
 
 [Unit Tests](/src/test/java/org/radarbase/appserver) and [Integration Tests](/src/integrationTest/java/org/radarbase/appserver) are provided with the AppServer. These can be run as follows-
 ```bash
@@ -413,8 +415,7 @@ A style template following the Google Java style guidelines is also provided for
 ```
 This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
 
-
-# Current Features
+## Current Features
 - Provides a general purpose FCM library with facility to send and receive messages using XMPP protocol. Admin SDK support to be added later.
 - Can configure which type of FCM sender to use via properties (so can be changed dynamically if required).
 - Provides functionality of scheduling notifications via FCM.
@@ -427,7 +428,7 @@ This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
 - Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
 - Extends `XmppConnectionFactoryBean` with support for Reconnection and connection draining implementation using a Back-off strategy.
 
-## TODO
+### TODO
 
 - Add better documentation.
 - Add validation of notification requests using the protocol and enrolment date of the user.
