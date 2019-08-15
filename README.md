@@ -13,7 +13,6 @@ This is specifically developed to support the [RADAR-Questionnaire](https://gith
 The app server provides REST endpoints to interact with the entities and data. For detailed info on the REST API please see the relevant section below.
 There is also support for legacy XMPP protocol for FCM.
 
-
 ## Getting Started
 
 1. First you will need to create a Firebase project for your application and add it to your app. This will give you access to all the Firebase services. Follow the instructions on the [official docs](https://firebase.google.com/docs/) according to your platform.  
@@ -285,7 +284,6 @@ These are stored in the `/src/main/resources/static/java-docs` path automaticall
 
 ![java documentation](/images/java-docs.png "Java Docs")
 
-
 ## Client
 
 You can generate a client in 40 different languages for the api using [Swagger Codegen](https://swagger.io/tools/swagger-codegen/) tool. There is even a [javascript library](https://github.com/swagger-api/swagger-codegen#where-is-javascript) that is completely dynamic and does not require static code generation.
@@ -390,7 +388,6 @@ Various tools are enabled to ensure code quality and styling while also doing st
 
 The reports are generated in the `build/reports` folder. The config files for rules are present in the `config` folder.
 A style template following the Google Java style guidelines is also provided for use with IntellJ Idea ([style plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format)) in `config/codestyles` folder.
-
 
 ## Unit and Integration Testing
 
