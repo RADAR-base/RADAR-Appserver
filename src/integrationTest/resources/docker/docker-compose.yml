@@ -35,6 +35,9 @@ services:
     depends_on:
       - hsqldb
       - spring-boot-admin
+    volumes:
+      - ../radar_is.yml:/resources/radar_is.yml
+      - ../../../../logs/:/var/log/radar/appserver/
     environment:
       JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
       FCMSERVER_SENDERID: "1043784930865"
@@ -42,6 +45,7 @@ services:
       RADAR_ADMIN_USER: "radar"
       RADAR_ADMIN_PASSWORD: "radar"
       SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
+      RADAR_IS_CONFIG_LOCATION: "/resources/radar_is.yml"
       SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
 
   spring-boot-admin:
