@@ -19,13 +19,13 @@ There is also support for legacy XMPP protocol for FCM.
 2. Configure the Server Key and Sender ID (obtained from FCM) in application.properties. 
 
 3. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
-    ```bash
+   ```bash
     ./gradlew bootRun
-    ```
-    You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
+   ```
+   You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
     
 4. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
-    ```javascript
+   ```json
     {
      "data":
          {
@@ -39,7 +39,7 @@ There is also support for legacy XMPP protocol for FCM.
           },
           ...
      }
-    ```
+   ```
 5. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
 
 6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
@@ -55,14 +55,14 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
 1. Run the AppServer by following the first 3 steps in the [Getting Started](#getting-started) section.
 
 2. Create a new Project by making a `POST` request to the endpoint `http://localhost:8080/projects` with the following body- 
-    ```json
+   ```json
       {
       "projectId": "radar"
       }
-    ```
+   ```
 
 3. Create a new User in the Project by making a `POST` request to the endpoint `http://localhost:8080/project/test/users` with the following body-
-    ```json
+   ```json
       {
       "subjectId": "sub-1",
       "fcmToken" : "get-this-from-the-device",
@@ -70,11 +70,11 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
       "timezone": 7200,
       "language": "en"
       }
-    ```
+   ```
     **Note:** You will need to get the FCM token from the device and the app. Please see the [setup info](https://firebase.google.com/docs/cloud-messaging) for your platform.
   
 4. Add (and schedule) a notification for the above user by making a `POST` request to the endpoint `http://localhost:8080/project/test/users/sub-1/notifications` with the following body-
-    ```json
+   ```json
       {
         "title" : "Test Title",
         "body": "Test Body",
@@ -86,7 +86,7 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
         "appPackage": "aRMT",
         "scheduledTime": "2019-06-29T15:25:58.054Z"
        }
-    ```
+   ```
     Please update the `scheduledTime` to the desired time of notification delivery.
   
 5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for the user.
@@ -427,7 +427,7 @@ This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
 - Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
 - Extends `XmppConnectionFactoryBean` with support for Reconnection and connection draining implementation using a Back-off strategy.
 
-# TODO
+## TODO
 
 - Add better documentation.
 - Add validation of notification requests using the protocol and enrolment date of the user.
