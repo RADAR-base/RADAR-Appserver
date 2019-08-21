@@ -63,18 +63,15 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
   private final transient ApplicationEventPublisher notificationStateEventPublisher;
   private transient FcmNotificationService notificationService;
   private transient UserService userService;
-  private transient ProjectService projectService;
   private transient ScheduleNotificationHandler scheduleNotificationHandler;
 
   public FcmMessageReceiverService(
       FcmNotificationService notificationService,
       UserService userService,
-      ProjectService projectService,
       ApplicationEventPublisher notificationStateEventPublisher,
       ScheduleNotificationHandler scheduleNotificationHandler) {
     this.notificationService = notificationService;
     this.userService = userService;
-    this.projectService = projectService;
     this.notificationStateEventPublisher = notificationStateEventPublisher;
     this.scheduleNotificationHandler = scheduleNotificationHandler;
   }
@@ -267,17 +264,25 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
   public static class ScheduleNotificationHandlerConfig {
 
     @Value("${fcm.xmpp.schedule.batch.maxSize:100}")
-    transient int maxSize;
+    private transient int maxSize;
 
     @Value("${fcm.xmpp.schedule.batch.expiry.seconds:50}")
-    transient int expiryInSeconds;
+    private transient int expiryInSeconds;
 
     @Value("${fcm.xmpp.schedule.batch.flushAfter.seconds:120}")
-    transient int flushAfterSeconds;
+    private transient int flushAfterSeconds;
 
-    @Autowired private transient FcmNotificationService notificationService;
-    @Autowired private transient UserService userService;
-    @Autowired private transient ProjectService projectService;
+    private final transient FcmNotificationService notificationService;
+    private final transient UserService userService;
+    private final transient ProjectService projectService;
+
+    public ScheduleNotificationHandlerConfig(
+        FcmNotificationService notificationService, UserService userService,
+        ProjectService projectService) {
+      this.notificationService = notificationService;
+      this.userService = userService;
+      this.projectService = projectService;
+    }
 
     @Bean
     public ScheduleNotificationHandler getScheduleNotificationHandler() {

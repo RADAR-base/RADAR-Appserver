@@ -111,7 +111,7 @@ public class QuartzNotificationJobListener implements JobListener {
               this, notification.get(), NotificationState.ERRORED, additionalInfo, Instant.now());
       notificationStateEventPublisher.publishEvent(notificationStateEventError);
 
-      log.warn("The could not be executed.", jobException);
+      log.warn("The job could not be executed.", jobException);
       return;
     }
 

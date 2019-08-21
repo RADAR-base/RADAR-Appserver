@@ -32,9 +32,9 @@ import java.time.Instant;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.appserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,23 +46,24 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 public class FcmMessageReceiverTest {
 
+  @Qualifier("getMessageReceiver")
   @Autowired private transient FcmMessageReceiverService messageReceiverService;
 
   @Test
-  public void checkScheduleNotificationRequest() throws IOException {
+  public void checkScheduleNotificationRequest() {
     ObjectMapper mapper = new ObjectMapper();
-    JsonNode rootNode = mapper.createObjectNode();
+    ObjectNode rootNode = mapper.createObjectNode();
 
-    ((ObjectNode) rootNode).put("from", "xyz");
+    rootNode.put("from", "xyz");
 
-    JsonNode data = mapper.createObjectNode();
-    ((ObjectNode) data).put("action", "SCHEDULE");
-    ((ObjectNode) data).put("projectId", "radar");
-    ((ObjectNode) data).put("notificationTitle", "title");
-    ((ObjectNode) data).put("notificationMessage", "body");
-    ((ObjectNode) data).put("time", Instant.now().plus(Duration.ofHours(1)).toEpochMilli());
+    ObjectNode data = mapper.createObjectNode();
+    data.put("action", "SCHEDULE");
+    data.put("projectId", "radar");
+    data.put("notificationTitle", "title");
+    data.put("notificationMessage", "body");
+    data.put("time", Instant.now().plus(Duration.ofHours(1)).toEpochMilli());
 
-    ((ObjectNode) rootNode).set("data", data);
+    rootNode.set("data", data);
 
     // String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
 
@@ -74,7 +75,6 @@ public class FcmMessageReceiverTest {
 
     @MockBean private transient FcmNotificationService notificationService;
     @MockBean private transient UserService userService;
-    @MockBean private transient ProjectService projectService;
     @Autowired private transient ApplicationEventPublisher notificationStateEventPublisher;
     @MockBean private transient ScheduleNotificationHandler scheduleNotificationHandler;
 
@@ -83,7 +83,6 @@ public class FcmMessageReceiverTest {
       return new FcmMessageReceiverService(
           notificationService,
           userService,
-          projectService,
           notificationStateEventPublisher,
           scheduleNotificationHandler);
     }
