@@ -123,21 +123,22 @@ dependencies {
     compile (group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion) {
         exclude group: 'com.google.guava', module: 'guava'
     }
-
-    compile ('com.google.guava:guava:23.0') {
-        force = true
-    }
-
     compile (group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion) {
         exclude group: 'com.google.guava', module: 'guava'
     }
+
+    compile ('com.google.guava:guava:27.1-jre') {
+        force = true
+    }
+
+
 
     compile 'org.scala-lang:scala-library:2.13.0'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
-    runtime('com.h2database:h2:1.4.197')
+    runtime('com.h2database:h2:1.4.199')
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     compile group: 'org.projectlombok', name: 'lombok', version: lombokVersion
