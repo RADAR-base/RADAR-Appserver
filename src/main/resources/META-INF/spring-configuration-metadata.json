@@ -1,0 +1,83 @@
+{
+  "groups": [
+    {
+      "name": "radar.questionnaire.protocol.github"
+    },
+    {
+      "name": "fcmserver",
+      "type": "org.radarbase.fcm.config.FcmServerConfig"
+    },
+    {
+      "name": "managementportal"
+    }
+  ],
+  "properties": [
+    {
+      "name": "radar.questionnaire.protocol.github.repo.path",
+      "type": "java.lang.String",
+      "description": "The Github repo where protocols are hosted.",
+      "defaultValue": "RADAR-base/RADAR-aRMT-protocols"
+    },
+    {
+      "name": "radar.questionnaire.protocol.github.file.name",
+      "type": "java.lang.String",
+      "description": "The filename containing the Protocol for each Project.",
+      "defaultValue": "protocol.json"
+    },
+    {
+      "name": "radar.questionnaire.protocol.github.branch",
+      "type": "java.lang.String",
+      "description": "The Branch of the Repository from which to fetch the protocols.",
+      "defaultValue": "master"
+    },
+    {
+      "name": "fcmserver.fcmsender",
+      "type": "org.radarbase.fcm.downstream.FcmSender",
+      "description": "The Sender to use for sending messages. There is a choice of using XMPP or FCM Admin SDK.",
+      "defaultValue": "org.radarbase.fcm.downstream.XmppFcmSender"
+    },
+    {
+      "name": "fcmserver.senderid",
+      "type": "java.lang.String",
+      "description": "Sender ID from FCM. Can be found in the FCM project settings."
+    },
+    {
+      "name": "fcmserver.serverkey",
+      "type": "java.lang.String",
+      "description": "Server Key from FCM. Can be found in the FCM project settings."
+    },
+    {
+      "name": "fcmserver.host",
+      "type": "java.lang.String",
+      "description": "FCM host.",
+      "defaultValue": "fcm-xmpp.googleapis.com"
+    },
+    {
+      "name": "fcmserver.port",
+      "type": "java.lang.Integer",
+      "description": "Server Key from FCM. Can be found in the FCM project settings.",
+      "defaultValue": 5235
+    },
+    {
+      "name": "managementportal.security.enabled",
+      "type": "java.lang.Boolean",
+      "description": "To enable OAuth 2 security using management portal as the Authorisation Server.",
+      "defaultValue": true
+    }
+  ],
+  "hints": [
+    {
+      "name": "fcmserver.fcmsender",
+      "values": [
+        {
+          "value": "org.radarbase.fcm.downstream.XmppFcmSender",
+          "description": "Use XMPP protocol for Sending downstream messages. Supports delivery receipts."
+        },
+        {
+          "value": "org.radarbase.fcm.downstream.AdminSdkFcmSender",
+          "description": "Use FCM Admin SDK (Uses REST) for Sending downstream messages. Does not supports delivery receipts."
+        }
+      ]
+    }
+  ]
+}

@@ -1,60 +1,203 @@
-package org.radarbase.appserver.controller;
+/*
+ *
+ *  *
+ *  *  * Copyright 2018 King's College London
+ *  *  *
+ *  *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  * you may not use this file except in compliance with the License.
+ *  *  * You may obtain a copy of the License at
+ *  *  *
+ *  *  *   http://www.apache.org/licenses/LICENSE-2.0
+ *  *  *
+ *  *  * Unless required by applicable law or agreed to in writing, software
+ *  *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  * See the License for the specific language governing permissions and
+ *  *  * limitations under the License.
+ *  *  *
+ *  *
+ *
+ */
 
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
-import org.radarbase.appserver.dto.RadarUserDto;
-import org.radarbase.appserver.dto.RadarUsers;
-import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.RadarUserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+package org.radarbase.appserver.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.validation.Valid;
+import javax.websocket.server.PathParam;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.radarbase.appserver.dto.fcm.FcmUsers;
+import org.radarbase.appserver.exception.InvalidUserDetailsException;
+import org.radarbase.appserver.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Resource Endpoint for getting and adding users. Each notification {@link
+ * org.radarbase.appserver.entity.Notification} needs to be associated to a user. A user may
+ * represent a Management Portal subject.
+ *
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
+ * @author yatharthranjan
+ */
 @RestController
 public class RadarUserController {
-    private static final Logger logger = LoggerFactory.getLogger(RadarUserController.class);
 
-    @Autowired
-    private RadarUserService userService;
+  @Autowired private transient UserService userService;
 
-    @Autowired
-    private FcmNotificationService notificationService;
+  @PreAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + "userDto.getProjectId()"
+          + ", "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
+          + ")")
+  @PostMapping("/users")
+  public ResponseEntity<FcmUserDto> addUser(@Valid @RequestBody FcmUserDto userDto)
+      throws URISyntaxException {
 
-    @PostMapping("/users")
-    public ResponseEntity addRadarUser(@RequestParam(value = "projectId") String projectId,
-                                       @RequestParam(value = "subjectId") String subjectId,
-                                       @RequestParam(value = "sourceId") String sourceId)
-            throws URISyntaxException {
+    FcmUserDto user = this.userService.saveUserInProject(userDto);
+    return ResponseEntity.created(new URI("/users/user?id=" + user.getId())).body(user);
+  }
 
-        RadarUserDto user = this.userService.storeRadarUser(projectId, subjectId, sourceId);
-        return ResponseEntity
-                .created(new URI("/user/" + user.getId())).body(user);
+  @PreAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
+          + ", "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
+          + ")")
+  @PostMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH)
+  public ResponseEntity addUserToProject(
+      @Valid @RequestBody FcmUserDto userDto, @Valid @PathVariable String projectId)
+      throws URISyntaxException {
+    userDto.setProjectId(projectId);
+    FcmUserDto user = this.userService.saveUserInProject(userDto);
+    return ResponseEntity.created(new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
+        .body(user);
+  }
+
+  @PreAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
+          + ", "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
+          + ")")
+  @PutMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH)
+  public ResponseEntity updateUserInProject(
+      @Valid @RequestBody FcmUserDto userDto, @Valid @PathVariable String projectId)
+      throws URISyntaxException {
+    userDto.setProjectId(projectId);
+    FcmUserDto user = this.userService.updateUser(userDto);
+    return ResponseEntity.ok(user);
+  }
+
+  @PreAuthorize(
+      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_UPDATE, "
+          + AuthConstantsUtil.ACCESSOR
+          + "userDto.getProjectId()"
+          + ", "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
+          + ")")
+  @PutMapping("/" + PathsUtil.USER_PATH)
+  public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto) {
+    FcmUserDto user = this.userService.updateUser(userDto);
+    return ResponseEntity.ok(user);
+  }
+
+  @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
+  @GetMapping("/" + PathsUtil.USER_PATH)
+  public ResponseEntity<FcmUsers> getAllRadarUsers() {
+    return ResponseEntity.ok(this.userService.getAllRadarUsers());
+  }
+
+  @PostAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_SUBJECT_READ
+          + "returnObject.body.getProjectId()"
+          + ", "
+          + "returnObject.body.getSubjectId()"
+          + ")")
+  @GetMapping("/" + PathsUtil.USER_PATH + "/user")
+  public ResponseEntity<FcmUserDto> getRadarUserUsingId(@PathParam("id") Long id) {
+    if (id == null) {
+      throw new InvalidUserDetailsException("The given id must not be null!");
     }
+    return ResponseEntity.ok(this.userService.getUserById(id));
+  }
 
-    @GetMapping("/users")
-    public ResponseEntity<RadarUsers> getAllRadarUsers() {
-        return null;
-    }
+  @PostAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_SUBJECT_READ
+          + "returnObject.body.getProjectId()"
+          + ", "
+          + "returnObject.body.getSubjectId()"
+          + ")")
+  @GetMapping("/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT)
+  public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(@PathVariable String subjectId) {
+    return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
+  }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<RadarUserDto> getRadarUserUsingId(
-            @PathVariable String id) {
-        return null;
-    }
+  @PreAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_PROJECT_SUBJECT_READ
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
+          + ")")
+  @GetMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH)
+  public ResponseEntity<FcmUsers> getUsersUsingProjectId(@Valid @PathVariable String projectId) {
+    return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
+  }
 
-    @GetMapping("/users/{subjectid}")
-    public ResponseEntity<RadarUserDto> getRadarUserUsingSubjectId(
-            @PathVariable String subjectId) {
-        return null;
-    }
+  @PreAuthorize(
+      AuthConstantsUtil.PERMISSION_ON_SUBJECT_SUBJECT_READ
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.PROJECT_ID
+          + ", "
+          + AuthConstantsUtil.ACCESSOR
+          + AuthConstantsUtil.SUBJECT_ID
+          + ")")
+  @GetMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH
+          + "/"
+          + PathsUtil.SUBJECT_ID_CONSTANT)
+  public ResponseEntity<FcmUserDto> getUsersUsingProjectIdAndSubjectId(
+      @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
 
-    @GetMapping("/users/{subjectid}/notifications")
-    public ResponseEntity<FcmNotifications> getRadarNotificationsUsingSubjectId(
-            @PathVariable String subjectId) {
-        return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
-    }
+    return ResponseEntity.ok(
+        this.userService.getUsersByProjectIdAndSubjectId(projectId, subjectId));
+  }
 }

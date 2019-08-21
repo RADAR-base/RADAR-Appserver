@@ -1,0 +1,271 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1543511610622-1
+      author: yatharth (generated)
+      changes:
+        - createSequence:
+            sequenceName: hibernate_sequence
+  - changeSet:
+      id: 1543511610622-2
+      author: yatharth (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: notificationsPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  name: app_package
+                  type: VARCHAR(255)
+              - column:
+                  name: body
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: delivered
+                  type: BOOLEAN
+              - column:
+                  name: dry_run
+                  type: BOOLEAN
+              - column:
+                  name: fcm_message_id
+                  type: VARCHAR(255)
+              - column:
+                  name: fcm_topic
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: scheduled_time
+                  type: timestamp
+              - column:
+                  name: source_id
+                  type: VARCHAR(255)
+              - column:
+                  name: source_type
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: ttl_seconds
+                  type: INT
+              - column:
+                  name: type
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: validated
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: BIGINT
+            tableName: notifications
+  - changeSet:
+      id: 1543511610622-3
+      author: yatharth (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: projectsPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: VARCHAR(255)
+            tableName: projects
+  - changeSet:
+      id: 1543511610622-4
+      author: yatharth (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: user_metricsPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  name: last_delivered
+                  type: timestamp
+              - column:
+                  name: last_opened
+                  type: timestamp
+              - column:
+                  name: user_id
+                  type: BIGINT
+            tableName: user_metrics
+  - changeSet:
+      id: 1543511610622-5
+      author: yatharth (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: usersPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  name: enrolment_date
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                  name: fcm_token
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: subject_id
+                  type: VARCHAR(255)
+              - column:
+                  name: timezone
+                  type: DOUBLE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: BIGINT
+              - column:
+                  name: usermetrics_id
+                  type: BIGINT
+            tableName: users
+  - changeSet:
+      id: 1543511610622-6
+      author: yatharth (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: project_id
+            constraintName: UC_PROJECTSPROJECT_ID_COL
+            tableName: projects
+  - changeSet:
+      id: 1543511610622-7
+      author: yatharth (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: user_id, source_id, scheduled_time, title, body, type, ttl_seconds,
+              delivered, dry_run
+            constraintName: UKjdp6comtocl1fyipmur1fuo1h
+            tableName: notifications
+  - changeSet:
+      id: 1543511610622-8
+      author: yatharth (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: subject_id, fcm_token, project_id
+            constraintName: UKmm6u3xspqfqoolkjhsvdrqefq
+            tableName: users
+  - changeSet:
+      id: 1543511610622-9
+      author: yatharth (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_metrics
+            constraintName: FK65c9asnnjs3q0lktqj103mvcv
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1543511610622-10
+      author: yatharth (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: notifications
+            constraintName: FK9y21adhxn0ayjhfocscqox7bh
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1543511610622-11
+      author: yatharth (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: usermetrics_id
+            baseTableName: users
+            constraintName: FKf3dy0yvpkkwtrxj8hutlt8615
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: user_metrics
+            validate: true
+  - changeSet:
+      id: 1543511610622-12
+      author: yatharth (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: users
+            constraintName: FKj4xjs6i0exxcgearpuykol477
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: projects
+            validate: true
+

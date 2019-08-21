@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1554740802000-01
+      author: yatharth
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: language
+                  type: VARCHAR(255)
+            tableName: users
+
+
