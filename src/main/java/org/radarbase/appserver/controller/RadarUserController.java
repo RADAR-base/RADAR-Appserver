@@ -77,13 +77,19 @@ public class RadarUserController {
           + AuthConstantsUtil.ACCESSOR
           + AuthConstantsUtil.USER_DTO_SUBJECT_ID
           + ")")
-  @PostMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
+  @PostMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH)
   public ResponseEntity addUserToProject(
       @Valid @RequestBody FcmUserDto userDto, @Valid @PathVariable String projectId)
       throws URISyntaxException {
     userDto.setProjectId(projectId);
     FcmUserDto user = this.userService.saveUserInProject(userDto);
-    return ResponseEntity.created(new URI("/" + Paths.USER_PATH + "/user?id=" + user.getId()))
+    return ResponseEntity.created(new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
         .body(user);
   }
 
@@ -95,7 +101,13 @@ public class RadarUserController {
           + AuthConstantsUtil.ACCESSOR
           + AuthConstantsUtil.USER_DTO_SUBJECT_ID
           + ")")
-  @PutMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
+  @PutMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH)
   public ResponseEntity updateUserInProject(
       @Valid @RequestBody FcmUserDto userDto, @Valid @PathVariable String projectId)
       throws URISyntaxException {
@@ -112,15 +124,14 @@ public class RadarUserController {
           + AuthConstantsUtil.ACCESSOR
           + AuthConstantsUtil.USER_DTO_SUBJECT_ID
           + ")")
-  @PutMapping("/" + Paths.USER_PATH)
-  public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto)
-      throws URISyntaxException {
+  @PutMapping("/" + PathsUtil.USER_PATH)
+  public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto) {
     FcmUserDto user = this.userService.updateUser(userDto);
     return ResponseEntity.ok(user);
   }
 
   @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
-  @GetMapping("/" + Paths.USER_PATH)
+  @GetMapping("/" + PathsUtil.USER_PATH)
   public ResponseEntity<FcmUsers> getAllRadarUsers() {
     return ResponseEntity.ok(this.userService.getAllRadarUsers());
   }
@@ -131,7 +142,7 @@ public class RadarUserController {
           + ", "
           + "returnObject.body.getSubjectId()"
           + ")")
-  @GetMapping("/" + Paths.USER_PATH + "/user")
+  @GetMapping("/" + PathsUtil.USER_PATH + "/user")
   public ResponseEntity<FcmUserDto> getRadarUserUsingId(@PathParam("id") Long id) {
     if (id == null) {
       throw new InvalidUserDetailsException("The given id must not be null!");
@@ -145,7 +156,7 @@ public class RadarUserController {
           + ", "
           + "returnObject.body.getSubjectId()"
           + ")")
-  @GetMapping("/" + Paths.USER_PATH + "/" + Paths.SUBJECT_ID_CONSTANT)
+  @GetMapping("/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(@PathVariable String subjectId) {
     return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
   }
@@ -155,7 +166,13 @@ public class RadarUserController {
           + AuthConstantsUtil.ACCESSOR
           + AuthConstantsUtil.PROJECT_ID
           + ")")
-  @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT + "/" + Paths.USER_PATH)
+  @GetMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH)
   public ResponseEntity<FcmUsers> getUsersUsingProjectId(@Valid @PathVariable String projectId) {
     return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
   }
@@ -170,13 +187,13 @@ public class RadarUserController {
           + ")")
   @GetMapping(
       "/"
-          + Paths.PROJECT_PATH
+          + PathsUtil.PROJECT_PATH
           + "/"
-          + Paths.PROJECT_ID_CONSTANT
+          + PathsUtil.PROJECT_ID_CONSTANT
           + "/"
-          + Paths.USER_PATH
+          + PathsUtil.USER_PATH
           + "/"
-          + Paths.SUBJECT_ID_CONSTANT)
+          + PathsUtil.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getUsersUsingProjectIdAndSubjectId(
       @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
 

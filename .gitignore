@@ -33,3 +33,6 @@
 
 # test kubernetes
 /kubernetes
+
+# logs
+/logs

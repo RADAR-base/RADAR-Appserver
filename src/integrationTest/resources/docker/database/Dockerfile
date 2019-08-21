@@ -1,6 +1,6 @@
 FROM openjdk:8-jre-alpine
 
-MAINTAINER yatharth.ranjan@kcl.ac.uk
+LABEL maintainer="Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>"
 
 ENV MVN_CENTRAL_URL http://central.maven.org/maven2
 ENV HSQLDB_MVN_GRP org/hsqldb

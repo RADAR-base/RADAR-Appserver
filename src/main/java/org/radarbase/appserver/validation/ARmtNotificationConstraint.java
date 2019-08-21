@@ -40,7 +40,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = ARmtNotificationValidator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface aRmtNotificationConstraint {
+public @interface ARmtNotificationConstraint {
   String message() default "Notification does not conform to the schedule.";
 
   Class<?>[] groups() default {};

@@ -16,7 +16,7 @@ RUN ./gradlew unpack
 
 FROM openjdk:11.0.1-jre-slim
 
-MAINTAINER Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>
+LABEL maintainer="Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>"
 
 LABEL description="RADAR-base App server"
 

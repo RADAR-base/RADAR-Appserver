@@ -24,7 +24,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = 1.11
 
 repositories {
@@ -91,6 +91,7 @@ dependencies {
     implementation (group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion){
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
         exclude group: 'org.springframework.security.oauth', module: 'spring-security-oauth2'
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
     compile (group: 'org.radarcns', name: 'radar-auth', version: mpVersion){
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
@@ -110,18 +111,34 @@ dependencies {
 
     // XMPP
     compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
-    compile group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion
+    compile (group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion) {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+    }
+
+    compile ('org.bouncycastle:bcprov-jdk15on:1.62') {
+        force = true
+    }
 
     // Swagger
-    compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
-    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
+    compile (group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion) {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    compile (group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion) {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+
+    compile ('com.google.guava:guava:27.1-jre') {
+        force = true
+    }
+
+
 
     compile 'org.scala-lang:scala-library:2.13.0'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
-    runtime('com.h2database:h2')
+    runtime('com.h2database:h2:1.4.199')
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     compile group: 'org.projectlombok', name: 'lombok', version: lombokVersion

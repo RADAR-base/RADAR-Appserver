@@ -26,7 +26,7 @@ package org.radarbase.appserver.controller;
  *
  * @author yatharthranjan
  */
-public class Paths {
+public class PathsUtil {
 
   public static final String USER_PATH = "users";
   public static final String PROJECT_PATH = "projects";

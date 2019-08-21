@@ -23,6 +23,7 @@ package org.radarbase.fcm.config;
 
 import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.RetryException;
 
 /** Util class for back off strategy */
 @Slf4j
@@ -53,10 +54,10 @@ public class BackOffStrategy {
     return numberOfTriesLeft > 0;
   }
 
-  public void errorOccured2() throws Exception {
+  public void errorOccured2() throws RetryException {
     numberOfTriesLeft--;
     if (!shouldRetry()) {
-      throw new Exception(
+      throw new RetryException(
           "Retry Failed: Total of attempts: "
               + numberOfRetries
               + ". Total waited time: "

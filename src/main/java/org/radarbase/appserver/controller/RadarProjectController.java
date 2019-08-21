@@ -66,7 +66,7 @@ public class RadarProjectController {
           + "projectDto.getProjectId()"
           + ")")
   @PostMapping(
-      value = "/" + Paths.PROJECT_PATH,
+      value = "/" + PathsUtil.PROJECT_PATH,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
   public ResponseEntity<ProjectDto> addProject(@Valid @RequestBody ProjectDto projectDto)
       throws URISyntaxException {
@@ -89,14 +89,14 @@ public class RadarProjectController {
           + "projectDto.getProjectId()"
           + ")")
   @PutMapping(
-      value = "/" + Paths.PROJECT_PATH,
+      value = "/" + PathsUtil.PROJECT_PATH,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
   public ResponseEntity<ProjectDto> updateProject(@Valid @RequestBody ProjectDto projectDto) {
     return ResponseEntity.ok(this.projectService.updateProject(projectDto));
   }
 
   @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
-  @GetMapping("/" + Paths.PROJECT_PATH)
+  @GetMapping("/" + PathsUtil.PROJECT_PATH)
   public ResponseEntity<ProjectDtos> getAllProjects() {
     return ResponseEntity.ok(this.projectService.getAllProjects());
   }
@@ -105,7 +105,7 @@ public class RadarProjectController {
       AuthConstantsUtil.PERMISSION_ON_PROJECT_MEASUREMENT_CREATE
           + "returnObject.body.getProjectId()"
           + ")")
-  @GetMapping("/" + Paths.PROJECT_PATH + "/project")
+  @GetMapping("/" + PathsUtil.PROJECT_PATH + "/project")
   public ResponseEntity<ProjectDto> getProjectsUsingId(@Valid @PathParam("id") Long id) {
     return ResponseEntity.ok(this.projectService.getProjectById(id));
   }
@@ -115,7 +115,7 @@ public class RadarProjectController {
           + AuthConstantsUtil.ACCESSOR
           + AuthConstantsUtil.PROJECT_ID
           + ")")
-  @GetMapping("/" + Paths.PROJECT_PATH + "/" + Paths.PROJECT_ID_CONSTANT)
+  @GetMapping("/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT)
   public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
       @Valid @PathVariable String projectId) {
     return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
