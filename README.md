@@ -109,7 +109,7 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 ## Architecture
 Here is a high level architecture and data flow diagram for the AppServer and its example interaction with a Cordova application (hybrid) like the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire).
 
-```                                                                                                                                                   
+```text                                                                                                                                                   
                                                                                                                                                       
                                                                                                                                                       
                                                                                                                                                       
@@ -180,7 +180,7 @@ Here is a high level architecture and data flow diagram for the AppServer and it
 
 The Appserver manages the lifecycle of the Notifications through state change events. It uses Pub/Sub paradigm utilising Spring Events so other subscribers can also hook up to the Events as listeners. Currently, there are 10 possible states as follows - 
 
-```
+```text
   // Database controlled
   ADDED, UPDATED, CANCELLED
 
@@ -197,7 +197,7 @@ The Appserver manages the lifecycle of the Notifications through state change ev
 REST Endpoints are provided to update and query the STATE. Update can only be made to any of the ones above that can be updated by external entities(i.e.  DELIVERED, OPENED, DISMISSED, ERRORED and UNKNOWN ).  
 
 Here is a simple flow between the states --
-```
+```text
                                                                                  ┌───────────────────────────────────────────────────────┐
                                                                                  │                                                       │
                                                                                  ▼                                                       │
@@ -319,25 +319,23 @@ To make this work,
 - Run an instance of the Spring Boot Admin server (various examples on the internet and also via Docker) on the machine and then
  
 - configure the client to point to the Admin Server for registration by adding the following to your `application.properties` file - 
-       
-        ```
-        spring.boot.admin.client.url = http://localhost:8888
-        ```
-   In this case, the Spring Boot admin server was running on `http://localhost:8888`. If http basic auth is enabled on the server also add the following to the `application.properties` file -
-        
-        ```
-        spring.boot.admin.client.url = http://localhost:8888
-        spring.boot.admin.client".username = admin-server-username
-        spring.boot.admin.client".password = admin-server-password
-        ```
+  ```
+    spring.boot.admin.client.url = http://localhost:8888
+  ```
+  In this case, the Spring Boot admin server was running on `http://localhost:8888`. If http basic auth is enabled on the server also add the following to the `application.properties` file -  
+  ```
+    spring.boot.admin.client.url = http://localhost:8888
+    spring.boot.admin.client".username = admin-server-username
+    spring.boot.admin.client".password = admin-server-password
+  ```
 
-The same can be achieved when deployed with the components as microservices in docker containers using docker-compose. The file `docker/docker-compose.yml` in this project shows an example of how this is achieved.
+The same can be achieved when deployed with the components as microservices in docker containers using docker-compose. The file [docker-compose.yml](/src/integrationTest/resources/docker/docker-compose.yml) in this project shows an example of how this is achieved.
 Please note how the App server is configured in the container compared to the method of adding properties in `application.properties` file shown above.
 
 Just run 
 
 ```bash
-cd docker
+cd src/integrationTest/resources/docker/
 sudo docker-compose up -d
 ```
 
@@ -370,7 +368,7 @@ You can modify the number of iterations of the requests by change the variables 
 
 You can also edit the base URL of your deployed instance of the server by changing the value of 
 ```scala
-
+  val baseUrl = "http://localhost:8080"
 ``` 
 
 Ideally deploy the server on a remote instance using a persisted database instead of in-memory for real-world testing. Running on your local machine may not reflect the best results.
