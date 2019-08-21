@@ -24,7 +24,7 @@ There is also support for legacy XMPP protocol for FCM.
     ./gradlew bootRun
    ```
    You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
-    
+
 4. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
    ```json
     {
@@ -41,6 +41,7 @@ There is also support for legacy XMPP protocol for FCM.
           ...
      }
    ```
+
 5. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
 
 6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
@@ -89,7 +90,7 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
        }
    ```
     Please update the `scheduledTime` to the desired time of notification delivery.
-  
+
 5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for the user.
   There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.
     
@@ -278,7 +279,6 @@ It is present at `<your-base-url/swagger-ui.html`
 
 The Swagger API docs are also available at [Swagger Hub](https://app.swaggerhub.com/apis-docs/RADAR-Base/RADAR-Appserver) but may not be most up-to-date. Please check the version matches the app-server that you have deployed.
 
-
 The Java docs are also available as static content when you build and deploy the app-server. 
 These are stored in the `/src/main/resources/static/java-docs` path automatically when building and spring picks this up and exposes it on the path `<your-base-url/java-docs/index.html>` as shown below - 
 
@@ -297,7 +297,7 @@ To enable security of specific provider, please read the sections below.
 
 ### Management Portal
 To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), set the following property -
-```
+```ini
 managementportal.security.enabled=true
 ```
 This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
@@ -316,7 +316,8 @@ The App server has built in support for the [Spring Boot Actuator](https://docs.
 
 It also has functionality to register itself as a client to the [Spring Boot Admin Server](http://codecentric.github.io/spring-boot-admin/2.1.1/) for providing a beautiful UI for the Actuator and some other useful admin stuff.
 To make this work, 
-- Run an instance of the Spring Boot Admin server (various examples on the internet and also via Docker) on the machine and then 
+- Run an instance of the Spring Boot Admin server (various examples on the internet and also via Docker) on the machine and then
+ 
 - configure the client to point to the Admin Server for registration by adding the following to your `application.properties` file - 
        
         ```

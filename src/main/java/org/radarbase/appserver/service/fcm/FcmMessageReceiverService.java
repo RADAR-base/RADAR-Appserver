@@ -39,7 +39,6 @@ import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -64,6 +63,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
   private transient FcmNotificationService notificationService;
   private transient UserService userService;
   private transient ScheduleNotificationHandler scheduleNotificationHandler;
+  private static final String MESSAGE_STATUS_DELIVERED = "MESSAGE_SENT_TO_DEVICE";
 
   public FcmMessageReceiverService(
       FcmNotificationService notificationService,
@@ -113,10 +113,14 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
                   case CANCEL:
                     log.info("Got a CANCEL Request");
-                    //TODO: Don't delete but change the state to CANCELLED.
+                    // TODO: Don't delete but change the state to CANCELLED.
                     this.notificationService.removeNotificationsForUserUsingFcmToken(
                         jsonMessage.get("from").asText());
                     break;
+
+                  default:
+                    throw new IllegalStateException(
+                        "Action not Supported! Options: " + Arrays.toString(Action.values()));
                 }
               },
               () -> {
@@ -148,7 +152,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
     final String errorCode = errorCodeObj.get();
 
-    if (errorCode.equals("DEVICE_UNREGISTERED")) {
+    if ("DEVICE_UNREGISTERED".equals(errorCode)) {
       log.info("The FCM device unregistered. Removing all notifications: {}", errorCode);
       this.notificationService.removeNotificationsForUserUsingFcmToken(
           jsonMessage.get("from").asText());
@@ -175,25 +179,22 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
     if (jsonData.isPresent()) {
       Optional<String> messageStatus =
           Optional.ofNullable(jsonData.get().get("message_status").asText());
-      if (messageStatus.isPresent()) {
-        if (messageStatus.get().equals("MESSAGE_SENT_TO_DEVICE")) {
-          // notificationService.deleteNotificationByFcmMessageId(jsonData.get().get("original_message_id").asText());
-          notificationService.updateDeliveryStatus(
-              jsonData.get().get("original_message_id").asText(), true);
+      if (messageStatus.isPresent() && MESSAGE_STATUS_DELIVERED.equals(messageStatus.get())) {
+        notificationService.updateDeliveryStatus(
+            jsonData.get().get("original_message_id").asText(), true);
 
-          NotificationStateEvent notificationStateEvent =
-              new NotificationStateEvent(
-                  this,
-                  notificationService.getNotificationByMessageId(
-                      jsonData.get().get("original_message_id").asText()),
-                  NotificationState.DELIVERED,
-                  null,
-                  Instant.now());
-          notificationStateEventPublisher.publishEvent(notificationStateEvent);
+        NotificationStateEvent notificationStateEvent =
+            new NotificationStateEvent(
+                this,
+                notificationService.getNotificationByMessageId(
+                    jsonData.get().get("original_message_id").asText()),
+                NotificationState.DELIVERED,
+                null,
+                Instant.now());
+        notificationStateEventPublisher.publishEvent(notificationStateEvent);
 
-          userService.updateLastDelivered(
-              jsonData.get().get("device_registration_id").asText(), Instant.now());
-        }
+        userService.updateLastDelivered(
+            jsonData.get().get("device_registration_id").asText(), Instant.now());
       }
     }
   }
@@ -211,38 +212,42 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
   @SneakyThrows
   private FcmNotificationDto notificationDtoMapper(JsonNode jsonMessage) {
 
+    checkRequiredExistElseThrow(jsonMessage);
+
+    Instant scheduledTime = Instant.ofEpochSecond(jsonMessage.get("time").asLong() / 1000L);
+    checkValidTimeElseThrow(scheduledTime);
+
+    return new FcmNotificationDto()
+        .setTitle(jsonMessage.get("notificationTitle").asText())
+        .setBody(jsonMessage.get("notificationMessage").asText())
+        .setScheduledTime(scheduledTime)
+        .setAppPackage(getTextIfExistsElseUnknown(jsonMessage.get("appPackage")))
+        .setDelivered(false)
+        .setSourceId(getTextIfExistsElseUnknown(jsonMessage.get("sourceId")))
+        .setSourceType(getTextIfExistsElseUnknown(jsonMessage.get("sourceType")))
+        .setTtlSeconds(
+            jsonMessage.get("ttlSeconds") == null ? 86400 : jsonMessage.get("ttlSeconds").asInt())
+        .setType(getTextIfExistsElseUnknown(jsonMessage.get("type")));
+  }
+
+  private void checkRequiredExistElseThrow(JsonNode jsonMessage) {
     if (jsonMessage.get("notificationTitle") == null
         || jsonMessage.get("notificationMessage") == null
         || jsonMessage.get("time") == null) {
       throw new InvalidNotificationDetailsException(
           "The notifications details are invalid: " + jsonMessage);
     }
+  }
 
-    Instant scheduledTime = Instant.ofEpochSecond(jsonMessage.get("time").asLong() / 1000L);
-
+  private void checkValidTimeElseThrow(Instant scheduledTime) {
     if (scheduledTime.isBefore(Instant.now())) {
       throw new InvalidNotificationDetailsException(
           "The notification scheduled " + "time cannot be before current time");
     }
+  }
 
-    return new FcmNotificationDto()
-        .setTitle(jsonMessage.get("notificationTitle").asText())
-        .setBody(jsonMessage.get("notificationMessage").asText())
-        .setScheduledTime(scheduledTime)
-        .setAppPackage(
-            jsonMessage.get("appPackage") == null
-                ? "unknown"
-                : jsonMessage.get("appPackage").asText())
-        .setDelivered(false)
-        .setSourceId(
-            jsonMessage.get("sourceId") == null ? "unknown" : jsonMessage.get("sourceId").asText())
-        .setSourceType(
-            jsonMessage.get("sourceType") == null
-                ? "unknown"
-                : jsonMessage.get("sourceType").asText())
-        .setTtlSeconds(
-            jsonMessage.get("ttlSeconds") == null ? 86400 : jsonMessage.get("ttlSeconds").asInt())
-        .setType(jsonMessage.get("type") == null ? "Unknown" : jsonMessage.get("type").asText());
+  private String getTextIfExistsElseUnknown(JsonNode jsonNode) {
+    return jsonNode == null ? "unknown" : jsonNode.asText();
   }
 
   private FcmUserDto userDtoMapper(String fcmToken, JsonNode jsonMessage) {
@@ -263,21 +268,19 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
   @Configuration
   public static class ScheduleNotificationHandlerConfig {
 
-    @Value("${fcm.xmpp.schedule.batch.maxSize:100}")
-    private transient int maxSize;
-
-    @Value("${fcm.xmpp.schedule.batch.expiry.seconds:50}")
-    private transient int expiryInSeconds;
-
-    @Value("${fcm.xmpp.schedule.batch.flushAfter.seconds:120}")
-    private transient int flushAfterSeconds;
-
     private final transient FcmNotificationService notificationService;
     private final transient UserService userService;
     private final transient ProjectService projectService;
+    @Value("${fcm.xmpp.schedule.batch.maxSize:100}")
+    private transient int maxSize;
+    @Value("${fcm.xmpp.schedule.batch.expiry.seconds:50}")
+    private transient int expiryInSeconds;
+    @Value("${fcm.xmpp.schedule.batch.flushAfter.seconds:120}")
+    private transient int flushAfterSeconds;
 
     public ScheduleNotificationHandlerConfig(
-        FcmNotificationService notificationService, UserService userService,
+        FcmNotificationService notificationService,
+        UserService userService,
         ProjectService projectService) {
       this.notificationService = notificationService;
       this.userService = userService;

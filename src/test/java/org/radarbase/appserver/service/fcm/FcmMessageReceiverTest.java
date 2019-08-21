@@ -23,10 +23,8 @@ package org.radarbase.appserver.service.fcm;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.Test;
@@ -47,7 +45,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class FcmMessageReceiverTest {
 
   @Qualifier("getMessageReceiver")
-  @Autowired private transient FcmMessageReceiverService messageReceiverService;
+  @Autowired
+  private transient FcmMessageReceiverService messageReceiverService;
 
   @Test
   public void checkScheduleNotificationRequest() {

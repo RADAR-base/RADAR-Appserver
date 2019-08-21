@@ -41,12 +41,12 @@ public class ProtocolEndpoint {
     this.protocolGenerator.init();
   }
 
-  @GetMapping("/" + Paths.PROTOCOL_PATH)
+  @GetMapping("/" + PathsUtil.PROTOCOL_PATH)
   public Map<String, Protocol> getProtocols() {
     return this.protocolGenerator.getAllProtocols();
   }
 
-  @GetMapping("/" + Paths.PROTOCOL_PATH + "/{projectId}")
+  @GetMapping("/" + PathsUtil.PROTOCOL_PATH + "/{projectId}")
   public Protocol getProtocol(@Valid @PathVariable String projectId) {
     return this.protocolGenerator.getProtocol(projectId);
   }

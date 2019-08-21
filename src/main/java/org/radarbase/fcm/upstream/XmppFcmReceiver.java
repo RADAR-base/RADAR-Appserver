@@ -128,7 +128,7 @@ public class XmppFcmReceiver implements CcsClient {
   private void handleControlMessage(JsonNode jsonNode) {
     final String controlType = jsonNode.get("control_type").asText();
 
-    if (controlType.equals("CONNECTION_DRAINING")) {
+    if ("CONNECTION_DRAINING".equals(controlType)) {
       handleConnectionDraining();
     } else {
       log.info("Received unknown FCM Control message: {}", controlType);

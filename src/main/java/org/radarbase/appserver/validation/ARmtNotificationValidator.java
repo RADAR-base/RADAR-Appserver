@@ -31,16 +31,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Validator for RADAR Active RMT app notifications.
  *
- * @see aRmtNotificationConstraint
+ * @see ARmtNotificationConstraint
  * @author yatharthranjan
  */
 public class ARmtNotificationValidator
-    implements ConstraintValidator<aRmtNotificationConstraint, Notification> {
+    implements ConstraintValidator<ARmtNotificationConstraint, Notification> {
 
   @Autowired private transient QuestionnaireScheduleService scheduleService;
 
   @Override
-  public void initialize(aRmtNotificationConstraint constraintAnnotation) {
+  public void initialize(ARmtNotificationConstraint constraintAnnotation) {
     // TODO
   }
 

@@ -42,11 +42,11 @@ public class NotificationStateEventController {
   @GetMapping(
       value =
           "/"
-              + Paths.NOTIFICATION_PATH
+              + PathsUtil.NOTIFICATION_PATH
               + "/"
-              + Paths.NOTIFICATION_ID_CONSTANT
+              + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
-              + Paths.NOTIFICATION_STATE_EVENTS_PATH)
+              + PathsUtil.NOTIFICATION_STATE_EVENTS_PATH)
   public ResponseEntity<List<NotificationStateEventDto>> getNotificationStateEventsByNotificationId(
       @PathVariable long notificationId) {
     return ResponseEntity.ok(
@@ -64,19 +64,19 @@ public class NotificationStateEventController {
   @GetMapping(
       value =
           "/"
-              + Paths.PROJECT_PATH
+              + PathsUtil.PROJECT_PATH
               + "/"
-              + Paths.PROJECT_ID_CONSTANT
+              + PathsUtil.PROJECT_ID_CONSTANT
               + "/"
-              + Paths.USER_PATH
+              + PathsUtil.USER_PATH
               + "/"
-              + Paths.SUBJECT_ID_CONSTANT
+              + PathsUtil.SUBJECT_ID_CONSTANT
               + "/"
-              + Paths.NOTIFICATION_PATH
+              + PathsUtil.NOTIFICATION_PATH
               + "/"
-              + Paths.NOTIFICATION_ID_CONSTANT
+              + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
-              + Paths.NOTIFICATION_STATE_EVENTS_PATH)
+              + PathsUtil.NOTIFICATION_STATE_EVENTS_PATH)
   public ResponseEntity<List<NotificationStateEventDto>> getNotificationStateEvents(
       @PathVariable String projectId,
       @PathVariable String subjectId,
@@ -97,19 +97,19 @@ public class NotificationStateEventController {
   @PostMapping(
       value =
           "/"
-              + Paths.PROJECT_PATH
+              + PathsUtil.PROJECT_PATH
               + "/"
-              + Paths.PROJECT_ID_CONSTANT
+              + PathsUtil.PROJECT_ID_CONSTANT
               + "/"
-              + Paths.USER_PATH
+              + PathsUtil.USER_PATH
               + "/"
-              + Paths.SUBJECT_ID_CONSTANT
+              + PathsUtil.SUBJECT_ID_CONSTANT
               + "/"
-              + Paths.NOTIFICATION_PATH
+              + PathsUtil.NOTIFICATION_PATH
               + "/"
-              + Paths.NOTIFICATION_ID_CONSTANT
+              + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
-              + Paths.NOTIFICATION_STATE_EVENTS_PATH)
+              + PathsUtil.NOTIFICATION_STATE_EVENTS_PATH)
   public ResponseEntity<List<NotificationStateEventDto>> postNotificationStateEvent(
       @PathVariable String projectId,
       @PathVariable String subjectId,
