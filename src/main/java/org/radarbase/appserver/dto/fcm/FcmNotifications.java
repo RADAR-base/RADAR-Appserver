@@ -23,6 +23,7 @@ package org.radarbase.appserver.dto.fcm;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -33,6 +34,7 @@ import lombok.ToString;
 @ToString
 public class FcmNotifications {
 
+  @Size(max = 200)
   private List<FcmNotificationDto> notifications;
 
   public FcmNotifications() {

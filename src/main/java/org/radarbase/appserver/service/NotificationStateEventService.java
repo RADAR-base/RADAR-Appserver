@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.naming.SizeLimitExceededException;
 import org.radarbase.appserver.dto.NotificationStateEventDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.NotificationStateEvent;
@@ -44,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationStateEventService {
 
   private static final Set<NotificationState> EXTERNAL_EVENTS = new HashSet<>();
+  private static final int MAX_NUMBER_OF_STATES = 20;
 
   static {
     EXTERNAL_EVENTS.add(NotificationState.DELIVERED);
@@ -56,15 +58,17 @@ public class NotificationStateEventService {
   private final transient NotificationStateEventRepository notificationStateEventRepository;
   private final transient FcmNotificationService notificationService;
   private final transient ApplicationEventPublisher notificationApplicationEventPublisher;
-  @Autowired private transient ObjectMapper objectMapper;
+  private final transient ObjectMapper objectMapper;
 
   public NotificationStateEventService(
       NotificationStateEventRepository notificationStateEventRepository,
       FcmNotificationService fcmNotificationService,
-      ApplicationEventPublisher notificationApplicationEventPublisher) {
+      ApplicationEventPublisher notificationApplicationEventPublisher,
+      ObjectMapper objectMapper) {
     this.notificationStateEventRepository = notificationStateEventRepository;
     this.notificationService = fcmNotificationService;
     this.notificationApplicationEventPublisher = notificationApplicationEventPublisher;
+    this.objectMapper = objectMapper;
   }
 
   @Transactional
@@ -113,8 +117,16 @@ public class NotificationStateEventService {
       String projectId,
       String subjectId,
       long notificationId,
-      NotificationStateEventDto notificationStateEventDto) {
+      NotificationStateEventDto notificationStateEventDto)
+      throws SizeLimitExceededException {
     if (EXTERNAL_EVENTS.contains(notificationStateEventDto.getState())) {
+      if (notificationStateEventRepository.countByNotificationId(notificationId)
+          >= MAX_NUMBER_OF_STATES) {
+        throw new SizeLimitExceededException(
+            "The max limit of state changes("
+                + MAX_NUMBER_OF_STATES
+                + ") has been reached. Cannot add new states.");
+      }
       Notification notification =
           notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
               projectId, subjectId, notificationId);
