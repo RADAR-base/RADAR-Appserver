@@ -211,7 +211,7 @@ class NotificationSchedulerServiceTest {
 
       // mock FCM as we do not want to connect to the server
       return new NotificationSchedulerService(
-          mock(FcmSender.class), new SchedulerServiceImpl(scheduler, null, null));
+          mock(FcmSender.class), new SchedulerServiceImpl(scheduler));
     }
   }
 
