@@ -24,7 +24,6 @@ package org.radarbase.appserver.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +34,6 @@ import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.NotificationStateEvent;
 import org.radarbase.appserver.event.state.NotificationState;
 import org.radarbase.appserver.repository.NotificationStateEventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,15 +42,17 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class NotificationStateEventService {
 
-  private static final Set<NotificationState> EXTERNAL_EVENTS = new HashSet<>();
+  private static final Set<NotificationState> EXTERNAL_EVENTS;
   private static final int MAX_NUMBER_OF_STATES = 20;
 
   static {
-    EXTERNAL_EVENTS.add(NotificationState.DELIVERED);
-    EXTERNAL_EVENTS.add(NotificationState.DISMISSED);
-    EXTERNAL_EVENTS.add(NotificationState.OPENED);
-    EXTERNAL_EVENTS.add(NotificationState.UNKNOWN);
-    EXTERNAL_EVENTS.add(NotificationState.ERRORED);
+    EXTERNAL_EVENTS =
+        Set.of(
+            NotificationState.DELIVERED,
+            NotificationState.DISMISSED,
+            NotificationState.OPENED,
+            NotificationState.UNKNOWN,
+            NotificationState.ERRORED);
   }
 
   private final transient NotificationStateEventRepository notificationStateEventRepository;

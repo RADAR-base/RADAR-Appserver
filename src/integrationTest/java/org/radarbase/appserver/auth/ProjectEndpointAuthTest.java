@@ -50,13 +50,12 @@ public class ProjectEndpointAuthTest {
   public static final String PROJECT_PATH = "/projects";
   private static final HttpHeaders HEADERS = new HttpHeaders();
   private static HttpHeaders AUTH_HEADER;
-  private static OAuthHelper oAuthHelper;
   private final transient TestRestTemplate restTemplate = new TestRestTemplate();
   @LocalServerPort private transient int port;
 
   @BeforeAll
   static void init() {
-    oAuthHelper = new MPOAuthHelper();
+    OAuthHelper oAuthHelper = new MPOAuthHelper();
     AUTH_HEADER = new HttpHeaders();
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
   }

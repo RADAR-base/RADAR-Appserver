@@ -57,10 +57,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class NotificationEndpointAuthTest {
   private static final HttpHeaders HEADERS = new HttpHeaders();
-  private static final String NOTIFICATION_PATH = "/notifications";
+  private static final String NOTIFICATION_PATH = "/messaging/notifications";
   private static final String DEFAULT_USER = "/sub-1";
   private static HttpHeaders AUTH_HEADER;
-  private static OAuthHelper oAuthHelper;
   private static TestRestTemplate restTemplate = new TestRestTemplate();
   private final transient FcmNotificationDto fcmNotificationDto =
       new FcmNotificationDto()
@@ -78,7 +77,7 @@ public class NotificationEndpointAuthTest {
 
   @BeforeAll
   static void init() {
-    oAuthHelper = new MPOAuthHelper();
+    OAuthHelper oAuthHelper = new MPOAuthHelper();
     AUTH_HEADER = new HttpHeaders();
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
   }
@@ -127,7 +126,7 @@ public class NotificationEndpointAuthTest {
                     + UserEndpointAuthTest.DEFAULT_PROJECT
                     + UserEndpointAuthTest.USER_PATH
                     + DEFAULT_USER
-                    + "/notifications"),
+                    + "/messaging/notifications"),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);
@@ -145,7 +144,7 @@ public class NotificationEndpointAuthTest {
                 port,
                 ProjectEndpointAuthTest.PROJECT_PATH
                     + UserEndpointAuthTest.DEFAULT_PROJECT
-                    + "/notifications"),
+                    + "/messaging/notifications"),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);
