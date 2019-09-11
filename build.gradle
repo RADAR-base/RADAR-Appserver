@@ -115,7 +115,7 @@ dependencies {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
 
-    compile ('org.bouncycastle:bcprov-jdk15on:1.62') {
+    compile ('org.bouncycastle:bcprov-jdk15on:1.63') {
         force = true
     }
 
