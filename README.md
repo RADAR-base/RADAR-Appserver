@@ -19,13 +19,25 @@ There is also support for legacy XMPP protocol for FCM.
 
 2. Configure the Server Key and Sender ID (obtained from FCM) in application.properties. 
 
-3. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
+3. The AppServer needs a database to work. You can either use a `stand-alone` instance of the database of use an in-memory `embedded` instance-
+   
+   3.1. To use the standalone instance, run the database a docker service by
+    
+       ```bash
+         docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d hsqldb
+        ```
+        
+        This will start the database at `localhost:9001`
+        
+   3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.
+
+4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
    ```bash
     ./gradlew bootRun
    ```
    You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
 
-4. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
+5. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
    ```json
     {
      "data":
@@ -42,11 +54,11 @@ There is also support for legacy XMPP protocol for FCM.
      }
    ```
 
-5. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
+6. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
 
-6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
+7. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
 
-7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
+8. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
 ## REST API
 
