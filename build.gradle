@@ -133,7 +133,7 @@ dependencies {
 
 
 
-    compile 'org.scala-lang:scala-library:2.13.0'
+    compile 'org.scala-lang:scala-library:2.13.1'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
