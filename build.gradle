@@ -138,7 +138,7 @@ dependencies {
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
-    runtime('com.h2database:h2:1.4.199')
+    runtime('com.h2database:h2:1.4.200')
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     compile group: 'org.projectlombok', name: 'lombok', version: lombokVersion
