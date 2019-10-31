@@ -101,7 +101,7 @@ public class ExpiringMap<S, T> {
 
   public static class ExceptionThreadFactory implements ThreadFactory {
     private static final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
-    private final Thread.UncaughtExceptionHandler handler;
+    private final transient Thread.UncaughtExceptionHandler handler;
 
     public ExceptionThreadFactory(Thread.UncaughtExceptionHandler handler) {
       this.handler = handler;

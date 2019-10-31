@@ -118,7 +118,6 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 
 **Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
 
-
 ## Docker/ Docker Compose
 The AppServer is also available as a docker container. It's [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
 
