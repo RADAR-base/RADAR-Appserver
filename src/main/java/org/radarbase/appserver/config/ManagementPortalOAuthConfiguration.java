@@ -54,6 +54,7 @@ public class ManagementPortalOAuthConfiguration extends ResourceServerConfigurer
 
   @Configuration
   @EnableGlobalMethodSecurity(prePostEnabled = true)
+  @ConditionalOnProperty(name = "managementportal.security.enabled", havingValue = "true")
   public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
     @Override
     protected MethodSecurityExpressionHandler createExpressionHandler() {

@@ -278,8 +278,8 @@ public class FcmNotificationService implements NotificationService {
     user.ifPresentOrElse(
         (User user1) -> {
           this.notificationRepository.deleteByUserId(user1.getId());
-          User newUser = user1.setFcmToken("");
-          this.userRepository.save(newUser);
+          /*User newUser = user1.setFcmToken("");
+          this.userRepository.save(newUser);*/
         },
         () -> {
           throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");

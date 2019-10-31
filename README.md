@@ -118,6 +118,41 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 
 **Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
 
+
+## Docker/ Docker Compose
+The AppServer is also available as a docker container. It's [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
+
+```shell
+    docker run -v /logs/:/var/log/radar/appserver/ \
+    -e "FCMSERVER_SENDERID=3487134635" \
+    -e "FCMSERVER_SERVERKEY=AAAA8wZuFjE:APA91bGpJQ3Sft0mZAaVMjDJGNLjFsdDLTo-37ZN69r4" \
+    radarbase/radar-appserver:0.0.1
+```
+The same can be achieved by running as a docker-compose service. Just specify the following in `docker-compose.yml` file - 
+
+```yml
+    services:
+      appserver:
+        image: radarbase/radar-appserver:0.0.1
+        restart: always
+        ports:
+          - 8080:8080
+        volumes:
+          - ./radar_is.yml:/resources/radar_is.yml
+          - ./logs/:/var/log/radar/appserver/
+        environment:
+          JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
+          FCMSERVER_SENDERID: "4562864135"
+          FCMSERVER_SERVERKEY: "AAAA8wZuFjE:APA91bGpJQ3Sft0mZAaVMjDJGN"
+          RADAR_ADMIN_USER: "radar"
+          RADAR_ADMIN_PASSWORD: "radar"
+          SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
+          RADAR_IS_CONFIG_LOCATION: "/resources/radar_is.yml"
+          SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
+```
+
+An example `docker-compose` file with all the other components is provided in [integrationTest resources](/src/integrationTest/resources/docker/docker-compose.yml).
+
 ## Architecture
 Here is a high level architecture and data flow diagram for the AppServer and its example interaction with a Cordova application (hybrid) like the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire).
 

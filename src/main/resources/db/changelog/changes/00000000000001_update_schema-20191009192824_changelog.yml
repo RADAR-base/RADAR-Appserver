@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1570646885000-01
+      author: yatharth
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: notification_state_events
+            constraintName: FK65c9asnnjs3q8237gfs04mvcv
+  - changeSet:
+      id: 1570646898000-02
+      author: yatharth
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: notification_id
+            baseTableName: notification_state_events
+            constraintName: FK65c9asnnjs3q8237gfs04mvcv
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: notifications
+            validate: true
+            onDelete: CASCADE
+

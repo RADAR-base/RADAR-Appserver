@@ -21,17 +21,23 @@
 
 package org.radarbase.appserver.auth.managementportal;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.radarcns.auth.authentication.TokenValidator;
+import org.radarcns.auth.config.TokenValidatorConfig;
 import org.radarcns.auth.exception.TokenValidationException;
 import org.radarcns.auth.token.RadarToken;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -58,13 +64,39 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class ManagementPortalResourceServerTokenServices implements ResourceServerTokenServices {
 
-  private static final TokenValidator tokenValidator;
+  private transient TokenValidator tokenValidator;
 
-  static {
-    tokenValidator = new TokenValidator();
-  }
+  @Value("managementportal.url")
+  private transient String managementPortalUrl;
+
+  @Value("security.oauth2.resource.id")
+  private transient String resourceName = "res_AppServer";
 
   private transient ClientDetailsService clientDetailsService;
+
+  public ManagementPortalResourceServerTokenServices() throws InstantiationException {
+    try {
+      tokenValidator = new TokenValidator();
+      log.debug("Failed to create default TokenValidator");
+    } catch (RuntimeException ex) {
+      if (managementPortalUrl != null) {
+        try {
+          AppServerTokenValidatorConfig cfg =
+              new AppServerTokenValidatorConfig(
+                  Collections.singletonList(new URI(managementPortalUrl + "oauth/token_key")),
+                  resourceName,
+                  null);
+          tokenValidator = new TokenValidator(cfg);
+        } catch (URISyntaxException exc) {
+          log.error("Failed to load Management Portal URL " + managementPortalUrl, exc);
+        }
+      } else {
+        throw new InstantiationException(
+            "Failed to initialise TokenValidator. Please provide a valid configuration in "
+                + "radar-is.yml file or configure the managementportal.url property");
+      }
+    }
+  }
 
   private static OAuth2Request getRequest(RadarToken accessToken) {
     Set<GrantedAuthority> grantedAuthorities =
@@ -174,5 +206,38 @@ public class ManagementPortalResourceServerTokenServices implements ResourceServ
           }
         };
     return oAuth2AccessToken;
+  }
+
+  private static class AppServerTokenValidatorConfig implements TokenValidatorConfig {
+
+    private final transient List<URI> publicKeyEndpoints;
+    private final transient String resourceName;
+    private final transient List<String> publicKeys;
+
+    AppServerTokenValidatorConfig(
+        List<URI> publicKeyEndpoints, String resourceName, List<String> publicKeys) {
+      if (publicKeyEndpoints == null && publicKeys == null) {
+        throw new IllegalArgumentException(
+            "Either the Public Key endpoints or the public Keys must be specified");
+      }
+      this.publicKeyEndpoints = publicKeyEndpoints;
+      this.resourceName = resourceName;
+      this.publicKeys = publicKeys;
+    }
+
+    @Override
+    public List<URI> getPublicKeyEndpoints() {
+      return publicKeyEndpoints;
+    }
+
+    @Override
+    public String getResourceName() {
+      return resourceName;
+    }
+
+    @Override
+    public List<String> getPublicKeys() {
+      return publicKeys;
+    }
   }
 }
