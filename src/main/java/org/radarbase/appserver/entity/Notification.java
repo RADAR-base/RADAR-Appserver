@@ -21,30 +21,16 @@
 
 package org.radarbase.appserver.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
@@ -75,28 +61,7 @@ import org.springframework.lang.Nullable;
 @Entity
 @Getter
 @ToString
-public class Notification extends AuditModel implements Serializable, Scheduled {
-
-  private static final long serialVersionUID = -367424816328519L;
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long id;
-
-  @NotNull
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id", nullable = false)
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JsonIgnore
-  private User user;
-
-  @Nullable
-  @Column(name = "source_id")
-  private String sourceId;
-
-  @NotNull
-  @Column(name = "scheduled_time", nullable = false)
-  private Instant scheduledTime;
+public class Notification extends Message<Notification> {
 
   @NotNull
   @Column(nullable = false)
@@ -106,49 +71,6 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
 
   // Type of notification. In terms of aRMT - PHQ8, RSES, ESM, etc.
   @Nullable private String type;
-
-  @Column(name = "ttl_seconds")
-  private int ttlSeconds;
-
-  @Column(name = "fcm_message_id", unique = true)
-  private String fcmMessageId;
-
-  // for use with the FCM admin SDK
-  @Column(name = "fcm_topic")
-  @Nullable
-  private String fcmTopic;
-
-  // for use with the FCM admin SDK
-  @Column(name = "fcm_condition")
-  @Nullable
-  private String fcmCondition;
-
-  // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
-  @Nullable private boolean delivered;
-
-  @Nullable private boolean validated;
-
-  @Nullable
-  @Column(name = "app_package")
-  private String appPackage;
-
-  // Source Type from the Management Portal
-  @Nullable
-  @Column(name = "source_type")
-  private String sourceType;
-
-  @Column(name = "dry_run")
-  // for use with the FCM admin SDK
-  @Nullable
-  private boolean dryRun;
-
-  @Nullable
-  @ElementCollection(fetch = FetchType.EAGER)
-  @MapKeyColumn(name = "additional_key", nullable = true)
-  @Column(name = "additional_value")
-  private Map<String, String> additionalData;
-
-  private String priority;
 
   private String sound;
 
@@ -186,23 +108,11 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
   @Column(name = "click_action")
   private String clickAction;
 
-  @Column(name = "mutable_content")
-  private boolean mutableContent;
-
-  public Notification setUser(User user) {
-    this.user = user;
-    return this;
-  }
-
-  public Notification setSourceId(String sourceId) {
-    this.sourceId = sourceId;
-    return this;
-  }
-
-  public Notification setScheduledTime(Instant scheduledTime) {
-    this.scheduledTime = scheduledTime;
-    return this;
-  }
+  @Nullable
+  @ElementCollection(fetch = FetchType.EAGER)
+  @MapKeyColumn(name = "additional_key", nullable = true)
+  @Column(name = "additional_value")
+  private Map<String, String> additionalData;
 
   public Notification setTitle(String title) {
     this.title = title;
@@ -216,66 +126,6 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
 
   public Notification setType(String type) {
     this.type = type;
-    return this;
-  }
-
-  public Notification setTtlSeconds(int ttlSeconds) {
-    this.ttlSeconds = ttlSeconds;
-    return this;
-  }
-
-  public Notification setFcmMessageId(String fcmMessageId) {
-    this.fcmMessageId = fcmMessageId;
-    return this;
-  }
-
-  public Notification setFcmTopic(String fcmTopic) {
-    this.fcmTopic = fcmTopic;
-    return this;
-  }
-
-  public Notification setDelivered(boolean delivered) {
-    this.delivered = delivered;
-    return this;
-  }
-
-  public Notification setDryRun(boolean dryRun) {
-    this.dryRun = dryRun;
-    return this;
-  }
-
-  public Notification setValidated(boolean validated) {
-    this.validated = validated;
-    return this;
-  }
-
-  public Notification setAppPackage(String appPackage) {
-    this.appPackage = appPackage;
-    return this;
-  }
-
-  public Notification setSourceType(String sourceType) {
-    this.sourceType = sourceType;
-    return this;
-  }
-
-  public Notification setAdditionalData(Map<String, String> additionalData) {
-    this.additionalData = additionalData;
-    return this;
-  }
-
-  public Notification setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public Notification setFcmCondition(@Nullable String fcmCondition) {
-    this.fcmCondition = fcmCondition;
-    return this;
-  }
-
-  public Notification setPriority(String priority) {
-    this.priority = priority;
     return this;
   }
 
@@ -339,8 +189,8 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
     return this;
   }
 
-  public Notification setMutableContent(boolean mutableContent) {
-    this.mutableContent = mutableContent;
+  public Notification setAdditionalData(Map<String, String> additionalData) {
+    this.additionalData = additionalData;
     return this;
   }
 
@@ -353,16 +203,10 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
       return false;
     }
     Notification that = (Notification) o;
-    return getTtlSeconds() == that.getTtlSeconds()
-        && isDelivered() == that.isDelivered()
-        && isDryRun() == that.isDryRun()
-        && Objects.equals(getUser(), that.getUser())
-        && Objects.equals(getSourceId(), that.getSourceId())
-        && Objects.equals(getScheduledTime(), that.getScheduledTime())
+    return super.equals(o)
         && Objects.equals(getTitle(), that.getTitle())
         && Objects.equals(getBody(), that.getBody())
-        && Objects.equals(getType(), that.getType())
-        && Objects.equals(getAppPackage(), that.getAppPackage());
+        && Objects.equals(getType(), that.getType());
   }
 
   @Override
