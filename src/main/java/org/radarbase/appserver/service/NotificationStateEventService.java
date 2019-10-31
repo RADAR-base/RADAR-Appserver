@@ -119,7 +119,37 @@ public class NotificationStateEventService {
       long notificationId,
       NotificationStateEventDto notificationStateEventDto)
       throws SizeLimitExceededException {
-    if (EXTERNAL_EVENTS.contains(notificationStateEventDto.getState())) {
+    checkState(notificationId, notificationStateEventDto.getState());
+    Notification notification =
+        notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+            projectId, subjectId, notificationId);
+
+    Map<String, String> additionalInfo = null;
+    if (!notificationStateEventDto.getAssociatedInfo().isEmpty()) {
+      try {
+        additionalInfo =
+            objectMapper.readValue(
+                notificationStateEventDto.getAssociatedInfo(),
+                new TypeReference<Map<String, String>>() {});
+      } catch (IOException exc) {
+        throw new IllegalStateException(
+            "Cannot convert additionalInfo to Map<String, String>. Please check its format.");
+      }
+    }
+
+    org.radarbase.appserver.event.state.NotificationStateEvent stateEvent =
+        new org.radarbase.appserver.event.state.NotificationStateEvent(
+            this,
+            notification,
+            notificationStateEventDto.getState(),
+            additionalInfo,
+            notificationStateEventDto.getTime());
+    notificationApplicationEventPublisher.publishEvent(stateEvent);
+  }
+
+  private void checkState(long notificationId, NotificationState state)
+      throws SizeLimitExceededException, IllegalStateException {
+    if (EXTERNAL_EVENTS.contains(state)) {
       if (notificationStateEventRepository.countByNotificationId(notificationId)
           >= MAX_NUMBER_OF_STATES) {
         throw new SizeLimitExceededException(
@@ -127,35 +157,10 @@ public class NotificationStateEventService {
                 + MAX_NUMBER_OF_STATES
                 + ") has been reached. Cannot add new states.");
       }
-      Notification notification =
-          notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-              projectId, subjectId, notificationId);
-
-      Map<String, String> additionalInfo = null;
-      if (!notificationStateEventDto.getAssociatedInfo().isEmpty()) {
-        try {
-          additionalInfo =
-              objectMapper.readValue(
-                  notificationStateEventDto.getAssociatedInfo(),
-                  new TypeReference<Map<String, String>>() {});
-        } catch (IOException exc) {
-          throw new IllegalStateException(
-              "Cannot convert additionalInfo to Map<String, String>. Please check its format.");
-        }
-      }
-
-      org.radarbase.appserver.event.state.NotificationStateEvent stateEvent =
-          new org.radarbase.appserver.event.state.NotificationStateEvent(
-              this,
-              notification,
-              notificationStateEventDto.getState(),
-              additionalInfo,
-              notificationStateEventDto.getTime());
-      notificationApplicationEventPublisher.publishEvent(stateEvent);
     } else {
       throw new IllegalStateException(
           "The state "
-              + notificationStateEventDto.getState()
+              + state
               + " is not an external state and cannot be updated by this endpoint.");
     }
   }
