@@ -22,6 +22,7 @@
 package org.radarbase.appserver.dto.fcm;
 
 import java.util.List;
+import javax.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -32,6 +33,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class FcmUsers {
 
+  @Size(max = 1500)
   private List<FcmUserDto> users;
 
   public FcmUsers setUsers(List<FcmUserDto> users) {

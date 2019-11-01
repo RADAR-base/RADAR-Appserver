@@ -41,6 +41,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.radarbase.appserver.entity.Scheduled;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +57,11 @@ public class SchedulerServiceImpl implements SchedulerService {
 
   private transient Scheduler scheduler;
 
+  public SchedulerServiceImpl(Scheduler scheduler) {
+    this.scheduler = scheduler;
+  }
+
+  @Autowired
   public SchedulerServiceImpl(
       Scheduler scheduler, JobListener jobListener, SchedulerListener schedulerListener) {
     this.scheduler = scheduler;

@@ -28,9 +28,13 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Slf4j
 public class ExpiringMap<S, T> {
@@ -57,7 +61,9 @@ public class ExpiringMap<S, T> {
     this.lastFlush = Instant.MIN;
     this.flushAfter = flushAfter;
     cache = new ConcurrentHashMap<>();
-    ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    ScheduledExecutorService executorService =
+        Executors.newSingleThreadScheduledExecutor(
+            new ExceptionThreadFactory(new LogAndContinueExceptionHandler()));
     executorService.scheduleAtFixedRate(
         this::checkForDeadContent, this.flushAfter, this.flushAfter, TimeUnit.SECONDS);
   }
@@ -87,9 +93,35 @@ public class ExpiringMap<S, T> {
   }
 
   private synchronized void flush() {
-      Map<S, T> copy = new ConcurrentHashMap<>(cache);
-      cache = new ConcurrentHashMap<>();
-      this.lastFlush = Instant.now();
-      consumer.accept(copy);
+    Map<S, T> copy = new ConcurrentHashMap<>(cache);
+    cache = new ConcurrentHashMap<>();
+    this.lastFlush = Instant.now();
+    consumer.accept(copy);
+  }
+
+  public static class ExceptionThreadFactory implements ThreadFactory {
+    private static final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
+    private final transient Thread.UncaughtExceptionHandler handler;
+
+    public ExceptionThreadFactory(Thread.UncaughtExceptionHandler handler) {
+      this.handler = handler;
+    }
+
+    @Override
+    public Thread newThread(@NotNull Runnable run) {
+      Thread thread = defaultFactory.newThread(run);
+      thread.setUncaughtExceptionHandler(handler);
+      return thread;
+    }
+  }
+
+  public static class LogAndContinueExceptionHandler implements Thread.UncaughtExceptionHandler {
+    private static final Logger logger =
+        LoggerFactory.getLogger(LogAndContinueExceptionHandler.class);
+
+    @Override
+    public void uncaughtException(Thread thread, Throwable t) {
+      logger.warn("The thread {} in Expiring Map threw an exception.", thread, t);
+    }
   }
 }

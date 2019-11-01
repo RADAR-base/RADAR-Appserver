@@ -23,9 +23,12 @@ package org.radarbase.appserver.dto.fcm;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author yatharthranjan */
 @Getter
@@ -33,6 +36,9 @@ import lombok.ToString;
 @ToString
 public class FcmNotifications {
 
+  private static final Logger logger = LoggerFactory.getLogger(FcmNotifications.class);
+
+  @Size(max = 200)
   private List<FcmNotificationDto> notifications;
 
   public FcmNotifications() {
@@ -48,6 +54,8 @@ public class FcmNotifications {
 
     if (!notifications.contains(notificationDto)) {
       this.notifications.add(notificationDto);
+    } else {
+      logger.info("Notification {} already exists in the Fcm Notifications.", notificationDto);
     }
     return this;
   }

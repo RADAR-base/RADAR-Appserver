@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,7 @@ public class NotificationSchedulerService {
   // TODO add a schedule cache to cache incoming requests and do batch scheduling
 
   private static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
-
+  private static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;
   private final transient FcmSender fcmSender;
   private final transient SchedulerService schedulerService;
 
@@ -137,17 +138,16 @@ public class NotificationSchedulerService {
   private static FcmNotificationMessage createMessageFromNotification(Notification notification) {
 
     String to =
-        notification.getFcmTopic() == null
-            ? notification.getUser().getFcmToken()
-            : notification.getFcmTopic();
+        Objects.requireNonNullElseGet(
+            notification.getFcmTopic(), notification.getUser()::getFcmToken);
     return FcmNotificationMessage.builder()
         .to(to)
         .condition(notification.getFcmCondition())
         .priority(notification.getPriority())
         .mutableContent(notification.isMutableContent())
-        .deliveryReceiptRequested(true)
+        .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
         .messageId(String.valueOf(notification.getFcmMessageId()))
-        .timeToLive(notification.getTtlSeconds())
+        .timeToLive(Objects.requireNonNullElse(notification.getTtlSeconds(), 2_419_200))
         .notification(getNotificationMap(notification))
         .data(notification.getAdditionalData())
         .build();

@@ -22,6 +22,7 @@
 package org.radarbase.appserver.controller;
 
 import java.util.List;
+import javax.naming.SizeLimitExceededException;
 import org.radarbase.appserver.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.NotificationStateEventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class NotificationStateEventController {
   @GetMapping(
       value =
           "/"
-              + PathsUtil.NOTIFICATION_PATH
+              + PathsUtil.MESSAGING_NOTIFICATION_PATH
               + "/"
               + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
@@ -72,7 +73,7 @@ public class NotificationStateEventController {
               + "/"
               + PathsUtil.SUBJECT_ID_CONSTANT
               + "/"
-              + PathsUtil.NOTIFICATION_PATH
+              + PathsUtil.MESSAGING_NOTIFICATION_PATH
               + "/"
               + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
@@ -105,7 +106,7 @@ public class NotificationStateEventController {
               + "/"
               + PathsUtil.SUBJECT_ID_CONSTANT
               + "/"
-              + PathsUtil.NOTIFICATION_PATH
+              + PathsUtil.MESSAGING_NOTIFICATION_PATH
               + "/"
               + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
@@ -114,7 +115,8 @@ public class NotificationStateEventController {
       @PathVariable String projectId,
       @PathVariable String subjectId,
       @PathVariable long notificationId,
-      @RequestBody NotificationStateEventDto notificationStateEventDto) {
+      @RequestBody NotificationStateEventDto notificationStateEventDto)
+      throws SizeLimitExceededException {
 
     notificationStateEventService.publishNotificationStateEventExternal(
         projectId, subjectId, notificationId, notificationStateEventDto);

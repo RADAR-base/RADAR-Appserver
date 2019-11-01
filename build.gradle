@@ -69,10 +69,10 @@ sourceSets {
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('org.springframework.boot:spring-boot-starter-data-rest'){
+    implementation('org.springframework.boot:spring-boot-starter-data-rest') {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
-    implementation('org.springframework.boot:spring-boot-starter-web'){
+    implementation('org.springframework.boot:spring-boot-starter-web') {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
     implementation('org.springframework.boot:spring-boot-starter-integration')
@@ -80,58 +80,56 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-security') {
         exclude group: 'org.springframework.security', module: 'spring-security-core'
     }
-    implementation('org.springframework.boot:spring-boot-starter-actuator'){
+    implementation('org.springframework.boot:spring-boot-starter-actuator') {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
     implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
 
-    compile (group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion){
+    compile(group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion) {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
-    implementation (group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion){
+    implementation(group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion) {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
         exclude group: 'org.springframework.security.oauth', module: 'spring-security-oauth2'
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
-    compile (group: 'org.radarcns', name: 'radar-auth', version: mpVersion){
+    compile(group: 'org.radarcns', name: 'radar-auth', version: mpVersion) {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
 
     // Fix potential vulnerabilities
-    compile (group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion) {
+    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion) {
         force = true
     }
-    compile (group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.6.RELEASE') {
+    compile(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.6.RELEASE') {
         force = true
         exclude group: 'org.springframework.security', module: 'spring-security-core'
     }
-    compile (group: 'org.springframework.security', name: 'spring-security-core', version: '5.1.5.RELEASE') {
+    compile(group: 'org.springframework.security', name: 'spring-security-core', version: '5.1.5.RELEASE') {
         force = true
     }
 
     // XMPP
     compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
-    compile (group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion) {
+    compile(group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion) {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
 
-    compile ('org.bouncycastle:bcprov-jdk15on:1.62') {
+    compile('org.bouncycastle:bcprov-jdk15on:1.62') {
         force = true
     }
 
     // Swagger
-    compile (group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion) {
+    compile(group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion) {
         exclude group: 'com.google.guava', module: 'guava'
     }
-    compile (group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion) {
+    compile(group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion) {
         exclude group: 'com.google.guava', module: 'guava'
     }
 
-    compile ('com.google.guava:guava:28.0-jre') {
+    compile('com.google.guava:guava:28.0-jre') {
         force = true
     }
-
-
 
     compile 'org.scala-lang:scala-library:2.13.1'
 
@@ -238,4 +236,3 @@ integrationTest {
     }
     environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
 }
-

@@ -24,17 +24,16 @@ package org.radarbase.appserver.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.naming.SizeLimitExceededException;
 import org.radarbase.appserver.dto.NotificationStateEventDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.NotificationStateEvent;
 import org.radarbase.appserver.event.state.NotificationState;
 import org.radarbase.appserver.repository.NotificationStateEventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,28 +42,33 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class NotificationStateEventService {
 
-  private static final Set<NotificationState> EXTERNAL_EVENTS = new HashSet<>();
+  private static final Set<NotificationState> EXTERNAL_EVENTS;
+  private static final int MAX_NUMBER_OF_STATES = 20;
 
   static {
-    EXTERNAL_EVENTS.add(NotificationState.DELIVERED);
-    EXTERNAL_EVENTS.add(NotificationState.DISMISSED);
-    EXTERNAL_EVENTS.add(NotificationState.OPENED);
-    EXTERNAL_EVENTS.add(NotificationState.UNKNOWN);
-    EXTERNAL_EVENTS.add(NotificationState.ERRORED);
+    EXTERNAL_EVENTS =
+        Set.of(
+            NotificationState.DELIVERED,
+            NotificationState.DISMISSED,
+            NotificationState.OPENED,
+            NotificationState.UNKNOWN,
+            NotificationState.ERRORED);
   }
 
   private final transient NotificationStateEventRepository notificationStateEventRepository;
   private final transient FcmNotificationService notificationService;
   private final transient ApplicationEventPublisher notificationApplicationEventPublisher;
-  @Autowired private transient ObjectMapper objectMapper;
+  private final transient ObjectMapper objectMapper;
 
   public NotificationStateEventService(
       NotificationStateEventRepository notificationStateEventRepository,
       FcmNotificationService fcmNotificationService,
-      ApplicationEventPublisher notificationApplicationEventPublisher) {
+      ApplicationEventPublisher notificationApplicationEventPublisher,
+      ObjectMapper objectMapper) {
     this.notificationStateEventRepository = notificationStateEventRepository;
     this.notificationService = fcmNotificationService;
     this.notificationApplicationEventPublisher = notificationApplicationEventPublisher;
+    this.objectMapper = objectMapper;
   }
 
   @Transactional
@@ -113,37 +117,50 @@ public class NotificationStateEventService {
       String projectId,
       String subjectId,
       long notificationId,
-      NotificationStateEventDto notificationStateEventDto) {
-    if (EXTERNAL_EVENTS.contains(notificationStateEventDto.getState())) {
-      Notification notification =
-          notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-              projectId, subjectId, notificationId);
+      NotificationStateEventDto notificationStateEventDto)
+      throws SizeLimitExceededException {
+    checkState(notificationId, notificationStateEventDto.getState());
+    Notification notification =
+        notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+            projectId, subjectId, notificationId);
 
-      Map<String, String> additionalInfo = null;
-      if (!notificationStateEventDto.getAssociatedInfo().isEmpty()) {
-        try {
-          additionalInfo =
-              objectMapper.readValue(
-                  notificationStateEventDto.getAssociatedInfo(),
-                  new TypeReference<Map<String, String>>() {});
-        } catch (IOException exc) {
-          throw new IllegalStateException(
-              "Cannot convert additionalInfo to Map<String, String>. Please check its format.");
-        }
+    Map<String, String> additionalInfo = null;
+    if (!notificationStateEventDto.getAssociatedInfo().isEmpty()) {
+      try {
+        additionalInfo =
+            objectMapper.readValue(
+                notificationStateEventDto.getAssociatedInfo(),
+                new TypeReference<Map<String, String>>() {});
+      } catch (IOException exc) {
+        throw new IllegalStateException(
+            "Cannot convert additionalInfo to Map<String, String>. Please check its format.");
       }
+    }
 
-      org.radarbase.appserver.event.state.NotificationStateEvent stateEvent =
-          new org.radarbase.appserver.event.state.NotificationStateEvent(
-              this,
-              notification,
-              notificationStateEventDto.getState(),
-              additionalInfo,
-              notificationStateEventDto.getTime());
-      notificationApplicationEventPublisher.publishEvent(stateEvent);
+    org.radarbase.appserver.event.state.NotificationStateEvent stateEvent =
+        new org.radarbase.appserver.event.state.NotificationStateEvent(
+            this,
+            notification,
+            notificationStateEventDto.getState(),
+            additionalInfo,
+            notificationStateEventDto.getTime());
+    notificationApplicationEventPublisher.publishEvent(stateEvent);
+  }
+
+  private void checkState(long notificationId, NotificationState state)
+      throws SizeLimitExceededException, IllegalStateException {
+    if (EXTERNAL_EVENTS.contains(state)) {
+      if (notificationStateEventRepository.countByNotificationId(notificationId)
+          >= MAX_NUMBER_OF_STATES) {
+        throw new SizeLimitExceededException(
+            "The max limit of state changes("
+                + MAX_NUMBER_OF_STATES
+                + ") has been reached. Cannot add new states.");
+      }
     } else {
       throw new IllegalStateException(
           "The state "
-              + notificationStateEventDto.getState()
+              + state
               + " is not an external state and cannot be updated by this endpoint.");
     }
   }

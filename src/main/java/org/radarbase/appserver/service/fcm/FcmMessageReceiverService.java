@@ -258,7 +258,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                 ? "unknown-user"
                 : jsonMessage.get("subjectId").asText())
         .setLanguage(
-            jsonMessage.get("language") == null ? "en" : jsonMessage.get("subjectId").asText())
+            jsonMessage.get("language") == null ? "en" : jsonMessage.get("language").asText())
         .setEnrolmentDate(
             jsonMessage.get("enrolmentDate") == null
                 ? Instant.now()

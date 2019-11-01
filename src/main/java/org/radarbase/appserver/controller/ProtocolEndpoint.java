@@ -23,6 +23,7 @@ package org.radarbase.appserver.controller;
 
 import java.util.Map;
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.service.protocol.ProtocolGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class ProtocolEndpoint {
   }
 
   @GetMapping("/" + PathsUtil.PROTOCOL_PATH)
-  public Map<String, Protocol> getProtocols() {
+  public @Size(max = 100) Map<String, Protocol> getProtocols() {
     return this.protocolGenerator.getAllProtocols();
   }
 

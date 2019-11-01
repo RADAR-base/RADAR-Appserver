@@ -23,6 +23,7 @@ package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,7 +54,7 @@ public class NotificationStateEvent {
   private Long id;
 
   @NotNull
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, optional = false)
   @JoinColumn(name = "notification_id", nullable = false)
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JsonIgnore
@@ -68,7 +69,7 @@ public class NotificationStateEvent {
   @Column(nullable = false)
   private Instant time;
 
-  @Column(name = "associated_info")
+  @Column(name = "associated_info", length = 1250)
   private String associatedInfo;
 
   public NotificationStateEvent(
