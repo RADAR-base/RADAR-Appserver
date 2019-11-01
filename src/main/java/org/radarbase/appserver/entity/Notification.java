@@ -39,6 +39,8 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -79,6 +81,7 @@ import org.springframework.lang.Nullable;
 @ToString
 @Builder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public class Notification extends AuditModel implements Serializable, Scheduled {
 
@@ -192,71 +195,6 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
 
   @Column(name = "mutable_content")
   private boolean mutableContent;
-
-  private Notification(
-      Long id,
-      @NotNull User user,
-      @Nullable String sourceId,
-      @NotNull Instant scheduledTime,
-      @NotNull String title,
-      String body,
-      @Nullable String type,
-      int ttlSeconds,
-      String fcmMessageId,
-      @Nullable String fcmTopic,
-      @Nullable String fcmCondition,
-      boolean delivered,
-      boolean validated,
-      @Nullable String appPackage,
-      @Nullable String sourceType,
-      boolean dryRun,
-      @Nullable Map<String, String> additionalData,
-      String priority,
-      String sound,
-      String badge,
-      String subtitle,
-      String icon,
-      String color,
-      String bodyLocKey,
-      String bodyLocArgs,
-      String titleLocKey,
-      String titleLocArgs,
-      String androidChannelId,
-      String tag,
-      String clickAction,
-      boolean mutableContent) {
-    this.id = id;
-    this.user = user;
-    this.sourceId = sourceId;
-    this.scheduledTime = scheduledTime;
-    this.title = title;
-    this.body = body;
-    this.type = type;
-    this.ttlSeconds = ttlSeconds;
-    this.fcmMessageId = fcmMessageId;
-    this.fcmTopic = fcmTopic;
-    this.fcmCondition = fcmCondition;
-    this.delivered = delivered;
-    this.validated = validated;
-    this.appPackage = appPackage;
-    this.sourceType = sourceType;
-    this.dryRun = dryRun;
-    this.additionalData = additionalData;
-    this.priority = priority;
-    this.sound = sound;
-    this.badge = badge;
-    this.subtitle = subtitle;
-    this.icon = icon;
-    this.color = color;
-    this.bodyLocKey = bodyLocKey;
-    this.bodyLocArgs = bodyLocArgs;
-    this.titleLocKey = titleLocKey;
-    this.titleLocArgs = titleLocArgs;
-    this.androidChannelId = androidChannelId;
-    this.tag = tag;
-    this.clickAction = clickAction;
-    this.mutableContent = mutableContent;
-  }
 
   @Override
   public boolean equals(Object o) {
