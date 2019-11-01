@@ -39,7 +39,9 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -75,6 +77,9 @@ import org.springframework.lang.Nullable;
 @Entity
 @Getter
 @ToString
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public class Notification extends AuditModel implements Serializable, Scheduled {
 
   private static final long serialVersionUID = -367424816328519L;
@@ -124,9 +129,9 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
   private String fcmCondition;
 
   // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
-  @Nullable private boolean delivered;
+  private boolean delivered;
 
-  @Nullable private boolean validated;
+  private boolean validated;
 
   @Nullable
   @Column(name = "app_package")
@@ -139,7 +144,6 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
 
   @Column(name = "dry_run")
   // for use with the FCM admin SDK
-  @Nullable
   private boolean dryRun;
 
   @Nullable
@@ -189,159 +193,69 @@ public class Notification extends AuditModel implements Serializable, Scheduled 
   @Column(name = "mutable_content")
   private boolean mutableContent;
 
-  public Notification setUser(User user) {
-    this.user = user;
-    return this;
-  }
-
-  public Notification setSourceId(String sourceId) {
-    this.sourceId = sourceId;
-    return this;
-  }
-
-  public Notification setScheduledTime(Instant scheduledTime) {
-    this.scheduledTime = scheduledTime;
-    return this;
-  }
-
-  public Notification setTitle(String title) {
-    this.title = title;
-    return this;
-  }
-
-  public Notification setBody(String body) {
-    this.body = body;
-    return this;
-  }
-
-  public Notification setType(String type) {
-    this.type = type;
-    return this;
-  }
-
-  public Notification setTtlSeconds(int ttlSeconds) {
-    this.ttlSeconds = ttlSeconds;
-    return this;
-  }
-
-  public Notification setFcmMessageId(String fcmMessageId) {
-    this.fcmMessageId = fcmMessageId;
-    return this;
-  }
-
-  public Notification setFcmTopic(String fcmTopic) {
-    this.fcmTopic = fcmTopic;
-    return this;
-  }
-
-  public Notification setDelivered(boolean delivered) {
-    this.delivered = delivered;
-    return this;
-  }
-
-  public Notification setDryRun(boolean dryRun) {
-    this.dryRun = dryRun;
-    return this;
-  }
-
-  public Notification setValidated(boolean validated) {
-    this.validated = validated;
-    return this;
-  }
-
-  public Notification setAppPackage(String appPackage) {
-    this.appPackage = appPackage;
-    return this;
-  }
-
-  public Notification setSourceType(String sourceType) {
-    this.sourceType = sourceType;
-    return this;
-  }
-
-  public Notification setAdditionalData(Map<String, String> additionalData) {
-    this.additionalData = additionalData;
-    return this;
-  }
-
-  public Notification setId(Long id) {
+  private Notification(
+      Long id,
+      @NotNull User user,
+      @Nullable String sourceId,
+      @NotNull Instant scheduledTime,
+      @NotNull String title,
+      String body,
+      @Nullable String type,
+      int ttlSeconds,
+      String fcmMessageId,
+      @Nullable String fcmTopic,
+      @Nullable String fcmCondition,
+      boolean delivered,
+      boolean validated,
+      @Nullable String appPackage,
+      @Nullable String sourceType,
+      boolean dryRun,
+      @Nullable Map<String, String> additionalData,
+      String priority,
+      String sound,
+      String badge,
+      String subtitle,
+      String icon,
+      String color,
+      String bodyLocKey,
+      String bodyLocArgs,
+      String titleLocKey,
+      String titleLocArgs,
+      String androidChannelId,
+      String tag,
+      String clickAction,
+      boolean mutableContent) {
     this.id = id;
-    return this;
-  }
-
-  public Notification setFcmCondition(@Nullable String fcmCondition) {
+    this.user = user;
+    this.sourceId = sourceId;
+    this.scheduledTime = scheduledTime;
+    this.title = title;
+    this.body = body;
+    this.type = type;
+    this.ttlSeconds = ttlSeconds;
+    this.fcmMessageId = fcmMessageId;
+    this.fcmTopic = fcmTopic;
     this.fcmCondition = fcmCondition;
-    return this;
-  }
-
-  public Notification setPriority(String priority) {
+    this.delivered = delivered;
+    this.validated = validated;
+    this.appPackage = appPackage;
+    this.sourceType = sourceType;
+    this.dryRun = dryRun;
+    this.additionalData = additionalData;
     this.priority = priority;
-    return this;
-  }
-
-  public Notification setSound(String sound) {
     this.sound = sound;
-    return this;
-  }
-
-  public Notification setBadge(String badge) {
     this.badge = badge;
-    return this;
-  }
-
-  public Notification setSubtitle(String subtitle) {
     this.subtitle = subtitle;
-    return this;
-  }
-
-  public Notification setIcon(String icon) {
     this.icon = icon;
-    return this;
-  }
-
-  public Notification setColor(String color) {
     this.color = color;
-    return this;
-  }
-
-  public Notification setBodyLocKey(String bodyLocKey) {
     this.bodyLocKey = bodyLocKey;
-    return this;
-  }
-
-  public Notification setBodyLocArgs(String bodyLocArgs) {
     this.bodyLocArgs = bodyLocArgs;
-    return this;
-  }
-
-  public Notification setTitleLocKey(String titleLocKey) {
     this.titleLocKey = titleLocKey;
-    return this;
-  }
-
-  public Notification setTitleLocArgs(String titleLocArgs) {
     this.titleLocArgs = titleLocArgs;
-    return this;
-  }
-
-  public Notification setAndroidChannelId(String androidChannelId) {
     this.androidChannelId = androidChannelId;
-    return this;
-  }
-
-  public Notification setTag(String tag) {
     this.tag = tag;
-    return this;
-  }
-
-  public Notification setClickAction(String clickAction) {
     this.clickAction = clickAction;
-    return this;
-  }
-
-  public Notification setMutableContent(boolean mutableContent) {
     this.mutableContent = mutableContent;
-    return this;
   }
 
   @Override

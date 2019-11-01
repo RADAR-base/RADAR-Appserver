@@ -96,17 +96,19 @@ class NotificationSchedulerServiceTest {
 
     notification =
         new Notification()
-            .setDelivered(false)
-            .setTtlSeconds(900)
-            .setSourceId("aRMT")
-            .setScheduledTime(Instant.now().plus(Duration.ofSeconds(3)))
-            .setFcmMessageId("xxxx")
-            .setTitle("Testing")
-            .setBody("Testing")
-            .setUser(user)
-            .setType("ESM")
-            .setAppPackage("aRMT")
-            .setId(1L);
+            .toBuilder()
+            .delivered(false)
+            .ttlSeconds(900)
+            .sourceId("aRMT")
+            .scheduledTime(Instant.now().plus(Duration.ofSeconds(3)))
+            .fcmMessageId("xxxx")
+            .title("Testing")
+            .body("Testing")
+            .user(user)
+            .type("ESM")
+            .appPackage("aRMT")
+            .id(1L)
+            .build();
   }
 
   @Test
@@ -141,14 +143,17 @@ class NotificationSchedulerServiceTest {
         NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
     scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
-    notification
-        .setFcmMessageId("yyyy")
-        .setBody("New body")
-        .setTitle("New Title")
-        .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
+    Notification notification2 =
+        notification
+            .toBuilder()
+            .fcmMessageId("yyyy")
+            .body("New body")
+            .title("New Title")
+            .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+            .build();
 
     // when
-    notificationSchedulerService.updateScheduledNotification(notification);
+    notificationSchedulerService.updateScheduledNotification(notification2);
 
     assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
@@ -160,7 +165,7 @@ class NotificationSchedulerServiceTest {
     assertEquals("New Title", notificationNew.getTitle());
 
     assertEquals(
-        notification.getScheduledTime().truncatedTo(ChronoUnit.MILLIS),
+        notification2.getScheduledTime().truncatedTo(ChronoUnit.MILLIS),
         scheduler
             .getTrigger(new TriggerKey("notification-trigger-test-subject-1"))
             .getStartTime()

@@ -144,7 +144,7 @@ public class FcmNotificationService implements NotificationService {
       throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
     }
     Notification notification =
-        notificationConverter.dtoToEntity(notificationDto).setUser(user.get());
+        notificationConverter.dtoToEntity(notificationDto).toBuilder().user(user.get()).build();
 
     List<Notification> notifications = this.notificationRepository.findByUserId(user.get().getId());
     return notifications.contains(notification);
@@ -179,7 +179,7 @@ public class FcmNotificationService implements NotificationService {
 
       Notification notificationSaved =
           this.notificationRepository.saveAndFlush(
-              notificationConverter.dtoToEntity(notificationDto).setUser(user));
+              notificationConverter.dtoToEntity(notificationDto).toBuilder().user(user).build());
       user.getUsermetrics().setLastOpened(Instant.now());
       this.userRepository.save(user);
       addNotificationStateEvent(
@@ -222,14 +222,16 @@ public class FcmNotificationService implements NotificationService {
     Notification newNotification =
         notification
             .get()
-            .setBody(notificationDto.getBody())
-            .setScheduledTime(notificationDto.getScheduledTime())
-            .setSourceId(notificationDto.getSourceId())
-            .setTitle(notificationDto.getTitle())
-            .setTtlSeconds(notificationDto.getTtlSeconds())
-            .setType(notificationDto.getType())
-            .setUser(user)
-            .setFcmMessageId(String.valueOf(notificationDto.hashCode()));
+            .toBuilder()
+            .body(notificationDto.getBody())
+            .scheduledTime(notificationDto.getScheduledTime())
+            .sourceId(notificationDto.getSourceId())
+            .title(notificationDto.getTitle())
+            .ttlSeconds(notificationDto.getTtlSeconds())
+            .type(notificationDto.getType())
+            .user(user)
+            .fcmMessageId(String.valueOf(notificationDto.hashCode()))
+            .build();
     Notification notificationSaved = this.notificationRepository.saveAndFlush(newNotification);
     addNotificationStateEvent(
         notificationSaved, NotificationState.UPDATED, notificationSaved.getUpdatedAt().toInstant());
@@ -256,8 +258,8 @@ public class FcmNotificationService implements NotificationService {
 
     notification.ifPresentOrElse(
         (Notification n) -> {
-          n.setDelivered(isDelivered);
-          this.notificationRepository.save(n);
+          Notification newNotif = n.toBuilder().delivered(isDelivered).build();
+          this.notificationRepository.save(newNotif);
         },
         () -> {
           throw new InvalidNotificationDetailsException(
@@ -295,9 +297,8 @@ public class FcmNotificationService implements NotificationService {
     List<Notification> newNotifications =
         notificationDtos.getNotifications().stream()
             .map(notificationConverter::dtoToEntity)
-            .map(n -> n.setUser(user))
+            .map(n -> n.toBuilder().user(user).build())
             .filter(notification -> !notifications.contains(notification))
-            .map(n -> n.setUser(user))
             .collect(Collectors.toList());
 
     List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);

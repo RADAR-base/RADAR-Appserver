@@ -75,14 +75,16 @@ public class NotificationRepositoryTest {
 
     Notification notification =
         new Notification()
-            .setUser(user)
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE)
-            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-            .setScheduledTime(this.scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false);
+            .toBuilder()
+            .user(user)
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE)
+            .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+            .scheduledTime(this.scheduledTime)
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .ttlSeconds(86400)
+            .delivered(false)
+            .build();
 
     this.id = (Long) entityManager.persistAndGetId(notification);
     entityManager.flush();
@@ -93,14 +95,16 @@ public class NotificationRepositoryTest {
     // given
     Notification notification =
         new Notification()
-            .setUser(new User())
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE)
-            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-            .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false);
+            .toBuilder()
+            .user(new User())
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE)
+            .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+            .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .ttlSeconds(86400)
+            .delivered(false)
+            .build();
 
     IllegalStateException ex =
         assertThrows(
@@ -118,13 +122,15 @@ public class NotificationRepositoryTest {
     // given
     Notification notification =
         new Notification()
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE)
-            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-            .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false);
+            .toBuilder()
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE)
+            .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+            .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .ttlSeconds(86400)
+            .delivered(false)
+            .build();
 
     assertThrows(
         ConstraintViolationException.class,
@@ -158,14 +164,16 @@ public class NotificationRepositoryTest {
 
     Notification notification =
         new Notification()
-            .setUser(user)
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE)
-            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-            .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false);
+            .toBuilder()
+            .user(user)
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE)
+            .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+            .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .ttlSeconds(86400)
+            .delivered(false)
+            .build();
 
     ex =
         assertThrows(
