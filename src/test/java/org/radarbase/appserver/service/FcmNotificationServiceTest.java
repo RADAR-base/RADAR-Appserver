@@ -107,15 +107,17 @@ class FcmNotificationServiceTest {
 
     Notification notification3 =
         new Notification()
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE_3)
-            .setScheduledTime(scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setFcmMessageId("1234567")
-            .setTtlSeconds(86400)
-            .setDelivered(false)
-            .setUser(user)
-            .setId(3L);
+            .toBuilder()
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE_3)
+            .scheduledTime(scheduledTime)
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .fcmMessageId("1234567")
+            .ttlSeconds(86400)
+            .delivered(false)
+            .user(user)
+            .id(3L)
+            .build();
     notification3.setCreatedAt(new Date());
 
     Mockito.when(notificationRepository.save(notification3)).thenReturn(notification3);
@@ -137,15 +139,17 @@ class FcmNotificationServiceTest {
 
     Notification notification4 =
         new Notification()
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE_4)
-            .setScheduledTime(scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setFcmMessageId("12345678")
-            .setTtlSeconds(86400)
-            .setDelivered(false)
-            .setUser(userNew)
-            .setId(4L);
+            .toBuilder()
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE_4)
+            .scheduledTime(scheduledTime)
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .fcmMessageId("12345678")
+            .ttlSeconds(86400)
+            .delivered(false)
+            .user(userNew)
+            .id(4L)
+            .build();
 
     notification4.setCreatedAt(new Date());
     notification4.setUpdatedAt(new Date());
@@ -168,15 +172,17 @@ class FcmNotificationServiceTest {
 
     Notification notification5 =
         new Notification()
-            .setBody(NOTIFICATION_BODY + " Updated")
-            .setTitle("Testing 2 Updated")
-            .setUser(user)
-            .setScheduledTime(scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setFcmMessageId(FCM_MESSAGE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false)
-            .setId(2L);
+            .toBuilder()
+            .body(NOTIFICATION_BODY + " Updated")
+            .title("Testing 2 Updated")
+            .user(user)
+            .scheduledTime(scheduledTime)
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .fcmMessageId(FCM_MESSAGE_ID)
+            .ttlSeconds(86400)
+            .delivered(false)
+            .id(5L)
+            .build();
 
     notification5.setCreatedAt(new Date());
     notification5.setUpdatedAt(new Date());
@@ -216,29 +222,33 @@ class FcmNotificationServiceTest {
   private void setUpNotification1And2() {
     Notification notification1 =
         new Notification()
-            .setUser(user)
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE)
-            .setScheduledTime(scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false)
-            .setId(1L);
+            .toBuilder()
+            .user(user)
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE)
+            .scheduledTime(scheduledTime)
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+            .ttlSeconds(86400)
+            .delivered(false)
+            .id(1L)
+            .build();
     notification1.setUpdatedAt(new Date());
     notification1.setCreatedAt(new Date());
 
     Notification notification2 =
         new Notification()
-            .setUser(user)
-            .setBody(NOTIFICATION_BODY)
-            .setTitle(NOTIFICATION_TITLE_2)
-            .setScheduledTime(scheduledTime)
-            .setSourceId(NOTIFICATION_SOURCE_ID)
-            .setFcmMessageId(FCM_MESSAGE_ID)
-            .setTtlSeconds(86400)
-            .setDelivered(false)
-            .setId(2L);
+            .toBuilder()
+            .user(user)
+            .body(NOTIFICATION_BODY)
+            .title(NOTIFICATION_TITLE_2)
+            .scheduledTime(scheduledTime)
+            .sourceId(NOTIFICATION_SOURCE_ID)
+            .fcmMessageId(FCM_MESSAGE_ID)
+            .ttlSeconds(86400)
+            .delivered(false)
+            .id(2L)
+            .build();
 
     notification2.setCreatedAt(new Date());
     notification2.setUpdatedAt(new Date());
@@ -474,10 +484,11 @@ class FcmNotificationServiceTest {
             .setDelivered(false)
             .setId(2L);
 
-    notificationService.updateNotification(notificationDto, USER_ID, PROJECT_ID);
+    FcmNotificationDto notificationDto1 =
+        notificationService.updateNotification(notificationDto, USER_ID, PROJECT_ID);
 
-    assertEquals("Test notif Updated", notificationService.getNotificationById(2L).getBody());
-    assertEquals("Testing 2 Updated", notificationService.getNotificationById(2L).getTitle());
+    assertEquals("Test notif Updated", notificationDto1.getBody());
+    assertEquals("Testing 2 Updated", notificationDto1.getTitle());
   }
 
   // If does not throw CustomExceptionHandler then test is valid
@@ -488,9 +499,7 @@ class FcmNotificationServiceTest {
 
   @Test
   void updateDeliveryStatus() {
-    notificationService.updateDeliveryStatus("12345", true);
-
-    assertTrue(notificationService.getNotificationById(1L).isDelivered());
+    assertDoesNotThrow(() -> notificationService.updateDeliveryStatus("12345", true));
   }
 
   // Directly calls the repository so no need to assert. Just check that no excpetion is thrown

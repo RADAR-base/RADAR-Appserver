@@ -23,14 +23,11 @@ package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
-import lombok.Getter;
-import lombok.ToString;
-import org.hibernate.annotations.DiscriminatorFormula;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -45,180 +42,227 @@ import java.util.Objects;
  * This also includes information for scheduling the notification through the Firebase Cloud
  * Messaging(FCM) system.
  *
+ * @author yatharthranjan
  * @see Scheduled
  * @see org.radarbase.appserver.service.scheduler.NotificationSchedulerService
  * @see org.radarbase.appserver.service.fcm.FcmMessageReceiverService
- * @author yatharthranjan
  */
 @MappedSuperclass
-@Data
-public class Message<T extends Message<T>> extends AuditModel implements Serializable, Scheduled {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Message extends AuditModel implements Serializable, Scheduled {
 
-  private static final long serialVersionUID = -367424816328519L;
+    private static final long serialVersionUID = -367424816328519L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-  @NotNull
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id", nullable = false)
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JsonIgnore
-  private User user;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private User user;
 
-  @Nullable
-  @Column(name = "source_id")
-  private String sourceId;
+    @Nullable
+    @Column(name = "source_id")
+    private String sourceId;
 
-  @NotNull
-  @Column(name = "scheduled_time", nullable = false)
-  private Instant scheduledTime;
+    @NotNull
+    @Column(name = "scheduled_time", nullable = false)
+    private Instant scheduledTime;
 
-  @Column(name = "ttl_seconds")
-  private int ttlSeconds;
+    @Column(name = "ttl_seconds")
+    private int ttlSeconds;
 
-  @Column(name = "fcm_message_id", unique = true)
-  private String fcmMessageId;
+    @Column(name = "fcm_message_id", unique = true)
+    private String fcmMessageId;
 
-  // for use with the FCM admin SDK
-  @Column(name = "fcm_topic")
-  @Nullable
-  private String fcmTopic;
+    // for use with the FCM admin SDK
+    @Column(name = "fcm_topic")
+    @Nullable
+    private String fcmTopic;
 
-  // for use with the FCM admin SDK
-  @Column(name = "fcm_condition")
-  @Nullable
-  private String fcmCondition;
+    // for use with the FCM admin SDK
+    @Column(name = "fcm_condition")
+    @Nullable
+    private String fcmCondition;
 
-  // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
-  @Nullable private boolean delivered;
+    // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
+    @Nullable
+    private boolean delivered;
 
-  @Nullable private boolean validated;
+    @Nullable
+    private boolean validated;
 
-  @Nullable
-  @Column(name = "app_package")
-  private String appPackage;
+    @Nullable
+    @Column(name = "app_package")
+    private String appPackage;
 
-  // Source Type from the Management Portal
-  @Nullable
-  @Column(name = "source_type")
-  private String sourceType;
+    // Source Type from the Management Portal
+    @Nullable
+    @Column(name = "source_type")
+    private String sourceType;
 
-  @Column(name = "dry_run")
-  // for use with the FCM admin SDK
-  @Nullable
-  private boolean dryRun;
+    @Column(name = "dry_run")
+    // for use with the FCM admin SDK
+    @Nullable
+    private boolean dryRun;
 
-  private String priority;
+    private String priority;
+
+    @Column(name = "mutable_content")
+    private boolean mutableContent;
+
+    public static class MessageBuilder<T extends MessageBuilder<T>> {
+        Long id;
+        @NotNull User user;
+        @Nullable
+        String sourceId;
+        @NotNull Instant scheduledTime;
+        int ttlSeconds;
+        String fcmMessageId;
+        @Nullable
+        String fcmTopic;
+        @Nullable
+        String fcmCondition;
+        boolean delivered;
+        boolean validated;
+        @Nullable
+        String appPackage;
+        @Nullable
+        String sourceType;
+        boolean dryRun;
+        String priority;
+        boolean mutableContent;
+
+        MessageBuilder() {
+        }
+
+        public T id(Long id) {
+            this.id = id;
+            return (T) this;
+        }
+
+        public T user(User user) {
+            this.user = user;
+            return (T) this;
+        }
+
+        public T sourceId(String sourceId) {
+            this.sourceId = sourceId;
+            return (T) this;
+        }
+
+        public T scheduledTime(Instant scheduledTime) {
+            this.scheduledTime = scheduledTime;
+            return (T) this;
+        }
+
+        public T ttlSeconds(int ttlSeconds) {
+            this.ttlSeconds = ttlSeconds;
+            return (T) this;
+        }
+
+        public T fcmMessageId(String fcmMessageId) {
+            this.fcmMessageId = fcmMessageId;
+            return (T) this;
+        }
+
+        public T fcmTopic(String fcmTopic) {
+            this.fcmTopic = fcmTopic;
+            return (T) this;
+        }
+
+        public T fcmCondition(String fcmCondition) {
+            this.fcmCondition = fcmCondition;
+            return (T) this;
+        }
+
+        public T delivered(boolean delivered) {
+            this.delivered = delivered;
+            return (T) this;
+        }
+
+        public T appPackage(String appPackage) {
+            this.appPackage = appPackage;
+            return (T) this;
+        }
+
+        public T sourceType(String sourceType) {
+            this.sourceType = sourceType;
+            return (T) this;
+        }
+
+        public T dryRun(boolean dryRun) {
+            this.dryRun = dryRun;
+            return (T) this;
+        }
+
+        public T priority(String priority) {
+            this.priority = priority;
+            return (T) this;
+        }
+
+        public T mutableContent(boolean mutableContent) {
+            this.mutableContent = mutableContent;
+            return (T) this;
+        }
 
 
-  @Column(name = "mutable_content")
-  private boolean mutableContent;
+        public Message build() {
+            Message message = new Message();
+            message.setId(this.id);
+            message.setUser(this.user);
+            message.setSourceId(this.sourceId);
+            message.setScheduledTime(this.scheduledTime);
+            message.setTtlSeconds(this.ttlSeconds);
+            message.setFcmMessageId(this.fcmMessageId);
+            message.setFcmTopic(this.fcmTopic);
+            message.setFcmCondition(this.fcmCondition);
+            message.setDelivered(this.delivered);
+            message.setValidated(this.validated);
+            message.setAppPackage(this.appPackage);
+            message.setSourceType(this.sourceType);
+            message.setDryRun(this.dryRun);
+            message.setMutableContent(this.mutableContent);
 
-  public T setUser(User user) {
-    this.user = user;
-    return (T) this;
-  }
-
-  public T setSourceId(String sourceId) {
-    this.sourceId = sourceId;
-    return (T) this;
-  }
-
-  public T setScheduledTime(Instant scheduledTime) {
-    this.scheduledTime = scheduledTime;
-    return (T) this;
-  }
-
-  public T setTtlSeconds(int ttlSeconds) {
-    this.ttlSeconds = ttlSeconds;
-    return (T) this;
-  }
-
-  public T setFcmMessageId(String fcmMessageId) {
-    this.fcmMessageId = fcmMessageId;
-    return (T) this;
-  }
-
-  public T setFcmTopic(String fcmTopic) {
-    this.fcmTopic = fcmTopic;
-    return (T) this;
-  }
-
-  public T setDelivered(boolean delivered) {
-    this.delivered = delivered;
-    return (T) this;
-  }
-
-  public T setDryRun(boolean dryRun) {
-    this.dryRun = dryRun;
-    return (T) this;
-  }
-
-  public T setValidated(boolean validated) {
-    this.validated = validated;
-    return (T) this;
-  }
-
-  public T setAppPackage(String appPackage) {
-    this.appPackage = appPackage;
-    return (T) this;
-  }
-
-  public T setSourceType(String sourceType) {
-    this.sourceType = sourceType;
-    return (T) this;
-  }
-
-  public T setId(Long id) {
-    this.id = id;
-    return (T) this;
-  }
-
-  public T setFcmCondition(@Nullable String fcmCondition) {
-    this.fcmCondition = fcmCondition;
-    return (T) this;
-  }
-
-  public T setPriority(String priority) {
-    this.priority = priority;
-    return (T) this;
-  }
-
-  public T setMutableContent(boolean mutableContent) {
-    this.mutableContent = mutableContent;
-    return (T) this;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+            return message;
+        }
     }
-    if (!(o instanceof Message)) {
-      return false;
-    }
-    Message that = (Message) o;
-    return getTtlSeconds() == that.getTtlSeconds()
-        && isDelivered() == that.isDelivered()
-        && isDryRun() == that.isDryRun()
-        && Objects.equals(getUser(), that.getUser())
-        && Objects.equals(getSourceId(), that.getSourceId())
-        && Objects.equals(getScheduledTime(), that.getScheduledTime())
-        && Objects.equals(getAppPackage(), that.getAppPackage());
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        getUser(),
-        getSourceId(),
-        getScheduledTime(),
-        getTtlSeconds(),
-        isDelivered(),
-        isDryRun(),
-        getAppPackage(),
-        getSourceType());
-  }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Message)) {
+            return false;
+        }
+        Message that = (Message) o;
+        return getTtlSeconds() == that.getTtlSeconds()
+                && isDelivered() == that.isDelivered()
+                && isDryRun() == that.isDryRun()
+                && Objects.equals(getUser(), that.getUser())
+                && Objects.equals(getSourceId(), that.getSourceId())
+                && Objects.equals(getScheduledTime(), that.getScheduledTime())
+                && Objects.equals(getAppPackage(), that.getAppPackage());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                getUser(),
+                getSourceId(),
+                getScheduledTime(),
+                getTtlSeconds(),
+                isDelivered(),
+                isDryRun(),
+                getAppPackage(),
+                getSourceType());
+    }
 }
