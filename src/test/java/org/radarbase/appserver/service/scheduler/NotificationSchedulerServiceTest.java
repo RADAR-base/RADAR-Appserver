@@ -31,10 +31,12 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -66,203 +68,206 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-    webEnvironment = NONE,
-    classes = {
-      DataSourceAutoConfiguration.class,
-      QuartzAutoConfiguration.class,
-      SchedulerConfig.class,
-      SchedulerServiceTestConfig.class
-    })
+        webEnvironment = NONE,
+        classes = {
+                DataSourceAutoConfiguration.class,
+                QuartzAutoConfiguration.class,
+                SchedulerConfig.class,
+                SchedulerServiceTestConfig.class
+        })
 class NotificationSchedulerServiceTest {
 
-  private static final String JOB_DETAIL_ID = "notification-jobdetail-test-subject-1";
-  private static Notification notification;
-  @Autowired private transient NotificationSchedulerService notificationSchedulerService;
-  @Autowired private transient Scheduler scheduler;
+    private static final String JOB_DETAIL_ID = "notification-jobdetail-test-subject-1";
+    private static Notification notification;
+    @Autowired
+    private transient NotificationSchedulerService notificationSchedulerService;
+    @Autowired
+    private transient Scheduler scheduler;
 
-  @BeforeEach
-  @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
-  void setUp() throws SchedulerException {
-    scheduler.clear();
-    User user =
-        new User()
-            .setId(1L)
-            .setSubjectId("test-subject")
-            .setLanguage("en")
-            .setTimezone(0d)
-            .setProject(new Project())
-            .setEnrolmentDate(Instant.now())
-            .setFcmToken("xxxx");
+    @BeforeEach
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
+    void setUp() throws SchedulerException {
+        scheduler.clear();
+        User user =
+                new User()
+                        .setId(1L)
+                        .setSubjectId("test-subject")
+                        .setLanguage("en")
+                        .setTimezone(0d)
+                        .setProject(new Project())
+                        .setEnrolmentDate(Instant.now())
+                        .setFcmToken("xxxx");
 
-    notification =
-        new Notification()
-            .toBuilder()
-            .delivered(false)
-            .ttlSeconds(900)
-            .sourceId("aRMT")
-            .scheduledTime(Instant.now().plus(Duration.ofSeconds(3)))
-            .fcmMessageId("xxxx")
-            .title("Testing")
-            .body("Testing")
-            .user(user)
-            .type("ESM")
-            .appPackage("aRMT")
-            .id(1L)
-            .build();
-  }
-
-  @Test
-  void sendNotification() {
-    assertDoesNotThrow(() -> notificationSchedulerService.sendNotification(notification));
-  }
-
-  @Test
-  void scheduleNotification() throws InterruptedException, SchedulerException {
-    scheduler.getListenerManager().addJobListener(new TestJobListener());
-    notificationSchedulerService.scheduleNotification(notification);
-
-    // sleep for 5 seconds for the job to be executed.
-    // Assert statements are in the listener.
-    Thread.sleep(5000);
-  }
-
-  @Test
-  void scheduleNotifications() throws InterruptedException, SchedulerException {
-    scheduler.getListenerManager().addJobListener(new TestJobListener());
-    notificationSchedulerService.scheduleNotifications(List.of(notification));
-
-    Thread.sleep(5000);
-  }
-
-  @Test
-  void updateScheduledNotification() throws SchedulerException {
-    // given
-    JobDetailFactoryBean jobDetail =
-        NotificationSchedulerService.getJobDetailForNotification(notification);
-    SimpleTriggerFactoryBean triggerFactoryBean =
-        NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
-    scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
-
-    Notification notification2 =
-        notification
-            .toBuilder()
-            .fcmMessageId("yyyy")
-            .body("New body")
-            .title("New Title")
-            .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-            .build();
-
-    // when
-    notificationSchedulerService.updateScheduledNotification(notification2);
-
-    assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
-
-    Notification notificationNew =
-        (Notification)
-            scheduler.getJobDetail(new JobKey(JOB_DETAIL_ID)).getJobDataMap().get("notification");
-
-    assertEquals("New body", notificationNew.getBody());
-    assertEquals("New Title", notificationNew.getTitle());
-
-    assertEquals(
-        notification2.getScheduledTime().truncatedTo(ChronoUnit.MILLIS),
-        scheduler
-            .getTrigger(new TriggerKey("notification-trigger-test-subject-1"))
-            .getStartTime()
-            .toInstant());
-  }
-
-  @Test
-  void deleteScheduledNotifications() throws SchedulerException {
-    // given
-    JobDetailFactoryBean jobDetail =
-        NotificationSchedulerService.getJobDetailForNotification(notification);
-    SimpleTriggerFactoryBean triggerFactoryBean =
-        NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
-    scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
-
-    assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
-
-    // when
-    notificationSchedulerService.deleteScheduledNotifications(List.of(notification));
-
-    assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
-  }
-
-  @Test
-  void deleteScheduledNotification() throws SchedulerException {
-
-    // given
-    JobDetailFactoryBean jobDetail =
-        NotificationSchedulerService.getJobDetailForNotification(notification);
-    SimpleTriggerFactoryBean triggerFactoryBean =
-        NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
-    scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
-
-    assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
-
-    // when
-    notificationSchedulerService.deleteScheduledNotification(notification);
-
-    assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
-  }
-
-  @TestConfiguration
-  static class SchedulerServiceTestConfig {
-    @Autowired private transient Scheduler scheduler;
-
-    @Bean
-    public NotificationSchedulerService schedulerServiceBeanConfig() {
-
-      // mock FCM as we do not want to connect to the server
-      return new NotificationSchedulerService(
-          mock(FcmSender.class), new SchedulerServiceImpl(scheduler));
-    }
-  }
-
-  private static class TestJobListener implements JobListener {
-
-    /** Get the name of the <code>JobListener</code>. */
-    @Override
-    public String getName() {
-      return "test-job-listener";
+        notification =
+                new Notification.NotificationBuilder()
+                        .delivered(false)
+                        .ttlSeconds(900)
+                        .sourceId("aRMT")
+                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(3)))
+                        .fcmMessageId("xxxx")
+                        .title("Testing")
+                        .body("Testing")
+                        .user(user)
+                        .type("ESM")
+                        .appPackage("aRMT")
+                        .id(1L)
+                        .build();
     }
 
-    /**
-     * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> is about
-     * to be executed (an associated <code>{@link Trigger}</code> has occurred).
-     *
-     * <p>This method will not be invoked if the execution of the Job was vetoed by a <code>{@link
-     * org.quartz.TriggerListener}</code>.
-     *
-     * @see #jobExecutionVetoed(JobExecutionContext)
-     */
-    @Override
-    public void jobToBeExecuted(JobExecutionContext context) {
-      assertEquals(notification, context.getJobDetail().getJobDataMap().get("notification"));
+    @Test
+    void sendNotification() {
+        assertDoesNotThrow(() -> notificationSchedulerService.sendNotification(notification));
     }
 
-    /**
-     * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> was about
-     * to be executed (an associated <code>{@link Trigger}</code> has occurred), but a <code>{@link
-     * org.quartz.TriggerListener}</code> vetoed it's execution.
-     *
-     * @see #jobToBeExecuted(JobExecutionContext)
-     */
-    @Override
-    public void jobExecutionVetoed(JobExecutionContext context) {
-      fail(new InterruptedException("The Job Execution was vetoed."));
+    @Test
+    void scheduleNotification() throws InterruptedException, SchedulerException {
+        scheduler.getListenerManager().addJobListener(new TestJobListener());
+        notificationSchedulerService.scheduleNotification(notification);
+
+        // sleep for 5 seconds for the job to be executed.
+        // Assert statements are in the listener.
+        Thread.sleep(5000);
     }
 
-    /**
-     * Called by the <code>{@link Scheduler}</code> after a <code>{@link JobDetail}</code> has been
-     * executed, and be for the associated <code>Trigger</code>'s <code>triggered(xx)</code> method
-     * has been called.
-     */
-    @Override
-    public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
-      assertEquals(notification, context.getJobDetail().getJobDataMap().get("notification"));
-      assertNull(jobException);
+    @Test
+    void scheduleNotifications() throws InterruptedException, SchedulerException {
+        scheduler.getListenerManager().addJobListener(new TestJobListener());
+        notificationSchedulerService.scheduleNotifications(List.of(notification));
+
+        Thread.sleep(5000);
     }
-  }
+
+    @Test
+    void updateScheduledNotification() throws SchedulerException {
+        // given
+        JobDetailFactoryBean jobDetail =
+                NotificationSchedulerService.getJobDetailForNotification(notification);
+        SimpleTriggerFactoryBean triggerFactoryBean =
+                NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
+        scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
+
+        Notification notification2 =
+                new Notification.NotificationBuilder(notification)
+                        .fcmMessageId("yyyy")
+                        .body("New body")
+                        .title("New Title")
+                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
+                        .build();
+
+        // when
+        notificationSchedulerService.updateScheduledNotification(notification2);
+
+        assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
+
+        Notification notificationNew =
+                (Notification)
+                        scheduler.getJobDetail(new JobKey(JOB_DETAIL_ID)).getJobDataMap().get("notification");
+
+        assertEquals("New body", notificationNew.getBody());
+        assertEquals("New Title", notificationNew.getTitle());
+
+        assertEquals(
+                notification2.getScheduledTime().truncatedTo(ChronoUnit.MILLIS),
+                scheduler
+                        .getTrigger(new TriggerKey("notification-trigger-test-subject-1"))
+                        .getStartTime()
+                        .toInstant());
+    }
+
+    @Test
+    void deleteScheduledNotifications() throws SchedulerException {
+        // given
+        JobDetailFactoryBean jobDetail =
+                NotificationSchedulerService.getJobDetailForNotification(notification);
+        SimpleTriggerFactoryBean triggerFactoryBean =
+                NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
+        scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
+
+        assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
+
+        // when
+        notificationSchedulerService.deleteScheduledNotifications(List.of(notification));
+
+        assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
+    }
+
+    @Test
+    void deleteScheduledNotification() throws SchedulerException {
+
+        // given
+        JobDetailFactoryBean jobDetail =
+                NotificationSchedulerService.getJobDetailForNotification(notification);
+        SimpleTriggerFactoryBean triggerFactoryBean =
+                NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
+        scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
+
+        assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
+
+        // when
+        notificationSchedulerService.deleteScheduledNotification(notification);
+
+        assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
+    }
+
+    @TestConfiguration
+    static class SchedulerServiceTestConfig {
+        @Autowired
+        private transient Scheduler scheduler;
+
+        @Bean
+        public NotificationSchedulerService schedulerServiceBeanConfig() {
+
+            // mock FCM as we do not want to connect to the server
+            return new NotificationSchedulerService(
+                    mock(FcmSender.class), new SchedulerServiceImpl(scheduler));
+        }
+    }
+
+    private static class TestJobListener implements JobListener {
+
+        /**
+         * Get the name of the <code>JobListener</code>.
+         */
+        @Override
+        public String getName() {
+            return "test-job-listener";
+        }
+
+        /**
+         * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> is about
+         * to be executed (an associated <code>{@link Trigger}</code> has occurred).
+         *
+         * <p>This method will not be invoked if the execution of the Job was vetoed by a <code>{@link
+         * org.quartz.TriggerListener}</code>.
+         *
+         * @see #jobExecutionVetoed(JobExecutionContext)
+         */
+        @Override
+        public void jobToBeExecuted(JobExecutionContext context) {
+            assertEquals(notification, context.getJobDetail().getJobDataMap().get("notification"));
+        }
+
+        /**
+         * Called by the <code>{@link Scheduler}</code> when a <code>{@link JobDetail}</code> was about
+         * to be executed (an associated <code>{@link Trigger}</code> has occurred), but a <code>{@link
+         * org.quartz.TriggerListener}</code> vetoed it's execution.
+         *
+         * @see #jobToBeExecuted(JobExecutionContext)
+         */
+        @Override
+        public void jobExecutionVetoed(JobExecutionContext context) {
+            fail(new InterruptedException("The Job Execution was vetoed."));
+        }
+
+        /**
+         * Called by the <code>{@link Scheduler}</code> after a <code>{@link JobDetail}</code> has been
+         * executed, and be for the associated <code>Trigger</code>'s <code>triggered(xx)</code> method
+         * has been called.
+         */
+        @Override
+        public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
+            assertEquals(notification, context.getJobDetail().getJobDataMap().get("notification"));
+            assertNull(jobException);
+        }
+    }
 }
