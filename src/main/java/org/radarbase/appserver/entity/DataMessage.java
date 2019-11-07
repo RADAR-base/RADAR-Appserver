@@ -21,16 +21,14 @@
 
 package org.radarbase.appserver.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -66,6 +64,7 @@ public class DataMessage extends Message {
 
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="data_message_map")
     @MapKeyColumn(name = "key", nullable = true)
     @Column(name = "value")
     private Map<String, String> dataMap;
