@@ -50,7 +50,7 @@ public class DataMessageConverter implements Converter<DataMessage, FcmDataMessa
                 .sourceId(dataMessageDto.getSourceId())
                 .ttlSeconds(dataMessageDto.getTtlSeconds())
                 .scheduledTime(dataMessageDto.getScheduledTime())
-                .dataMap(dataMessageDto.getAdditionalData())
+                .dataMap(dataMessageDto.getDataMap())
                 .build();
     }
 

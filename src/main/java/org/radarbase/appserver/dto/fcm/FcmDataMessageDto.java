@@ -74,7 +74,7 @@ public class FcmDataMessageDto implements Serializable {
     private String sourceType;
 
     @Size(max = 100)
-    private Map<String, String> additionalData;
+    private Map<String, String> dataMap;
 
     private String priority;
 
@@ -95,7 +95,7 @@ public class FcmDataMessageDto implements Serializable {
         this.appPackage = dataMessageEntity.getAppPackage();
         this.sourceType = dataMessageEntity.getSourceType();
         this.ttlSeconds = dataMessageEntity.getTtlSeconds();
-        this.additionalData = dataMessageEntity.getDataMap();
+        this.dataMap = dataMessageEntity.getDataMap();
         if (dataMessageEntity.getCreatedAt() != null) {
             this.createdAt = dataMessageEntity.getCreatedAt().toInstant();
         }
@@ -159,8 +159,8 @@ public class FcmDataMessageDto implements Serializable {
         return this;
     }
 
-    public FcmDataMessageDto setAdditionalData(Map<String, String> additionalData) {
-        this.additionalData = additionalData;
+    public FcmDataMessageDto setDataMap(Map<String, String> dataMap) {
+        this.dataMap = dataMap;
         return this;
     }
 
