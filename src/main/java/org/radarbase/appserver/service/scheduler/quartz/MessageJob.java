@@ -21,11 +21,18 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
+import org.apache.juli.logging.Log;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.radarbase.appserver.entity.DataMessage;
+import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.MessageType;
+import org.radarbase.appserver.service.scheduler.DataMessageSchedulerService;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,11 +43,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @see SchedulerServiceImpl
  * @author yatharthranjan
  */
-public class NotificationJob implements Job {
+public class MessageJob implements Job {
 
-  @Autowired private transient NotificationSchedulerService schedulerService;
+  @Autowired private transient NotificationSchedulerService notificationSchedulerService;
+
+  @Autowired private transient DataMessageSchedulerService dataMessageSchedulerService;
 
   @Autowired private transient FcmNotificationService notificationService;
+
+  @Autowired private transient FcmDataMessageService dataMessageService;
+
   /**
    * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}
    * </code> fires that is associated with the <code>Job</code>.
@@ -54,16 +66,27 @@ public class NotificationJob implements Job {
    * @throws RuntimeException if there is an CustomExceptionHandler while executing the job.
    */
   @Override
+  @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   public void execute(JobExecutionContext context) throws JobExecutionException {
     try {
-      Notification notification =
-          notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-              context.getJobDetail().getJobDataMap().getString("projectId"),
-              context.getJobDetail().getJobDataMap().getString("subjectId"),
-              context.getJobDetail().getJobDataMap().getLong("notificationId"));
-      //    Notification notification =
-      //        (Notification) context.getJobDetail().getJobDataMap().get("notification");
-      schedulerService.sendNotification(notification);
+      JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+      String type = jobDataMap.getString("messageType");
+      String projectId = jobDataMap.getString("projectId");
+      String subjectId = jobDataMap.getString("subjectId");
+      Long messageId = jobDataMap.getLong("messageId");
+
+      if(type.equals(MessageType.Notification.toString())) {
+        Notification notification =
+                notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+                        projectId, subjectId, messageId);
+        notificationSchedulerService.sendNotification(notification);
+      }
+      if(type.equals(MessageType.Data.toString())) {
+        DataMessage dataMessage =
+                dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
+                        projectId, subjectId, messageId);
+        dataMessageSchedulerService.sendDataMessage(dataMessage);
+      }
     } catch (Exception e) {
       throw new JobExecutionException(e);
     }
