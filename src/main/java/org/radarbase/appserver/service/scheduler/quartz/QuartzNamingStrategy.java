@@ -23,7 +23,7 @@ package org.radarbase.appserver.service.scheduler.quartz;
 
 public interface QuartzNamingStrategy {
 
-  String getTriggerName(String userName, String notificationId);
+  String getTriggerName(String userName, String messageId);
 
-  String getJobKeyName(String userName, String notificationId);
+  String getJobKeyName(String userName, String messageId);
 }
