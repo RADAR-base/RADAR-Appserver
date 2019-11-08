@@ -53,6 +53,7 @@ import org.radarbase.appserver.config.SchedulerConfig;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.service.MessageType;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerServiceTest.SchedulerServiceTestConfig;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
 import org.radarbase.fcm.downstream.FcmSender;
@@ -141,9 +142,9 @@ class NotificationSchedulerServiceTest {
     void updateScheduledNotification() throws SchedulerException {
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForNotification(notification);
+                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.Notification);
         SimpleTriggerFactoryBean triggerFactoryBean =
-                NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
+                NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
         Notification notification2 =
@@ -178,9 +179,9 @@ class NotificationSchedulerServiceTest {
     void deleteScheduledNotifications() throws SchedulerException {
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForNotification(notification);
+                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.Notification);
         SimpleTriggerFactoryBean triggerFactoryBean =
-                NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
+                NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
@@ -196,9 +197,9 @@ class NotificationSchedulerServiceTest {
 
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForNotification(notification);
+                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.Notification);
         SimpleTriggerFactoryBean triggerFactoryBean =
-                NotificationSchedulerService.getTriggerForNotification(notification, jobDetail.getObject());
+                NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
