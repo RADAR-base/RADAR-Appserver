@@ -35,6 +35,7 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.appserver.service.scheduler.DataMessageSchedulerService;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -67,7 +68,7 @@ public class FcmDataMessageService implements DataMessageService {
     private final transient DataMessageRepository dataMessageRepository;
     private final transient UserRepository userRepository;
     private final transient ProjectRepository projectRepository;
-    private final transient NotificationSchedulerService schedulerService;
+    private final transient DataMessageSchedulerService schedulerService;
     private final transient DataMessageConverter dataMessageConverter;
     private final transient ApplicationEventPublisher notificationStateEventPublisher;
 
@@ -76,7 +77,7 @@ public class FcmDataMessageService implements DataMessageService {
             DataMessageRepository dataMessageRepository,
             UserRepository userRepository,
             ProjectRepository projectRepository,
-            NotificationSchedulerService schedulerService,
+            DataMessageSchedulerService schedulerService,
             DataMessageConverter dataMessageConverter,
             ApplicationEventPublisher eventPublisher) {
         this.dataMessageRepository = dataMessageRepository;
@@ -182,8 +183,7 @@ public class FcmDataMessageService implements DataMessageService {
             // TODO: ADD DATA MESSAGE STATE
             // addNotificationStateEvent();
 
-            // TODO: ADD DATA MESSAGE SCHEDULING
-            // this.schedulerService.scheduleNotification(dataMessageSaved);
+             this.schedulerService.scheduleDataMessage(dataMessageSaved);
             return dataMessageConverter.entityToDto(dataMessageSaved);
         } else {
             throw new AlreadyExistsException(
@@ -227,8 +227,7 @@ public class FcmDataMessageService implements DataMessageService {
         // addNotificationStateEvent();
 
         if (!dataMessage.get().isDelivered()) {
-            // TODO: ADD DATA MESSAGE SCHEDULE UPDATING
-            // this.schedulerService.updateScheduledNotification(dataMessageSaved);
+             this.schedulerService.updateScheduledDataMessage(dataMessageSaved);
         }
         return dataMessageConverter.entityToDto(dataMessageSaved);
     }
@@ -237,10 +236,9 @@ public class FcmDataMessageService implements DataMessageService {
     public void removeDataMessagesForUser(String projectId, String subjectId) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
-        List<DataMessage> notifications = this.dataMessageRepository.findByUserId(user.getId());
+        List<DataMessage> dataMessages = this.dataMessageRepository.findByUserId(user.getId());
 
-        // TODO: ADD DATA MESSAGE SCHEDULE DELETING
-        // this.schedulerService.deleteScheduledNotifications(notifications);
+         this.schedulerService.deleteScheduledDataMessages(dataMessages);
 
         this.dataMessageRepository.deleteByUserId(user.getId());
     }
@@ -303,8 +301,7 @@ public class FcmDataMessageService implements DataMessageService {
 //        savedDataMessages.forEach(
 //                n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant())
 //        );
-        // TODO: ADD DATA MESSAGE SCHEDULING
-//        this.schedulerService.scheduleNotifications(savedNotifications);
+        this.schedulerService.scheduleDataMessages(savedDataMessages);
         return new FcmDataMessages()
                 .setDataMessages(dataMessageConverter.entitiesToDtos(savedDataMessages));
     }
