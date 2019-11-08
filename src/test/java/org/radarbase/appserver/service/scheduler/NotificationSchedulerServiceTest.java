@@ -78,7 +78,7 @@ import org.springframework.test.context.junit4.SpringRunner;
         })
 class NotificationSchedulerServiceTest {
 
-    private static final String JOB_DETAIL_ID = "notification-jobdetail-test-subject-1";
+    private static final String JOB_DETAIL_ID = "message-jobdetail-test-subject-1";
     private static Notification notification;
     @Autowired
     private transient NotificationSchedulerService notificationSchedulerService;
@@ -170,7 +170,7 @@ class NotificationSchedulerServiceTest {
         assertEquals(
                 notification2.getScheduledTime().truncatedTo(ChronoUnit.MILLIS),
                 scheduler
-                        .getTrigger(new TriggerKey("notification-trigger-test-subject-1"))
+                        .getTrigger(new TriggerKey("message-trigger-test-subject-1"))
                         .getStartTime()
                         .toInstant());
     }
