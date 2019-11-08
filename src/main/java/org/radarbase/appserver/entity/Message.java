@@ -52,6 +52,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public class Message extends AuditModel implements Serializable, Scheduled {
 
     private static final long serialVersionUID = -367424816328519L;
@@ -118,26 +119,26 @@ public class Message extends AuditModel implements Serializable, Scheduled {
     private boolean mutableContent;
 
     public static class MessageBuilder<T extends MessageBuilder<T>> {
-        Long id;
-        @NotNull User user;
+        transient Long id;
+        @NotNull transient User user;
         @Nullable
-        String sourceId;
-        @NotNull Instant scheduledTime;
-        int ttlSeconds;
-        String fcmMessageId;
+        transient String sourceId;
+        @NotNull transient Instant scheduledTime;
+        transient int ttlSeconds;
+        transient String fcmMessageId;
         @Nullable
-        String fcmTopic;
+        transient String fcmTopic;
         @Nullable
-        String fcmCondition;
-        boolean delivered;
-        boolean validated;
+        transient String fcmCondition;
+        transient boolean delivered;
+        transient boolean validated;
         @Nullable
-        String appPackage;
+        transient String appPackage;
         @Nullable
-        String sourceType;
-        boolean dryRun;
-        String priority;
-        boolean mutableContent;
+        transient String sourceType;
+        transient boolean dryRun;
+        transient String priority;
+        transient boolean mutableContent;
 
         MessageBuilder() {
         }

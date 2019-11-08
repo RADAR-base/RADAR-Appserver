@@ -60,7 +60,9 @@ import java.util.Map;
 @Setter
 @ToString
 @NoArgsConstructor
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public class DataMessage extends Message {
+    private static final long serialVersionUID = 4L;
 
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
@@ -71,7 +73,7 @@ public class DataMessage extends Message {
 
     public static class DataMessageBuilder extends Message.MessageBuilder<DataMessageBuilder> {
         @Nullable
-        Map<String, String> dataMap;
+        transient Map<String, String> dataMap;
 
         public DataMessageBuilder() {
         }

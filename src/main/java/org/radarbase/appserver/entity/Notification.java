@@ -82,7 +82,10 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @Setter
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public class Notification extends Message {
+
+    private static final long serialVersionUID = 6L;
 
     @NotNull
     @Column(nullable = false)
@@ -137,23 +140,23 @@ public class Notification extends Message {
     private Map<String, String> additionalData;
 
     public static class NotificationBuilder extends Message.MessageBuilder<NotificationBuilder> {
-        @NotNull String title;
-        String body;
+        @NotNull transient String title;
+        transient String body;
         @Nullable
-        String type;
-        String sound;
-        String badge;
-        String subtitle;
-        String icon;
-        String color;
-        String bodyLocKey;
-        String bodyLocArgs;
-        String titleLocKey;
-        String titleLocArgs;
-        String androidChannelId;
-        String tag;
-        String clickAction;
-        Map<String, String> additionalData;
+        transient String type;
+        transient String sound;
+        transient String badge;
+        transient String subtitle;
+        transient String icon;
+        transient String color;
+        transient String bodyLocKey;
+        transient String bodyLocArgs;
+        transient String titleLocKey;
+        transient String titleLocArgs;
+        transient String androidChannelId;
+        transient String tag;
+        transient String clickAction;
+        transient Map<String, String> additionalData;
 
 
         public NotificationBuilder() {
