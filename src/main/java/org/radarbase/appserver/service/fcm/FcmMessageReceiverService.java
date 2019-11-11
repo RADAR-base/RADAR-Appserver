@@ -36,7 +36,8 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.DataMessageStateEvent;
+import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.service.FcmDataMessageService;
@@ -64,7 +65,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
     // TODO: Add batching of schedule requests (The database service function is already there)
 
-    private final transient ApplicationEventPublisher notificationStateEventPublisher;
+    private final transient ApplicationEventPublisher messageStateEventPublisher;
     private transient FcmNotificationService notificationService;
     private transient FcmDataMessageService dataMessageService;
     private transient UserService userService;
@@ -75,12 +76,12 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
             FcmNotificationService notificationService,
             FcmDataMessageService dataMessageService,
             UserService userService,
-            ApplicationEventPublisher notificationStateEventPublisher,
+            ApplicationEventPublisher messageStateEventPublisher,
             ScheduleNotificationHandler scheduleNotificationHandler) {
         this.notificationService = notificationService;
         this.dataMessageService = dataMessageService;
         this.userService = userService;
-        this.notificationStateEventPublisher = notificationStateEventPublisher;
+        this.messageStateEventPublisher = messageStateEventPublisher;
         this.scheduleNotificationHandler = scheduleNotificationHandler;
     }
 
@@ -173,10 +174,10 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                             this,
                             notificationService.getNotificationByMessageId(
                                     jsonMessage.get("message_id").asText()),
-                            NotificationState.ERRORED,
+                            MessageState.ERRORED,
                             additionalInfo,
                             Instant.now());
-            notificationStateEventPublisher.publishEvent(notificationStateEvent);
+            messageStateEventPublisher.publishEvent(notificationStateEvent);
         }
     }
 
@@ -197,14 +198,22 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                                     this,
                                     notificationService.getNotificationByMessageId(
                                             jsonData.get().get("original_message_id").asText()),
-                                    NotificationState.DELIVERED,
+                                    MessageState.DELIVERED,
                                     null,
                                     Instant.now());
-                    notificationStateEventPublisher.publishEvent(notificationStateEvent);
+                    messageStateEventPublisher.publishEvent(notificationStateEvent);
                 } catch (InvalidNotificationDetailsException e) {
                     try {
                         dataMessageService.updateDeliveryStatus(fcmMessageId, true);
-                        // TODO: ADD STATE EVENTS
+                        DataMessageStateEvent dataMessageStateEvent =
+                                new DataMessageStateEvent(
+                                        this,
+                                        dataMessageService.getDataMessageByMessageId(
+                                                jsonData.get().get("original_message_id").asText()),
+                                        MessageState.DELIVERED,
+                                        null,
+                                        Instant.now());
+                        messageStateEventPublisher.publishEvent(dataMessageStateEvent);
                     } catch (InvalidNotificationDetailsException d) {
                         return;
                     }

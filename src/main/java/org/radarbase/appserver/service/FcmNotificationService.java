@@ -35,7 +35,7 @@ import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
@@ -183,7 +183,7 @@ public class FcmNotificationService implements NotificationService {
             user.getUsermetrics().setLastOpened(Instant.now());
             this.userRepository.save(user);
             addNotificationStateEvent(
-                    notificationSaved, NotificationState.ADDED, notificationSaved.getCreatedAt().toInstant());
+                    notificationSaved, MessageState.ADDED, notificationSaved.getCreatedAt().toInstant());
             this.schedulerService.scheduleNotification(notificationSaved);
             return notificationConverter.entityToDto(notificationSaved);
         } else {
@@ -193,7 +193,7 @@ public class FcmNotificationService implements NotificationService {
     }
 
     private void addNotificationStateEvent(
-            Notification notification, NotificationState state, Instant time) {
+            Notification notification, MessageState state, Instant time) {
         if (notificationStateEventPublisher != null) {
             NotificationStateEvent notificationStateEvent =
                     new NotificationStateEvent(this, notification, state, null, time);
@@ -231,7 +231,7 @@ public class FcmNotificationService implements NotificationService {
                 .build();
         Notification notificationSaved = this.notificationRepository.saveAndFlush(newNotification);
         addNotificationStateEvent(
-                notificationSaved, NotificationState.UPDATED, notificationSaved.getUpdatedAt().toInstant());
+                notificationSaved, MessageState.UPDATED, notificationSaved.getUpdatedAt().toInstant());
         if (!notification.get().isDelivered()) {
             this.schedulerService.updateScheduledNotification(notificationSaved);
         }
@@ -302,7 +302,7 @@ public class FcmNotificationService implements NotificationService {
         List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
         this.notificationRepository.flush();
         savedNotifications.forEach(
-                n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant()));
+                n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
         this.schedulerService.scheduleNotifications(savedNotifications);
         return new FcmNotifications()
                 .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));

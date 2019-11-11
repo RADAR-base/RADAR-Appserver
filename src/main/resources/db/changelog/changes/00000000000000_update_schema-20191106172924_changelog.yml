@@ -109,3 +109,49 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: data_messages
             validate: true
+  - changeSet:
+      id: 1573493744-01
+      author: pauline
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: dataMsgStateEventPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: state
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  constraints:
+                    nullable: false
+                  name: data_message_id
+                  type: BIGINT
+              - column:
+                  name: associated_info
+                  type: VARCHAR(1250)
+            tableName: data_message_state_events
+  - changeSet:
+      id: 1573493744-02
+      author: pauline
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: data_message_id
+            baseTableName: data_message_state_events
+            constraintName: FK65c9asnnjs3q8237gfs04mvcw
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: data_messages
+            validate: true
+

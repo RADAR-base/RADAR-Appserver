@@ -22,30 +22,21 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.time.Instant;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.event.state.MessageState;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.Instant;
+
 @Entity
 @Getter
-@Table(name = "notification_state_events")
+@Table(name = "data_message_state_events")
 @NoArgsConstructor
-public class NotificationStateEvent extends MessageStateEvent {
+public class DataMessageStateEvent extends MessageStateEvent {
     private static final long serialVersionUID = 876253616328518L;
 
     @Id
@@ -54,17 +45,17 @@ public class NotificationStateEvent extends MessageStateEvent {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, optional = false)
-    @JoinColumn(name = "notification_id", nullable = false)
+    @JoinColumn(name = "data_message_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    private Notification notification;
+    private DataMessage dataMessage;
 
-    public NotificationStateEvent(
-            @NotNull Notification notification,
+    public DataMessageStateEvent(
+            @NotNull DataMessage dataMessage,
             @NotNull MessageState state,
             @NotNull Instant time,
             String associatedInfo) {
         super(state, time, associatedInfo);
-        this.notification = notification;
+        this.dataMessage = dataMessage;
     }
 }

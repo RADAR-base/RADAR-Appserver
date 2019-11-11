@@ -23,26 +23,25 @@ package org.radarbase.appserver.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.radarbase.appserver.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.entity.DataMessage;
+import org.radarbase.appserver.entity.DataMessageStateEvent;
+import org.radarbase.appserver.event.state.MessageState;
+import org.radarbase.appserver.repository.DataMessageStateEventRepository;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.SizeLimitExceededException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.naming.SizeLimitExceededException;
-
-import org.radarbase.appserver.dto.NotificationStateEventDto;
-import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.entity.NotificationStateEvent;
-import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.repository.NotificationStateEventRepository;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class NotificationStateEventService {
+public class DataMessageStateEventService {
 
     private static final Set<MessageState> EXTERNAL_EVENTS;
     private static final int MAX_NUMBER_OF_STATES = 20;
@@ -57,40 +56,40 @@ public class NotificationStateEventService {
                         MessageState.ERRORED);
     }
 
-    private final transient NotificationStateEventRepository notificationStateEventRepository;
-    private final transient FcmNotificationService notificationService;
-    private final transient ApplicationEventPublisher notificationApplicationEventPublisher;
+    private final transient DataMessageStateEventRepository dataMessageStateEventRepository;
+    private final transient FcmDataMessageService dataMessageService;
+    private final transient ApplicationEventPublisher dataMessageApplicationEventPublisher;
     private final transient ObjectMapper objectMapper;
 
-    public NotificationStateEventService(
-            NotificationStateEventRepository notificationStateEventRepository,
-            FcmNotificationService fcmNotificationService,
-            ApplicationEventPublisher notificationApplicationEventPublisher,
+    public DataMessageStateEventService(
+            DataMessageStateEventRepository dataMessageStateEventRepository,
+            FcmDataMessageService fcmDataMessageService,
+            ApplicationEventPublisher dataMessageApplicationEventPublisher,
             ObjectMapper objectMapper) {
-        this.notificationStateEventRepository = notificationStateEventRepository;
-        this.notificationService = fcmNotificationService;
-        this.notificationApplicationEventPublisher = notificationApplicationEventPublisher;
+        this.dataMessageStateEventRepository = dataMessageStateEventRepository;
+        this.dataMessageService = fcmDataMessageService;
+        this.dataMessageApplicationEventPublisher = dataMessageApplicationEventPublisher;
         this.objectMapper = objectMapper;
     }
 
     @Transactional
-    public void addNotificationStateEvent(NotificationStateEvent notificationStateEvent) {
-        notificationStateEventRepository.save(notificationStateEvent);
+    public void addDataMessageStateEvent(DataMessageStateEvent dataMessageStateEvent) {
+        dataMessageStateEventRepository.save(dataMessageStateEvent);
     }
 
     @Transactional(readOnly = true)
-    public List<NotificationStateEventDto> getNotificationStateEvents(
-            String projectId, String subjectId, long notificationId) {
-        notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-                projectId, subjectId, notificationId);
-        List<NotificationStateEvent> stateEvents =
-                notificationStateEventRepository.findByNotificationId(notificationId);
+    public List<DataMessageStateEventDto> getDataMessageStateEvents(
+            String projectId, String subjectId, long dataMessageId) {
+        dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
+                projectId, subjectId, dataMessageId);
+        List<DataMessageStateEvent> stateEvents =
+                dataMessageStateEventRepository.findByDataMessageId(dataMessageId);
         return stateEvents.stream()
                 .map(
                         ns ->
-                                new NotificationStateEventDto(
+                                new DataMessageStateEventDto(
                                         ns.getId(),
-                                        ns.getNotification().getId(),
+                                        ns.getDataMessage().getId(),
                                         ns.getState(),
                                         ns.getTime(),
                                         ns.getAssociatedInfo()))
@@ -98,16 +97,16 @@ public class NotificationStateEventService {
     }
 
     @Transactional(readOnly = true)
-    public List<NotificationStateEventDto> getNotificationStateEventsByNotificationId(
-            long notificationId) {
-        List<NotificationStateEvent> stateEvents =
-                notificationStateEventRepository.findByNotificationId(notificationId);
+    public List<DataMessageStateEventDto> getDataMessageStateEventsByDataMessageId(
+            long dataMessageId) {
+        List<DataMessageStateEvent> stateEvents =
+                dataMessageStateEventRepository.findByDataMessageId(dataMessageId);
         return stateEvents.stream()
                 .map(
                         ns ->
-                                new NotificationStateEventDto(
+                                new DataMessageStateEventDto(
                                         ns.getId(),
-                                        ns.getNotification().getId(),
+                                        ns.getDataMessage().getId(),
                                         ns.getState(),
                                         ns.getTime(),
                                         ns.getAssociatedInfo()))
@@ -115,23 +114,23 @@ public class NotificationStateEventService {
     }
 
     @Transactional
-    public void publishNotificationStateEventExternal(
+    public void publishDataMessageStateEventExternal(
             String projectId,
             String subjectId,
-            long notificationId,
-            NotificationStateEventDto notificationStateEventDto)
+            long dataMessageId,
+            DataMessageStateEventDto dataMessageStateEventDto)
             throws SizeLimitExceededException {
-        checkState(notificationId, notificationStateEventDto.getState());
-        Notification notification =
-                notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-                        projectId, subjectId, notificationId);
+        checkState(dataMessageId, dataMessageStateEventDto.getState());
+        DataMessage dataMessage =
+                dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
+                        projectId, subjectId, dataMessageId);
 
         Map<String, String> additionalInfo = null;
-        if (!notificationStateEventDto.getAssociatedInfo().isEmpty()) {
+        if (!dataMessageStateEventDto.getAssociatedInfo().isEmpty()) {
             try {
                 additionalInfo =
                         objectMapper.readValue(
-                                notificationStateEventDto.getAssociatedInfo(),
+                                dataMessageStateEventDto.getAssociatedInfo(),
                                 new TypeReference<Map<String, String>>() {
                                 });
             } catch (IOException exc) {
@@ -140,20 +139,20 @@ public class NotificationStateEventService {
             }
         }
 
-        org.radarbase.appserver.event.state.NotificationStateEvent stateEvent =
-                new org.radarbase.appserver.event.state.NotificationStateEvent(
+        org.radarbase.appserver.event.state.DataMessageStateEvent stateEvent =
+                new org.radarbase.appserver.event.state.DataMessageStateEvent(
                         this,
-                        notification,
-                        notificationStateEventDto.getState(),
+                        dataMessage,
+                        dataMessageStateEventDto.getState(),
                         additionalInfo,
-                        notificationStateEventDto.getTime());
-        notificationApplicationEventPublisher.publishEvent(stateEvent);
+                        dataMessageStateEventDto.getTime());
+        dataMessageApplicationEventPublisher.publishEvent(stateEvent);
     }
 
-    private void checkState(long notificationId, MessageState state)
+    private void checkState(long dataMessageId, MessageState state)
             throws SizeLimitExceededException, IllegalStateException {
         if (EXTERNAL_EVENTS.contains(state)) {
-            if (notificationStateEventRepository.countByNotificationId(notificationId)
+            if (dataMessageStateEventRepository.countByDataMessageId(dataMessageId)
                     >= MAX_NUMBER_OF_STATES) {
                 throw new SizeLimitExceededException(
                         "The max limit of state changes("

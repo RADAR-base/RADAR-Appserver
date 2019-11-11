@@ -31,7 +31,8 @@ import org.quartz.*;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.DataMessageStateEvent;
+import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.NotificationRepository;
@@ -42,16 +43,16 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class QuartzNotificationJobListener implements JobListener {
+public class QuartzMessageJobListener implements JobListener {
 
-    private final transient ApplicationEventPublisher notificationStateEventPublisher;
+    private final transient ApplicationEventPublisher messageStateEventPublisher;
     private final transient NotificationRepository notificationRepository;
     private final transient DataMessageRepository dataMessageRepository;
 
-    public QuartzNotificationJobListener(
-            ApplicationEventPublisher notificationStateEventPublisher,
+    public QuartzMessageJobListener(
+            ApplicationEventPublisher messageStateEventPublisher,
             NotificationRepository notificationRepository, DataMessageRepository dataMessageRepository) {
-        this.notificationStateEventPublisher = notificationStateEventPublisher;
+        this.messageStateEventPublisher = messageStateEventPublisher;
         this.notificationRepository = notificationRepository;
         this.dataMessageRepository = dataMessageRepository;
     }
@@ -101,8 +102,6 @@ public class QuartzNotificationJobListener implements JobListener {
         String type = jobDataMap.getString("messageType");
         Long messageId = jobDataMap.getLongValue("messageId");
 
-        Message message = new Message();
-
         if (type.equals(MessageType.Notification.toString())) {
             Optional<Notification> notification =
                     notificationRepository.findById(messageId);
@@ -110,7 +109,6 @@ public class QuartzNotificationJobListener implements JobListener {
                 log.warn("The notification does not exist in database and yet was scheduled.");
                 return;
             }
-            message = notification.get();
 
             if (jobException != null) {
                 Map<String, String> additionalInfo = new HashMap<>();
@@ -118,8 +116,8 @@ public class QuartzNotificationJobListener implements JobListener {
                 additionalInfo.put("error_description", jobException.toString());
                 NotificationStateEvent notificationStateEventError =
                         new NotificationStateEvent(
-                                this, notification.get(), NotificationState.ERRORED, additionalInfo, Instant.now());
-                notificationStateEventPublisher.publishEvent(notificationStateEventError);
+                                this, notification.get(), MessageState.ERRORED, additionalInfo, Instant.now());
+                messageStateEventPublisher.publishEvent(notificationStateEventError);
 
                 log.warn("The job could not be executed.", jobException);
                 return;
@@ -127,11 +125,11 @@ public class QuartzNotificationJobListener implements JobListener {
 
             NotificationStateEvent notificationStateEvent =
                     new NotificationStateEvent(
-                            this, notification.get(), NotificationState.EXECUTED, null, Instant.now());
-            notificationStateEventPublisher.publishEvent(notificationStateEvent);
+                            this, notification.get(), MessageState.EXECUTED, null, Instant.now());
+            messageStateEventPublisher.publishEvent(notificationStateEvent);
 
         }
-        // TODO: ADD SUPPORT FOR DATA MESSAGES
+
         if (type.equals(MessageType.Data.toString())) {
             Optional<DataMessage> dataMessage =
                     dataMessageRepository.findById(messageId);
@@ -139,7 +137,24 @@ public class QuartzNotificationJobListener implements JobListener {
                 log.warn("The data message does not exist in database and yet was scheduled.");
                 return;
             }
-            message = dataMessage.get();
+
+            if (jobException != null) {
+                Map<String, String> additionalInfo = new HashMap<>();
+                additionalInfo.put("error", jobException.getMessage());
+                additionalInfo.put("error_description", jobException.toString());
+                DataMessageStateEvent dataMessageStateEventError =
+                        new DataMessageStateEvent(
+                                this, dataMessage.get(), MessageState.ERRORED, additionalInfo, Instant.now());
+                messageStateEventPublisher.publishEvent(dataMessageStateEventError);
+
+                log.warn("The job could not be executed.", jobException);
+                return;
+            }
+
+            DataMessageStateEvent dataMessageStateEvent =
+                    new DataMessageStateEvent(
+                            this, dataMessage.get(), MessageState.EXECUTED, null, Instant.now());
+            messageStateEventPublisher.publishEvent(dataMessageStateEvent);
         }
 
 

@@ -21,21 +21,21 @@
 
 package org.radarbase.appserver.dto;
 
-import java.time.Instant;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.radarbase.appserver.event.state.MessageState;
 
+import java.time.Instant;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationStateEventDto {
+public class DataMessageStateEventDto {
 
     private Long id;
 
-    private Long notificationId;
+    private Long dataMessageId;
 
     private MessageState state;
 
