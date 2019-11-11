@@ -160,12 +160,13 @@ class NotificationSchedulerServiceTest {
 
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
-        Notification notificationNew =
-                (Notification)
-                        scheduler.getJobDetail(new JobKey(JOB_DETAIL_ID)).getJobDataMap().get("notification");
-
-        assertEquals("New body", notificationNew.getBody());
-        assertEquals("New Title", notificationNew.getTitle());
+        // NOTE: Below is removed since notification is not in job data map anymore
+//        Notification notificationNew =
+//                (Notification)
+//                        scheduler.getJobDetail(new JobKey(JOB_DETAIL_ID)).getJobDataMap().get("notification");
+//
+//        assertEquals("New body", notificationNew.getBody());
+//        assertEquals("New Title", notificationNew.getTitle());
 
         assertEquals(
                 notification2.getScheduledTime().truncatedTo(ChronoUnit.MILLIS),
