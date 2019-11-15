@@ -374,6 +374,7 @@ public class Notification extends Message {
             notification.setAppPackage(this.appPackage);
             notification.setSourceType(this.sourceType);
             notification.setDryRun(this.dryRun);
+            notification.setPriority(this.priority);
             notification.setMutableContent(this.mutableContent);
             notification.setAdditionalData(this.additionalData);
             notification.setTitle(this.title);
@@ -415,16 +416,9 @@ public class Notification extends Message {
     @Override
     public int hashCode() {
         return Objects.hash(
-                getUser(),
-                getSourceId(),
-                getScheduledTime(),
+                super.hashCode(),
                 getTitle(),
                 getBody(),
-                getType(),
-                getTtlSeconds(),
-                isDelivered(),
-                isDryRun(),
-                getAppPackage(),
-                getSourceType());
+                getType());
     }
 }

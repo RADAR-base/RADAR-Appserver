@@ -31,6 +31,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * {@link Entity} for persisting data messages. The corresponding DTO is {@link org.radarbase.appserver.dto.fcm.FcmDataMessageDto}.
@@ -200,11 +201,30 @@ public class DataMessage extends Message {
             dataMessage.setAppPackage(this.appPackage);
             dataMessage.setSourceType(this.sourceType);
             dataMessage.setDryRun(this.dryRun);
+            dataMessage.setPriority(this.priority);
             dataMessage.setMutableContent(this.mutableContent);
             dataMessage.setDataMap(this.dataMap);
 
             return dataMessage;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DataMessage)) {
+            return false;
+        }
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.hashCode(),
+                getDataMap());
     }
 
 }

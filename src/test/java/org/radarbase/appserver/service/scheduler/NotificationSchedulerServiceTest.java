@@ -142,7 +142,7 @@ class NotificationSchedulerServiceTest {
     void updateScheduledNotification() throws SchedulerException {
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.Notification);
+                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
         SimpleTriggerFactoryBean triggerFactoryBean =
                 NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
@@ -180,7 +180,7 @@ class NotificationSchedulerServiceTest {
     void deleteScheduledNotifications() throws SchedulerException {
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.Notification);
+                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
         SimpleTriggerFactoryBean triggerFactoryBean =
                 NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
@@ -198,7 +198,7 @@ class NotificationSchedulerServiceTest {
 
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.Notification);
+                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
         SimpleTriggerFactoryBean triggerFactoryBean =
                 NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());

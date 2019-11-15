@@ -45,68 +45,59 @@ import java.util.*;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class DataMessageSchedulerService extends MessageSchedulerService {
 
-  // TODO add a schedule cache to cache incoming requests and do batch scheduling
+    // TODO add a schedule cache to cache incoming requests and do batch scheduling
 
-  public DataMessageSchedulerService(
-      @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-      @Autowired SchedulerService schedulerService) {
-    super(fcmSender, schedulerService);
-  }
+    public DataMessageSchedulerService(
+            @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
+            @Autowired SchedulerService schedulerService) {
+        super(fcmSender, schedulerService);
+    }
 
-  public void scheduleDataMessage(DataMessage dataMessage) {
-    super.scheduleMessage(dataMessage);
-  }
+    public void scheduleDataMessage(DataMessage dataMessage) {
+        super.scheduleMessage(dataMessage);
+    }
 
-  public void scheduleDataMessages(List<DataMessage> dataMessages) {
-    super.scheduleMessages(getMessagesFromDataMessages(dataMessages));
-  }
+    public void scheduleDataMessages(List<DataMessage> dataMessages) {
+        super.scheduleMessages(getMessagesFromDataMessages(dataMessages));
+    }
 
-  public void updateScheduledDataMessage(DataMessage dataMessage) {
-    super.updateScheduledMessage(dataMessage);
-  }
+    public void updateScheduledDataMessage(DataMessage dataMessage) {
+        super.updateScheduledMessage(dataMessage);
+    }
 
-  public void deleteScheduledDataMessage(DataMessage dataMessage) {
-    super.deleteScheduledMessage(dataMessage);
-  }
+    public void deleteScheduledDataMessage(DataMessage dataMessage) {
+        super.deleteScheduledMessage(dataMessage);
+    }
 
-  public void deleteScheduledDataMessages(List<DataMessage> dataMessages) {
-    super.deleteScheduledMessages(getMessagesFromDataMessages(dataMessages));
-  }
+    public void deleteScheduledDataMessages(List<DataMessage> dataMessages) {
+        super.deleteScheduledMessages(getMessagesFromDataMessages(dataMessages));
+    }
 
-  public List<Message> getMessagesFromDataMessages(List<DataMessage> dataMessages){
-    List<Message> messages = new ArrayList<>();
-    messages.addAll(dataMessages);
-    return messages;
-  }
+    public List<Message> getMessagesFromDataMessages(List<DataMessage> dataMessages) {
+        List<Message> messages = new ArrayList<>();
+        messages.addAll(dataMessages);
+        return messages;
+    }
 
-  private static Map getDataMap(DataMessage dataMessage) {
-    Map<String, Object> dataMap = new HashMap<>();
+    private static FcmDataMessage createMessageFromDataMessage(DataMessage dataMessage) {
 
-    for (Map.Entry<String,String> entry : dataMessage.getDataMap().entrySet())
-      putIfNotNull(dataMap, entry.getKey(), entry.getValue());
+        String to =
+                Objects.requireNonNullElseGet(
+                        dataMessage.getFcmTopic(), dataMessage.getUser()::getFcmToken);
+        return FcmDataMessage.builder()
+                .to(to)
+                .condition(dataMessage.getFcmCondition())
+                .priority(dataMessage.getPriority())
+                .mutableContent(dataMessage.isMutableContent())
+                .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
+                .messageId(String.valueOf(dataMessage.getFcmMessageId()))
+                .timeToLive(Objects.requireNonNullElse(dataMessage.getTtlSeconds(), 2_419_200))
+                .data(dataMessage.getDataMap())
+                .build();
+    }
 
-    return dataMap;
-  }
-
-  private static FcmDataMessage createMessageFromDataMessage(DataMessage dataMessage) {
-
-    String to =
-            Objects.requireNonNullElseGet(
-                    dataMessage.getFcmTopic(), dataMessage.getUser()::getFcmToken);
-    return FcmDataMessage.builder()
-            .to(to)
-            .condition(dataMessage.getFcmCondition())
-            .priority(dataMessage.getPriority())
-            .mutableContent(dataMessage.isMutableContent())
-            .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
-            .messageId(String.valueOf(dataMessage.getFcmMessageId()))
-            .timeToLive(Objects.requireNonNullElse(dataMessage.getTtlSeconds(), 2_419_200))
-            .data(getDataMap(dataMessage))
-            .build();
-  }
-
-  public void sendDataMessage(DataMessage dataMessage) throws Exception {
-    super.sendMessage(createMessageFromDataMessage(dataMessage));
-  }
+    public void sendDataMessage(DataMessage dataMessage) throws Exception {
+        super.sendMessage(createMessageFromDataMessage(dataMessage));
+    }
 
 }

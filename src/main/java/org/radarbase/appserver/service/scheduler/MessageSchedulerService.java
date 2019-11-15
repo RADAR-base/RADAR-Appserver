@@ -170,6 +170,7 @@ public class MessageSchedulerService {
         fcmSender.send(message);
     }
 
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public MessageType getMessageType(Message message) {
         return message.toString().toUpperCase().contains(MessageType.NOTIFICATION.toString()) ? MessageType.NOTIFICATION : MessageType.DATA;
     }

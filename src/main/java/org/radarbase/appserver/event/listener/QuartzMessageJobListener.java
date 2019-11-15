@@ -110,7 +110,6 @@ public class QuartzMessageJobListener implements JobListener {
                 log.warn("The notification does not exist in database and yet was scheduled.");
                 return;
             }
-
             if (jobException != null) {
                 Map<String, String> additionalInfo = new HashMap<>();
                 additionalInfo.put("error", jobException.getMessage());
