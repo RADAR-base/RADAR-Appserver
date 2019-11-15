@@ -103,7 +103,7 @@ public class QuartzNotificationJobListener implements JobListener {
 
         Message message = new Message();
 
-        if (type.equals(MessageType.Notification.toString())) {
+        if (type.equals(MessageType.NOTIFICATION.toString())) {
             Optional<Notification> notification =
                     notificationRepository.findById(messageId);
             if (notification.isEmpty()) {
@@ -132,7 +132,7 @@ public class QuartzNotificationJobListener implements JobListener {
 
         }
         // TODO: ADD SUPPORT FOR DATA MESSAGES
-        if (type.equals(MessageType.Data.toString())) {
+        if (type.equals(MessageType.DATA.toString())) {
             Optional<DataMessage> dataMessage =
                     dataMessageRepository.findById(messageId);
             if (dataMessage.isEmpty()) {

@@ -72,7 +72,7 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
 
         Optional<Notification> notification =
                 notificationRepository.findById(messageId);
-        if (type.equals(MessageType.Notification.toString())) {
+        if (type.equals(MessageType.NOTIFICATION.toString())) {
 
             if (notification.isEmpty()) {
                 log.warn("The notification does not exist in database and yet was scheduled.");
