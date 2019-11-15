@@ -139,10 +139,25 @@ public class Notification extends Message {
     @Column(name = "additional_value")
     private Map<String, String> additionalData;
 
-    public static class NotificationBuilder extends Message.MessageBuilder<NotificationBuilder> {
-        @NotNull transient String title;
+    @NoArgsConstructor
+    public static class NotificationBuilder {
+        transient Long id;
+        transient User user;
+        transient String sourceId;
+        transient Instant scheduledTime;
+        transient int ttlSeconds;
+        transient String fcmMessageId;
+        transient String fcmTopic;
+        transient String fcmCondition;
+        transient boolean delivered;
+        transient boolean validated;
+        transient String appPackage;
+        transient String sourceType;
+        transient boolean dryRun;
+        transient String priority;
+        transient boolean mutableContent;
+        transient String title;
         transient String body;
-        @Nullable
         transient String type;
         transient String sound;
         transient String badge;
@@ -158,9 +173,6 @@ public class Notification extends Message {
         transient String clickAction;
         transient Map<String, String> additionalData;
 
-
-        public NotificationBuilder() {
-        }
 
         public NotificationBuilder(Notification notification) {
             this.id = notification.getId();
@@ -195,6 +207,77 @@ public class Notification extends Message {
             this.clickAction = notification.getClickAction();
             this.additionalData = notification.getAdditionalData();
         }
+
+        public NotificationBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public NotificationBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public NotificationBuilder sourceId(String sourceId) {
+            this.sourceId = sourceId;
+            return this;
+        }
+
+        public NotificationBuilder scheduledTime(Instant scheduledTime) {
+            this.scheduledTime = scheduledTime;
+            return this;
+        }
+
+        public NotificationBuilder ttlSeconds(int ttlSeconds) {
+            this.ttlSeconds = ttlSeconds;
+            return this;
+        }
+
+        public NotificationBuilder fcmMessageId(String fcmMessageId) {
+            this.fcmMessageId = fcmMessageId;
+            return this;
+        }
+
+        public NotificationBuilder fcmTopic(String fcmTopic) {
+            this.fcmTopic = fcmTopic;
+            return this;
+        }
+
+        public NotificationBuilder fcmCondition(String fcmCondition) {
+            this.fcmCondition = fcmCondition;
+            return this;
+        }
+
+        public NotificationBuilder delivered(boolean delivered) {
+            this.delivered = delivered;
+            return this;
+        }
+
+        public NotificationBuilder appPackage(String appPackage) {
+            this.appPackage = appPackage;
+            return this;
+        }
+
+        public NotificationBuilder sourceType(String sourceType) {
+            this.sourceType = sourceType;
+            return this;
+        }
+
+        public NotificationBuilder dryRun(boolean dryRun) {
+            this.dryRun = dryRun;
+            return this;
+        }
+
+        public NotificationBuilder priority(String priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public NotificationBuilder mutableContent(boolean mutableContent) {
+            this.mutableContent = mutableContent;
+            return this;
+        }
+
 
         public NotificationBuilder title(String title) {
             this.title = title;
