@@ -73,11 +73,11 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
         }
 
         JobDataMap jobDataMap = jobDetail.getJobDataMap();
-        String type = jobDataMap.getString("messageType");
+        MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
         Long messageId = jobDataMap.getLongValue("messageId");
 
-
-        if (type.equals(MessageType.Notification.toString())) {
+        switch(type) {
+            case NOTIFICATION:
             Optional<Notification> notification =
                     notificationRepository.findById(messageId);
             if (notification.isEmpty()) {
@@ -88,9 +88,9 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
                     new NotificationStateEvent(
                             this, notification.get(), MessageState.SCHEDULED, null, Instant.now());
             messageStateEventPublisher.publishEvent(notificationStateEvent);
-        }
+            break;
 
-        if (type.equals(MessageType.Data.toString())) {
+            case DATA:
             Optional<DataMessage> dataMessage =
                     dataMessageRepository.findById(messageId);
             if (dataMessage.isEmpty()) {
@@ -100,7 +100,8 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
             DataMessageStateEvent dataMessageStateEvent =
                     new DataMessageStateEvent(
                             this, dataMessage.get(), MessageState.SCHEDULED, null, Instant.now());
-            messageStateEventPublisher.publishEvent(dataMessageStateEvent);
+            messageStateEventPublisher.publishEvent(dataMessageStateEvent);            
+            break;
         }
     }
 

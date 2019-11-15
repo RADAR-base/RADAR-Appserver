@@ -48,130 +48,129 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MessageSchedulerService {
 
-  // TODO add a schedule cache to cache incoming requests and do batch scheduling
+    // TODO add a schedule cache to cache incoming requests and do batch scheduling
 
-  protected static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
-  protected static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;
-  protected final transient FcmSender fcmSender;
-  protected final transient SchedulerService schedulerService;
+    protected static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
+    protected static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;
+    protected final transient FcmSender fcmSender;
+    protected final transient SchedulerService schedulerService;
 
-  public MessageSchedulerService(
-      @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-      @Autowired SchedulerService schedulerService) {
-    this.fcmSender = fcmSender;
-    this.schedulerService = schedulerService;
-  }
-
-  public static SimpleTriggerFactoryBean getTriggerForMessage(
-          Message message, JobDetail jobDetail) {
-    SimpleTriggerFactoryBean triggerFactoryBean = new SimpleTriggerFactoryBean();
-    triggerFactoryBean.setJobDetail(jobDetail);
-    triggerFactoryBean.setName(
-        NAMING_STRATEGY.getTriggerName(
-                message.getUser().getSubjectId(), message.getId().toString()));
-    triggerFactoryBean.setRepeatCount(0);
-    triggerFactoryBean.setRepeatInterval(0L);
-    triggerFactoryBean.setStartTime(new Date(message.getScheduledTime().toEpochMilli()));
-    triggerFactoryBean.afterPropertiesSet();
-    triggerFactoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
-    return triggerFactoryBean;
-  }
-
-  public static JobDetailFactoryBean getJobDetailForMessage(Message message, MessageType messageType) {
-    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-    jobDetailFactory.setJobClass(MessageJob.class);
-    jobDetailFactory.setDescription("Send message at scheduled time...");
-    jobDetailFactory.setDurability(true);
-    jobDetailFactory.setName(
-            NAMING_STRATEGY.getJobKeyName(
-                    message.getUser().getSubjectId(), message.getId().toString()));
-    Map<String, Object> map = new HashMap<>();
-    map.put("subjectId", message.getUser().getSubjectId());
-    map.put("projectId", message.getUser().getProject().getProjectId());
-    map.put("messageId", message.getId());
-    map.put("messageType", messageType.toString());
-    jobDetailFactory.setJobDataAsMap(map);
-    jobDetailFactory.afterPropertiesSet();
-    return jobDetailFactory;
-  }
-
-  protected static void putIfNotNull(Map<String, Object> map, String key, Object value) {
-    if (value != null) {
-      map.put(key, value);
+    public MessageSchedulerService(
+            @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
+            @Autowired SchedulerService schedulerService) {
+        this.fcmSender = fcmSender;
+        this.schedulerService = schedulerService;
     }
-  }
 
-  public void scheduleMessage(Message message) {
-    log.info("Message = {}", message);
-
-    JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
-
-    if (jobDetail != null) {
-      log.debug("Job Detail = {}", jobDetail);
-      Trigger trigger = getTriggerForMessage(message, jobDetail).getObject();
-
-      schedulerService.scheduleJob(jobDetail, trigger);
+    public static SimpleTriggerFactoryBean getTriggerForMessage(
+            Message message, JobDetail jobDetail) {
+        SimpleTriggerFactoryBean triggerFactoryBean = new SimpleTriggerFactoryBean();
+        triggerFactoryBean.setJobDetail(jobDetail);
+        triggerFactoryBean.setName(
+                NAMING_STRATEGY.getTriggerName(
+                        message.getUser().getSubjectId(), message.getId().toString()));
+        triggerFactoryBean.setRepeatCount(0);
+        triggerFactoryBean.setRepeatInterval(0L);
+        triggerFactoryBean.setStartTime(new Date(message.getScheduledTime().toEpochMilli()));
+        triggerFactoryBean.afterPropertiesSet();
+        triggerFactoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+        return triggerFactoryBean;
     }
-  }
 
-  public void scheduleMessages(List<Message> messages) {
-    Map<JobDetail, Set<? extends Trigger>> jobDetailSetMap = new HashMap<>();
+    public static JobDetailFactoryBean getJobDetailForMessage(Message message, MessageType messageType) {
+        JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
+        jobDetailFactory.setJobClass(MessageJob.class);
+        jobDetailFactory.setDescription("Send message at scheduled time...");
+        jobDetailFactory.setDurability(true);
+        jobDetailFactory.setName(
+                NAMING_STRATEGY.getJobKeyName(
+                        message.getUser().getSubjectId(), message.getId().toString()));
+        Map<String, Object> map = new HashMap<>();
+        map.put("subjectId", message.getUser().getSubjectId());
+        map.put("projectId", message.getUser().getProject().getProjectId());
+        map.put("messageId", message.getId());
+        map.put("messageType", messageType.toString());
+        jobDetailFactory.setJobDataAsMap(map);
+        jobDetailFactory.afterPropertiesSet();
+        return jobDetailFactory;
+    }
 
-    messages.forEach(
-            (Message message) -> {
-              log.debug("Message = {}", message);
-              JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
+    protected static void putIfNotNull(Map<String, Object> map, String key, Object value) {
+        if (value != null) {
+            map.put(key, value);
+        }
+    }
 
-              log.debug("Job Detail = {}", jobDetail);
-              Set<Trigger> triggerSet = new HashSet<>();
-              triggerSet.add(getTriggerForMessage(message, jobDetail).getObject());
+    public void scheduleMessage(Message message) {
+        log.info("Message = {}", message);
 
-              jobDetailSetMap.putIfAbsent(jobDetail, triggerSet);
-            });
-    log.info("Scheduling {} messages", messages.size());
-    schedulerService.scheduleJobs(jobDetailSetMap);
-  }
+        JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
 
-  public void updateScheduledMessage(Message message) {
-    String jobKeyString =
-        NAMING_STRATEGY.getJobKeyName(
-                message.getUser().getSubjectId(), message.getId().toString());
-    JobKey jobKey = new JobKey(jobKeyString);
-    String triggerKeyString =
-        NAMING_STRATEGY.getTriggerName(
-                message.getUser().getSubjectId(), message.getId().toString());
-    TriggerKey triggerKey = new TriggerKey(triggerKeyString);
-    JobDataMap jobDataMap = new JobDataMap();
+        if (jobDetail != null) {
+            log.debug("Job Detail = {}", jobDetail);
+            Trigger trigger = getTriggerForMessage(message, jobDetail).getObject();
 
-    schedulerService.updateScheduledJob(jobKey, triggerKey, jobDataMap, message);
-  }
+            schedulerService.scheduleJob(jobDetail, trigger);
+        }
+    }
 
-  public void deleteScheduledMessages(List<Message> messages) {
-    List<JobKey> keys =
-            messages.stream()
-                    .map(
-                            n ->
-                                    new JobKey(
-                                            NAMING_STRATEGY.getJobKeyName(
-                                                    n.getUser().getSubjectId(), n.getId().toString())))
-                    .collect(Collectors.toList());
-    schedulerService.deleteScheduledJobs(keys);
-  }
+    public void scheduleMessages(List<Message> messages) {
+        Map<JobDetail, Set<? extends Trigger>> jobDetailSetMap = new HashMap<>();
 
-  public void deleteScheduledMessage(Message message) {
-    JobKey key =
-            new JobKey(
-                    NAMING_STRATEGY.getJobKeyName(
-                            message.getUser().getSubjectId(), message.getId().toString()));
-    schedulerService.deleteScheduledJob(key);
-  }
+        messages.forEach(
+                (Message message) -> {
+                    log.debug("Message = {}", message);
+                    JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
 
-  public void sendMessage(FcmDownstreamMessage message) throws Exception {
-    fcmSender.send(message);
-  }
+                    log.debug("Job Detail = {}", jobDetail);
+                    Set<Trigger> triggerSet = new HashSet<>();
+                    triggerSet.add(getTriggerForMessage(message, jobDetail).getObject());
 
-  public MessageType getMessageType(Message message){
-    MessageType type = message.toString().contains(MessageType.Notification.toString())? MessageType.Notification : MessageType.Data;
-    return type;
-  }
+                    jobDetailSetMap.putIfAbsent(jobDetail, triggerSet);
+                });
+        log.info("Scheduling {} messages", messages.size());
+        schedulerService.scheduleJobs(jobDetailSetMap);
+    }
+
+    public void updateScheduledMessage(Message message) {
+        String jobKeyString =
+                NAMING_STRATEGY.getJobKeyName(
+                        message.getUser().getSubjectId(), message.getId().toString());
+        JobKey jobKey = new JobKey(jobKeyString);
+        String triggerKeyString =
+                NAMING_STRATEGY.getTriggerName(
+                        message.getUser().getSubjectId(), message.getId().toString());
+        TriggerKey triggerKey = new TriggerKey(triggerKeyString);
+        JobDataMap jobDataMap = new JobDataMap();
+
+        schedulerService.updateScheduledJob(jobKey, triggerKey, jobDataMap, message);
+    }
+
+    public void deleteScheduledMessages(List<Message> messages) {
+        List<JobKey> keys =
+                messages.stream()
+                        .map(
+                                n ->
+                                        new JobKey(
+                                                NAMING_STRATEGY.getJobKeyName(
+                                                        n.getUser().getSubjectId(), n.getId().toString())))
+                        .collect(Collectors.toList());
+        schedulerService.deleteScheduledJobs(keys);
+    }
+
+    public void deleteScheduledMessage(Message message) {
+        JobKey key =
+                new JobKey(
+                        NAMING_STRATEGY.getJobKeyName(
+                                message.getUser().getSubjectId(), message.getId().toString()));
+        schedulerService.deleteScheduledJob(key);
+    }
+
+    public void sendMessage(FcmDownstreamMessage message) throws Exception {
+        fcmSender.send(message);
+    }
+
+    public MessageType getMessageType(Message message) {
+        return message.toString().toUpperCase().contains(MessageType.NOTIFICATION.toString()) ? MessageType.NOTIFICATION : MessageType.DATA;
+    }
 }

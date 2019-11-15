@@ -28,6 +28,8 @@ import lombok.ToString;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -70,12 +72,24 @@ public class DataMessage extends Message {
     @Column(name = "value")
     private Map<String, String> dataMap;
 
-    public static class DataMessageBuilder extends Message.MessageBuilder<DataMessageBuilder> {
-        @Nullable
+    @NoArgsConstructor
+    public static class DataMessageBuilder {
+        transient Long id;
+        transient User user;
+        transient String sourceId;
+        transient Instant scheduledTime;
+        transient int ttlSeconds;
+        transient String fcmMessageId;
+        transient String fcmTopic;
+        transient String fcmCondition;
+        transient boolean delivered;
+        transient boolean validated;
+        transient String appPackage;
+        transient String sourceType;
+        transient boolean dryRun;
+        transient String priority;
+        transient boolean mutableContent;
         transient Map<String, String> dataMap;
-
-        public DataMessageBuilder() {
-        }
 
         public DataMessageBuilder(DataMessage dataMessage) {
             this.id = dataMessage.getId();
@@ -94,6 +108,77 @@ public class DataMessage extends Message {
             this.mutableContent = dataMessage.isMutableContent();
             this.dataMap = dataMessage.getDataMap();
         }
+
+        public DataMessageBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public DataMessageBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public DataMessageBuilder sourceId(String sourceId) {
+            this.sourceId = sourceId;
+            return this;
+        }
+
+        public DataMessageBuilder scheduledTime(Instant scheduledTime) {
+            this.scheduledTime = scheduledTime;
+            return this;
+        }
+
+        public DataMessageBuilder ttlSeconds(int ttlSeconds) {
+            this.ttlSeconds = ttlSeconds;
+            return this;
+        }
+
+        public DataMessageBuilder fcmMessageId(String fcmMessageId) {
+            this.fcmMessageId = fcmMessageId;
+            return this;
+        }
+
+        public DataMessageBuilder fcmTopic(String fcmTopic) {
+            this.fcmTopic = fcmTopic;
+            return this;
+        }
+
+        public DataMessageBuilder fcmCondition(String fcmCondition) {
+            this.fcmCondition = fcmCondition;
+            return this;
+        }
+
+        public DataMessageBuilder delivered(boolean delivered) {
+            this.delivered = delivered;
+            return this;
+        }
+
+        public DataMessageBuilder appPackage(String appPackage) {
+            this.appPackage = appPackage;
+            return this;
+        }
+
+        public DataMessageBuilder sourceType(String sourceType) {
+            this.sourceType = sourceType;
+            return this;
+        }
+
+        public DataMessageBuilder dryRun(boolean dryRun) {
+            this.dryRun = dryRun;
+            return this;
+        }
+
+        public DataMessageBuilder priority(String priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public DataMessageBuilder mutableContent(boolean mutableContent) {
+            this.mutableContent = mutableContent;
+            return this;
+        }
+
 
         public DataMessageBuilder dataMap(Map<String, String> dataMap) {
             this.dataMap = dataMap;
