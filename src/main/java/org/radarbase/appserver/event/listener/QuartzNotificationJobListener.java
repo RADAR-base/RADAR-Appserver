@@ -101,8 +101,6 @@ public class QuartzNotificationJobListener implements JobListener {
         String type = jobDataMap.getString("messageType");
         Long messageId = jobDataMap.getLongValue("messageId");
 
-        Message message = new Message();
-
         if (type.equals(MessageType.NOTIFICATION.toString())) {
             Optional<Notification> notification =
                     notificationRepository.findById(messageId);
@@ -110,8 +108,6 @@ public class QuartzNotificationJobListener implements JobListener {
                 log.warn("The notification does not exist in database and yet was scheduled.");
                 return;
             }
-            message = notification.get();
-
             if (jobException != null) {
                 Map<String, String> additionalInfo = new HashMap<>();
                 additionalInfo.put("error", jobException.getMessage());
@@ -139,7 +135,6 @@ public class QuartzNotificationJobListener implements JobListener {
                 log.warn("The data message does not exist in database and yet was scheduled.");
                 return;
             }
-            message = dataMessage.get();
         }
 
 
