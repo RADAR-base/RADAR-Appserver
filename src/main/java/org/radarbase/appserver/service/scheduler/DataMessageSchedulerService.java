@@ -69,7 +69,7 @@ public class DataMessageSchedulerService extends MessageSchedulerService {
     }
 
     public void sendDataMessage(DataMessage dataMessage) throws Exception {
-        super.sendMessage(createMessageFromDataMessage(dataMessage));
+        send(createMessageFromDataMessage(dataMessage));
     }
 
 }

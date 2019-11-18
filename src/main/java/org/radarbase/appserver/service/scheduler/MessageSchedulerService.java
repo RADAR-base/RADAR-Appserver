@@ -169,7 +169,7 @@ public abstract class MessageSchedulerService {
         schedulerService.deleteScheduledJob(key);
     }
 
-    public void sendMessage(FcmDownstreamMessage message) throws Exception {
+    public void send(FcmDownstreamMessage message) throws Exception {
         fcmSender.send(message);
     }
 

@@ -92,7 +92,8 @@ public class NotificationSchedulerService extends MessageSchedulerService {
                 .build();
     }
 
+
     public void sendNotification(Notification notification) throws Exception {
-        super.sendMessage(createMessageFromNotification(notification));
+        send(createMessageFromNotification(notification));
     }
 }
