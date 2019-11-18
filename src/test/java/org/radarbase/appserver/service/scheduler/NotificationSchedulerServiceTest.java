@@ -123,7 +123,7 @@ class NotificationSchedulerServiceTest {
     @Test
     void scheduleNotification() throws InterruptedException, SchedulerException {
         scheduler.getListenerManager().addJobListener(new TestJobListener());
-        notificationSchedulerService.scheduleNotification(notification);
+        notificationSchedulerService.schedule(notification);
 
         // sleep for 5 seconds for the job to be executed.
         // Assert statements are in the listener.
@@ -133,7 +133,7 @@ class NotificationSchedulerServiceTest {
     @Test
     void scheduleNotifications() throws InterruptedException, SchedulerException {
         scheduler.getListenerManager().addJobListener(new TestJobListener());
-        notificationSchedulerService.scheduleNotifications(List.of(notification));
+        notificationSchedulerService.scheduleMultiple(List.of(notification));
 
         Thread.sleep(5000);
     }
@@ -156,7 +156,7 @@ class NotificationSchedulerServiceTest {
                         .build();
 
         // when
-        notificationSchedulerService.updateScheduledNotification(notification2);
+        notificationSchedulerService.updateScheduled(notification2);
 
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
@@ -188,7 +188,7 @@ class NotificationSchedulerServiceTest {
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
         // when
-        notificationSchedulerService.deleteScheduledNotifications(List.of(notification));
+        notificationSchedulerService.deleteScheduledMultiple(List.of(notification));
 
         assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
     }
@@ -206,7 +206,7 @@ class NotificationSchedulerServiceTest {
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
         // when
-        notificationSchedulerService.deleteScheduledNotification(notification);
+        notificationSchedulerService.deleteScheduled(notification);
 
         assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
     }

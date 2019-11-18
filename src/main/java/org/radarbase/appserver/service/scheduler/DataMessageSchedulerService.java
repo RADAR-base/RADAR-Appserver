@@ -45,38 +45,10 @@ import java.util.*;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class DataMessageSchedulerService extends MessageSchedulerService {
 
-    // TODO add a schedule cache to cache incoming requests and do batch scheduling
-
     public DataMessageSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
             @Autowired SchedulerService schedulerService) {
         super(fcmSender, schedulerService);
-    }
-
-    public void scheduleDataMessage(DataMessage dataMessage) {
-        super.scheduleMessage(dataMessage);
-    }
-
-    public void scheduleDataMessages(List<DataMessage> dataMessages) {
-        super.scheduleMessages(getMessagesFromDataMessages(dataMessages));
-    }
-
-    public void updateScheduledDataMessage(DataMessage dataMessage) {
-        super.updateScheduledMessage(dataMessage);
-    }
-
-    public void deleteScheduledDataMessage(DataMessage dataMessage) {
-        super.deleteScheduledMessage(dataMessage);
-    }
-
-    public void deleteScheduledDataMessages(List<DataMessage> dataMessages) {
-        super.deleteScheduledMessages(getMessagesFromDataMessages(dataMessages));
-    }
-
-    public List<Message> getMessagesFromDataMessages(List<DataMessage> dataMessages) {
-        List<Message> messages = new ArrayList<>();
-        messages.addAll(dataMessages);
-        return messages;
     }
 
     private static FcmDataMessage createMessageFromDataMessage(DataMessage dataMessage) {
@@ -97,7 +69,7 @@ public class DataMessageSchedulerService extends MessageSchedulerService {
     }
 
     public void sendDataMessage(DataMessage dataMessage) throws Exception {
-        super.sendMessage(createMessageFromDataMessage(dataMessage));
+        send(createMessageFromDataMessage(dataMessage));
     }
 
 }
