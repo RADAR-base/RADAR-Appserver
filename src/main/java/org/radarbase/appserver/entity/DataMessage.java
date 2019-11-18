@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -35,8 +34,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
- * This also includes information for scheduling the notification through the Firebase Cloud
+ * {@link Entity} for persisting data messages. The corresponding DTO is {@link org.radarbase.appserver.dto.fcm.FcmDataMessageDto}.
+ * This also includes information for scheduling the data message through the Firebase Cloud
  * Messaging(FCM) system.
  *
  * @author yatharthranjan

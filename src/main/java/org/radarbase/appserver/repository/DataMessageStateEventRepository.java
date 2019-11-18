@@ -19,20 +19,19 @@
  *
  */
 
-package org.radarbase.appserver.event.state;
+package org.radarbase.appserver.repository;
 
-public enum NotificationState {
-  // Database controlled
-  ADDED, UPDATED, CANCELLED,
+import org.radarbase.appserver.entity.DataMessageStateEvent;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-  // Scheduler Controlled
-  SCHEDULED,
-  EXECUTED,
+import java.util.List;
 
-  // Controlled by entities outside the appserver.
-  // These will need to be reported to the appserver.
-  DELIVERED, OPENED, DISMISSED,
+@Repository
+public interface DataMessageStateEventRepository extends
+        JpaRepository<DataMessageStateEvent, Long> {
 
-  // Misc
-  ERRORED, UNKNOWN
+    List<DataMessageStateEvent> findByDataMessageId(long dataMessageId);
+
+    long countByDataMessageId(long dataMessageId);
 }

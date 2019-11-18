@@ -26,9 +26,12 @@ import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.DataMessageStateEvent;
+import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.service.MessageType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,18 +40,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class QuartzNotificationSchedulerListener implements SchedulerListener {
+public class QuartzMessageSchedulerListener implements SchedulerListener {
 
-    private final transient ApplicationEventPublisher notificationStateEventPublisher;
+    private final transient ApplicationEventPublisher messageStateEventPublisher;
     private final transient NotificationRepository notificationRepository;
+    private final transient DataMessageRepository dataMessageRepository;
     private final transient Scheduler scheduler;
 
-    public QuartzNotificationSchedulerListener(
-            ApplicationEventPublisher notificationStateEventPublisher,
+    public QuartzMessageSchedulerListener(
+            ApplicationEventPublisher messageStateEventPublisher,
             NotificationRepository notificationRepository,
+            DataMessageRepository dataMessageRepository,
             Scheduler scheduler) {
-        this.notificationStateEventPublisher = notificationStateEventPublisher;
+        this.messageStateEventPublisher = messageStateEventPublisher;
         this.notificationRepository = notificationRepository;
+        this.dataMessageRepository = dataMessageRepository;
         this.scheduler = scheduler;
     }
 
@@ -67,24 +73,36 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
         }
 
         JobDataMap jobDataMap = jobDetail.getJobDataMap();
-        String type = jobDataMap.getString("messageType");
+        MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
         Long messageId = jobDataMap.getLongValue("messageId");
 
-        Optional<Notification> notification =
-                notificationRepository.findById(messageId);
-        if (type.equals(MessageType.NOTIFICATION.toString())) {
-
+        switch(type) {
+            case NOTIFICATION:
+            Optional<Notification> notification =
+                    notificationRepository.findById(messageId);
             if (notification.isEmpty()) {
                 log.warn("The notification does not exist in database and yet was scheduled.");
                 return;
             }
             NotificationStateEvent notificationStateEvent =
                     new NotificationStateEvent(
-                            this, notification.get(), NotificationState.SCHEDULED, null, Instant.now());
-            notificationStateEventPublisher.publishEvent(notificationStateEvent);
-        }
+                            this, notification.get(), MessageState.SCHEDULED, null, Instant.now());
+            messageStateEventPublisher.publishEvent(notificationStateEvent);
+            break;
 
-        // TODO: ADD SUPPORT FOR DATA MESSAGES
+            case DATA:
+            Optional<DataMessage> dataMessage =
+                    dataMessageRepository.findById(messageId);
+            if (dataMessage.isEmpty()) {
+                log.warn("The data message does not exist in database and yet was scheduled.");
+                return;
+            }
+            DataMessageStateEvent dataMessageStateEvent =
+                    new DataMessageStateEvent(
+                            this, dataMessage.get(), MessageState.SCHEDULED, null, Instant.now());
+            messageStateEventPublisher.publishEvent(dataMessageStateEvent);            
+            break;
+        }
     }
 
     /**
@@ -112,8 +130,8 @@ public class QuartzNotificationSchedulerListener implements SchedulerListener {
         }
         NotificationStateEvent notificationStateEvent =
                 new NotificationStateEvent(
-                        this, notification.get(), NotificationState.CANCELLED, null, Instant.now());
-        notificationStateEventPublisher.publishEvent(notificationStateEvent);
+                        this, notification.get(), MessageState.CANCELLED, null, Instant.now());
+        messageStateEventPublisher.publishEvent(notificationStateEvent);
     }
 
     /**

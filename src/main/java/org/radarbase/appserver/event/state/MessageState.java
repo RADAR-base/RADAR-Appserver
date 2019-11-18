@@ -19,27 +19,20 @@
  *
  */
 
-package org.radarbase.appserver.dto;
+package org.radarbase.appserver.event.state;
 
-import java.time.Instant;
+public enum MessageState {
+    // Database controlled
+    ADDED, UPDATED, CANCELLED,
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.radarbase.appserver.event.state.MessageState;
+    // Scheduler Controlled
+    SCHEDULED,
+    EXECUTED,
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class NotificationStateEventDto {
+    // Controlled by entities outside the appserver.
+    // These will need to be reported to the appserver.
+    DELIVERED, OPENED, DISMISSED,
 
-    private Long id;
-
-    private Long notificationId;
-
-    private MessageState state;
-
-    private Instant time;
-
-    private String associatedInfo;
+    // Misc
+    ERRORED, UNKNOWN
 }

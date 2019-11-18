@@ -28,7 +28,9 @@ import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.DataMessageStateEvent;
+import org.radarbase.appserver.event.state.MessageState;
+import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -68,7 +70,7 @@ public class FcmDataMessageService implements DataMessageService {
     private final transient ProjectRepository projectRepository;
     private final transient DataMessageSchedulerService schedulerService;
     private final transient DataMessageConverter dataMessageConverter;
-    private final transient ApplicationEventPublisher notificationStateEventPublisher;
+    private final transient ApplicationEventPublisher dataMessageStateEventPublisher;
 
     @Autowired
     public FcmDataMessageService(
@@ -83,7 +85,7 @@ public class FcmDataMessageService implements DataMessageService {
         this.projectRepository = projectRepository;
         this.schedulerService = schedulerService;
         this.dataMessageConverter = dataMessageConverter;
-        this.notificationStateEventPublisher = eventPublisher;
+        this.dataMessageStateEventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -177,10 +179,8 @@ public class FcmDataMessageService implements DataMessageService {
                             new DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build());
             user.getUsermetrics().setLastOpened(Instant.now());
             this.userRepository.save(user);
-
-            // TODO: ADD DATA MESSAGE STATE
-            // addNotificationStateEvent();
-
+            addDataMessageStateEvent(
+                    dataMessageSaved, MessageState.ADDED, dataMessageSaved.getCreatedAt().toInstant());
             this.schedulerService.schedule(dataMessageSaved);
             return dataMessageConverter.entityToDto(dataMessageSaved);
         } else {
@@ -189,9 +189,13 @@ public class FcmDataMessageService implements DataMessageService {
         }
     }
 
-    // TODO: ADD DATA MESSAGE STATE
     private void addDataMessageStateEvent(
-            DataMessage dataMessage, NotificationState state, Instant time) {
+            DataMessage dataMessage, MessageState state, Instant time) {
+        if (dataMessageStateEventPublisher != null) {
+            DataMessageStateEvent dataMessageStateEvent =
+                    new DataMessageStateEvent(this, dataMessage, state, null, time);
+            dataMessageStateEventPublisher.publishEvent(dataMessageStateEvent);
+        }
     }
 
     @Transactional
@@ -220,10 +224,8 @@ public class FcmDataMessageService implements DataMessageService {
                 .fcmMessageId(String.valueOf(dataMessageDto.hashCode()))
                 .build();
         DataMessage dataMessageSaved = this.dataMessageRepository.saveAndFlush(newDataMessage);
-
-        // TODO: ADD DATA MESSAGE STATE
-        // addNotificationStateEvent();
-
+        addDataMessageStateEvent(
+                dataMessageSaved, MessageState.UPDATED, dataMessageSaved.getUpdatedAt().toInstant());
         if (!dataMessage.get().isDelivered()) {
             this.schedulerService.updateScheduled(dataMessageSaved);
         }
@@ -294,10 +296,9 @@ public class FcmDataMessageService implements DataMessageService {
         List<DataMessage> savedDataMessages = this.dataMessageRepository.saveAll(newDataMessages);
         this.dataMessageRepository.flush();
 
-        // TODO: ADD DATA MESSAGE STATE
-//        savedDataMessages.forEach(
-//                n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant())
-//        );
+        savedDataMessages.forEach(
+                n -> addDataMessageStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant())
+        );
         this.schedulerService.scheduleMultiple(savedDataMessages);
         return new FcmDataMessages()
                 .setDataMessages(dataMessageConverter.entitiesToDtos(savedDataMessages));
