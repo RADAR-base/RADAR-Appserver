@@ -23,15 +23,13 @@ package org.radarbase.appserver.service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.radarbase.appserver.converter.NotificationConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
+import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -184,7 +182,7 @@ public class FcmNotificationService implements NotificationService {
             this.userRepository.save(user);
             addNotificationStateEvent(
                     notificationSaved, NotificationState.ADDED, notificationSaved.getCreatedAt().toInstant());
-            this.schedulerService.scheduleNotification(notificationSaved);
+            this.schedulerService.schedule(notificationSaved);
             return notificationConverter.entityToDto(notificationSaved);
         } else {
             throw new AlreadyExistsException(
@@ -233,7 +231,7 @@ public class FcmNotificationService implements NotificationService {
         addNotificationStateEvent(
                 notificationSaved, NotificationState.UPDATED, notificationSaved.getUpdatedAt().toInstant());
         if (!notification.get().isDelivered()) {
-            this.schedulerService.updateScheduledNotification(notificationSaved);
+            this.schedulerService.updateScheduled(notificationSaved);
         }
         return notificationConverter.entityToDto(notificationSaved);
     }
@@ -243,7 +241,7 @@ public class FcmNotificationService implements NotificationService {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
         List<Notification> notifications = this.notificationRepository.findByUserId(user.getId());
-        this.schedulerService.deleteScheduledNotifications(notifications);
+        this.schedulerService.deleteScheduledMultiple(notifications);
 
         this.notificationRepository.deleteByUserId(user.getId());
     }
@@ -303,7 +301,7 @@ public class FcmNotificationService implements NotificationService {
         this.notificationRepository.flush();
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant()));
-        this.schedulerService.scheduleNotifications(savedNotifications);
+        this.schedulerService.scheduleMultiple(savedNotifications);
         return new FcmNotifications()
                 .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
     }

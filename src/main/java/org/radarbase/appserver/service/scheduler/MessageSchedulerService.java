@@ -46,9 +46,10 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class MessageSchedulerService {
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+public abstract class MessageSchedulerService {
 
-    // TODO add a schedule cache to cache incoming requests and do batch scheduling
+    // TODO add a schedule cache to cache incoming requests
 
     protected static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
     protected static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;
@@ -101,7 +102,7 @@ public class MessageSchedulerService {
         }
     }
 
-    public void scheduleMessage(Message message) {
+    public void schedule(Message message) {
         log.info("Message = {}", message);
 
         JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
@@ -114,11 +115,11 @@ public class MessageSchedulerService {
         }
     }
 
-    public void scheduleMessages(List<Message> messages) {
+    public <T> void scheduleMultiple(List<T> messages) {
         Map<JobDetail, Set<? extends Trigger>> jobDetailSetMap = new HashMap<>();
-
         messages.forEach(
-                (Message message) -> {
+                (T m) -> {
+                    Message message = (Message) m;
                     log.debug("Message = {}", message);
                     JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
 
@@ -132,7 +133,7 @@ public class MessageSchedulerService {
         schedulerService.scheduleJobs(jobDetailSetMap);
     }
 
-    public void updateScheduledMessage(Message message) {
+    public void updateScheduled(Message message) {
         String jobKeyString =
                 NAMING_STRATEGY.getJobKeyName(
                         message.getUser().getSubjectId(), message.getId().toString());
@@ -146,19 +147,21 @@ public class MessageSchedulerService {
         schedulerService.updateScheduledJob(jobKey, triggerKey, jobDataMap, message);
     }
 
-    public void deleteScheduledMessages(List<Message> messages) {
+    public <T> void deleteScheduledMultiple(List<T> messages) {
         List<JobKey> keys =
                 messages.stream()
                         .map(
-                                n ->
-                                        new JobKey(
-                                                NAMING_STRATEGY.getJobKeyName(
-                                                        n.getUser().getSubjectId(), n.getId().toString())))
+                                n -> {
+                                    Message message = (Message) n;
+                                    return new JobKey(
+                                            NAMING_STRATEGY.getJobKeyName(
+                                                    message.getUser().getSubjectId(), message.getId().toString()));
+                                })
                         .collect(Collectors.toList());
         schedulerService.deleteScheduledJobs(keys);
     }
 
-    public void deleteScheduledMessage(Message message) {
+    public void deleteScheduled(Message message) {
         JobKey key =
                 new JobKey(
                         NAMING_STRATEGY.getJobKeyName(

@@ -25,6 +25,7 @@ import org.radarbase.appserver.converter.DataMessageConverter;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.radarbase.appserver.dto.fcm.FcmDataMessages;
 import org.radarbase.appserver.entity.DataMessage;
+import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.NotificationState;
@@ -44,10 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -183,7 +181,7 @@ public class FcmDataMessageService implements DataMessageService {
             // TODO: ADD DATA MESSAGE STATE
             // addNotificationStateEvent();
 
-             this.schedulerService.scheduleDataMessage(dataMessageSaved);
+            this.schedulerService.schedule(dataMessageSaved);
             return dataMessageConverter.entityToDto(dataMessageSaved);
         } else {
             throw new AlreadyExistsException(
@@ -227,7 +225,7 @@ public class FcmDataMessageService implements DataMessageService {
         // addNotificationStateEvent();
 
         if (!dataMessage.get().isDelivered()) {
-             this.schedulerService.updateScheduledDataMessage(dataMessageSaved);
+            this.schedulerService.updateScheduled(dataMessageSaved);
         }
         return dataMessageConverter.entityToDto(dataMessageSaved);
     }
@@ -237,8 +235,7 @@ public class FcmDataMessageService implements DataMessageService {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
         List<DataMessage> dataMessages = this.dataMessageRepository.findByUserId(user.getId());
-
-         this.schedulerService.deleteScheduledDataMessages(dataMessages);
+        this.schedulerService.deleteScheduledMultiple(dataMessages);
 
         this.dataMessageRepository.deleteByUserId(user.getId());
     }
@@ -301,7 +298,7 @@ public class FcmDataMessageService implements DataMessageService {
 //        savedDataMessages.forEach(
 //                n -> addNotificationStateEvent(n, NotificationState.ADDED, n.getCreatedAt().toInstant())
 //        );
-        this.schedulerService.scheduleDataMessages(savedDataMessages);
+        this.schedulerService.scheduleMultiple(savedDataMessages);
         return new FcmDataMessages()
                 .setDataMessages(dataMessageConverter.entitiesToDtos(savedDataMessages));
     }
