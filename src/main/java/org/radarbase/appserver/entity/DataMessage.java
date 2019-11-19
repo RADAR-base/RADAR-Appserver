@@ -25,22 +25,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * {@link Entity} for persisting data messages. The corresponding DTO is {@link org.radarbase.appserver.dto.fcm.FcmDataMessageDto}.
+ * {@link Entity} for persisting data messages. The corresponding DTO is {@link FcmDataMessageDto}.
  * This also includes information for scheduling the data message through the Firebase Cloud
  * Messaging(FCM) system.
  *
  * @author yatharthranjan
  * @see Scheduled
- * @see org.radarbase.appserver.service.scheduler.NotificationSchedulerService
+ * @see org.radarbase.appserver.service.scheduler.DataMessageSchedulerService
  * @see org.radarbase.appserver.service.fcm.FcmMessageReceiverService
  */
 @Entity

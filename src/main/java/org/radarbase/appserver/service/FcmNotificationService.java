@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import org.radarbase.appserver.converter.NotificationConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
-import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;

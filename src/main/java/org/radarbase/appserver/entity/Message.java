@@ -22,31 +22,17 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Objects;
 
-/**
- * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
- * This also includes information for scheduling the notification through the Firebase Cloud
- * Messaging(FCM) system.
- *
- * @author yatharthranjan
- * @see Scheduled
- * @see org.radarbase.appserver.service.scheduler.NotificationSchedulerService
- * @see org.radarbase.appserver.service.fcm.FcmMessageReceiverService
- */
 @MappedSuperclass
 @Getter
 @Setter

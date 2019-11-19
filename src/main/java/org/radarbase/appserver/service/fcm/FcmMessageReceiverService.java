@@ -34,8 +34,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
-import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.event.state.DataMessageStateEvent;
 import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.NotificationStateEvent;

@@ -22,7 +22,6 @@
 package org.radarbase.appserver.repository;
 
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -30,23 +29,25 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/** @author yatharthranjan */
+/**
+ * @author yatharthranjan
+ */
 @Repository
 public interface DataMessageRepository extends JpaRepository<DataMessage, Long> {
 
-  List<DataMessage> findByUserId(Long userId);
+    List<DataMessage> findByUserId(Long userId);
 
-  void deleteByUserId(Long userId);
+    void deleteByUserId(Long userId);
 
-  boolean existsByUserIdAndSourceIdAndScheduledTimeAndTtlSeconds(
-          Long userId,
-          String sourceId,
-          Instant scheduledTime,
-          int ttlSeconds);
+    boolean existsByUserIdAndSourceIdAndScheduledTimeAndTtlSeconds(
+            Long userId,
+            String sourceId,
+            Instant scheduledTime,
+            int ttlSeconds);
 
-  void deleteByFcmMessageId(String fcmMessageId);
+    void deleteByFcmMessageId(String fcmMessageId);
 
-  Optional<DataMessage> findByFcmMessageId(String fcmMessageId);
+    Optional<DataMessage> findByFcmMessageId(String fcmMessageId);
 
-  Optional<DataMessage> findByIdAndUserId(long id, long userId);
+    Optional<DataMessage> findByIdAndUserId(long id, long userId);
 }

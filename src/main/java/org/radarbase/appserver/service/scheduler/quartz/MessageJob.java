@@ -37,7 +37,7 @@ import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * A {@link Job} that sends an FCM notification to the device when executed.
+ * A {@link Job} that sends an FCM message to the device when executed.
  *
  * @author yatharthranjan
  * @see NotificationSchedulerService

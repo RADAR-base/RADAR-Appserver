@@ -23,7 +23,6 @@ package org.radarbase.appserver.event.state;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;

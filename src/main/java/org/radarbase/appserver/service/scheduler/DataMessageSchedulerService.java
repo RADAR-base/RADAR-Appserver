@@ -23,7 +23,6 @@ package org.radarbase.appserver.service.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.service.scheduler.quartz.*;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmDataMessage;
@@ -34,9 +33,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * {@link Service} for scheduling Notifications to be sent through FCM at the {@link
+ * {@link Service} for scheduling Data Messages to be sent through FCM at the {@link
  * org.radarbase.appserver.entity.Scheduled} time. It also provided functions for updating/ deleting
- * already scheduled Notification Jobs.
+ * already scheduled Data Messsage Jobs.
  *
  * @author yatharthranjan
  */

@@ -24,7 +24,6 @@ package org.radarbase.appserver.event.state;
 import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Notification;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -42,9 +41,9 @@ public class DataMessageStateEvent extends MessageStateEvent {
      * Create a new ApplicationEvent.
      *
      * @param source         the object on which the event initially occurred (never {@code null})
-     * @param dataMessage    the notification associated with this state event.
+     * @param dataMessage    the data message associated with this state event.
      * @param state          the current {@link MessageState} change of the {@link
-     *                       Notification} entity.
+     *                       DataMessage} entity.
      * @param additionalInfo any additional info associated with the state change.
      */
     public DataMessageStateEvent(

@@ -30,7 +30,6 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.DataMessageStateEvent;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEvent;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -39,7 +38,6 @@ import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.scheduler.DataMessageSchedulerService;
-import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -61,7 +59,7 @@ import java.util.stream.Collectors;
 public class FcmDataMessageService implements DataMessageService {
 
     // TODO Add option to specify a scheduling provider (default will be fcm)
-    // TODO: Use strategy pattern for handling notifications for scheduling and adding to database
+    // TODO: Use strategy pattern for handling data messages for scheduling and adding to database
 
     private static final String INVALID_SUBJECT_ID_MESSAGE =
             "The supplied Subject ID is invalid. No user found. Please Create a User First.";
@@ -185,7 +183,7 @@ public class FcmDataMessageService implements DataMessageService {
             return dataMessageConverter.entityToDto(dataMessageSaved);
         } else {
             throw new AlreadyExistsException(
-                    "The Notification Already exists. Please Use update endpoint", dataMessageDto);
+                    "The Data Message Already exists. Please Use update endpoint", dataMessageDto);
         }
     }
 
@@ -204,7 +202,7 @@ public class FcmDataMessageService implements DataMessageService {
 
         if (dataMessageDto.getId() == null) {
             throw new InvalidNotificationDetailsException(
-                    "ID must be supplied for updating the notification");
+                    "ID must be supplied for updating the data message");
         }
 
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
@@ -213,7 +211,7 @@ public class FcmDataMessageService implements DataMessageService {
                 this.dataMessageRepository.findById(dataMessageDto.getId());
 
         if (dataMessage.isEmpty()) {
-            throw new NotFoundException("Notification does not exist. Please create first");
+            throw new NotFoundException("Data message does not exist. Please create first");
         }
 
         DataMessage newDataMessage = new DataMessage.DataMessageBuilder(dataMessage.get())
@@ -255,7 +253,7 @@ public class FcmDataMessageService implements DataMessageService {
                 },
                 () -> {
                     throw new InvalidNotificationDetailsException(
-                            "Notification with the provided FCM message ID does not exist.");
+                            "Data message with the provided FCM message ID does not exist.");
                 });
     }
 
@@ -290,7 +288,7 @@ public class FcmDataMessageService implements DataMessageService {
                 dataMessageDtos.getDataMessages().stream()
                         .map(dataMessageConverter::dtoToEntity)
                         .map(d -> new DataMessage.DataMessageBuilder(d).user(user).build())
-                        .filter(notification -> !dataMessages.contains(notification))
+                        .filter(dataMessage -> !dataMessages.contains(dataMessage))
                         .collect(Collectors.toList());
 
         List<DataMessage> savedDataMessages = this.dataMessageRepository.saveAll(newDataMessages);
@@ -330,7 +328,7 @@ public class FcmDataMessageService implements DataMessageService {
 
         if (dataMessage.isEmpty()) {
             throw new InvalidNotificationDetailsException(
-                    "The Notification with Id "
+                    "The Data message with Id "
                             + dataMessageId
                             + " does not exist in project "
                             + projectId
@@ -345,7 +343,7 @@ public class FcmDataMessageService implements DataMessageService {
         Optional<DataMessage> dataMessage = this.dataMessageRepository.findByFcmMessageId(messageId);
         if (dataMessage.isEmpty()) {
             throw new InvalidNotificationDetailsException(
-                    "The Notification with FCM Message Id " + messageId + "does not exist.");
+                    "The Data message with FCM Message Id " + messageId + "does not exist.");
         }
         return dataMessage.get();
     }

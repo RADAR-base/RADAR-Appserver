@@ -23,7 +23,6 @@ package org.radarbase.appserver.event.state;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.radarbase.appserver.entity.Notification;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -40,14 +39,6 @@ public class MessageStateEvent extends ApplicationEvent {
     private Map<String, String> additionalInfo;
     private Instant time;
 
-    /**
-     * Create a new ApplicationEvent.
-     *
-     * @param source         the object on which the event initially occurred (never {@code null})
-     * @param state          the current {@link MessageState} change of the {@link
-     *                       Notification} entity.
-     * @param additionalInfo any additional info associated with the state change.
-     */
     public MessageStateEvent(
             Object source,
             @NonNull MessageState state,

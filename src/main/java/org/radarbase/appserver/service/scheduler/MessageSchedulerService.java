@@ -37,13 +37,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * {@link Service} for scheduling Notifications to be sent through FCM at the {@link
- * org.radarbase.appserver.entity.Scheduled} time. It also provided functions for updating/ deleting
- * already scheduled Notification Jobs.
- *
- * @author yatharthranjan
- */
 @Service
 @Slf4j
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
