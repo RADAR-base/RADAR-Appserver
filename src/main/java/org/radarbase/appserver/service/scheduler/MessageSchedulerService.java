@@ -23,7 +23,9 @@ package org.radarbase.appserver.service.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
+import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.MessageType;
 import org.radarbase.appserver.service.scheduler.quartz.*;
 import org.radarbase.fcm.downstream.FcmSender;
@@ -166,8 +168,13 @@ public abstract class MessageSchedulerService {
         fcmSender.send(message);
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public MessageType getMessageType(Message message) {
-        return message.toString().toUpperCase().contains(MessageType.NOTIFICATION.toString()) ? MessageType.NOTIFICATION : MessageType.DATA;
+        if (message instanceof Notification) {
+            return MessageType.NOTIFICATION;
+        } else if (message instanceof DataMessage) {
+            return MessageType.DATA;
+        } else {
+            return MessageType.UNKNOWN;
+        }
     }
 }

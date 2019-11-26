@@ -99,62 +99,68 @@ public class QuartzMessageJobListener implements JobListener {
     @Override
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
         JobDataMap jobDataMap = context.getMergedJobDataMap();
-        MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
         Long messageId = jobDataMap.getLongValue("messageId");
+        MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
 
-        switch(type) {
+        if (type == null) return;
+
+        switch (type) {
             case NOTIFICATION:
-            Optional<Notification> notification =
-                    notificationRepository.findById(messageId);
-            if (notification.isEmpty()) {
-                log.warn("The notification does not exist in database and yet was scheduled.");
-                return;
-            }
-            if (jobException != null) {
-                Map<String, String> additionalInfo = new HashMap<>();
-                additionalInfo.put("error", jobException.getMessage());
-                additionalInfo.put("error_description", jobException.toString());
-                NotificationStateEvent notificationStateEventError =
+                Optional<Notification> notification =
+                        notificationRepository.findById(messageId);
+                if (notification.isEmpty()) {
+                    log.warn("The notification does not exist in database and yet was scheduled.");
+                    return;
+                }
+                if (jobException != null) {
+                    Map<String, String> additionalInfo = new HashMap<>();
+                    additionalInfo.put("error", jobException.getMessage());
+                    additionalInfo.put("error_description", jobException.toString());
+                    NotificationStateEvent notificationStateEventError =
+                            new NotificationStateEvent(
+                                    this, notification.get(), MessageState.ERRORED, additionalInfo, Instant.now());
+                    messageStateEventPublisher.publishEvent(notificationStateEventError);
+
+                    log.warn("The job could not be executed.", jobException);
+                    return;
+                }
+
+                NotificationStateEvent notificationStateEvent =
                         new NotificationStateEvent(
-                                this, notification.get(), MessageState.ERRORED, additionalInfo, Instant.now());
-                messageStateEventPublisher.publishEvent(notificationStateEventError);
-
-                log.warn("The job could not be executed.", jobException);
-                return;
-            }
-
-            NotificationStateEvent notificationStateEvent =
-                    new NotificationStateEvent(
-                            this, notification.get(), MessageState.EXECUTED, null, Instant.now());
-            messageStateEventPublisher.publishEvent(notificationStateEvent);
-            break;
+                                this, notification.get(), MessageState.EXECUTED, null, Instant.now());
+                messageStateEventPublisher.publishEvent(notificationStateEvent);
+                break;
 
             case DATA:
-            Optional<DataMessage> dataMessage =
-                    dataMessageRepository.findById(messageId);
-            if (dataMessage.isEmpty()) {
-                log.warn("The data message does not exist in database and yet was scheduled.");
-                return;
-            }
+                Optional<DataMessage> dataMessage =
+                        dataMessageRepository.findById(messageId);
+                if (dataMessage.isEmpty()) {
+                    log.warn("The data message does not exist in database and yet was scheduled.");
+                    return;
+                }
 
-            if (jobException != null) {
-                Map<String, String> additionalInfo = new HashMap<>();
-                additionalInfo.put("error", jobException.getMessage());
-                additionalInfo.put("error_description", jobException.toString());
-                DataMessageStateEvent dataMessageStateEventError =
+                if (jobException != null) {
+                    Map<String, String> additionalInfo = new HashMap<>();
+                    additionalInfo.put("error", jobException.getMessage());
+                    additionalInfo.put("error_description", jobException.toString());
+                    DataMessageStateEvent dataMessageStateEventError =
+                            new DataMessageStateEvent(
+                                    this, dataMessage.get(), MessageState.ERRORED, additionalInfo, Instant.now());
+                    messageStateEventPublisher.publishEvent(dataMessageStateEventError);
+
+                    log.warn("The job could not be executed.", jobException);
+                    return;
+                }
+
+                DataMessageStateEvent dataMessageStateEvent =
                         new DataMessageStateEvent(
-                                this, dataMessage.get(), MessageState.ERRORED, additionalInfo, Instant.now());
-                messageStateEventPublisher.publishEvent(dataMessageStateEventError);
+                                this, dataMessage.get(), MessageState.EXECUTED, null, Instant.now());
+                messageStateEventPublisher.publishEvent(dataMessageStateEvent);
+                break;
 
-                log.warn("The job could not be executed.", jobException);
-                return;
-            }
-
-            DataMessageStateEvent dataMessageStateEvent =
-                    new DataMessageStateEvent(
-                            this, dataMessage.get(), MessageState.EXECUTED, null, Instant.now());
-            messageStateEventPublisher.publishEvent(dataMessageStateEvent);
-            break;
+            default:
+                log.warn("The message type does not exist.");
+                break;
         }
     }
 }
