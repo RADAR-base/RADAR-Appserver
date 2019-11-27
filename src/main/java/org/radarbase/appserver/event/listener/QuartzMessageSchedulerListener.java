@@ -76,32 +76,33 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
         MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
         Long messageId = jobDataMap.getLongValue("messageId");
 
-        switch(type) {
+        switch (type) {
             case NOTIFICATION:
-            Optional<Notification> notification =
-                    notificationRepository.findById(messageId);
-            if (notification.isEmpty()) {
-                log.warn("The notification does not exist in database and yet was scheduled.");
-                return;
-            }
-            NotificationStateEvent notificationStateEvent =
-                    new NotificationStateEvent(
-                            this, notification.get(), MessageState.SCHEDULED, null, Instant.now());
-            messageStateEventPublisher.publishEvent(notificationStateEvent);
-            break;
-
+                Optional<Notification> notification =
+                        notificationRepository.findById(messageId);
+                if (notification.isEmpty()) {
+                    log.warn("The notification does not exist in database and yet was scheduled.");
+                    return;
+                }
+                NotificationStateEvent notificationStateEvent =
+                        new NotificationStateEvent(
+                                this, notification.get(), MessageState.SCHEDULED, null, Instant.now());
+                messageStateEventPublisher.publishEvent(notificationStateEvent);
+                break;
             case DATA:
-            Optional<DataMessage> dataMessage =
-                    dataMessageRepository.findById(messageId);
-            if (dataMessage.isEmpty()) {
-                log.warn("The data message does not exist in database and yet was scheduled.");
-                return;
-            }
-            DataMessageStateEvent dataMessageStateEvent =
-                    new DataMessageStateEvent(
-                            this, dataMessage.get(), MessageState.SCHEDULED, null, Instant.now());
-            messageStateEventPublisher.publishEvent(dataMessageStateEvent);            
-            break;
+                Optional<DataMessage> dataMessage =
+                        dataMessageRepository.findById(messageId);
+                if (dataMessage.isEmpty()) {
+                    log.warn("The data message does not exist in database and yet was scheduled.");
+                    return;
+                }
+                DataMessageStateEvent dataMessageStateEvent =
+                        new DataMessageStateEvent(
+                                this, dataMessage.get(), MessageState.SCHEDULED, null, Instant.now());
+                messageStateEventPublisher.publishEvent(dataMessageStateEvent);
+                break;
+            default:
+                break;
         }
     }
 

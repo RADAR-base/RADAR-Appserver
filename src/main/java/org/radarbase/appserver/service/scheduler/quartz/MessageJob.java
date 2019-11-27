@@ -84,13 +84,15 @@ public class MessageJob implements Job {
                     Notification notification =
                             notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
                                     projectId, subjectId, messageId);
-                    notificationSchedulerService.sendNotification(notification);
+                    notificationSchedulerService.send(notification);
                     break;
                 case DATA:
                     DataMessage dataMessage =
                             dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
                                     projectId, subjectId, messageId);
-                    dataMessageSchedulerService.sendDataMessage(dataMessage);
+                    dataMessageSchedulerService.send(dataMessage);
+                    break;
+                default:
                     break;
             }
         } catch (Exception e) {

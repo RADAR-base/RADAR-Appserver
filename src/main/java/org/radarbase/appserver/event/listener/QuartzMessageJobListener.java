@@ -100,10 +100,13 @@ public class QuartzMessageJobListener implements JobListener {
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
         JobDataMap jobDataMap = context.getMergedJobDataMap();
         Long messageId = jobDataMap.getLongValue("messageId");
-        MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
+        String messageType = jobDataMap.getString("messageType");
+        if (messageType == null) {
+            log.warn("The message type does not exist.");
+            return;
+        }
 
-        if (type == null) return;
-
+        MessageType type = MessageType.valueOf(messageType);
         switch (type) {
             case NOTIFICATION:
                 Optional<Notification> notification =
