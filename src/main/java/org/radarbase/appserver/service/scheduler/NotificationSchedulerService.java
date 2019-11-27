@@ -93,7 +93,8 @@ public class NotificationSchedulerService extends MessageSchedulerService {
     }
 
 
-    public void sendNotification(Notification notification) throws Exception {
-        send(createMessageFromNotification(notification));
+    public void send(Message notification) throws Exception {
+        if (notification instanceof Notification)
+            fcmSender.send(createMessageFromNotification((Notification) notification));
     }
 }

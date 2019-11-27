@@ -117,7 +117,7 @@ class NotificationSchedulerServiceTest {
 
     @Test
     void sendNotification() {
-        assertDoesNotThrow(() -> notificationSchedulerService.sendNotification(notification));
+        assertDoesNotThrow(() -> notificationSchedulerService.send(notification));
     }
 
     @Test

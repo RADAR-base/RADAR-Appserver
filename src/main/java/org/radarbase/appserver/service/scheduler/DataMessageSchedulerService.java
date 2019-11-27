@@ -23,6 +23,7 @@ package org.radarbase.appserver.service.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.entity.DataMessage;
+import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.service.scheduler.quartz.*;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmDataMessage;
@@ -67,8 +68,8 @@ public class DataMessageSchedulerService extends MessageSchedulerService {
                 .build();
     }
 
-    public void sendDataMessage(DataMessage dataMessage) throws Exception {
-        send(createMessageFromDataMessage(dataMessage));
+    public void send(Message dataMessage) throws Exception {
+        if (dataMessage instanceof DataMessage) fcmSender.send(createMessageFromDataMessage((DataMessage) dataMessage));
     }
 
 }

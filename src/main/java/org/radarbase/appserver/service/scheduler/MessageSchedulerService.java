@@ -58,6 +58,8 @@ public abstract class MessageSchedulerService {
         this.schedulerService = schedulerService;
     }
 
+    public abstract void send(Message message) throws Exception;
+
     public static SimpleTriggerFactoryBean getTriggerForMessage(
             Message message, JobDetail jobDetail) {
         SimpleTriggerFactoryBean triggerFactoryBean = new SimpleTriggerFactoryBean();
@@ -162,10 +164,6 @@ public abstract class MessageSchedulerService {
                         NAMING_STRATEGY.getJobKeyName(
                                 message.getUser().getSubjectId(), message.getId().toString()));
         schedulerService.deleteScheduledJob(key);
-    }
-
-    public void send(FcmDownstreamMessage message) throws Exception {
-        fcmSender.send(message);
     }
 
     public MessageType getMessageType(Message message) {
