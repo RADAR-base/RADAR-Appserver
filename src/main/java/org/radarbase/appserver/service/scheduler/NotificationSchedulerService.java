@@ -21,14 +21,12 @@
 
 package org.radarbase.appserver.service.scheduler;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.*;
-import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.service.scheduler.quartz.*;
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmNotificationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +42,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-public class NotificationSchedulerService extends MessageSchedulerService {
+public class NotificationSchedulerService extends MessageSchedulerService<Notification> {
 
     public NotificationSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
@@ -93,8 +91,7 @@ public class NotificationSchedulerService extends MessageSchedulerService {
     }
 
 
-    public void send(Message notification) throws Exception {
-        if (notification instanceof Notification)
-            fcmSender.send(createMessageFromNotification((Notification) notification));
+    public void send(Notification notification) throws Exception {
+        fcmSender.send(createMessageFromNotification(notification));
     }
 }

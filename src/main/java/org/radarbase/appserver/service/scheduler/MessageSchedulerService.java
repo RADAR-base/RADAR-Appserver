@@ -21,28 +21,39 @@
 
 package org.radarbase.appserver.service.scheduler;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.*;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
+import org.quartz.TriggerKey;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.MessageType;
-import org.radarbase.appserver.service.scheduler.quartz.*;
+import org.radarbase.appserver.service.scheduler.quartz.MessageJob;
+import org.radarbase.appserver.service.scheduler.quartz.QuartzNamingStrategy;
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
+import org.radarbase.appserver.service.scheduler.quartz.SimpleQuartzNamingStrategy;
 import org.radarbase.fcm.downstream.FcmSender;
-import org.radarbase.fcm.model.FcmDownstreamMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Service
 @Slf4j
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public abstract class MessageSchedulerService {
+public abstract class MessageSchedulerService<T extends Message> {
 
     // TODO add a schedule cache to cache incoming requests
 
@@ -58,7 +69,7 @@ public abstract class MessageSchedulerService {
         this.schedulerService = schedulerService;
     }
 
-    public abstract void send(Message message) throws Exception;
+    public abstract void send(T message) throws Exception;
 
     public static SimpleTriggerFactoryBean getTriggerForMessage(
             Message message, JobDetail jobDetail) {
@@ -99,7 +110,7 @@ public abstract class MessageSchedulerService {
         }
     }
 
-    public void schedule(Message message) {
+    public void schedule(T message) {
         log.info("Message = {}", message);
 
         JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
@@ -112,17 +123,16 @@ public abstract class MessageSchedulerService {
         }
     }
 
-    public <T> void scheduleMultiple(List<T> messages) {
+    public void scheduleMultiple(List<T> messages) {
         Map<JobDetail, Set<? extends Trigger>> jobDetailSetMap = new HashMap<>();
         messages.forEach(
                 (T m) -> {
-                    Message message = (Message) m;
-                    log.debug("Message = {}", message);
-                    JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
+                    log.debug("Message = {}", m);
+                    JobDetail jobDetail = getJobDetailForMessage(m, getMessageType(m)).getObject();
 
                     log.debug("Job Detail = {}", jobDetail);
                     Set<Trigger> triggerSet = new HashSet<>();
-                    triggerSet.add(getTriggerForMessage(message, jobDetail).getObject());
+                    triggerSet.add(getTriggerForMessage(m, jobDetail).getObject());
 
                     jobDetailSetMap.putIfAbsent(jobDetail, triggerSet);
                 });
@@ -130,7 +140,7 @@ public abstract class MessageSchedulerService {
         schedulerService.scheduleJobs(jobDetailSetMap);
     }
 
-    public void updateScheduled(Message message) {
+    public void updateScheduled(T message) {
         String jobKeyString =
                 NAMING_STRATEGY.getJobKeyName(
                         message.getUser().getSubjectId(), message.getId().toString());
@@ -144,21 +154,17 @@ public abstract class MessageSchedulerService {
         schedulerService.updateScheduledJob(jobKey, triggerKey, jobDataMap, message);
     }
 
-    public <T> void deleteScheduledMultiple(List<T> messages) {
+    public void deleteScheduledMultiple(List<T> messages) {
         List<JobKey> keys =
                 messages.stream()
                         .map(
-                                n -> {
-                                    Message message = (Message) n;
-                                    return new JobKey(
-                                            NAMING_STRATEGY.getJobKeyName(
-                                                    message.getUser().getSubjectId(), message.getId().toString()));
-                                })
+                                n -> new JobKey(NAMING_STRATEGY.getJobKeyName(
+                                                n.getUser().getSubjectId(), n.getId().toString())))
                         .collect(Collectors.toList());
         schedulerService.deleteScheduledJobs(keys);
     }
 
-    public void deleteScheduled(Message message) {
+    public void deleteScheduled(T message) {
         JobKey key =
                 new JobKey(
                         NAMING_STRATEGY.getJobKeyName(
@@ -166,7 +172,7 @@ public abstract class MessageSchedulerService {
         schedulerService.deleteScheduledJob(key);
     }
 
-    public MessageType getMessageType(Message message) {
+    public MessageType getMessageType(T message) {
         if (message instanceof Notification) {
             return MessageType.NOTIFICATION;
         } else if (message instanceof DataMessage) {

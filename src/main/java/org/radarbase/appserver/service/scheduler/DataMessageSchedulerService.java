@@ -21,17 +21,15 @@
 
 package org.radarbase.appserver.service.scheduler;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Message;
-import org.radarbase.appserver.service.scheduler.quartz.*;
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmDataMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 /**
  * {@link Service} for scheduling Data Messages to be sent through FCM at the {@link
@@ -43,7 +41,7 @@ import java.util.*;
 @Service
 @Slf4j
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class DataMessageSchedulerService extends MessageSchedulerService {
+public class DataMessageSchedulerService extends MessageSchedulerService<DataMessage> {
 
     public DataMessageSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
@@ -68,8 +66,8 @@ public class DataMessageSchedulerService extends MessageSchedulerService {
                 .build();
     }
 
-    public void send(Message dataMessage) throws Exception {
-        if (dataMessage instanceof DataMessage) fcmSender.send(createMessageFromDataMessage((DataMessage) dataMessage));
+    public void send(DataMessage dataMessage) throws Exception {
+        fcmSender.send(createMessageFromDataMessage(dataMessage));
     }
 
 }
