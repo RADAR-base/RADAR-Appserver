@@ -36,41 +36,41 @@ import org.springframework.stereotype.Component;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class NotificationConverter implements Converter<Notification, FcmNotificationDto> {
 
-  @Override
-  public Notification dtoToEntity(FcmNotificationDto notificationDto) {
-    return new Notification()
-        .toBuilder()
-        .body(notificationDto.getBody())
-        .scheduledTime(notificationDto.getScheduledTime())
-        .title(notificationDto.getTitle())
-        .sourceId(notificationDto.getSourceId())
-        .type(notificationDto.getType())
-        .ttlSeconds(notificationDto.getTtlSeconds())
-        .fcmMessageId(String.valueOf(notificationDto.hashCode()))
-        .appPackage(notificationDto.getAppPackage())
-        .sourceType(notificationDto.getSourceType())
-        .additionalData(notificationDto.getAdditionalData())
-        .androidChannelId(notificationDto.getAndroidChannelId())
-        .bodyLocArgs(notificationDto.getBodyLocArgs())
-        .bodyLocKey(notificationDto.getBodyLocKey())
-        .titleLocKey(notificationDto.getTitleLocKey())
-        .titleLocArgs(notificationDto.getTitleLocArgs())
-        .badge(notificationDto.getBadge())
-        .clickAction(notificationDto.getClickAction())
-        .color(notificationDto.getColor())
-        .fcmCondition(notificationDto.getFcmCondition())
-        .fcmTopic(notificationDto.getFcmTopic())
-        .icon(notificationDto.getIcon())
-        .mutableContent(notificationDto.isMutableContent())
-        .priority(notificationDto.getPriority())
-        .sound(notificationDto.getSound())
-        .subtitle(notificationDto.getSubtitle())
-        .tag(notificationDto.getTag())
-        .build();
-  }
+    @Override
+    public Notification dtoToEntity(FcmNotificationDto notificationDto) {
 
-  @Override
-  public FcmNotificationDto entityToDto(Notification notification) {
-    return new FcmNotificationDto(notification);
-  }
+        return new Notification.NotificationBuilder()
+                .body(notificationDto.getBody())
+                .scheduledTime(notificationDto.getScheduledTime())
+                .title(notificationDto.getTitle())
+                .sourceId(notificationDto.getSourceId())
+                .type(notificationDto.getType())
+                .ttlSeconds(notificationDto.getTtlSeconds())
+                .fcmMessageId(String.valueOf(notificationDto.hashCode()))
+                .appPackage(notificationDto.getAppPackage())
+                .sourceType(notificationDto.getSourceType())
+                .additionalData(notificationDto.getAdditionalData())
+                .androidChannelId(notificationDto.getAndroidChannelId())
+                .bodyLocArgs(notificationDto.getBodyLocArgs())
+                .bodyLocKey(notificationDto.getBodyLocKey())
+                .titleLocKey(notificationDto.getTitleLocKey())
+                .titleLocArgs(notificationDto.getTitleLocArgs())
+                .badge(notificationDto.getBadge())
+                .clickAction(notificationDto.getClickAction())
+                .color(notificationDto.getColor())
+                .fcmCondition(notificationDto.getFcmCondition())
+                .fcmTopic(notificationDto.getFcmTopic())
+                .icon(notificationDto.getIcon())
+                .mutableContent(notificationDto.isMutableContent())
+                .priority(notificationDto.getPriority())
+                .sound(notificationDto.getSound())
+                .subtitle(notificationDto.getSubtitle())
+                .tag(notificationDto.getTag())
+                .build();
+    }
+
+    @Override
+    public FcmNotificationDto entityToDto(Notification notification) {
+        return new FcmNotificationDto(notification);
+    }
 }

@@ -21,18 +21,10 @@
 
 package org.radarbase.appserver.repository;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.Duration;
-import java.time.Instant;
-import javax.validation.ConstraintViolationException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,27 +33,31 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.validation.ConstraintViolationException;
+import java.time.Duration;
+import java.time.Instant;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @EnableJpaAuditing
-public class NotificationRepositoryTest {
-    public static final String NOTIFICATION_BODY = "Test notif";
-    public static final String NOTIFICATION_TITLE = "Testing";
-    public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
-    public static final String NOTIFICATION_SOURCE_ID = "test";
+public class DataMessageRepositoryTest {
+    public static final String DATA_MESSAGE_FCM_MESSAGE_ID = "12345";
+    public static final String DATA_MESSAGE_SOURCE_ID = "test";
     @Autowired
     private transient TestEntityManager entityManager;
     @Autowired
-    private transient NotificationRepository notificationRepository;
+    private transient DataMessageRepository dataMessageRepository;
     private transient Long id;
     private transient User user;
     private transient Instant scheduledTime;
 
     /**
-     * Insert a Notification Before each test.
+     * Insert a DataMessage Before each test.
      */
     @Before
-    public void initNotification() {
+    public void initDataMessage() {
         // given
         Project project = new Project().setProjectId("test-project");
         entityManager.persist(project);
@@ -78,33 +74,29 @@ public class NotificationRepositoryTest {
 
         this.scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
 
-        Notification notification =
-                new Notification.NotificationBuilder()
+        DataMessage dataMessage =
+                new DataMessage.DataMessageBuilder()
                         .user(user)
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(this.scheduledTime)
-                        .sourceId(NOTIFICATION_SOURCE_ID)
+                        .sourceId(DATA_MESSAGE_SOURCE_ID)
                         .ttlSeconds(86400)
                         .delivered(false)
                         .build();
 
-        this.id = (Long) entityManager.persistAndGetId(notification);
+        this.id = (Long) entityManager.persistAndGetId(dataMessage);
         entityManager.flush();
     }
 
     @Test
     public void whenInsertWithTransientUser_thenThrowException() {
         // given
-        Notification notification =
-                new Notification.NotificationBuilder()
+        DataMessage dataMessage =
+                new DataMessage.DataMessageBuilder()
                         .user(new User())
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(NOTIFICATION_SOURCE_ID)
+                        .sourceId(DATA_MESSAGE_SOURCE_ID)
                         .ttlSeconds(86400)
                         .delivered(false)
                         .build();
@@ -113,7 +105,7 @@ public class NotificationRepositoryTest {
                 assertThrows(
                         IllegalStateException.class,
                         () -> {
-                            entityManager.persist(notification);
+                            entityManager.persist(dataMessage);
                             entityManager.flush();
                         });
 
@@ -123,13 +115,11 @@ public class NotificationRepositoryTest {
     @Test
     public void whenInsertWithoutUser_thenThrowException() {
         // given
-        Notification notification =
-                new Notification.NotificationBuilder()
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+        DataMessage dataMessage =
+                new DataMessage.DataMessageBuilder()
+                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(NOTIFICATION_SOURCE_ID)
+                        .sourceId(DATA_MESSAGE_SOURCE_ID)
                         .ttlSeconds(86400)
                         .delivered(false)
                         .build();
@@ -137,7 +127,7 @@ public class NotificationRepositoryTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    entityManager.persist(notification);
+                    entityManager.persist(dataMessage);
                     entityManager.flush();
                 });
     }
@@ -164,14 +154,12 @@ public class NotificationRepositoryTest {
 
         assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
 
-        Notification notification =
-                new Notification.NotificationBuilder()
+        DataMessage dataMessage =
+                new DataMessage.DataMessageBuilder()
                         .user(user)
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
+                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(NOTIFICATION_SOURCE_ID)
+                        .sourceId(DATA_MESSAGE_SOURCE_ID)
                         .ttlSeconds(86400)
                         .delivered(false)
                         .build();
@@ -180,7 +168,7 @@ public class NotificationRepositoryTest {
                 assertThrows(
                         IllegalStateException.class,
                         () -> {
-                            entityManager.persist(notification);
+                            entityManager.persist(dataMessage);
                             entityManager.flush();
                         });
 
@@ -191,38 +179,35 @@ public class NotificationRepositoryTest {
     public void whenExists_thenReturnTrue() {
         // when
         boolean exists =
-                notificationRepository
-                        .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                dataMessageRepository
+                        .existsByUserIdAndSourceIdAndScheduledTimeAndTtlSeconds(
                                 this.user.getId(),
-                                NOTIFICATION_SOURCE_ID,
+                                DATA_MESSAGE_SOURCE_ID,
                                 this.scheduledTime,
-                                NOTIFICATION_TITLE,
-                                NOTIFICATION_BODY,
-                                null,
                                 86400);
 
         // then
         assertTrue(exists);
-        assertTrue(notificationRepository.existsById(this.id));
+        assertTrue(dataMessageRepository.existsById(this.id));
     }
 
     @Test
-    public void whenDeleteNotificationByFcmMessageId_thenExistsFalse() {
+    public void whenDeleteDataMessageByFcmMessageId_thenExistsFalse() {
         // when
-        notificationRepository.deleteByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        dataMessageRepository.deleteByFcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID);
 
         // then
-        Notification notification = entityManager.find(Notification.class, this.id);
-        assertNull(notification);
+        DataMessage dataMessage = entityManager.find(DataMessage.class, this.id);
+        assertNull(dataMessage);
     }
 
     @Test
-    public void whenDeleteNotificationByUserId_thenExistsFalse() {
+    public void whenDeleteDataMessageByUserId_thenExistsFalse() {
         // when
-        notificationRepository.deleteByUserId(this.user.getId());
+        dataMessageRepository.deleteByUserId(this.user.getId());
 
         // then
-        Notification notification = entityManager.find(Notification.class, this.id);
-        assertNull(notification);
+        DataMessage dataMessage = entityManager.find(DataMessage.class, this.id);
+        assertNull(dataMessage);
     }
 }

@@ -19,20 +19,10 @@
  *
  */
 
-package org.radarbase.appserver.event.state;
+package org.radarbase.appserver.service;
 
-public enum NotificationState {
-  // Database controlled
-  ADDED, UPDATED, CANCELLED,
+public interface DataMessageService {
 
-  // Scheduler Controlled
-  SCHEDULED,
-  EXECUTED,
+  // TODO add methods and use for autowiring everywhere
 
-  // Controlled by entities outside the appserver.
-  // These will need to be reported to the appserver.
-  DELIVERED, OPENED, DISMISSED,
-
-  // Misc
-  ERRORED, UNKNOWN
 }

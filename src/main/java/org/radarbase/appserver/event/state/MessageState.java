@@ -19,11 +19,20 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler.quartz;
+package org.radarbase.appserver.event.state;
 
-public interface QuartzNamingStrategy {
+public enum MessageState {
+    // Database controlled
+    ADDED, UPDATED, CANCELLED,
 
-  String getTriggerName(String userName, String messageId);
+    // Scheduler Controlled
+    SCHEDULED,
+    EXECUTED,
 
-  String getJobKeyName(String userName, String messageId);
+    // Controlled by entities outside the appserver.
+    // These will need to be reported to the appserver.
+    DELIVERED, OPENED, DISMISSED,
+
+    // Misc
+    ERRORED, UNKNOWN
 }

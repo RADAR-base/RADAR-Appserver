@@ -22,6 +22,7 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
@@ -39,197 +40,385 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+
+import lombok.*;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.springframework.lang.Nullable;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
  * This also includes information for scheduling the notification through the Firebase Cloud
  * Messaging(FCM) system.
  *
+ * @author yatharthranjan
  * @see Scheduled
  * @see org.radarbase.appserver.service.scheduler.NotificationSchedulerService
  * @see org.radarbase.appserver.service.fcm.FcmMessageReceiverService
- * @author yatharthranjan
  */
 @Table(
-    name = "notifications",
-    uniqueConstraints = {
-      @UniqueConstraint(
-          columnNames = {
-            "user_id",
-            "source_id",
-            "scheduled_time",
-            "title",
-            "body",
-            "type",
-            "ttl_seconds",
-            "delivered",
-            "dry_run"
-          })
-    })
+        name = "notifications",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {
+                                "user_id",
+                                "source_id",
+                                "scheduled_time",
+                                "title",
+                                "body",
+                                "type",
+                                "ttl_seconds",
+                                "delivered",
+                                "dry_run"
+                        })
+        })
 @Entity
 @Getter
 @ToString
-@Builder(toBuilder = true)
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
-public class Notification extends AuditModel implements Serializable, Scheduled {
+@Setter
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
+public class Notification extends Message {
 
-  private static final long serialVersionUID = -367424816328519L;
+    private static final long serialVersionUID = 6L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long id;
+    @NotNull
+    @Column(nullable = false)
+    private String title;
 
-  @NotNull
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "user_id", nullable = false)
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JsonIgnore
-  private User user;
+    private String body;
 
-  @Nullable
-  @Column(name = "source_id")
-  private String sourceId;
+    // Type of notification. In terms of aRMT - PHQ8, RSES, ESM, etc.
+    @Nullable
+    private String type;
 
-  @NotNull
-  @Column(name = "scheduled_time", nullable = false)
-  private Instant scheduledTime;
+    private String sound;
 
-  @NotNull
-  @Column(nullable = false)
-  private String title;
+    // For IOS
+    private String badge;
 
-  private String body;
+    // For IOS
+    private String subtitle;
 
-  // Type of notification. In terms of aRMT - PHQ8, RSES, ESM, etc.
-  @Nullable private String type;
+    // For android
+    private String icon;
 
-  @Column(name = "ttl_seconds")
-  private int ttlSeconds;
+    // For android. Color of the icon
+    private String color;
 
-  @Column(name = "fcm_message_id", unique = true)
-  private String fcmMessageId;
+    @Column(name = "body_loc_key")
+    private String bodyLocKey;
 
-  // for use with the FCM admin SDK
-  @Column(name = "fcm_topic")
-  @Nullable
-  private String fcmTopic;
+    @Column(name = "body_loc_args")
+    private String bodyLocArgs;
 
-  // for use with the FCM admin SDK
-  @Column(name = "fcm_condition")
-  @Nullable
-  private String fcmCondition;
+    @Column(name = "title_loc_key")
+    private String titleLocKey;
 
-  // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
-  private boolean delivered;
+    @Column(name = "title_loc_args")
+    private String titleLocArgs;
 
-  private boolean validated;
+    // For android
+    @Column(name = "android_channel_id")
+    private String androidChannelId;
 
-  @Nullable
-  @Column(name = "app_package")
-  private String appPackage;
+    // For android
+    private String tag;
 
-  // Source Type from the Management Portal
-  @Nullable
-  @Column(name = "source_type")
-  private String sourceType;
+    @Column(name = "click_action")
+    private String clickAction;
 
-  @Column(name = "dry_run")
-  // for use with the FCM admin SDK
-  private boolean dryRun;
+    @Nullable
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name = "additional_key", nullable = true)
+    @Column(name = "additional_value")
+    private Map<String, String> additionalData;
 
-  @Nullable
-  @ElementCollection(fetch = FetchType.EAGER)
-  @MapKeyColumn(name = "additional_key", nullable = true)
-  @Column(name = "additional_value")
-  private Map<String, String> additionalData;
+    @NoArgsConstructor
+    public static class NotificationBuilder {
+        transient Long id;
+        transient User user;
+        transient String sourceId;
+        transient Instant scheduledTime;
+        transient int ttlSeconds;
+        transient String fcmMessageId;
+        transient String fcmTopic;
+        transient String fcmCondition;
+        transient boolean delivered;
+        transient boolean validated;
+        transient String appPackage;
+        transient String sourceType;
+        transient boolean dryRun;
+        transient String priority;
+        transient boolean mutableContent;
+        transient String title;
+        transient String body;
+        transient String type;
+        transient String sound;
+        transient String badge;
+        transient String subtitle;
+        transient String icon;
+        transient String color;
+        transient String bodyLocKey;
+        transient String bodyLocArgs;
+        transient String titleLocKey;
+        transient String titleLocArgs;
+        transient String androidChannelId;
+        transient String tag;
+        transient String clickAction;
+        transient Map<String, String> additionalData;
 
-  private String priority;
 
-  private String sound;
+        public NotificationBuilder(Notification notification) {
+            this.id = notification.getId();
+            this.user = notification.getUser();
+            this.sourceId = notification.getSourceId();
+            this.scheduledTime = notification.getScheduledTime();
+            this.ttlSeconds = notification.getTtlSeconds();
+            this.fcmMessageId = notification.getFcmMessageId();
+            this.fcmTopic = notification.getFcmTopic();
+            this.fcmCondition = notification.getFcmCondition();
+            this.delivered = notification.isDelivered();
+            this.validated = notification.isValidated();
+            this.appPackage = notification.getAppPackage();
+            this.sourceType = notification.getSourceType();
+            this.dryRun = notification.isDryRun();
+            this.mutableContent = notification.isMutableContent();
+            this.additionalData = notification.getAdditionalData();
+            this.title = notification.getTitle();
+            this.body = notification.getBody();
+            this.type = notification.getType();
+            this.sound = notification.getSound();
+            this.badge = notification.getBadge();
+            this.subtitle = notification.getSubtitle();
+            this.icon = notification.getIcon();
+            this.color = notification.getColor();
+            this.bodyLocKey = notification.getBodyLocKey();
+            this.bodyLocArgs = notification.getBodyLocArgs();
+            this.titleLocKey = notification.getTitleLocKey();
+            this.titleLocArgs = notification.getTitleLocArgs();
+            this.androidChannelId = notification.getAndroidChannelId();
+            this.tag = notification.getTag();
+            this.clickAction = notification.getClickAction();
+            this.additionalData = notification.getAdditionalData();
+        }
 
-  // For IOS
-  private String badge;
+        public NotificationBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
 
-  // For IOS
-  private String subtitle;
+        public NotificationBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
 
-  // For android
-  private String icon;
+        public NotificationBuilder sourceId(String sourceId) {
+            this.sourceId = sourceId;
+            return this;
+        }
 
-  // For android. Color of the icon
-  private String color;
+        public NotificationBuilder scheduledTime(Instant scheduledTime) {
+            this.scheduledTime = scheduledTime;
+            return this;
+        }
 
-  @Column(name = "body_loc_key")
-  private String bodyLocKey;
+        public NotificationBuilder ttlSeconds(int ttlSeconds) {
+            this.ttlSeconds = ttlSeconds;
+            return this;
+        }
 
-  @Column(name = "body_loc_args")
-  private String bodyLocArgs;
+        public NotificationBuilder fcmMessageId(String fcmMessageId) {
+            this.fcmMessageId = fcmMessageId;
+            return this;
+        }
 
-  @Column(name = "title_loc_key")
-  private String titleLocKey;
+        public NotificationBuilder fcmTopic(String fcmTopic) {
+            this.fcmTopic = fcmTopic;
+            return this;
+        }
 
-  @Column(name = "title_loc_args")
-  private String titleLocArgs;
+        public NotificationBuilder fcmCondition(String fcmCondition) {
+            this.fcmCondition = fcmCondition;
+            return this;
+        }
 
-  // For android
-  @Column(name = "android_channel_id")
-  private String androidChannelId;
+        public NotificationBuilder delivered(boolean delivered) {
+            this.delivered = delivered;
+            return this;
+        }
 
-  // For android
-  private String tag;
+        public NotificationBuilder appPackage(String appPackage) {
+            this.appPackage = appPackage;
+            return this;
+        }
 
-  @Column(name = "click_action")
-  private String clickAction;
+        public NotificationBuilder sourceType(String sourceType) {
+            this.sourceType = sourceType;
+            return this;
+        }
 
-  @Column(name = "mutable_content")
-  private boolean mutableContent;
+        public NotificationBuilder dryRun(boolean dryRun) {
+            this.dryRun = dryRun;
+            return this;
+        }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+        public NotificationBuilder priority(String priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public NotificationBuilder mutableContent(boolean mutableContent) {
+            this.mutableContent = mutableContent;
+            return this;
+        }
+
+
+        public NotificationBuilder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public NotificationBuilder body(String body) {
+            this.body = body;
+            return this;
+        }
+
+        public NotificationBuilder type(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public NotificationBuilder sound(String sound) {
+            this.sound = sound;
+            return this;
+        }
+
+        public NotificationBuilder badge(String badge) {
+            this.badge = badge;
+            return this;
+        }
+
+        public NotificationBuilder subtitle(String subtitle) {
+            this.subtitle = subtitle;
+            return this;
+        }
+
+        public NotificationBuilder icon(String icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        public NotificationBuilder color(String color) {
+            this.color = color;
+            return this;
+        }
+
+        public NotificationBuilder bodyLocKey(String bodyLocKey) {
+            this.bodyLocKey = bodyLocKey;
+            return this;
+        }
+
+        public NotificationBuilder bodyLocArgs(String bodyLocArgs) {
+            this.bodyLocArgs = bodyLocArgs;
+            return this;
+        }
+
+        public NotificationBuilder titleLocKey(String titleLocKey) {
+            this.titleLocKey = titleLocKey;
+            return this;
+        }
+
+        public NotificationBuilder titleLocArgs(String titleLocArgs) {
+            this.titleLocArgs = titleLocArgs;
+            return this;
+        }
+
+        public NotificationBuilder androidChannelId(String androidChannelId) {
+            this.androidChannelId = androidChannelId;
+            return this;
+        }
+
+        public NotificationBuilder tag(String tag) {
+            this.tag = tag;
+            return this;
+        }
+
+        public NotificationBuilder clickAction(String clickAction) {
+            this.clickAction = clickAction;
+            return this;
+        }
+
+        public NotificationBuilder additionalData(Map<String, String> additionalData) {
+            this.additionalData = additionalData;
+            return this;
+        }
+
+        public Notification build() {
+            Notification notification = new Notification();
+            notification.setId(this.id);
+            notification.setUser(this.user);
+            notification.setSourceId(this.sourceId);
+            notification.setScheduledTime(this.scheduledTime);
+            notification.setTtlSeconds(this.ttlSeconds);
+            notification.setFcmMessageId(this.fcmMessageId);
+            notification.setFcmTopic(this.fcmTopic);
+            notification.setFcmCondition(this.fcmCondition);
+            notification.setDelivered(this.delivered);
+            notification.setValidated(this.validated);
+            notification.setAppPackage(this.appPackage);
+            notification.setSourceType(this.sourceType);
+            notification.setDryRun(this.dryRun);
+            notification.setPriority(this.priority);
+            notification.setMutableContent(this.mutableContent);
+            notification.setAdditionalData(this.additionalData);
+            notification.setTitle(this.title);
+            notification.setBody(this.body);
+            notification.setType(this.type);
+            notification.setSound(this.sound);
+            notification.setBadge(this.badge);
+            notification.setSubtitle(this.subtitle);
+            notification.setIcon(this.icon);
+            notification.setColor(this.color);
+            notification.setBodyLocKey(this.bodyLocKey);
+            notification.setBodyLocArgs(this.bodyLocArgs);
+            notification.setTitleLocKey(this.titleLocKey);
+            notification.setTitleLocArgs(this.titleLocArgs);
+            notification.setAndroidChannelId(this.androidChannelId);
+            notification.setTag(this.tag);
+            notification.setClickAction(this.clickAction);
+            notification.setAdditionalData(this.additionalData);
+
+            return notification;
+        }
     }
-    if (!(o instanceof Notification)) {
-      return false;
-    }
-    Notification that = (Notification) o;
-    return getTtlSeconds() == that.getTtlSeconds()
-        && isDelivered() == that.isDelivered()
-        && isDryRun() == that.isDryRun()
-        && Objects.equals(getUser(), that.getUser())
-        && Objects.equals(getSourceId(), that.getSourceId())
-        && Objects.equals(getScheduledTime(), that.getScheduledTime())
-        && Objects.equals(getTitle(), that.getTitle())
-        && Objects.equals(getBody(), that.getBody())
-        && Objects.equals(getType(), that.getType())
-        && Objects.equals(getAppPackage(), that.getAppPackage());
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        getUser(),
-        getSourceId(),
-        getScheduledTime(),
-        getTitle(),
-        getBody(),
-        getType(),
-        getTtlSeconds(),
-        isDelivered(),
-        isDryRun(),
-        getAppPackage(),
-        getSourceType());
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Notification)) {
+            return false;
+        }
+        Notification that = (Notification) o;
+        return super.equals(o)
+                && Objects.equals(getTitle(), that.getTitle())
+                && Objects.equals(getBody(), that.getBody())
+                && Objects.equals(getType(), that.getType());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.hashCode(),
+                getTitle(),
+                getBody(),
+                getType());
+    }
 }

@@ -19,11 +19,10 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler.quartz;
+package org.radarbase.appserver.service;
 
-public interface QuartzNamingStrategy {
-
-  String getTriggerName(String userName, String messageId);
-
-  String getJobKeyName(String userName, String messageId);
+public enum MessageType {
+    NOTIFICATION,
+    DATA,
+    UNKNOWN
 }

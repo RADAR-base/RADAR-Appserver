@@ -19,11 +19,27 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler.quartz;
+package org.radarbase.appserver.dto;
 
-public interface QuartzNamingStrategy {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.radarbase.appserver.event.state.MessageState;
 
-  String getTriggerName(String userName, String messageId);
+import java.time.Instant;
 
-  String getJobKeyName(String userName, String messageId);
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class DataMessageStateEventDto {
+
+    private Long id;
+
+    private Long dataMessageId;
+
+    private MessageState state;
+
+    private Instant time;
+
+    private String associatedInfo;
 }

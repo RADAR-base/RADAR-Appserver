@@ -23,7 +23,7 @@ package org.radarbase.appserver.event.state;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.entity.DataMessage;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -32,27 +32,27 @@ import java.util.Map;
 
 @Getter
 @ToString
-public class NotificationStateEvent extends MessageStateEvent {
-    private static final long serialVersionUID = 327842183571938L;
+public class DataMessageStateEvent extends MessageStateEvent {
+    private static final long serialVersionUID = 327842183571939L;
 
-    private Notification notification;
+    private DataMessage dataMessage;
 
     /**
      * Create a new ApplicationEvent.
      *
      * @param source         the object on which the event initially occurred (never {@code null})
-     * @param notification   the notification associated with this state event.
+     * @param dataMessage    the data message associated with this state event.
      * @param state          the current {@link MessageState} change of the {@link
-     *                       Notification} entity.
+     *                       DataMessage} entity.
      * @param additionalInfo any additional info associated with the state change.
      */
-    public NotificationStateEvent(
+    public DataMessageStateEvent(
             Object source,
-            @NonNull Notification notification,
+            @NonNull DataMessage dataMessage,
             @NonNull MessageState state,
             @Nullable Map<String, String> additionalInfo,
             @NonNull Instant time) {
         super(source, state, additionalInfo, time);
-        this.notification = notification;
+        this.dataMessage = dataMessage;
     }
 }

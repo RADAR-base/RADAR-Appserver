@@ -19,11 +19,19 @@
  *
  */
 
-package org.radarbase.appserver.service.scheduler.quartz;
+package org.radarbase.appserver.repository;
 
-public interface QuartzNamingStrategy {
+import org.radarbase.appserver.entity.DataMessageStateEvent;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-  String getTriggerName(String userName, String messageId);
+import java.util.List;
 
-  String getJobKeyName(String userName, String messageId);
+@Repository
+public interface DataMessageStateEventRepository extends
+        JpaRepository<DataMessageStateEvent, Long> {
+
+    List<DataMessageStateEvent> findByDataMessageId(long dataMessageId);
+
+    long countByDataMessageId(long dataMessageId);
 }
