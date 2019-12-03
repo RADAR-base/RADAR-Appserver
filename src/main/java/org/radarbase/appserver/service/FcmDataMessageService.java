@@ -260,7 +260,17 @@ public class FcmDataMessageService implements DataMessageService {
     // TODO: Investigate if data messages/notifications can be marked in the state CANCELLED when deleted.
     @Transactional
     public void deleteDataMessageByFcmMessageId(String fcmMessageId) {
-        this.dataMessageRepository.deleteByFcmMessageId(fcmMessageId);
+        Optional<DataMessage> dataMessage =
+                this.dataMessageRepository.findByFcmMessageId(fcmMessageId);
+
+        dataMessage.ifPresentOrElse(
+                (DataMessage d) -> {
+                    this.dataMessageRepository.deleteByFcmMessageId(fcmMessageId);
+                },
+                () -> {
+                    throw new InvalidNotificationDetailsException(
+                            "Data message with the provided FCM message ID does not exist.");
+                });
     }
 
     @Transactional
