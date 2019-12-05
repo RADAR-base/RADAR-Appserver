@@ -121,38 +121,47 @@ public class UserService {
     }
   }
 
-  @Transactional
-  public FcmUserDto saveUserInProject(FcmUserDto userDto) {
 
-    // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject
-    // id, then get project id and source ids from MP)
-    // TODO: Make the above pluggable so can use others or none.
+    @Transactional
+    public FcmUserDto saveUserInProject(FcmUserDto userDto) {
 
-    log.debug("User DTO:" + userDto);
-    Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
-    if (project.isEmpty()) {
-      throw new NotFoundException(
-          "Project Id does not exist. Please create a project with the ID first");
+        // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject
+        // id, then get project id and source ids from MP)
+        // TODO: Make the above pluggable so can use others or none.
+
+        log.debug("User DTO:" + userDto);
+        Project project = projectExistElseCreate(userDto.getProjectId());
+
+        Optional<User> user =
+                this.userRepository.findBySubjectIdAndProjectId(
+                        userDto.getSubjectId(), project.getId());
+
+        if (user.isPresent()) {
+            throw new InvalidUserDetailsException(
+                    "The user with specified subject ID "
+                            + userDto.getSubjectId()
+                            + " already exists in project ID "
+                            + userDto.getProjectId()
+                            + ". Please use Update endpoint if need to update the user");
+        } else {
+            User newUser = userConverter.dtoToEntity(userDto).setProject(project);
+            // maintain a bi-directional relationship
+            newUser.getUsermetrics().setUser(newUser);
+            return userConverter.entityToDto(this.userRepository.save(newUser));
+        }
     }
 
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(
-            userDto.getSubjectId(), project.get().getId());
+    public Project projectExistElseCreate(String projectId) {
+        Boolean projectExists = this.projectRepository.existsByProjectId(projectId);
 
-    if (user.isPresent()) {
-      throw new InvalidUserDetailsException(
-          "The user with specified subject ID "
-              + userDto.getSubjectId()
-              + " already exists in project ID "
-              + userDto.getProjectId()
-              + ". Please use Update endpoint if need to update the user");
-    } else {
-      User newUser = userConverter.dtoToEntity(userDto).setProject(project.get());
-      // maintain a bi-directional relationship
-      newUser.getUsermetrics().setUser(newUser);
-      return userConverter.entityToDto(this.userRepository.save(newUser));
+        if (!projectExists) {
+            log.warn("Project Id does not exist. Creating project...");
+            Project newProject = new Project().setProjectId(projectId);
+            return this.projectRepository.saveAndFlush(newProject);
+        }
+
+        return this.projectRepository.findByProjectId(projectId).get();
     }
-  }
 
   // TODO update to use Id instead of subjectId
   @Transactional
