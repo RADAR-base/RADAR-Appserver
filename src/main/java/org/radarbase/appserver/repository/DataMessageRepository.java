@@ -47,6 +47,8 @@ public interface DataMessageRepository extends JpaRepository<DataMessage, Long> 
 
     void deleteByFcmMessageId(String fcmMessageId);
 
+    void deleteById(long id);
+
     Optional<DataMessage> findByFcmMessageId(String fcmMessageId);
 
     Optional<DataMessage> findByIdAndUserId(long id, long userId);

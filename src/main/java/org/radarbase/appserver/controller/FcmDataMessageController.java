@@ -242,11 +242,11 @@ public class FcmDataMessageController {
                     + AuthConstantsUtil.ACCESSOR
                     + AuthConstantsUtil.SUBJECT_ID
                     + ")")
-    @DeleteMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/{fcmMessageId}")
-    public ResponseEntity deleteDataMessageUsingFcmMessageId(
-            @PathVariable String fcmMessageId) {
+    @DeleteMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/{id}")
+    public ResponseEntity deleteDataMessageUsingId(
+            @PathVariable Long id) {
 
-        this.dataMessageService.deleteDataMessageByFcmMessageId(fcmMessageId);
+        this.dataMessageService.deleteDataMessageById(id);
         return ResponseEntity.ok().build();
     }
 }

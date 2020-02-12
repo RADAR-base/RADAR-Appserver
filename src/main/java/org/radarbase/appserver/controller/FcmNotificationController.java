@@ -245,11 +245,11 @@ public class FcmNotificationController {
                     + AuthConstantsUtil.ACCESSOR
                     + AuthConstantsUtil.SUBJECT_ID
                     + ")")
-    @DeleteMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{fcmMessageId}")
-    public ResponseEntity deleteNotificationUsingFcmMessageId(
-            @PathVariable String fcmMessageId) {
+    @DeleteMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{id}")
+    public ResponseEntity deleteNotificationUsingId(
+            @PathVariable Long id) {
 
-        this.notificationService.deleteNotificationByFcmMessageId(fcmMessageId);
+        this.notificationService.deleteNotificationById(id);
         return ResponseEntity.ok().build();
     }
 }

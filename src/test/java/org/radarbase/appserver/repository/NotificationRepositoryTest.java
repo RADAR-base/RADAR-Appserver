@@ -47,7 +47,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class NotificationRepositoryTest {
     public static final String NOTIFICATION_BODY = "Test notif";
     public static final String NOTIFICATION_TITLE = "Testing";
-    public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
+    public static final String NOTIFICATION_ID = "12345";
     public static final String NOTIFICATION_SOURCE_ID = "test";
     @Autowired
     private transient TestEntityManager entityManager;
@@ -209,7 +209,7 @@ public class NotificationRepositoryTest {
     @Test
     public void whenDeleteNotificationByFcmMessageId_thenExistsFalse() {
         // when
-        notificationRepository.deleteByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        notificationRepository.deleteById(NOTIFICATION_ID);
 
         // then
         Notification notification = entityManager.find(Notification.class, this.id);

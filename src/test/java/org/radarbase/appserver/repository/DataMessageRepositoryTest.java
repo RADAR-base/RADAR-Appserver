@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @EnableJpaAuditing
 public class DataMessageRepositoryTest {
-    public static final String DATA_MESSAGE_FCM_MESSAGE_ID = "12345";
+    public static final String DATA_MESSAGE_ID = "12345";
     public static final String DATA_MESSAGE_SOURCE_ID = "test";
     @Autowired
     private transient TestEntityManager entityManager;
@@ -194,7 +194,7 @@ public class DataMessageRepositoryTest {
     @Test
     public void whenDeleteDataMessageByFcmMessageId_thenExistsFalse() {
         // when
-        dataMessageRepository.deleteByFcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID);
+        dataMessageRepository.deleteById(DATA_MESSAGE_FCM_MESSAGE_ID);
 
         // then
         DataMessage dataMessage = entityManager.find(DataMessage.class, this.id);
