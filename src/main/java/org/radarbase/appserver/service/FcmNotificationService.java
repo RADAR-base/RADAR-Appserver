@@ -265,17 +265,11 @@ public class FcmNotificationService implements NotificationService {
     // TODO: Investigate if notifications can be marked in the state CANCELLED when deleted.
     @Transactional
     public void deleteNotificationById(long id) {
-        Optional<Notification> notification =
-                this.notificationRepository.findById(id);
-
-        notification.ifPresentOrElse(
-                (Notification n) -> {
-                    this.notificationRepository.deleteById(id);
-                },
-                () -> {
-                    throw new InvalidNotificationDetailsException(
-                            "Notification with the provided ID does not exist.");
-                });
+        if (this.notificationRepository.existsById(id))
+            this.notificationRepository.deleteById(id);
+        else
+            throw new InvalidNotificationDetailsException(
+                    "Notification with the provided ID does not exist.");
     }
 
     @Transactional
