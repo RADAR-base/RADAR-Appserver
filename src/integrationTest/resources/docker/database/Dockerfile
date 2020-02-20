@@ -2,7 +2,7 @@ FROM openjdk:8-jre-alpine
 
 LABEL maintainer="Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>"
 
-ENV MVN_CENTRAL_URL http://central.maven.org/maven2
+ENV MVN_CENTRAL_URL https://repo1.maven.org/maven2/
 ENV HSQLDB_MVN_GRP org/hsqldb
 ENV HSQLDB_VERSION 2.4.0
 ENV LOG4J_VERSION 1.2.17
