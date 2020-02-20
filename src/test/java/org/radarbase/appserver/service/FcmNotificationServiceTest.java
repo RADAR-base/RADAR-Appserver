@@ -503,10 +503,10 @@ class FcmNotificationServiceTest {
         assertDoesNotThrow(() -> notificationService.updateDeliveryStatus("12345", true));
     }
 
-    // Directly calls the repository so no need to assert. Just check that no excpetion is thrown
+    // Directly calls the repository so no need to assert. Just check that no exception is thrown
     @Test
-    void deleteNotificationByFcmMessageId() {
-        assertDoesNotThrow(() -> notificationService.deleteNotificationByFcmMessageId(FCM_MESSAGE_ID));
+    void deleteNotificationById() {
+        assertDoesNotThrow(() -> notificationService.deleteNotificationById(2L));
     }
 
     // If does not throw CustomExceptionHandler then test is valid

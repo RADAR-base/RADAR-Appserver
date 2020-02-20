@@ -43,7 +43,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @EnableJpaAuditing
 public class DataMessageRepositoryTest {
-    public static final String DATA_MESSAGE_ID = "12345";
+    public static final Long DATA_MESSAGE_ID = 12345L;
+    public static final String DATA_MESSAGE_FCM_MESSAGE_ID = "12345";
     public static final String DATA_MESSAGE_SOURCE_ID = "test";
     @Autowired
     private transient TestEntityManager entityManager;
@@ -76,6 +77,7 @@ public class DataMessageRepositoryTest {
 
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
+                        .id(DATA_MESSAGE_ID)
                         .user(user)
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(this.scheduledTime)
@@ -93,6 +95,7 @@ public class DataMessageRepositoryTest {
         // given
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
+                        .id(DATA_MESSAGE_ID)
                         .user(new User())
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
@@ -117,6 +120,7 @@ public class DataMessageRepositoryTest {
         // given
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
+                        .id(DATA_MESSAGE_ID)
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
                         .sourceId(DATA_MESSAGE_SOURCE_ID)
@@ -156,6 +160,7 @@ public class DataMessageRepositoryTest {
 
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
+                        .id(DATA_MESSAGE_ID)
                         .user(user)
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
@@ -192,9 +197,9 @@ public class DataMessageRepositoryTest {
     }
 
     @Test
-    public void whenDeleteDataMessageByFcmMessageId_thenExistsFalse() {
+    public void whenDeleteDataMessageById_thenExistsFalse() {
         // when
-        dataMessageRepository.deleteById(DATA_MESSAGE_FCM_MESSAGE_ID);
+        dataMessageRepository.deleteById(DATA_MESSAGE_ID);
 
         // then
         DataMessage dataMessage = entityManager.find(DataMessage.class, this.id);
