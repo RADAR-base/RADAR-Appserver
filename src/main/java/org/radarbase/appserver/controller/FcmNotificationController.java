@@ -237,19 +237,29 @@ public class FcmNotificationController {
     return ResponseEntity.ok().build();
   }
 
-    @PreAuthorize(
-            AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-                    + AuthConstantsUtil.ACCESSOR
-                    + AuthConstantsUtil.PROJECT_ID
-                    + ", "
-                    + AuthConstantsUtil.ACCESSOR
-                    + AuthConstantsUtil.SUBJECT_ID
-                    + ")")
-    @DeleteMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{id}")
-    public ResponseEntity deleteNotificationUsingId(
-            @PathVariable Long id) {
+  @PreAuthorize(
+          AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+                  + AuthConstantsUtil.ACCESSOR
+                  + AuthConstantsUtil.PROJECT_ID
+                  + ", "
+                  + AuthConstantsUtil.ACCESSOR
+                  + AuthConstantsUtil.SUBJECT_ID
+                  + ")")
+  @DeleteMapping(
+          "/"
+                  + PathsUtil.PROJECT_PATH
+                  + "/"
+                  + PathsUtil.PROJECT_ID_CONSTANT
+                  + "/"
+                  + PathsUtil.USER_PATH
+                  + "/"
+                  + PathsUtil.SUBJECT_ID_CONSTANT
+                  + "/"
+                  + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{id}")
+  public ResponseEntity deleteNotificationUsingProjectIdAndSubjectIdAndNotificationId(
+          @PathVariable String projectId, @PathVariable String subjectId, @PathVariable Long id) {
 
-        this.notificationService.deleteNotificationById(id);
-        return ResponseEntity.ok().build();
-    }
+    this.notificationService.deleteNotificationByProjectIdAndSubjectIdAndNotificationId(projectId, subjectId, id);
+    return ResponseEntity.ok().build();
+  }
 }

@@ -242,11 +242,21 @@ public class FcmDataMessageController {
                     + AuthConstantsUtil.ACCESSOR
                     + AuthConstantsUtil.SUBJECT_ID
                     + ")")
-    @DeleteMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/{id}")
-    public ResponseEntity deleteDataMessageUsingId(
-            @PathVariable Long id) {
+    @DeleteMapping(
+            "/"
+                    + PathsUtil.PROJECT_PATH
+                    + "/"
+                    + PathsUtil.PROJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.USER_PATH
+                    + "/"
+                    + PathsUtil.SUBJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.MESSAGING_DATA_PATH + "/{id}")
+    public ResponseEntity deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
+            @PathVariable String projectId, @PathVariable String subjectId, @PathVariable Long id) {
 
-        this.dataMessageService.deleteDataMessageById(id);
+        this.dataMessageService.deleteDataMessageByProjectIdandSubjectIdAndDataMessageId(projectId, subjectId, id);
         return ResponseEntity.ok().build();
     }
 }

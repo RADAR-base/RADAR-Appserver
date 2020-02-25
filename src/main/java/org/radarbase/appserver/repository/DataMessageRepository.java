@@ -45,9 +45,11 @@ public interface DataMessageRepository extends JpaRepository<DataMessage, Long> 
             Instant scheduledTime,
             int ttlSeconds);
 
+    boolean existsByIdAndUserId(Long id, Long userId);
+
     void deleteByFcmMessageId(String fcmMessageId);
 
-    void deleteById(long id);
+    void deleteByIdAndUserId(Long id, Long userId);
 
     Optional<DataMessage> findByFcmMessageId(String fcmMessageId);
 
