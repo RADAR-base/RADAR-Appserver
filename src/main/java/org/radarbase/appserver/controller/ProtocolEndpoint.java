@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import org.radarbase.appserver.dto.protocol.Protocol;
-import org.radarbase.appserver.service.protocol.ProtocolGenerator;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -19,13 +19,19 @@
  *
  */
 
-package org.radarbase.appserver.service.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol;
 
-import java.io.IOException;
 import java.util.Map;
+
 import org.radarbase.appserver.dto.protocol.Protocol;
+import org.springframework.stereotype.Service;
 
-public interface ProtocolFetcherStrategy {
+@Service
+public interface ProtocolGenerator {
 
-  Map<String, Protocol> fetchProtocols() throws IOException;
+    void init();
+
+    Map<String, Protocol> getAllProtocols();
+
+    Protocol getProtocol(String projectId);
 }

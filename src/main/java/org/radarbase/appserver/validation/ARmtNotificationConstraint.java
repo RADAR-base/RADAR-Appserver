@@ -21,6 +21,8 @@
 
 package org.radarbase.appserver.validation;
 
+import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -32,7 +34,7 @@ import javax.validation.Payload;
 /**
  * {@link Constraint} to be used in {@link javax.validation.Validator} {@link
  * ARmtNotificationValidator} to validate incoming notification requests according to their schedule
- * via {@link org.radarbase.appserver.service.QuestionnaireScheduleService}.
+ * via {@link QuestionnaireScheduleGeneratorService}.
  *
  * @author yatharthranjan
  */
@@ -41,9 +43,9 @@ import javax.validation.Payload;
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ARmtNotificationConstraint {
-  String message() default "Notification does not conform to the schedule.";
+    String message() default "Notification does not conform to the schedule.";
 
-  Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 }
