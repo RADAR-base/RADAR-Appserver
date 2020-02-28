@@ -28,6 +28,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class TimeCalculatorService {
     public Instant advanceRepeat(Instant referenceTime, TimePeriod offset) {
         ZonedDateTime time = ZonedDateTime.ofInstant(referenceTime, ZoneOffset.UTC);

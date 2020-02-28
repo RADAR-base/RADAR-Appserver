@@ -32,10 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatProtocolHandler implements RepeatProtocolHandler {
-    TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
-    TimePeriod defaultTimePeriod = new TimePeriod("years", 0, "", 0);
-    Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), defaultTimePeriod);
+    private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
+    private transient TimePeriod defaultTimePeriod = new TimePeriod("years", 0, "", 0);
+    private transient Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), defaultTimePeriod);
 
     @Override
     public Schedule handle(Schedule schedule, Protocol protocol) {

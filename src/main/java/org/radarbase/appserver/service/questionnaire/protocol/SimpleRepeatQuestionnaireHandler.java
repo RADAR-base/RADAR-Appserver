@@ -35,11 +35,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHandler {
-    TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
+    private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
 
     @Override
-
     public Schedule handle(Schedule schedule, Protocol protocol) {
         List<Assessment> assessments = protocol.getProtocols();
         List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();

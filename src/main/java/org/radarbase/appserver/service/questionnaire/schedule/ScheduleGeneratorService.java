@@ -5,6 +5,7 @@ import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public interface ScheduleGeneratorService {
 
     Schedule handleProtocol(Schedule schedule, Protocol protocol);

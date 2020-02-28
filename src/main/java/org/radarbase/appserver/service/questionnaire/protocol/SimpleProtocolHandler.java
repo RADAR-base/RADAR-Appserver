@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleProtocolHandler implements ProtocolHandler {
 
     @Override
