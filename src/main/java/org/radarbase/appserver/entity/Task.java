@@ -25,17 +25,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
-import org.radarbase.appserver.dto.protocol.LanguageText;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
 
 @Entity
 @Table(

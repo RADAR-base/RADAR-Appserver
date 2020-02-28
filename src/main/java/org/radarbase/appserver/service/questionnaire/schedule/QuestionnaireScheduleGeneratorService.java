@@ -32,7 +32,6 @@ import org.radarbase.appserver.dto.protocol.*;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.UserRepository;
-import org.radarbase.appserver.service.UserService;
 import org.radarbase.appserver.service.questionnaire.protocol.*;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,9 +86,9 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
         return null;
     }
 
-      public Schedule getScheduleForUser(User user) {
+    public Schedule getScheduleForUser(User user) {
         return null;
-        }
+    }
 
     public Map<String, Schedule> getAllSchedules() {
         // Check if protocol hash has changed. only then update the map

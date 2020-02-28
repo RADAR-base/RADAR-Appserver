@@ -24,15 +24,11 @@ package org.radarbase.appserver.controller;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.service.questionnaire.schedule.ScheduleGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import java.net.URI;
-import java.util.Map;
 
 @RestController
 public class QuestionnaireScheduleEndpoint {

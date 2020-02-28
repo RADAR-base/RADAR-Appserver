@@ -32,16 +32,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.net.HttpHeaders;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;

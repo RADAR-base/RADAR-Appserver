@@ -28,9 +28,7 @@ import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -43,8 +41,6 @@ public class SimpleRepeatProtocolHandler implements RepeatProtocolHandler {
     public Schedule handle(Schedule schedule, Protocol protocol) {
         List<Assessment> assessments = protocol.getProtocols();
         List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();
-        System.out.println("Inside repeatprotocol");
-        System.out.println(assessmentSchedules);
         ListIterator<AssessmentSchedule> assessmentScheduleIter = assessmentSchedules.listIterator();
         while (assessmentScheduleIter.hasNext()) {
             AssessmentSchedule assessmentSchedule = assessmentScheduleIter.next();

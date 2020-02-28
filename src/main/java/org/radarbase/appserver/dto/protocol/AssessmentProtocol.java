@@ -22,12 +22,12 @@
 package org.radarbase.appserver.dto.protocol;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
 
 import lombok.Data;
 
-/** @author yatharthranjan */
+/**
+ * @author yatharthranjan
+ */
 @Data
 public class AssessmentProtocol {
 

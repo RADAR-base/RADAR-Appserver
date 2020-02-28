@@ -24,12 +24,10 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
 import org.radarbase.appserver.dto.protocol.Protocol;
-import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,9 +36,6 @@ public class SimpleProtocolHandler implements ProtocolHandler {
 
     @Override
     public Schedule handle(Schedule schedule, Protocol protocol) {
-        System.out.println("haller inside simpleprotocolhandelr");
-        System.out.println(schedule);
-        System.out.println(protocol);
         List<Assessment> assessments = protocol.getProtocols();
         List<AssessmentSchedule> assessmentSchedules = new ArrayList<>();
         Iterator<Assessment> assessmentIter = assessments.iterator();
