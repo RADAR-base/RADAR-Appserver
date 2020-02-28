@@ -21,11 +21,18 @@
 
 package org.radarbase.appserver.dto.questionnaire;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.Data;
-import org.radarbase.appserver.entity.Notification;
 
 @Data
 public class Schedule {
-  private List<Notification> notifications;
+    private List<AssessmentSchedule> assessmentSchedules;
+
+    private Instant enrolmentDate;
+
+    public Schedule(Instant enrolmentDate) {
+        this.enrolmentDate = enrolmentDate;
+    }
+
 }

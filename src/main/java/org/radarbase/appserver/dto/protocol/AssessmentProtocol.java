@@ -21,25 +21,24 @@
 
 package org.radarbase.appserver.dto.protocol;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.Data;
 
 /** @author yatharthranjan */
 @Data
 public class AssessmentProtocol {
 
-  private TimePeriod repeatProtocol;
+    private TimePeriod repeatProtocol;
 
-  private TimePeriod reminders;
+    private TimePeriod reminders;
 
-  private TimePeriod completionWindow;
+    private TimePeriod completionWindow;
 
-  private RepeatQuestionnaireProtocol repeatQuestionnaire;
+    private RepeatQuestionnaire repeatQuestionnaire;
 
-  @Data
-  private static class RepeatQuestionnaireProtocol {
-    private String unit;
+    private Instant referenceTimestamp;
 
-    private List<Integer> unitsFromZero;
-  }
 }

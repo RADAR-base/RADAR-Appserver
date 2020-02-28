@@ -19,36 +19,22 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.dto.questionnaire;
 
 import lombok.Data;
+import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.entity.Task;
 
-/**
- * Data Transfer object (DTO) for Assessment. A project may represent a Protcol for scheduling
- * questionnaires.
- *
- * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
- * @see Protocol
- * @author yatharthranjan
- */
+import java.time.Instant;
+import java.util.List;
+
 @Data
-public class Assessment {
-
+public class AssessmentSchedule {
     private String name;
 
-    private String showIntroduction;
+    private Instant referenceTimestamp;
 
-    private DefinitionInfo questionnaire;
+    private List<Instant> referenceTimestamps;
 
-    private LanguageText startText;
-
-    private LanguageText endText;
-
-    private LanguageText warn;
-
-    private Integer estimatedCompletionTime;
-
-    private AssessmentProtocol protocol;
-
-    private Long completionWindow;
+    private List<Task> tasks;
 }
