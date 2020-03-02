@@ -76,6 +76,7 @@ class FcmNotificationServiceTest {
     private static final String NOTIFICATION_TITLE_2 = "Testing2";
     private static final String NOTIFICATION_TITLE_3 = "Testing3";
     private static final String NOTIFICATION_TITLE_4 = "Testing4";
+    private static final String TIMEZONE = "Europe/London";
     private static User user;
     private final transient Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
     @MockBean
@@ -207,7 +208,7 @@ class FcmNotificationServiceTest {
                         .setFcmToken(FCM_TOKEN_1)
                         .setEnrolmentDate(Instant.now())
                         .setProject(project)
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setLanguage("en")
                         .setSubjectId(USER_ID)
                         .setUserMetrics(

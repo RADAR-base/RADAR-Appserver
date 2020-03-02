@@ -60,6 +60,7 @@ class UserServiceTest {
   @MockBean private transient ProjectRepository projectRepository;
 
   private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
+  private static final String TIMEZONE = "Europe/London";
 
   @BeforeEach
   void setUp() {
@@ -74,7 +75,7 @@ class UserServiceTest {
             .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(enrolmentDate)
             .setProject(project)
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setLanguage("en")
             .setSubjectId(USER_ID)
             .setId(1L);
@@ -97,7 +98,7 @@ class UserServiceTest {
             .setProject(project)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
-            .setTimezone(0d);
+            .setTimezone(TIMEZONE);
 
     Mockito.when(userRepository.save(userNew)).thenReturn(userNew.setId(2L));
 
@@ -108,7 +109,7 @@ class UserServiceTest {
             .setProject(project)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
-            .setTimezone(72d)
+            .setTimezone(TIMEZONE)
             .setUserMetrics(
                 new UserMetrics().setLastDelivered(enrolmentDate).setLastOpened(enrolmentDate));
 
@@ -163,7 +164,7 @@ class UserServiceTest {
             .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
-            .setTimezone(0d);
+            .setTimezone(TIMEZONE);
 
     FcmUserDto userDto = userService.saveUserInProject(userDtoNew);
 
@@ -185,7 +186,7 @@ class UserServiceTest {
             .setLanguage("es")
             .setLastDelivered(enrolmentDate)
             .setLastOpened(enrolmentDate)
-            .setTimezone(72d);
+            .setTimezone(TIMEZONE);
 
     FcmUserDto userDto = userService.updateUser(userDtoNew);
 

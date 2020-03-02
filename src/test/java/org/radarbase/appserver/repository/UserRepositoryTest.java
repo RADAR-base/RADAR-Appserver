@@ -53,6 +53,7 @@ class UserRepositoryTest {
   private transient Project project;
   private transient Long projectId;
   private transient Long userId;
+  private static final String TIMEZONE = "Europe/London";
 
   @BeforeEach
   void setUp() {
@@ -65,7 +66,7 @@ class UserRepositoryTest {
             .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(Instant.now())
             .setProject(project)
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setLanguage("en")
             .setSubjectId(USER_ID);
     this.userId = entityManager.persistAndGetId(user, Long.class);
@@ -79,7 +80,7 @@ class UserRepositoryTest {
             .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(Instant.now())
             .setProject(new Project())
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setLanguage("en")
             .setSubjectId(USER_ID);
 
@@ -129,7 +130,7 @@ class UserRepositoryTest {
             .setFcmToken(FCM_TOKEN_1)
             .setEnrolmentDate(Instant.now())
             .setProject(this.project)
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setLanguage("en")
             .setSubjectId(USER_ID + "-2");
 

@@ -64,6 +64,7 @@ public class RadarUserControllerTest {
   private static final String FCM_TOKEN_JSON_PATH = "$.fcmToken";
   private static final String LANGUAGE_JSON_PATH = "$.language";
   private static final String ENROLMENT_DATE_JSON_PATH = "$.enrolmentDate";
+  private static final String TIMEZONE = "Europe/London";
 
   private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
@@ -76,7 +77,7 @@ public class RadarUserControllerTest {
             .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("es")
-            .setTimezone(0d);
+            .setTimezone(TIMEZONE);
 
     given(userService.getAllRadarUsers())
         .willReturn(new FcmUsers().setUsers(List.of(userDto.setId(1L))));
@@ -95,7 +96,7 @@ public class RadarUserControllerTest {
             .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("en")
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setId(2L);
 
     given(userService.saveUserInProject(userDtoNew)).willReturn(userDtoNew.setId(2L));
@@ -107,7 +108,7 @@ public class RadarUserControllerTest {
             .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("da")
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setId(1L);
 
     given(userService.updateUser(userUpdated)).willReturn(userUpdated);
@@ -122,7 +123,7 @@ public class RadarUserControllerTest {
             .setProjectId(PROJECT_ID)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("en")
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setId(2L);
 
     mockMvc
@@ -145,7 +146,7 @@ public class RadarUserControllerTest {
             .setFcmToken(FCM_TOKEN_2)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("en")
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setId(2L);
 
     mockMvc
@@ -168,7 +169,7 @@ public class RadarUserControllerTest {
             .setFcmToken(FCM_TOKEN_3)
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("da")
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setId(1L);
 
     mockMvc
@@ -192,7 +193,7 @@ public class RadarUserControllerTest {
             .setProjectId("test-project")
             .setEnrolmentDate(enrolmentDate)
             .setLanguage("da")
-            .setTimezone(0d)
+            .setTimezone(TIMEZONE)
             .setId(1L);
 
     mockMvc

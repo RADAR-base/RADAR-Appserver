@@ -78,6 +78,7 @@ import org.springframework.test.context.junit4.SpringRunner;
         })
 class NotificationSchedulerServiceTest {
 
+    private static final String TIMEZONE = "Europe/London";
     private static final String JOB_DETAIL_ID = "message-jobdetail-test-subject-1";
     private static Notification notification;
     @Autowired
@@ -94,7 +95,7 @@ class NotificationSchedulerServiceTest {
                         .setId(1L)
                         .setSubjectId("test-subject")
                         .setLanguage("en")
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setProject(new Project())
                         .setEnrolmentDate(Instant.now())
                         .setFcmToken("xxxx");

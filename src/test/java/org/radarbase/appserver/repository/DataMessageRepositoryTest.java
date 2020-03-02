@@ -46,6 +46,7 @@ public class DataMessageRepositoryTest {
     public static final Long DATA_MESSAGE_ID = 12345L;
     public static final String DATA_MESSAGE_FCM_MESSAGE_ID = "12345";
     public static final String DATA_MESSAGE_SOURCE_ID = "test";
+    private static final String TIMEZONE = "Europe/London";
     @Autowired
     private transient TestEntityManager entityManager;
     @Autowired
@@ -68,7 +69,7 @@ public class DataMessageRepositoryTest {
                         .setFcmToken("xxxx")
                         .setEnrolmentDate(Instant.now())
                         .setProject(project)
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setLanguage("en")
                         .setSubjectId("test-user");
         entityManager.persist(this.user);
@@ -144,7 +145,7 @@ public class DataMessageRepositoryTest {
                         .setFcmToken("xxxx")
                         .setEnrolmentDate(Instant.now())
                         .setProject(new Project())
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setLanguage("en")
                         .setSubjectId("test-user");
 
