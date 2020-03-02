@@ -52,7 +52,7 @@ public class Task extends AuditModel implements Serializable {
     private Long id;
 
     @NotNull
-    private Boolean completed = false;
+    private Boolean completed;
 
     @NotNull
     private Instant timestamp;
@@ -69,34 +69,38 @@ public class Task extends AuditModel implements Serializable {
     private String warning;
 
     @NotNull
-    private Boolean isClinical = false;
+    private Boolean isClinical;
 
     @NotNull
     private Instant timeCompleted;
 
     @NotNull
-    private Boolean showInCalendar = true;
+    private Boolean showInCalendar;
 
     @NotNull
-    private Boolean isDemo = false;
+    private Boolean isDemo;
 
     @NotNull
     private int order;
 
+    @NotNull
+    private int nQuestions;
+
     @NoArgsConstructor
     public static class TaskBuilder {
         transient Long id;
-        transient Boolean completed;
+        transient Boolean completed = false;
         transient Instant timestamp;
         transient String name;
         transient int estimatedCompletionTime;
         transient Long completionWindow;
         transient String warning;
-        transient Boolean isClinical;
+        transient Boolean isClinical = false;
         transient Instant timeCompleted;
-        transient Boolean showInCalendar;
-        transient Boolean isDemo;
-        transient int order;
+        transient Boolean showInCalendar = true;
+        transient Boolean isDemo = false;
+        transient int order = 0;
+        transient int nQuestions;
 
         public TaskBuilder(Task task) {
             this.id = task.getId();
@@ -111,6 +115,7 @@ public class Task extends AuditModel implements Serializable {
             this.showInCalendar = task.getShowInCalendar();
             this.isDemo = task.getIsDemo();
             this.order = task.getOrder();
+            this.nQuestions = task.getNQuestions();
         }
 
         public TaskBuilder id(Long id) {
@@ -173,6 +178,11 @@ public class Task extends AuditModel implements Serializable {
             return this;
         }
 
+        public TaskBuilder nQuestions(int nQuestions) {
+            this.nQuestions = nQuestions;
+            return this;
+        }
+
         public Task build() {
             Task task = new Task();
             task.setId(this.id);
@@ -187,6 +197,7 @@ public class Task extends AuditModel implements Serializable {
             task.setShowInCalendar(this.showInCalendar);
             task.setIsDemo(this.isDemo);
             task.setOrder(this.order);
+            task.setNQuestions(this.nQuestions);
 
             return task;
         }
