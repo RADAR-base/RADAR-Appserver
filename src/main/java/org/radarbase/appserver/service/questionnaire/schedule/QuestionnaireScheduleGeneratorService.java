@@ -23,16 +23,14 @@ package org.radarbase.appserver.service.questionnaire.schedule;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.dto.protocol.TimePeriod;
-import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
-import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire;
-import org.radarbase.appserver.dto.protocol.Protocol;
+import org.radarbase.appserver.dto.protocol.*;
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.questionnaire.protocol.*;
@@ -65,21 +63,6 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
         subjectScheduleMap.get();
     }
 
-    private RepeatProtocolHandlerType getRepeatProtocolType(AssessmentProtocol protocol) {
-        TimePeriod repeatProtocol = protocol.getRepeatProtocol();
-        if (repeatProtocol.getDayOfWeek() != null)
-            return RepeatProtocolHandlerType.DAYOFTHEWEEK;
-        return RepeatProtocolHandlerType.SIMPLE;
-    }
-
-    private RepeatQuestionnaireHandlerType getRepeatQuestionnaireType(AssessmentProtocol protocol) {
-        RepeatQuestionnaire repeatQuestionnaire = protocol.getRepeatQuestionnaire();
-        if (repeatQuestionnaire.getUnitsFromZero() != null)
-            return RepeatQuestionnaireHandlerType.SIMPLE;
-        return RepeatQuestionnaireHandlerType.SIMPLE;
-
-    }
-
     public Schedule getScheduleBySubjectId(String subjectId) {
         Optional<User> user = userRepository.findBySubjectId(subjectId);
         if (user.isPresent()) {
@@ -100,21 +83,68 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
 
     @Override
     public Schedule handleProtocol(Schedule schedule, Protocol protocol) {
-        return ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE).handle(schedule, protocol);
+        List<Assessment> assessments = protocol.getProtocols();
+        List<AssessmentSchedule> assessmentSchedules = new ArrayList<>();
+        Iterator<Assessment> assessmentIter = assessments.iterator();
+        while (assessmentIter.hasNext()) {
+            Assessment assessment = assessmentIter.next();
+            AssessmentSchedule assessmentSchedule = ProtocolHandlerFactory.getProtocolHandler(this.getProtocolHandlerType(assessment)).handle(schedule, assessment);
+            assessmentSchedules.add(assessmentSchedule);
+        }
+        schedule.setAssessmentSchedules(assessmentSchedules);
+        return schedule;
     }
 
     @Override
     public Schedule handleRepeatProtocol(Schedule schedule, Protocol protocol) {
-        return RepeatProtocolHandlerFactory.getRepeatProtocolHandler(RepeatProtocolHandlerType.SIMPLE).handle(schedule, protocol);
+        List<Assessment> assessments = protocol.getProtocols();
+        List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();
+        ListIterator<AssessmentSchedule> assessmentScheduleIter = assessmentSchedules.listIterator();
+        while (assessmentScheduleIter.hasNext()) {
+            AssessmentSchedule assessmentSchedule = assessmentScheduleIter.next();
+            Assessment assessment = assessments.get(assessmentScheduleIter.nextIndex() - 1);
+            assessmentSchedule = RepeatProtocolHandlerFactory.getRepeatProtocolHandler(this.getRepeatProtocolHandlerType(assessment)).handle(assessmentSchedule, assessment, schedule.getTimezone());
+
+        }
+        return schedule;
     }
 
     @Override
     public Schedule handleRepeatQuestionnaire(Schedule schedule, Protocol protocol) {
-        return RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(RepeatQuestionnaireHandlerType.SIMPLE).handle(schedule, protocol);
+        List<Assessment> assessments = protocol.getProtocols();
+        List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();
+        ListIterator<AssessmentSchedule> assessmentScheduleIter = assessmentSchedules.listIterator();
+        while (assessmentScheduleIter.hasNext()) {
+            AssessmentSchedule assessmentSchedule = assessmentScheduleIter.next();
+            Assessment assessment = assessments.get(assessmentScheduleIter.nextIndex() - 1);
+            assessmentSchedule = RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(this.getRepeatQuestionnaireHandlerType(assessment)).handle(assessmentSchedule, assessment, schedule.getTimezone());
+        }
+        return schedule;
     }
 
     @Override
     public Schedule handleClinicalProtocol(Schedule schedule, Protocol protocol) {
         return schedule;
+    }
+
+    private ProtocolHandlerType getProtocolHandlerType(Assessment assessment) {
+        return ProtocolHandlerType.SIMPLE;
+    }
+
+    private RepeatProtocolHandlerType getRepeatProtocolHandlerType(Assessment assessment) {
+        AssessmentProtocol protocol = assessment.getProtocol();
+        TimePeriod repeatProtocol = protocol.getRepeatProtocol();
+        if (repeatProtocol.getDayOfWeek() != null)
+            return RepeatProtocolHandlerType.DAYOFTHEWEEK;
+        return RepeatProtocolHandlerType.SIMPLE;
+    }
+
+    private RepeatQuestionnaireHandlerType getRepeatQuestionnaireHandlerType(Assessment assessment) {
+        AssessmentProtocol protocol = assessment.getProtocol();
+        RepeatQuestionnaire repeatQuestionnaire = protocol.getRepeatQuestionnaire();
+        if (repeatQuestionnaire.getUnitsFromZero() != null)
+            return RepeatQuestionnaireHandlerType.SIMPLE;
+        return RepeatQuestionnaireHandlerType.SIMPLE;
+
     }
 }

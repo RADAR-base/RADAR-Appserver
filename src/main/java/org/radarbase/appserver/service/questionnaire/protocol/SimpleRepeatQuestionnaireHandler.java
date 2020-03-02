@@ -22,37 +22,26 @@
 package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
-import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
 
     @Override
-    public Schedule handle(Schedule schedule, Protocol protocol) {
-        List<Assessment> assessments = protocol.getProtocols();
-        List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();
-        ListIterator<AssessmentSchedule> assessmentScheduleIter = assessmentSchedules.listIterator();
-        while (assessmentScheduleIter.hasNext()) {
-            AssessmentSchedule assessmentSchedule = assessmentScheduleIter.next();
-            List<Task> tasks = generateTasks(assessments.get(assessmentScheduleIter.nextIndex() - 1), assessmentSchedule.getReferenceTimestamps());
-            assessmentSchedule.setTasks(tasks);
-        }
-        return schedule;
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, TimeZone timezone) {
+        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), timezone);
+        assessmentSchedule.setTasks(tasks);
+        return assessmentSchedule;
     }
 
-    public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps) {
+    public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, TimeZone timezone) {
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer> unitsFromZero = repeatQuestionnaire.getUnitsFromZero();
         Iterator<Instant> referenceTimestampsIter = referenceTimestamps.iterator();
@@ -64,7 +53,7 @@ public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHand
             Iterator<Integer> unitsFromZeroIter = unitsFromZero.iterator();
             while (unitsFromZeroIter.hasNext()) {
                 timePeriod.setAmount(unitsFromZeroIter.next());
-                Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod);
+                Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
                 Task task = buildTask(assessment, taskTime);
                 tasks.add(task);
             }
@@ -73,6 +62,7 @@ public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHand
     }
 
     private Task buildTask(Assessment assessment, Instant timestamp) {
+        System.out.println(assessment);
         // TODO: To add other keys
         Task task = new Task.TaskBuilder()
                 .name(assessment.getName())

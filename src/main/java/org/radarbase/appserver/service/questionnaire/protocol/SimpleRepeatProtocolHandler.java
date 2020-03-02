@@ -22,42 +22,34 @@
 package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
-import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatProtocolHandler implements RepeatProtocolHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TimePeriod defaultTimePeriod = new TimePeriod("years", 0, "", 0);
-    private transient Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), defaultTimePeriod);
 
     @Override
-    public Schedule handle(Schedule schedule, Protocol protocol) {
-        List<Assessment> assessments = protocol.getProtocols();
-        List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();
-        ListIterator<AssessmentSchedule> assessmentScheduleIter = assessmentSchedules.listIterator();
-        while (assessmentScheduleIter.hasNext()) {
-            AssessmentSchedule assessmentSchedule = assessmentScheduleIter.next();
-            List<Instant> referenceTimestamps = generateReferenceTimestamps(assessments.get(assessmentScheduleIter.nextIndex() - 1), assessmentSchedule.getReferenceTimestamp());
-            assessmentSchedule.setReferenceTimestamps(referenceTimestamps);
-        }
-        return schedule;
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, TimeZone timezone) {
+        List<Instant> referenceTimestamps = generateReferenceTimestamps(assessment, assessmentSchedule.getReferenceTimestamp(), timezone);
+        assessmentSchedule.setReferenceTimestamps(referenceTimestamps);
+        return assessmentSchedule;
     }
 
-    private List<Instant> generateReferenceTimestamps(Assessment assessment, Instant startTime) {
+    private List<Instant> generateReferenceTimestamps(Assessment assessment, Instant startTime, TimeZone timezone) {
+        Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), defaultTimePeriod, timezone);
         List<Instant> referenceTimestamps = new ArrayList<>();
         TimePeriod repeatProtocol = assessment.getProtocol().getRepeatProtocol();
         Instant referenceTime = startTime;
         while (referenceTime.isBefore(defaultEndTime)) {
-            referenceTimestamps.add(referenceTime);
-            referenceTime = timeCalculatorService.advanceRepeat(referenceTime, repeatProtocol);
+            referenceTimestamps.add(timeCalculatorService.setDateTimeToMidnight(referenceTime, timezone));
+            referenceTime = timeCalculatorService.advanceRepeat(referenceTime, repeatProtocol, timezone);
         }
         return referenceTimestamps;
     }

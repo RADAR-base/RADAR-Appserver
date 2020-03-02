@@ -23,36 +23,24 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
-import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleProtocolHandler implements ProtocolHandler {
 
     @Override
-    public Schedule handle(Schedule schedule, Protocol protocol) {
-        List<Assessment> assessments = protocol.getProtocols();
-        List<AssessmentSchedule> assessmentSchedules = new ArrayList<>();
-        Iterator<Assessment> assessmentIter = assessments.iterator();
-        while (assessmentIter.hasNext()) {
-            Assessment assessment = assessmentIter.next();
-            AssessmentProtocol assessmentProtocol = assessment.getProtocol();
-            Instant referenceTimestamp = schedule.getEnrolmentDate();
-            if (assessmentProtocol.getReferenceTimestamp() != null)
-                referenceTimestamp = assessmentProtocol.getReferenceTimestamp();
-            AssessmentSchedule assessmentSchedule = new AssessmentSchedule();
-            assessmentSchedule.setReferenceTimestamp(referenceTimestamp);
-            assessmentSchedule.setName(assessment.getName());
-            assessmentSchedules.add(assessmentSchedule);
-        }
-        schedule.setAssessmentSchedules(assessmentSchedules);
-        return schedule;
+    public AssessmentSchedule handle(Schedule schedule, Assessment assessment) {
+        AssessmentProtocol assessmentProtocol = assessment.getProtocol();
+        Instant referenceTimestamp = schedule.getEnrolmentDate();
+        if (assessmentProtocol.getReferenceTimestamp() != null)
+            referenceTimestamp = assessmentProtocol.getReferenceTimestamp();
+        AssessmentSchedule assessmentSchedule = new AssessmentSchedule();
+        assessmentSchedule.setReferenceTimestamp(referenceTimestamp);
+        assessmentSchedule.setName(assessment.getName());
+        return assessmentSchedule;
     }
 
 }

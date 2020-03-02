@@ -20,7 +20,7 @@ public interface ScheduleGeneratorService {
 
     default Schedule generateScheduleForUser(User user, ProtocolGenerator protocolGenerator) {
         Protocol protocol = protocolGenerator.getProtocol(user.getProject().getProjectId());
-        Schedule schedule = new Schedule(user.getEnrolmentDate());
+        Schedule schedule = new Schedule(user.getEnrolmentDate(), user.getTimezone());
         schedule = handleProtocol(schedule, protocol);
         schedule = handleRepeatProtocol(schedule, protocol);
         schedule = handleRepeatQuestionnaire(schedule, protocol);

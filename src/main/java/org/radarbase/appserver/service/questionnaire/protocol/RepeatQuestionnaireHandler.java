@@ -21,9 +21,13 @@
 
 package org.radarbase.appserver.service.questionnaire.protocol;
 
+import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.Protocol;
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 
+import java.util.TimeZone;
+
 public interface RepeatQuestionnaireHandler {
-    public Schedule handle(Schedule schedule, Protocol protocol);
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, TimeZone timezone);
 }

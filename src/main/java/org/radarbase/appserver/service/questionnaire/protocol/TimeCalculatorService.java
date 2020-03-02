@@ -24,14 +24,14 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class TimeCalculatorService {
-    public Instant advanceRepeat(Instant referenceTime, TimePeriod offset) {
-        ZonedDateTime time = ZonedDateTime.ofInstant(referenceTime, ZoneOffset.UTC);
+    public Instant advanceRepeat(Instant referenceTime, TimePeriod offset, TimeZone timezone) {
+        ZonedDateTime time = ZonedDateTime.ofInstant(referenceTime, timezone.toZoneId());
         switch (offset.getUnit()) {
             case "min":
                 return time.plus(offset.getAmount(), ChronoUnit.MINUTES).toInstant();
@@ -48,5 +48,11 @@ public class TimeCalculatorService {
             default:
                 return ZonedDateTime.now().plus(2, ChronoUnit.YEARS).toInstant();
         }
+    }
+
+    public Instant setDateTimeToMidnight(Instant timestamp, TimeZone timezone) {
+        ZonedDateTime time = ZonedDateTime.ofInstant(timestamp, timezone.toZoneId());
+        time = time.toLocalDate().atStartOfDay(time.getZone());
+        return time.toInstant();
     }
 }

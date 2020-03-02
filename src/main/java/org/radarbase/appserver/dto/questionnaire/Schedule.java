@@ -22,7 +22,10 @@
 package org.radarbase.appserver.dto.questionnaire;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.TimeZone;
+
 import lombok.Data;
 
 @Data
@@ -31,8 +34,13 @@ public class Schedule {
 
     private Instant enrolmentDate;
 
-    public Schedule(Instant enrolmentDate) {
+    private TimeZone timezone;
+
+    public Schedule(Instant enrolmentDate, String timezone) {
+
         this.enrolmentDate = enrolmentDate;
+        timezone = "Europe/London";
+        this.timezone = TimeZone.getTimeZone(timezone);
     }
 
 }
