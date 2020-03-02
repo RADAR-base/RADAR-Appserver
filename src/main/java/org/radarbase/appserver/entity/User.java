@@ -89,10 +89,10 @@ public class User extends AuditModel implements Serializable {
   @OneToOne(cascade = CascadeType.ALL)
   private UserMetrics usermetrics;
 
-  // Timezone offset of the user in seconds
+  // Timezone of the user based on tz database names
   @NotNull
   @Column(name = "timezone")
-  private double timezone;
+  private String timezone;
 
   @NotEmpty
   @Column(name = "language")
@@ -123,7 +123,7 @@ public class User extends AuditModel implements Serializable {
     return this;
   }
 
-  public User setTimezone(double timezone) {
+  public User setTimezone(String timezone) {
     this.timezone = timezone;
     return this;
   }
