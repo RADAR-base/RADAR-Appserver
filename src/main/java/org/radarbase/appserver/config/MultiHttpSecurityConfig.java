@@ -72,7 +72,7 @@ public class MultiHttpSecurityConfig {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-      http.antMatcher("/actuator/**")
+      http.antMatcher("/v3/api-docs**")
           .authorizeRequests()
           .anyRequest()
           .permitAll()
@@ -87,7 +87,7 @@ public class MultiHttpSecurityConfig {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
+      // Allow all actuator endpoints.
       http.requestMatcher(EndpointRequest.toAnyEndpoint())
           .authorizeRequests()
           .anyRequest()
