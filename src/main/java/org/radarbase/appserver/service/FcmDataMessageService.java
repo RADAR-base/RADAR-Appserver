@@ -21,11 +21,17 @@
 
 package org.radarbase.appserver.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.radarbase.appserver.converter.DataMessageConverter;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.radarbase.appserver.dto.fcm.FcmDataMessages;
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.DataMessageStateEvent;
@@ -42,11 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * {@link Service} for interacting with the {@link DataMessage} {@link javax.persistence.Entity}

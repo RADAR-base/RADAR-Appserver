@@ -21,18 +21,23 @@
 
 package org.radarbase.appserver.controller;
 
-import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
-import org.radarbase.appserver.dto.fcm.FcmDataMessages;
-import org.radarbase.appserver.service.FcmDataMessageService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import javax.validation.Valid;
+import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
+import org.radarbase.appserver.dto.fcm.FcmDataMessages;
+import org.radarbase.appserver.service.FcmDataMessageService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Resource Endpoint for getting and adding (scheduling) data messages on Firebase Cloud Messaging.
@@ -42,8 +47,12 @@ import java.time.LocalDateTime;
 @RestController
 public class FcmDataMessageController {
 
-    @Autowired
-    private transient FcmDataMessageService dataMessageService;
+    private final transient FcmDataMessageService dataMessageService;
+
+    public FcmDataMessageController(
+        FcmDataMessageService dataMessageService) {
+        this.dataMessageService = dataMessageService;
+    }
 
     @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH)
     @PreAuthorize(AuthConstantsUtil.IS_ADMIN)

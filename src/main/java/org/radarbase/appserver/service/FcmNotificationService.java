@@ -23,9 +23,11 @@ package org.radarbase.appserver.service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.radarbase.appserver.converter.NotificationConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
@@ -274,9 +276,10 @@ public class FcmNotificationService implements NotificationService {
 
         user.ifPresentOrElse(
                 (User user1) -> {
+                    this.schedulerService.deleteScheduledMultiple(
+                        this.notificationRepository.findByUserId(user1.getId()));
+
                     this.notificationRepository.deleteByUserId(user1.getId());
-          /*User newUser = user1.setFcmToken("");
-          this.userRepository.save(newUser);*/
                 },
                 () -> {
                     throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");
