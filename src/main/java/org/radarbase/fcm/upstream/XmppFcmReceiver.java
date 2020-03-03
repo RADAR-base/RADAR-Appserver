@@ -31,11 +31,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.config.ReconnectionEnabledXmppConnectionFactoryBean;
-import org.radarbase.fcm.downstream.FcmSender;
+import org.radarbase.fcm.downstream.XmppFcmSender;
 import org.radarbase.fcm.model.FcmAckMessage;
 import org.radarbase.fcm.upstream.error.ErrorHandlingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -53,17 +51,30 @@ public class XmppFcmReceiver implements CcsClient {
 
   // TODO add support for subscribing to publisher updates added in Java 9
 
-  @Autowired private transient UpstreamMessageHandler messageHandler;
+  private final transient UpstreamMessageHandler messageHandler;
 
-  @Autowired private transient ObjectMapper mapper;
+  private final transient ObjectMapper mapper;
 
-  @Autowired private transient ErrorHandlingStrategy errorHandlingStrategy;
+  private final transient ErrorHandlingStrategy errorHandlingStrategy;
 
-  @Autowired
-  @Qualifier("fcmSenderProps")
-  private transient FcmSender fcmSender;
+  // We need to use an Xmpp sender here as we need to send ACK messages back to FCM server which is
+  // not possible with Admin SDK.
+  private final transient XmppFcmSender fcmSender;
 
-  @Autowired private transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+  private final transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+
+  public XmppFcmReceiver(
+      UpstreamMessageHandler messageHandler,
+      ObjectMapper mapper,
+      ErrorHandlingStrategy errorHandlingStrategy,
+      XmppFcmSender fcmSender,
+      ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean) {
+    this.messageHandler = messageHandler;
+    this.mapper = mapper;
+    this.errorHandlingStrategy = errorHandlingStrategy;
+    this.fcmSender = fcmSender;
+    this.connectionFactoryBean = connectionFactoryBean;
+  }
 
   public void handleIncomingMessage(Message<String> message) throws Exception {
     log.debug("Header = " + message.getHeaders());

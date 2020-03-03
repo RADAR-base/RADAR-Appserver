@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -43,11 +42,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class XmppFcmSender implements CcsClient, FcmSender {
 
-  @Autowired private transient MessageChannel xmppOutbound;
-
-  @Autowired private transient ObjectMapper mapper;
-
   private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
+  private final transient MessageChannel xmppOutbound;
+  private final transient ObjectMapper mapper;
+
+  public XmppFcmSender(MessageChannel xmppOutbound, ObjectMapper mapper) {
+    this.xmppOutbound = xmppOutbound;
+    this.mapper = mapper;
+  }
 
   @Override
   public void send(FcmDownstreamMessage message) throws Exception {

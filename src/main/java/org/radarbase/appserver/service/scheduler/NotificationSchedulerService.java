@@ -50,7 +50,7 @@ public class NotificationSchedulerService extends MessageSchedulerService<Notifi
         super(fcmSender, schedulerService);
     }
 
-    private static Map getNotificationMap(Notification notification) {
+    private static Map<String, Object> getNotificationMap(Notification notification) {
         Map<String, Object> notificationMap = new HashMap<>();
         notificationMap.put("body", notification.getBody());
         notificationMap.put("title", notification.getTitle());

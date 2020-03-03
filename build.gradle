@@ -106,6 +106,9 @@ dependencies {
     compileOnly 'net.jcip:jcip-annotations:1.0'
     compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.12'
 
+    // FCM Admin SDK
+    implementation 'com.google.firebase:firebase-admin:6.12.2'
+
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
     testCompile group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.2.1'
