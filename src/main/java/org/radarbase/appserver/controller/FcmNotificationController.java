@@ -50,19 +50,19 @@ public class FcmNotificationController {
 
   @Autowired private transient FcmNotificationService notificationService;
 
-  @GetMapping("/" + PathsUtil.NOTIFICATION_PATH)
+  @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
   public ResponseEntity<FcmNotifications> getAllNotifications() {
     return ResponseEntity.ok(this.notificationService.getAllNotifications());
   }
 
   @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
-  @GetMapping("/" + PathsUtil.NOTIFICATION_PATH + "/{id}")
+  @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{id}")
   public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.notificationService.getNotificationById(id));
   }
   // TODO: get notifications based on other params. Maybe use projections ?
-  @GetMapping("/" + PathsUtil.NOTIFICATION_PATH + "/filtered")
+  @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/filtered")
   public ResponseEntity<FcmNotifications> getFilteredNotifications(
       @Valid @RequestParam(value = "type", required = false) String type,
       @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
@@ -94,7 +94,7 @@ public class FcmNotificationController {
               + "/"
               + PathsUtil.SUBJECT_ID_CONSTANT
               + "/"
-              + PathsUtil.NOTIFICATION_PATH)
+              + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectIdAndSubjectId(
       @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
     return ResponseEntity.ok(
@@ -107,7 +107,8 @@ public class FcmNotificationController {
           + AuthConstantsUtil.PROJECT_ID
           + ")")
   @GetMapping(
-      "/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT + "/" + PathsUtil.NOTIFICATION_PATH)
+      "/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT + "/"
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingProjectId(
       @Valid @PathVariable String projectId) {
     return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId));
@@ -116,7 +117,8 @@ public class FcmNotificationController {
   // TODO: Edit this as this needs to be on the Subject level.
   @PreAuthorize("hasPermission(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ" + ")")
   @GetMapping(
-      "/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT + "/" + PathsUtil.NOTIFICATION_PATH)
+      "/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT + "/"
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getNotificationsUsingSubjectId(
       @Valid @PathVariable String subjectId) {
     return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
@@ -140,7 +142,7 @@ public class FcmNotificationController {
           + "/"
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
-          + PathsUtil.NOTIFICATION_PATH)
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity<FcmNotificationDto> addSingleNotification(
       @PathVariable String projectId,
       @PathVariable String subjectId,
@@ -149,7 +151,7 @@ public class FcmNotificationController {
     FcmNotificationDto notificationDto =
         this.notificationService.addNotification(notification, subjectId, projectId);
     return ResponseEntity.created(
-            new URI("/" + PathsUtil.NOTIFICATION_PATH + "/" + notificationDto.getId()))
+        new URI("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/" + notificationDto.getId()))
         .body(notificationDto);
   }
 
@@ -171,7 +173,7 @@ public class FcmNotificationController {
           + "/"
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
-          + PathsUtil.NOTIFICATION_PATH
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH
           + "/batch")
   public ResponseEntity<FcmNotifications> addBatchNotifications(
       @PathVariable String projectId,
@@ -199,7 +201,7 @@ public class FcmNotificationController {
           + "/"
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
-          + PathsUtil.NOTIFICATION_PATH)
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity updateNotification(
       @PathVariable String projectId,
       @PathVariable String subjectId,
@@ -227,11 +229,37 @@ public class FcmNotificationController {
           + "/"
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
-          + PathsUtil.NOTIFICATION_PATH)
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity deleteNotificationsForUser(
       @PathVariable String projectId, @PathVariable String subjectId) {
 
     this.notificationService.removeNotificationsForUser(projectId, subjectId);
+    return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(
+          AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+                  + AuthConstantsUtil.ACCESSOR
+                  + AuthConstantsUtil.PROJECT_ID
+                  + ", "
+                  + AuthConstantsUtil.ACCESSOR
+                  + AuthConstantsUtil.SUBJECT_ID
+                  + ")")
+  @DeleteMapping(
+          "/"
+                  + PathsUtil.PROJECT_PATH
+                  + "/"
+                  + PathsUtil.PROJECT_ID_CONSTANT
+                  + "/"
+                  + PathsUtil.USER_PATH
+                  + "/"
+                  + PathsUtil.SUBJECT_ID_CONSTANT
+                  + "/"
+                  + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{id}")
+  public ResponseEntity deleteNotificationUsingProjectIdAndSubjectIdAndNotificationId(
+          @PathVariable String projectId, @PathVariable String subjectId, @PathVariable Long id) {
+
+    this.notificationService.deleteNotificationByProjectIdAndSubjectIdAndNotificationId(projectId, subjectId, id);
     return ResponseEntity.ok().build();
   }
 }

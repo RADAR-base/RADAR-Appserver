@@ -21,44 +21,38 @@
 
 package org.radarbase.appserver.event.state;
 
-import java.time.Instant;
-import java.util.Map;
 import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.entity.Notification;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+import java.time.Instant;
+import java.util.Map;
+
 @Getter
 @ToString
-public class NotificationStateEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 327842183571937L;
+public class NotificationStateEvent extends MessageStateEvent {
+    private static final long serialVersionUID = 327842183571938L;
 
-  private Notification notification;
-  private NotificationState state;
-  private Map<String, String> additionalInfo;
-  private Instant time;
+    private Notification notification;
 
-  /**
-   * Create a new ApplicationEvent.
-   *
-   * @param source the object on which the event initially occurred (never {@code null})
-   * @param notification the notification associated with this state event.
-   * @param state the current {@link NotificationState} change of the {@link
-   *     org.radarbase.appserver.entity.Notification} entity.
-   * @param additionalInfo any additional info associated with the state change.
-   */
-  public NotificationStateEvent(
-      Object source,
-      @NonNull Notification notification,
-      @NonNull NotificationState state,
-      @Nullable Map<String, String> additionalInfo,
-      @NonNull Instant time) {
-    super(source);
-    this.notification = notification;
-    this.state = state;
-    this.additionalInfo = additionalInfo;
-    this.time = time;
-  }
+    /**
+     * Create a new ApplicationEvent.
+     *
+     * @param source         the object on which the event initially occurred (never {@code null})
+     * @param notification   the notification associated with this state event.
+     * @param state          the current {@link MessageState} change of the {@link
+     *                       Notification} entity.
+     * @param additionalInfo any additional info associated with the state change.
+     */
+    public NotificationStateEvent(
+            Object source,
+            @NonNull Notification notification,
+            @NonNull MessageState state,
+            @Nullable Map<String, String> additionalInfo,
+            @NonNull Instant time) {
+        super(source, state, additionalInfo, time);
+        this.notification = notification;
+    }
 }

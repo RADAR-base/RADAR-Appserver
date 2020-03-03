@@ -26,28 +26,36 @@ import java.util.List;
 import java.util.Optional;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
 /** @author yatharthranjan */
 @Repository
+@RepositoryRestResource(exported = false)
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-  List<Notification> findByUserId(Long userId);
+    List<Notification> findByUserId(Long userId);
 
-  void deleteByUserId(Long userId);
+    void deleteByUserId(Long userId);
 
-  boolean existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-      Long userId,
-      String sourceId,
-      Instant scheduledTime,
-      String title,
-      String body,
-      String type,
-      int ttlSeconds);
+    boolean existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+            Long userId,
+            String sourceId,
+            Instant scheduledTime,
+            String title,
+            String body,
+            String type,
+            int ttlSeconds);
 
-  void deleteByFcmMessageId(String fcmMessageId);
+    boolean existsByIdAndUserId(Long id, Long userId);
 
-  Optional<Notification> findByFcmMessageId(String fcmMessageId);
+    boolean existsById(Long id);
 
-  Optional<Notification> findByIdAndUserId(long id, long userId);
+    void deleteByFcmMessageId(String fcmMessageId);
+
+    void deleteByIdAndUserId(Long id, Long userId);
+
+    Optional<Notification> findByFcmMessageId(String fcmMessageId);
+
+    Optional<Notification> findByIdAndUserId(long id, long userId);
 }

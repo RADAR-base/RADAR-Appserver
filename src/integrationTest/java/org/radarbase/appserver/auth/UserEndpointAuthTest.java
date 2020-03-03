@@ -57,7 +57,6 @@ public class UserEndpointAuthTest {
   public static final String DEFAULT_PROJECT = "/radar";
   private static final HttpHeaders HEADERS = new HttpHeaders();
   private static HttpHeaders AUTH_HEADER;
-  private static OAuthHelper oAuthHelper;
   private static TestRestTemplate restTemplate = new TestRestTemplate();
   private final transient FcmUserDto userDto =
       new FcmUserDto()
@@ -70,7 +69,7 @@ public class UserEndpointAuthTest {
 
   @BeforeAll
   static void init() {
-    oAuthHelper = new MPOAuthHelper();
+    OAuthHelper oAuthHelper = new MPOAuthHelper();
     AUTH_HEADER = new HttpHeaders();
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
   }

@@ -32,7 +32,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.stereotype.Component;
 
 /**
  * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol. This uses
@@ -40,14 +39,11 @@ import org.springframework.stereotype.Component;
  *
  * @author yatharthranjan
  */
-@Component
 public class XmppFcmSender implements CcsClient, FcmSender {
 
-  @Autowired private transient MessageChannel xmppOutbound;
-
-  @Autowired private transient ObjectMapper mapper;
-
   private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
+  @Autowired private transient MessageChannel xmppOutbound;
+  @Autowired private transient ObjectMapper mapper;
 
   @Override
   public void send(FcmDownstreamMessage message) throws Exception {

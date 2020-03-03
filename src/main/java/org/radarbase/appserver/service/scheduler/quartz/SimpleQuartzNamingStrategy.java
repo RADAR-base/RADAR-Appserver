@@ -26,24 +26,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class SimpleQuartzNamingStrategy implements QuartzNamingStrategy {
 
-  private static final String TRIGGER_PREFIX = "notification-trigger-";
-  private static final String JOB_PREFIX = "notification-jobdetail-";
+  private static final String TRIGGER_PREFIX = "message-trigger-";
+  private static final String JOB_PREFIX = "message-jobdetail-";
 
   @Override
-  public String getTriggerName(String userName, String notificationId) {
+  public String getTriggerName(String userName, String messageId) {
     return new StringBuilder(TRIGGER_PREFIX)
         .append(userName)
         .append('-')
-        .append(notificationId)
+        .append(messageId)
         .toString();
   }
 
   @Override
-  public String getJobKeyName(String userName, String notificationId) {
+  public String getJobKeyName(String userName, String messageId) {
     return new StringBuilder(JOB_PREFIX)
         .append(userName)
         .append('-')
-        .append(notificationId)
+        .append(messageId)
         .toString();
   }
 }

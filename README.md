@@ -19,13 +19,25 @@ There is also support for legacy XMPP protocol for FCM.
 
 2. Configure the Server Key and Sender ID (obtained from FCM) in application.properties. 
 
-3. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
+3. The AppServer needs a database to work. You can either use a `stand-alone` instance of the database of use an in-memory `embedded` instance-
+   
+   3.1. To use the standalone instance, run the database a docker service by
+    
+       ```bash
+         docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d hsqldb
+        ```
+        
+        This will start the database at `localhost:9001`
+        
+   3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.
+
+4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
    ```bash
     ./gradlew bootRun
    ```
    You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
 
-4. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
+5. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
    ```json
     {
      "data":
@@ -42,11 +54,11 @@ There is also support for legacy XMPP protocol for FCM.
      }
    ```
 
-5. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
+6. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
 
-6. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
+7. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
 
-7. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
+8. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
 ## REST API
 
@@ -105,6 +117,40 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 | fcmserver.fcmsender | The Sender to use for sending messages. There is a choice of using XMPP or FCM Admin SDK. | `org.radarbase.fcm.downstream.XmppFcmSender` |    No     |
 
 **Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
+
+## Docker/ Docker Compose
+The AppServer is also available as a docker container. It's [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
+
+```shell
+    docker run -v /logs/:/var/log/radar/appserver/ \
+    -e "FCMSERVER_SENDERID=3487134635" \
+    -e "FCMSERVER_SERVERKEY=AAAA8wZuFjE:APA91bGpJQ3Sft0mZAaVMjDJGNLjFsdDLTo-37ZN69r4" \
+    radarbase/radar-appserver:0.0.1
+```
+The same can be achieved by running as a docker-compose service. Just specify the following in `docker-compose.yml` file - 
+
+```yml
+    services:
+      appserver:
+        image: radarbase/radar-appserver:0.0.1
+        restart: always
+        ports:
+          - 8080:8080
+        volumes:
+          - ./radar_is.yml:/resources/radar_is.yml
+          - ./logs/:/var/log/radar/appserver/
+        environment:
+          JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
+          FCMSERVER_SENDERID: "4562864135"
+          FCMSERVER_SERVERKEY: "AAAA8wZuFjE:APA91bGpJQ3Sft0mZAaVMjDJGN"
+          RADAR_ADMIN_USER: "radar"
+          RADAR_ADMIN_PASSWORD: "radar"
+          SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
+          RADAR_IS_CONFIG_LOCATION: "/resources/radar_is.yml"
+          SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
+```
+
+An example `docker-compose` file with all the other components is provided in [integrationTest resources](/src/integrationTest/resources/docker/docker-compose.yml).
 
 ## Architecture
 Here is a high level architecture and data flow diagram for the AppServer and its example interaction with a Cordova application (hybrid) like the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire).
@@ -269,8 +315,8 @@ You can host your own protocols and configure the following properties -
 
 ## Documentation
 
-Api docs are available through swagger open api 2 config. 
-The raw json is present at the `<your-base-url/v2/api-docs>`. By default this should be `http://localhost:8080/v2/api-docs`
+Api docs are available through swagger open api 3 config. 
+The raw json is present at the `<your-base-url/v3/api-docs>`. By default this should be `http://localhost:8080/v3/api-docs`. This will provide the specification in JSON format. If `YAML` format is preferred, you can query `http://localhost:8080/v3/api-docs.yaml`
 
 The Swagger UI is shown below.
 It is present at `<your-base-url/swagger-ui.html`

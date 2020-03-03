@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -71,6 +72,7 @@ public class FcmNotificationDto implements Serializable {
 
   @NotEmpty private String sourceType;
 
+  @Size(max = 100)
   private Map<String, String> additionalData;
 
   private String priority;

@@ -22,11 +22,10 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.Instant;
-import javax.persistence.Column;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -35,50 +34,37 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.radarbase.appserver.event.state.NotificationState;
+import org.radarbase.appserver.event.state.MessageState;
 
 @Entity
 @Getter
 @Table(name = "notification_state_events")
 @NoArgsConstructor
-public class NotificationStateEvent {
-  private static final long serialVersionUID = 876253616328519L;
+public class NotificationStateEvent extends MessageStateEvent {
+    private static final long serialVersionUID = 876253616328518L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-  @NotNull
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "notification_id", nullable = false)
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JsonIgnore
-  private Notification notification;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, optional = false)
+    @JoinColumn(name = "notification_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Notification notification;
 
-  @NotNull
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private NotificationState state;
-
-  @NotNull
-  @Column(nullable = false)
-  private Instant time;
-
-  @Column(name = "associated_info")
-  private String associatedInfo;
-
-  public NotificationStateEvent(
-      @NotNull Notification notification,
-      @NotNull NotificationState state,
-      @NotNull Instant time,
-      String associatedInfo) {
-    this.notification = notification;
-    this.state = state;
-    this.time = time;
-    this.associatedInfo = associatedInfo;
-  }
+    public NotificationStateEvent(
+            @NotNull Notification notification,
+            @NotNull MessageState state,
+            @NotNull Instant time,
+            String associatedInfo) {
+        super(state, time, associatedInfo);
+        this.notification = notification;
+    }
 }
