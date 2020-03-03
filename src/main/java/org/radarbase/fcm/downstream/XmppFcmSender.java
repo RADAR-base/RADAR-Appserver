@@ -26,12 +26,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.stereotype.Component;
 
 /**
  * A {@link FcmSender} for sending downstream messages to devices using FCM XMPP protocol. This uses
@@ -39,17 +39,11 @@ import org.springframework.stereotype.Component;
  *
  * @author yatharthranjan
  */
-@Component
 public class XmppFcmSender implements CcsClient, FcmSender {
 
   private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
-  private final transient MessageChannel xmppOutbound;
-  private final transient ObjectMapper mapper;
-
-  public XmppFcmSender(MessageChannel xmppOutbound, ObjectMapper mapper) {
-    this.xmppOutbound = xmppOutbound;
-    this.mapper = mapper;
-  }
+  @Autowired private transient MessageChannel xmppOutbound;
+  @Autowired private transient ObjectMapper mapper;
 
   @Override
   public void send(FcmDownstreamMessage message) throws Exception {
