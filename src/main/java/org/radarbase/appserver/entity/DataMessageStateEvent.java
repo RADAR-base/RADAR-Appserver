@@ -44,7 +44,7 @@ import org.radarbase.appserver.event.state.MessageState;
 @Table(name = "data_message_state_events")
 @NoArgsConstructor
 public class DataMessageStateEvent extends MessageStateEvent {
-    private static final long serialVersionUID = 876253616328518L;
+    private static final long serialVersionUID = 876253616328520L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

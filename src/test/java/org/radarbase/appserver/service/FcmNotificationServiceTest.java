@@ -293,6 +293,13 @@ class FcmNotificationServiceTest {
                                 null,
                                 86400))
                 .thenReturn(true);
+
+        Mockito.when(
+                notificationRepository
+                        .existsByIdAndUserId(
+                                1L,
+                                1L))
+                .thenReturn(true);
     }
 
     @Test
@@ -503,10 +510,10 @@ class FcmNotificationServiceTest {
         assertDoesNotThrow(() -> notificationService.updateDeliveryStatus("12345", true));
     }
 
-    // Directly calls the repository so no need to assert. Just check that no excpetion is thrown
+    // Directly calls the repository so no need to assert. Just check that no exception is thrown
     @Test
-    void deleteNotificationByFcmMessageId() {
-        assertDoesNotThrow(() -> notificationService.deleteNotificationByFcmMessageId(FCM_MESSAGE_ID));
+    void deleteNotificationByProjectIdAndSubjectIdAndId() {
+        assertDoesNotThrow(() -> notificationService.deleteNotificationByProjectIdAndSubjectIdAndNotificationId(PROJECT_ID, USER_ID, 1L));
     }
 
     // If does not throw CustomExceptionHandler then test is valid

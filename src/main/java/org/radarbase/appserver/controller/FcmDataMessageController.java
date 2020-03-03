@@ -242,5 +242,31 @@ public class FcmDataMessageController {
         this.dataMessageService.removeDataMessagesForUser(projectId, subjectId);
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize(
+            AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
+                    + AuthConstantsUtil.ACCESSOR
+                    + AuthConstantsUtil.PROJECT_ID
+                    + ", "
+                    + AuthConstantsUtil.ACCESSOR
+                    + AuthConstantsUtil.SUBJECT_ID
+                    + ")")
+    @DeleteMapping(
+            "/"
+                    + PathsUtil.PROJECT_PATH
+                    + "/"
+                    + PathsUtil.PROJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.USER_PATH
+                    + "/"
+                    + PathsUtil.SUBJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.MESSAGING_DATA_PATH + "/{id}")
+    public ResponseEntity deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
+            @PathVariable String projectId, @PathVariable String subjectId, @PathVariable Long id) {
+
+        this.dataMessageService.deleteDataMessageByProjectIdandSubjectIdAndDataMessageId(projectId, subjectId, id);
+        return ResponseEntity.ok().build();
+    }
 }
 

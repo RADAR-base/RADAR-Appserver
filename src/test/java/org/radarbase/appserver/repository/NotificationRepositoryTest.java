@@ -47,6 +47,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class NotificationRepositoryTest {
     public static final String NOTIFICATION_BODY = "Test notif";
     public static final String NOTIFICATION_TITLE = "Testing";
+    public static final Long NOTIFICATION_ID = 12345L;
     public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
     public static final String NOTIFICATION_SOURCE_ID = "test";
     @Autowired
@@ -80,6 +81,7 @@ public class NotificationRepositoryTest {
 
         Notification notification =
                 new Notification.NotificationBuilder()
+                        .id(NOTIFICATION_ID)
                         .user(user)
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
@@ -99,6 +101,7 @@ public class NotificationRepositoryTest {
         // given
         Notification notification =
                 new Notification.NotificationBuilder()
+                        .id(NOTIFICATION_ID)
                         .user(new User())
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
@@ -125,6 +128,7 @@ public class NotificationRepositoryTest {
         // given
         Notification notification =
                 new Notification.NotificationBuilder()
+                        .id(NOTIFICATION_ID)
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
                         .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
@@ -166,6 +170,7 @@ public class NotificationRepositoryTest {
 
         Notification notification =
                 new Notification.NotificationBuilder()
+                        .id(NOTIFICATION_ID)
                         .user(user)
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
@@ -207,9 +212,9 @@ public class NotificationRepositoryTest {
     }
 
     @Test
-    public void whenDeleteNotificationByFcmMessageId_thenExistsFalse() {
+    public void whenDeleteNotificationById_thenExistsFalse() {
         // when
-        notificationRepository.deleteByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        notificationRepository.deleteById(NOTIFICATION_ID);
 
         // then
         Notification notification = entityManager.find(Notification.class, this.id);

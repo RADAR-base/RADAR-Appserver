@@ -154,4 +154,4 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: data_messages
             validate: true
-
+            onDelete: CASCADE
