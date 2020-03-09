@@ -21,8 +21,6 @@
 
 package org.radarbase.appserver.service.questionnaire.schedule;
 
-import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -30,100 +28,52 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.*;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
-import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.TaskService;
 import org.radarbase.appserver.service.questionnaire.protocol.*;
-import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorService {
-
-    private transient ProtocolGenerator protocolGenerator;
-
-    private transient CachedMap<String, Schedule> subjectScheduleMap;
-
-    private final transient UserRepository userRepository;
+    private transient FcmNotificationService notificationService;
+    private transient TaskService taskService;
 
     @Autowired
-    public QuestionnaireScheduleGeneratorService(ProtocolGenerator protocolGenerator, UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.protocolGenerator = protocolGenerator;
-        protocolGenerator.init();
-        subjectScheduleMap =
-                new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
+    public QuestionnaireScheduleGeneratorService(FcmNotificationService notificationService, TaskService taskService) {
+        this.notificationService = notificationService;
+        this.taskService = taskService;
     }
 
-    // Use cached map of schedule of user
-    public void getProtocolForProject(String projectId) throws IOException {
-        protocolGenerator.getAllProtocols();
-        subjectScheduleMap.get();
-    }
-
-    public Schedule getScheduleBySubjectId(String subjectId) {
-        Optional<User> user = userRepository.findBySubjectId(subjectId);
-        if (user.isPresent()) {
-            User u = user.get();
-            return this.generateScheduleForUser(u, this.protocolGenerator);
-        }
-        return null;
-    }
-
-    public Schedule getScheduleForUser(User user) {
-        return null;
-    }
-
-    public Map<String, Schedule> getAllSchedules() {
-        // Check if protocol hash has changed. only then update the map
-        return Collections.emptyMap();
-    }
 
     @Override
-    public Schedule handleProtocol(Schedule schedule, Protocol protocol) {
-        List<Assessment> assessments = protocol.getProtocols();
-        List<AssessmentSchedule> assessmentSchedules = new ArrayList<>();
-        Iterator<Assessment> assessmentIter = assessments.iterator();
-        while (assessmentIter.hasNext()) {
-            Assessment assessment = assessmentIter.next();
-            AssessmentSchedule assessmentSchedule = ProtocolHandlerFactory.getProtocolHandler(this.getProtocolHandlerType(assessment)).handle(schedule, assessment);
-            assessmentSchedules.add(assessmentSchedule);
-        }
-        schedule.setAssessmentSchedules(assessmentSchedules);
+    public AssessmentSchedule handleProtocol(AssessmentSchedule schedule, Assessment assessment, User user) {
+        schedule = ProtocolHandlerFactory.getProtocolHandler(this.getProtocolHandlerType(assessment)).handle(schedule, assessment, user);
         return schedule;
     }
 
     @Override
-    public Schedule handleRepeatProtocol(Schedule schedule, Protocol protocol) {
-        List<Assessment> assessments = protocol.getProtocols();
-        List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();
-        ListIterator<AssessmentSchedule> assessmentScheduleIter = assessmentSchedules.listIterator();
-        while (assessmentScheduleIter.hasNext()) {
-            AssessmentSchedule assessmentSchedule = assessmentScheduleIter.next();
-            Assessment assessment = assessments.get(assessmentScheduleIter.nextIndex() - 1);
-            assessmentSchedule = RepeatProtocolHandlerFactory.getRepeatProtocolHandler(this.getRepeatProtocolHandlerType(assessment)).handle(assessmentSchedule, assessment, schedule.getTimezone());
-
-        }
+    public AssessmentSchedule handleRepeatProtocol(AssessmentSchedule schedule, Assessment assessment, User user) {
+        schedule = RepeatProtocolHandlerFactory.getRepeatProtocolHandler(this.getRepeatProtocolHandlerType(assessment)).handle(schedule, assessment, user);
         return schedule;
     }
 
     @Override
-    public Schedule handleRepeatQuestionnaire(Schedule schedule, Protocol protocol) {
-        List<Assessment> assessments = protocol.getProtocols();
-        List<AssessmentSchedule> assessmentSchedules = schedule.getAssessmentSchedules();
-        ListIterator<AssessmentSchedule> assessmentScheduleIter = assessmentSchedules.listIterator();
-        while (assessmentScheduleIter.hasNext()) {
-            AssessmentSchedule assessmentSchedule = assessmentScheduleIter.next();
-            Assessment assessment = assessments.get(assessmentScheduleIter.nextIndex() - 1);
-            assessmentSchedule = RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(this.getRepeatQuestionnaireHandlerType(assessment)).handle(assessmentSchedule, assessment, schedule.getTimezone());
-        }
+    public AssessmentSchedule handleRepeatQuestionnaire(AssessmentSchedule schedule, Assessment assessment, User user) {
+        schedule = RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(this.getRepeatQuestionnaireHandlerType(assessment), taskService).handle(schedule, assessment, user);
         return schedule;
     }
 
     @Override
-    public Schedule handleClinicalProtocol(Schedule schedule, Protocol protocol) {
+    public AssessmentSchedule handleNotifications(AssessmentSchedule schedule, Assessment assessment, User user) {
+        schedule = NotificationHandlerFactory.getNotificationHandler(this.getNotificationHandlerType(assessment), notificationService).handle(schedule, assessment, user);
+        return schedule;
+    }
+
+    @Override
+    public AssessmentSchedule handleClinicalProtocol(AssessmentSchedule schedule, Assessment assessment, User user) {
         return schedule;
     }
 
@@ -146,5 +96,9 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
             return RepeatQuestionnaireHandlerType.SIMPLE;
         return RepeatQuestionnaireHandlerType.SIMPLE;
 
+    }
+
+    private NotificationHandlerType getNotificationHandlerType(Assessment assessment) {
+        return NotificationHandlerType.SIMPLE;
     }
 }
