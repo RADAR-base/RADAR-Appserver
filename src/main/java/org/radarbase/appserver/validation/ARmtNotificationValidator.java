@@ -26,6 +26,7 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
 
 import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,7 +40,7 @@ public class ARmtNotificationValidator
         implements ConstraintValidator<ARmtNotificationConstraint, Notification> {
 
     @Autowired
-    private transient QuestionnaireScheduleGeneratorService scheduleService;
+    private transient QuestionnaireScheduleService scheduleService;
 
     @Override
     public void initialize(ARmtNotificationConstraint constraintAnnotation) {
