@@ -22,7 +22,7 @@
 package org.radarbase.appserver.controller;
 
 import org.radarbase.appserver.dto.questionnaire.Schedule;
-import org.radarbase.appserver.service.questionnaire.schedule.ScheduleGeneratorService;
+import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,11 +33,12 @@ import javax.validation.Valid;
 @RestController
 public class QuestionnaireScheduleEndpoint {
 
-    private transient ScheduleGeneratorService scheduleGenerator;
+    @Autowired
+    private transient QuestionnaireScheduleService scheduleService;
 
     @Autowired
-    public QuestionnaireScheduleEndpoint(ScheduleGeneratorService scheduleGenerator) {
-        this.scheduleGenerator = scheduleGenerator;
+    public QuestionnaireScheduleEndpoint(QuestionnaireScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
     }
 
     @GetMapping(
@@ -45,7 +46,7 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
     public Schedule generateScheduleUsingSubjectId(
             @Valid @PathVariable String subjectId) {
-        return this.scheduleGenerator.getScheduleBySubjectId(subjectId);
+        return this.scheduleService.getScheduleBySubjectId(subjectId);
 
     }
 
