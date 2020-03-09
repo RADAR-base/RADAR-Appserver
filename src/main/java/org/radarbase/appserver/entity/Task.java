@@ -21,16 +21,15 @@
 
 package org.radarbase.appserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Id;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
@@ -65,13 +64,10 @@ public class Task extends AuditModel implements Serializable {
     @NotNull
     private Long completionWindow;
 
-    @NotNull
     private String warning;
 
-    @NotNull
     private Boolean isClinical;
 
-    @NotNull
     private Instant timeCompleted;
 
     @NotNull
@@ -85,6 +81,13 @@ public class Task extends AuditModel implements Serializable {
 
     @NotNull
     private int nQuestions;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private User user;
 
     @NoArgsConstructor
     public static class TaskBuilder {
@@ -101,6 +104,7 @@ public class Task extends AuditModel implements Serializable {
         transient Boolean isDemo = false;
         transient int order = 0;
         transient int nQuestions;
+        transient User user;
 
         public TaskBuilder(Task task) {
             this.id = task.getId();
@@ -116,6 +120,7 @@ public class Task extends AuditModel implements Serializable {
             this.isDemo = task.getIsDemo();
             this.order = task.getOrder();
             this.nQuestions = task.getNQuestions();
+            this.user = task.getUser();
         }
 
         public TaskBuilder id(Long id) {
@@ -183,6 +188,11 @@ public class Task extends AuditModel implements Serializable {
             return this;
         }
 
+        public TaskBuilder user(User user) {
+            this.user = user;
+            return this;
+        }
+
         public Task build() {
             Task task = new Task();
             task.setId(this.id);
@@ -198,6 +208,7 @@ public class Task extends AuditModel implements Serializable {
             task.setIsDemo(this.isDemo);
             task.setOrder(this.order);
             task.setNQuestions(this.nQuestions);
+            task.setUser(this.user);
 
             return task;
         }
