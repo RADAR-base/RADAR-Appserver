@@ -23,24 +23,32 @@ package org.radarbase.appserver.dto.questionnaire;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import org.radarbase.appserver.entity.User;
 
 @Data
 public class Schedule {
     private List<AssessmentSchedule> assessmentSchedules;
 
-    private Instant enrolmentDate;
+    private User user;
 
-    private TimeZone timezone;
+    public Schedule(User user) {
+        String timezone = "Europe/London";
+        this.user = user;
+        this.user.setTimezone(timezone);
+        this.assessmentSchedules = new ArrayList<>();
 
-    public Schedule(Instant enrolmentDate, String timezone) {
+    }
 
-        this.enrolmentDate = enrolmentDate;
-        timezone = "Europe/London";
-        this.timezone = TimeZone.getTimeZone(timezone);
+    public Schedule addAssessmentSchedule(AssessmentSchedule assessmentSchedule) {
+        this.assessmentSchedules.add(assessmentSchedule);
+        return this;
     }
 
 }

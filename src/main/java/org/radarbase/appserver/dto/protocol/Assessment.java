@@ -27,9 +27,9 @@ import lombok.Data;
  * Data Transfer object (DTO) for Assessment. A project may represent a Protcol for scheduling
  * questionnaires.
  *
+ * @author yatharthranjan
  * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
  * @see Protocol
- * @author yatharthranjan
  */
 @Data
 public class Assessment {
@@ -50,5 +50,11 @@ public class Assessment {
 
     private AssessmentProtocol protocol;
 
-    private Long completionWindow;
+    private Integer order = 0;
+
+    private int nQuestions = 0;
+
+    private Boolean showInCalendar = false;
+
+    private Boolean isDemo = false;
 }
