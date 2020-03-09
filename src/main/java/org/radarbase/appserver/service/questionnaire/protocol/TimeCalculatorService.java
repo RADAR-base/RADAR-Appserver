@@ -27,9 +27,14 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class TimeCalculatorService {
+    int WEEK_TO_DAYS = 7;
+    int MONTH_TO_DAYS = 31;
+    int YEAR_TO_DAYS = 365;
+
     public Instant advanceRepeat(Instant referenceTime, TimePeriod offset, TimeZone timezone) {
         ZonedDateTime time = ZonedDateTime.ofInstant(referenceTime, timezone.toZoneId());
         switch (offset.getUnit()) {
@@ -54,5 +59,26 @@ public class TimeCalculatorService {
         ZonedDateTime time = ZonedDateTime.ofInstant(timestamp, timezone.toZoneId());
         time = time.toLocalDate().atStartOfDay(time.getZone());
         return time.toInstant();
+    }
+
+    public Long timePeriodToMillis(TimePeriod offset) {
+        int amount = offset.getAmount();
+        switch (offset.getUnit()) {
+            case "min":
+                return TimeUnit.MINUTES.toMillis(amount);
+            case "hour":
+                return TimeUnit.HOURS.toMillis(amount);
+            case "day":
+                return TimeUnit.DAYS.toMillis(amount);
+            case "week":
+                return TimeUnit.DAYS.toMillis(amount * WEEK_TO_DAYS);
+            case "month":
+                return TimeUnit.DAYS.toMillis(amount * MONTH_TO_DAYS);
+            case "year":
+                return TimeUnit.DAYS.toMillis(amount * YEAR_TO_DAYS);
+            default:
+                return TimeUnit.DAYS.toMillis(1);
+        }
+
     }
 }
