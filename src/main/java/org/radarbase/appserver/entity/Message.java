@@ -54,6 +54,13 @@ public class Message extends AuditModel implements Serializable, Scheduled {
     @JsonIgnore
     private User user;
 
+   @NotNull
+   @ManyToOne(fetch = FetchType.LAZY, optional = true)
+   @JoinColumn(name = "task_id", nullable = true)
+   @OnDelete(action = OnDeleteAction.CASCADE)
+   @JsonIgnore
+   private Task task;
+
     @Nullable
     @Column(name = "source_id")
     private String sourceId;
