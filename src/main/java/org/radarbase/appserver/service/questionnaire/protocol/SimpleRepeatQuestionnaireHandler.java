@@ -26,6 +26,8 @@ import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Task;
+import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.service.TaskService;
 
 import java.time.Instant;
 import java.util.*;
@@ -33,15 +35,22 @@ import java.util.*;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
+    private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
+    private transient TaskService taskService;
+
+    public SimpleRepeatQuestionnaireHandler(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
     @Override
-    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, TimeZone timezone) {
-        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), timezone);
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
+        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
         assessmentSchedule.setTasks(tasks);
         return assessmentSchedule;
     }
 
-    public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, TimeZone timezone) {
+    public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
+        TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer> unitsFromZero = repeatQuestionnaire.getUnitsFromZero();
         Iterator<Instant> referenceTimestampsIter = referenceTimestamps.iterator();
@@ -54,22 +63,14 @@ public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHand
             while (unitsFromZeroIter.hasNext()) {
                 timePeriod.setAmount(unitsFromZeroIter.next());
                 Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
-                Task task = buildTask(assessment, taskTime);
+                Task task = taskGeneratorService.buildTask(assessment, taskTime);
+                task.setUser(user);
+                task = this.taskService.addTask(task);
                 tasks.add(task);
             }
         }
         return tasks;
     }
 
-    private Task buildTask(Assessment assessment, Instant timestamp) {
-        System.out.println(assessment);
-        // TODO: To add other keys
-        Task task = new Task.TaskBuilder()
-                .name(assessment.getName())
-                .estimatedCompletionTime(assessment.getEstimatedCompletionTime())
-                .completionWindow(assessment.getCompletionWindow())
-                .timestamp(timestamp)
-                .build();
-        return task;
-    }
+
 }

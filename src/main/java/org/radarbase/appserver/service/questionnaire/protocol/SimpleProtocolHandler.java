@@ -25,6 +25,7 @@ import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.User;
 
 import java.time.Instant;
 
@@ -32,12 +33,11 @@ import java.time.Instant;
 public class SimpleProtocolHandler implements ProtocolHandler {
 
     @Override
-    public AssessmentSchedule handle(Schedule schedule, Assessment assessment) {
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         AssessmentProtocol assessmentProtocol = assessment.getProtocol();
-        Instant referenceTimestamp = schedule.getEnrolmentDate();
+        Instant referenceTimestamp = user.getEnrolmentDate();
         if (assessmentProtocol.getReferenceTimestamp() != null)
             referenceTimestamp = assessmentProtocol.getReferenceTimestamp();
-        AssessmentSchedule assessmentSchedule = new AssessmentSchedule();
         assessmentSchedule.setReferenceTimestamp(referenceTimestamp);
         assessmentSchedule.setName(assessment.getName());
         return assessmentSchedule;

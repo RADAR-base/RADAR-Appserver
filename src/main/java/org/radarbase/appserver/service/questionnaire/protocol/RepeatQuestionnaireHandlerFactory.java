@@ -21,15 +21,16 @@
 
 package org.radarbase.appserver.service.questionnaire.protocol;
 
+import org.radarbase.appserver.service.TaskService;
 
 public class RepeatQuestionnaireHandlerFactory {
 
-    public static RepeatQuestionnaireHandler getRepeatQuestionnaireHandler(RepeatQuestionnaireHandlerType name) {
+    public static RepeatQuestionnaireHandler getRepeatQuestionnaireHandler(RepeatQuestionnaireHandlerType name, TaskService taskService) {
         switch (name) {
             case SIMPLE:
-                return new SimpleRepeatQuestionnaireHandler();
+                return new SimpleRepeatQuestionnaireHandler(taskService);
             default:
-                return new SimpleRepeatQuestionnaireHandler();
+                return new SimpleRepeatQuestionnaireHandler(taskService);
         }
     }
 

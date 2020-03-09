@@ -25,9 +25,10 @@ import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.User;
 
 import java.util.TimeZone;
 
 public interface RepeatQuestionnaireHandler {
-    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, TimeZone timezone);
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user);
 }

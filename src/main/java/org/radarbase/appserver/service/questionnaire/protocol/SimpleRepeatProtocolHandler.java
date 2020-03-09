@@ -24,6 +24,7 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
+import org.radarbase.appserver.entity.User;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,16 +34,18 @@ import java.util.TimeZone;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatProtocolHandler implements RepeatProtocolHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
-    private transient TimePeriod defaultTimePeriod = new TimePeriod("years", 0, "", 0);
+    // Test timeperiod
+    private transient TimePeriod defaultTimePeriod = new TimePeriod("week", 1, "", 0);
 
     @Override
-    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, TimeZone timezone) {
-        List<Instant> referenceTimestamps = generateReferenceTimestamps(assessment, assessmentSchedule.getReferenceTimestamp(), timezone);
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
+        List<Instant> referenceTimestamps = generateReferenceTimestamps(assessment, assessmentSchedule.getReferenceTimestamp(), user.getTimezone());
         assessmentSchedule.setReferenceTimestamps(referenceTimestamps);
         return assessmentSchedule;
     }
 
-    private List<Instant> generateReferenceTimestamps(Assessment assessment, Instant startTime, TimeZone timezone) {
+    private List<Instant> generateReferenceTimestamps(Assessment assessment, Instant startTime, String timezoneId) {
+        TimeZone timezone = TimeZone.getTimeZone(timezoneId);
         Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), defaultTimePeriod, timezone);
         List<Instant> referenceTimestamps = new ArrayList<>();
         TimePeriod repeatProtocol = assessment.getProtocol().getRepeatProtocol();
