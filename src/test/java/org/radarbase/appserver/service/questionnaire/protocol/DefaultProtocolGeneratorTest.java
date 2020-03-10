@@ -35,6 +35,7 @@ import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
 import org.radarbase.appserver.dto.protocol.LanguageText;
 import org.radarbase.appserver.dto.protocol.Protocol;
+import org.radarbase.appserver.dto.protocol.RepeatProtocol;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,15 +60,18 @@ class DefaultProtocolGeneratorTest {
 
         protocolGenerator.init();
 
+        RepeatProtocol repeatProtocol = new RepeatProtocol();
+        repeatProtocol.setAmount(10);
+        repeatProtocol.setUnit("day");
+
         TimePeriod timePeriod = new TimePeriod();
-        timePeriod.setAmount(10);
-        timePeriod.setRepeat(10);
-        timePeriod.setUnit("days");
+        timePeriod.setAmount(1);
+        timePeriod.setUnit("day");
 
         AssessmentProtocol assessmentProtocol = new AssessmentProtocol();
         assessmentProtocol.setCompletionWindow(timePeriod);
         assessmentProtocol.setReminders(timePeriod);
-        assessmentProtocol.setRepeatProtocol(timePeriod);
+        assessmentProtocol.setRepeatProtocol(repeatProtocol);
 
         Assessment assessment = new Assessment();
         assessment.setEstimatedCompletionTime(3);
