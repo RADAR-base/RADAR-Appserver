@@ -43,11 +43,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     boolean existsById(Long id);
 
-    boolean existsByUserIdAndNameAndTimestampAndNQuestions(
+    boolean existsByUserIdAndNameAndTimestamp(
             Long userId,
             String name,
-            Instant timestamp,
-            int nQuestions);
+            Instant timestamp);
 
     Optional<Task> findByIdAndUserId(long id, long userId);
 }

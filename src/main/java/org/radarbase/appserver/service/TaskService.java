@@ -93,7 +93,7 @@ public class TaskService {
     @Transactional
     public Task addTask(Task task) {
         User user = task.getUser();
-        if (!this.taskRepository.existsByUserIdAndNameAndTimestampAndNQuestions(user.getId(), task.getName(), task.getTimestamp(), task.getNQuestions())) {
+        if (!this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp())) {
             Task saved = this.taskRepository.saveAndFlush(task);
             user.getUsermetrics().setLastOpened(Instant.now());
             this.userRepository.save(user);
