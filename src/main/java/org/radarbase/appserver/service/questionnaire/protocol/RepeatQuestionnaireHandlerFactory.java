@@ -29,6 +29,8 @@ public class RepeatQuestionnaireHandlerFactory {
         switch (name) {
             case SIMPLE:
                 return new SimpleRepeatQuestionnaireHandler(taskService);
+            case RANDOM:
+                return new RandomRepeatQuestionnaireHandler(taskService);
             default:
                 return new SimpleRepeatQuestionnaireHandler(taskService);
         }

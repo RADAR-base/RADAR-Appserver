@@ -25,10 +25,21 @@ import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.service.TaskService;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.TimeZone;
 
 public interface RepeatQuestionnaireHandler {
-    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user);
+    default AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
+        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
+        assessmentSchedule.setTasks(tasks);
+        return assessmentSchedule;
+    }
+
+    public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user);
+
 }

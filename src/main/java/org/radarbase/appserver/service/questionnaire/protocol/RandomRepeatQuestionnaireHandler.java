@@ -24,21 +24,23 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
-import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.TaskService;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHandler {
+public class RandomRepeatQuestionnaireHandler implements RepeatQuestionnaireHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
     private transient TaskService taskService;
 
-    public SimpleRepeatQuestionnaireHandler(TaskService taskService) {
+    public RandomRepeatQuestionnaireHandler(TaskService taskService) {
         this.taskService = taskService;
     }
 
@@ -46,16 +48,17 @@ public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHand
     public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
-        List<Integer> unitsFromZero = repeatQuestionnaire.getUnitsFromZero();
+        List<Integer[]> randomUnitsFromZeroBetween = repeatQuestionnaire.getRandomUnitsFromZeroBetween();
         Iterator<Instant> referenceTimestampsIter = referenceTimestamps.iterator();
         List<Task> tasks = new ArrayList<>();
         while (referenceTimestampsIter.hasNext()) {
             Instant referenceTimestamp = referenceTimestampsIter.next();
             TimePeriod timePeriod = new TimePeriod();
             timePeriod.setUnit(repeatQuestionnaire.getUnit());
-            Iterator<Integer> unitsFromZeroIter = unitsFromZero.iterator();
-            while (unitsFromZeroIter.hasNext()) {
-                timePeriod.setAmount(unitsFromZeroIter.next());
+            Iterator<Integer[]> rangeIter = randomUnitsFromZeroBetween.iterator();
+            while (rangeIter.hasNext()) {
+                Integer[] range = rangeIter.next();
+                timePeriod.setAmount(this.getRandomAmountInRange(range));
                 Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
                 Task task = taskGeneratorService.buildTask(assessment, taskTime);
                 task.setUser(user);
@@ -64,6 +67,12 @@ public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHand
             }
         }
         return tasks;
+    }
+
+    private Integer getRandomAmountInRange(Integer[] range) {
+        Integer lowerLimit = range[0];
+        Integer upperLimit = range[1];
+        return (int) (Math.random() * (upperLimit - lowerLimit + 1)) + lowerLimit;
     }
 
 

@@ -23,6 +23,7 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 
 public enum RepeatQuestionnaireHandlerType {
     SIMPLE,
-    DAYOFTHEWEEK,
+    DAYOFWEEKMAP,
+    RANDOM,
     OTHER
 }
