@@ -21,20 +21,17 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
-import org.apache.juli.logging.Log;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
 import org.radarbase.appserver.service.scheduler.DataMessageSchedulerService;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A {@link Job} that sends an FCM message to the device when executed.
@@ -45,19 +42,26 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class MessageJob implements Job {
 
-    @Autowired
-    private transient NotificationSchedulerService notificationSchedulerService;
+    private final transient NotificationSchedulerService notificationSchedulerService;
 
-    @Autowired
-    private transient DataMessageSchedulerService dataMessageSchedulerService;
+    private final transient DataMessageSchedulerService dataMessageSchedulerService;
 
-    @Autowired
-    private transient FcmNotificationService notificationService;
+    private final transient FcmNotificationService notificationService;
 
-    @Autowired
-    private transient FcmDataMessageService dataMessageService;
+    private final transient FcmDataMessageService dataMessageService;
 
-    /**
+    public MessageJob(
+        NotificationSchedulerService notificationSchedulerService,
+        DataMessageSchedulerService dataMessageSchedulerService,
+        FcmNotificationService notificationService,
+        FcmDataMessageService dataMessageService) {
+      this.notificationSchedulerService = notificationSchedulerService;
+      this.dataMessageSchedulerService = dataMessageSchedulerService;
+      this.notificationService = notificationService;
+      this.dataMessageService = dataMessageService;
+    }
+
+  /**
      * Called by the <code>{@link org.quartz.Scheduler}</code> when a <code>{@link org.quartz.Trigger}
      * </code> fires that is associated with the <code>Job</code>.
      *

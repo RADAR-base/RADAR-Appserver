@@ -25,11 +25,15 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.*;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobListener;
+import org.quartz.Scheduler;
+import org.quartz.Trigger;
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.event.state.DataMessageStateEvent;
 import org.radarbase.appserver.event.state.MessageState;

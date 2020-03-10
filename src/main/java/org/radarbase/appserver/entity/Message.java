@@ -22,16 +22,25 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.lang.Nullable;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.lang.Nullable;
 
 @MappedSuperclass
 @Getter
@@ -86,10 +95,8 @@ public class Message extends AuditModel implements Serializable, Scheduled {
     private String fcmCondition;
 
     // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
-    @Nullable
     private boolean delivered;
 
-    @Nullable
     private boolean validated;
 
     @Nullable
@@ -102,8 +109,8 @@ public class Message extends AuditModel implements Serializable, Scheduled {
     private String sourceType;
 
     @Column(name = "dry_run")
+
     // for use with the FCM admin SDK
-    @Nullable
     private boolean dryRun;
 
     private String priority;

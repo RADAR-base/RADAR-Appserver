@@ -315,8 +315,8 @@ You can host your own protocols and configure the following properties -
 
 ## Documentation
 
-Api docs are available through swagger open api 2 config. 
-The raw json is present at the `<your-base-url/v2/api-docs>`. By default this should be `http://localhost:8080/v2/api-docs`
+Api docs are available through swagger open api 3 config. 
+The raw json is present at the `<your-base-url/v3/api-docs>`. By default this should be `http://localhost:8080/v3/api-docs`. This will provide the specification in JSON format. If `YAML` format is preferred, you can query `http://localhost:8080/v3/api-docs.yaml`
 
 The Swagger UI is shown below.
 It is present at `<your-base-url/swagger-ui.html`
