@@ -31,7 +31,7 @@ import lombok.Data;
 @Data
 public class AssessmentProtocol {
 
-    private TimePeriod repeatProtocol;
+    private RepeatProtocol repeatProtocol;
 
     private TimePeriod reminders;
 

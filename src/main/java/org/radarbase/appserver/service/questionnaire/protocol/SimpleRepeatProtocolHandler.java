@@ -22,6 +22,7 @@
 package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
+import org.radarbase.appserver.dto.protocol.RepeatProtocol;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.User;
@@ -35,7 +36,7 @@ import java.util.TimeZone;
 public class SimpleRepeatProtocolHandler implements RepeatProtocolHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     // Test timeperiod
-    private transient TimePeriod defaultTimePeriod = new TimePeriod("week", 1, "", 0);
+    private transient TimePeriod defaultTimePeriod = new TimePeriod("week", 1);
 
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
@@ -48,11 +49,12 @@ public class SimpleRepeatProtocolHandler implements RepeatProtocolHandler {
         TimeZone timezone = TimeZone.getTimeZone(timezoneId);
         Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), defaultTimePeriod, timezone);
         List<Instant> referenceTimestamps = new ArrayList<>();
-        TimePeriod repeatProtocol = assessment.getProtocol().getRepeatProtocol();
+        RepeatProtocol repeatProtocol = assessment.getProtocol().getRepeatProtocol();
+        TimePeriod simpleRepeatProtocol = new TimePeriod(repeatProtocol.getUnit(), repeatProtocol.getAmount());
         Instant referenceTime = startTime;
         while (referenceTime.isBefore(defaultEndTime)) {
             referenceTimestamps.add(timeCalculatorService.setDateTimeToMidnight(referenceTime, timezone));
-            referenceTime = timeCalculatorService.advanceRepeat(referenceTime, repeatProtocol, timezone);
+            referenceTime = timeCalculatorService.advanceRepeat(referenceTime, simpleRepeatProtocol, timezone);
         }
         return referenceTimestamps;
     }

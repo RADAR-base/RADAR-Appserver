@@ -82,20 +82,19 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
     }
 
     private RepeatProtocolHandlerType getRepeatProtocolHandlerType(Assessment assessment) {
-        AssessmentProtocol protocol = assessment.getProtocol();
-        TimePeriod repeatProtocol = protocol.getRepeatProtocol();
+        RepeatProtocol repeatProtocol = assessment.getProtocol().getRepeatProtocol();
         if (repeatProtocol.getDayOfWeek() != null)
-            return RepeatProtocolHandlerType.DAYOFTHEWEEK;
+            return RepeatProtocolHandlerType.DAYOFWEEK;
         return RepeatProtocolHandlerType.SIMPLE;
     }
 
     private RepeatQuestionnaireHandlerType getRepeatQuestionnaireHandlerType(Assessment assessment) {
-        AssessmentProtocol protocol = assessment.getProtocol();
-        RepeatQuestionnaire repeatQuestionnaire = protocol.getRepeatQuestionnaire();
-        if (repeatQuestionnaire.getUnitsFromZero() != null)
-            return RepeatQuestionnaireHandlerType.SIMPLE;
+        RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
+        if (repeatQuestionnaire.getDayOfWeekMap() != null)
+            return RepeatQuestionnaireHandlerType.DAYOFWEEKMAP;
+        if (repeatQuestionnaire.getRandomUnitsFromZeroBetween() != null)
+            return RepeatQuestionnaireHandlerType.RANDOM;
         return RepeatQuestionnaireHandlerType.SIMPLE;
-
     }
 
     private NotificationHandlerType getNotificationHandlerType(Assessment assessment) {
