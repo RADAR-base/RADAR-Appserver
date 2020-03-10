@@ -52,7 +52,6 @@ public class ARmtNotificationValidator
         // TODO: Fix
         return scheduleService
                 .getScheduleForUser(notification.getUser())
-                .getAssessmentSchedules()
                 .contains(notification);
     }
 }
