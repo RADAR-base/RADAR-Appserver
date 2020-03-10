@@ -22,13 +22,16 @@
 package org.radarbase.appserver.controller;
 
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
 @RestController
 public class QuestionnaireScheduleEndpoint {
@@ -41,10 +44,26 @@ public class QuestionnaireScheduleEndpoint {
         this.scheduleService = scheduleService;
     }
 
+    @PostMapping(
+            "/"
+                    + PathsUtil.USER_PATH
+                    + "/"
+                    + PathsUtil.SUBJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+    public ResponseEntity<Schedule> generateScheduleUsingSubjectId(
+            @PathVariable String subjectId)
+            throws URISyntaxException {
+        Schedule schedule = this.scheduleService.generateScheduleBySubjectId(subjectId);
+        return ResponseEntity.created(
+                new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/"))
+                .body(schedule);
+    }
+
     @GetMapping(
             "/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
-    public Schedule generateScheduleUsingSubjectId(
+    public List<Task> getScheduleUsingSubjectId(
             @Valid @PathVariable String subjectId) {
         return this.scheduleService.getScheduleBySubjectId(subjectId);
 

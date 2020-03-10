@@ -22,6 +22,7 @@
 package org.radarbase.appserver.service;
 
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -70,17 +72,25 @@ public class QuestionnaireScheduleService {
         subjectScheduleMap.get();
     }
 
-    public Schedule getScheduleBySubjectId(String subjectId) {
+    public List<Task> getScheduleBySubjectId(String subjectId) {
         Optional<User> user = userRepository.findBySubjectId(subjectId);
-        if (user.isPresent()) {
-            User u = user.get();
-            Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(u, this.protocolGenerator);
-            return schedule;
-        }
+        if (user.isPresent())
+            return this.getScheduleForUser(user.get());
+
         return null;
     }
 
-    public Schedule getScheduleForUser(User user) {
+    public List<Task> getScheduleForUser(User user) {
+        return taskRepository.findByUserId(user.getId());
+
+    }
+
+    public Schedule generateScheduleBySubjectId(String subjectId) {
+        Optional<User> user = userRepository.findBySubjectId(subjectId);
+        if (user.isPresent()) {
+            Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user.get(), this.protocolGenerator);
+            return schedule;
+        }
         return null;
     }
 
