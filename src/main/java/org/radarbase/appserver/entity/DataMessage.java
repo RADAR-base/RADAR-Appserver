@@ -21,17 +21,25 @@
 
 package org.radarbase.appserver.entity;
 
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.springframework.lang.Nullable;
-
-import javax.persistence.*;
-import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * {@link Entity} for persisting data messages. The corresponding DTO is {@link FcmDataMessageDto}.
