@@ -25,6 +25,7 @@ import lombok.Data;
 import org.radarbase.appserver.validation.CheckExactlyOneNotNull;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 
 /**
  * @author yatharthranjan
@@ -40,5 +41,14 @@ public class RepeatProtocol {
     private Integer[] randomAmountBetween;
 
     private String dayOfWeek;
+
+    public Integer[] getRandomAmountBetween() {
+        return Arrays.copyOf(this.randomAmountBetween, 2);
+    }
+
+    public RepeatProtocol setRandomAmountBetween(Integer[] randomAmountBetween) {
+        this.randomAmountBetween = Arrays.copyOf(randomAmountBetween, 2);
+        return this;
+    }
 }
 

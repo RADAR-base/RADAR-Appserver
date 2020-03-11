@@ -17,13 +17,14 @@ import org.springframework.beans.BeanWrapperImpl;
 @Retention(RUNTIME)
 @Constraint(validatedBy = CheckExactlyOneNotNull.CheckExactlyOneNotNullValidator.class)
 @Documented
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public @interface CheckExactlyOneNotNull {
 
     String[] fieldNames();
 
     public static class CheckExactlyOneNotNullValidator implements ConstraintValidator<CheckExactlyOneNotNull, Object> {
 
-        private String[] fieldNames;
+        private transient String[] fieldNames;
 
         public void initialize(CheckExactlyOneNotNull constraintAnnotation) {
             this.fieldNames = constraintAnnotation.fieldNames();

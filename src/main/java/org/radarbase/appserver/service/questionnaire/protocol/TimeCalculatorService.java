@@ -31,9 +31,9 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class TimeCalculatorService {
-    int WEEK_TO_DAYS = 7;
-    int MONTH_TO_DAYS = 31;
-    int YEAR_TO_DAYS = 365;
+    transient int WEEK_TO_DAYS = 7;
+    transient int MONTH_TO_DAYS = 31;
+    transient int YEAR_TO_DAYS = 365;
 
     public Instant advanceRepeat(Instant referenceTime, TimePeriod offset, TimeZone timezone) {
         ZonedDateTime time = ZonedDateTime.ofInstant(referenceTime, timezone.toZoneId());

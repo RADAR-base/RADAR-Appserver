@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationGeneratorService {
-    private int SECONDS_TO_MILLIS = 1000;
+    private transient int SECONDS_TO_MILLIS = 1000;
 
     public FcmNotificationDto createNotification(Task task, NotificationType type, Instant notificationTimestamp) {
         FcmNotificationDto current = new FcmNotificationDto();
@@ -26,6 +26,7 @@ public class NotificationGeneratorService {
             default:
                 current.setTitle("Questionnaire time");
                 current.setBody("Won't usually take longer than " + task.getEstimatedCompletionTime() + " minutes");
+                break;
         }
         return current;
     }

@@ -49,20 +49,17 @@ public class QuestionnaireScheduleService {
 
     private final transient TaskRepository taskRepository;
 
-    private transient FcmNotificationService notificationService;
-
     private transient QuestionnaireScheduleGeneratorService scheduleGeneratorService;
 
     @Autowired
 
-    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, FcmNotificationService notificationService, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskRepository taskRepository) {
+    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskRepository taskRepository) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
         protocolGenerator.init();
         subjectScheduleMap =
                 new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
-        this.notificationService = notificationService;
         this.scheduleGeneratorService = scheduleGeneratorService;
     }
 
