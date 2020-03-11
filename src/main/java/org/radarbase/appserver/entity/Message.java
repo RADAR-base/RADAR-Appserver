@@ -22,6 +22,7 @@
 package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -63,12 +64,11 @@ public class Message extends AuditModel implements Serializable, Scheduled {
     @JsonIgnore
     private User user;
 
-   @NotNull
-   @ManyToOne(fetch = FetchType.LAZY, optional = true)
-   @JoinColumn(name = "task_id", nullable = true)
-   @OnDelete(action = OnDeleteAction.CASCADE)
-   @JsonIgnore
-   private Task task;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "task_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Task task;
 
     @Nullable
     @Column(name = "source_id")
