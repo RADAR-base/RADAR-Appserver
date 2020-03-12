@@ -25,7 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.*;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.TaskService;
-import org.radarbase.appserver.service.questionnaire.protocol.*;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.factory.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

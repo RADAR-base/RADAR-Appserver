@@ -21,15 +21,10 @@
 
 package org.radarbase.appserver.dto.questionnaire;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import org.radarbase.appserver.entity.User;
 
 @Data

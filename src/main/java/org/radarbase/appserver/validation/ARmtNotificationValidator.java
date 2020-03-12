@@ -27,7 +27,6 @@ import javax.validation.Valid;
 
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.QuestionnaireScheduleService;
-import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

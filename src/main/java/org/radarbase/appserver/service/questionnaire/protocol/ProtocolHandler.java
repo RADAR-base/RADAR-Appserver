@@ -23,7 +23,6 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
 
 import java.time.Instant;

@@ -4,7 +4,6 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -14,7 +13,6 @@ import org.radarbase.appserver.service.questionnaire.notification.NotificationTy
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimeZone;
 
 public class SimpleNotificationHandler implements ProtocolHandler {
     private transient NotificationGeneratorService notificationGeneratorService = new NotificationGeneratorService();

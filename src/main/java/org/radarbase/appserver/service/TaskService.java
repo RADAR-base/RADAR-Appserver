@@ -21,18 +21,10 @@
 
 package org.radarbase.appserver.service;
 
-import org.radarbase.appserver.converter.ProjectConverter;
-import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.ProjectDtos;
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
-import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.AlreadyExistsException;
-import org.radarbase.appserver.exception.InvalidProjectDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
-import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +36,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * {@link Service} for interacting with the {@link Project} {@link javax.persistence.Entity} using
- * the {@link ProjectRepository}.
+ * {@link Service} for interacting with the {@link Task} {@link javax.persistence.Entity} using
+ * the {@link TaskRepository}.
  *
  * @author yatharthranjan
  */

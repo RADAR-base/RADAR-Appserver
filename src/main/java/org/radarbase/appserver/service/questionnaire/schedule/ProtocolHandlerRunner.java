@@ -3,7 +3,7 @@ package org.radarbase.appserver.service.questionnaire.schedule;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.service.questionnaire.protocol.*;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 
 import java.util.ArrayList;
 import java.util.List;

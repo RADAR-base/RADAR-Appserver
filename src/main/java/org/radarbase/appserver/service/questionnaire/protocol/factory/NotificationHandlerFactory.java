@@ -19,10 +19,12 @@
  *
  */
 
-package org.radarbase.appserver.service.questionnaire.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
 
 import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleNotificationHandler;
 
 public class NotificationHandlerFactory {
 

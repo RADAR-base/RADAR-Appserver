@@ -1,13 +1,9 @@
 package org.radarbase.appserver.service.questionnaire.notification;
 
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-import org.radarbase.appserver.dto.fcm.FcmNotifications;
-import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.entity.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 public class NotificationGeneratorService {
     private transient int SECONDS_TO_MILLIS = 1000;

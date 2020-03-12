@@ -26,10 +26,6 @@ import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.entity.Task;
 
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class TaskGeneratorService {

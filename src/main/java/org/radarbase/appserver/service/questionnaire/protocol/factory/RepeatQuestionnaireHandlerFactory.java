@@ -19,9 +19,12 @@
  *
  */
 
-package org.radarbase.appserver.service.questionnaire.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
 import org.radarbase.appserver.service.TaskService;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.RandomRepeatQuestionnaireHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatQuestionnaireHandler;
 
 public class RepeatQuestionnaireHandlerFactory {
 

@@ -19,7 +19,7 @@
  *
  */
 
-package org.radarbase.appserver.service.questionnaire.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
 public enum NotificationHandlerType {
     SIMPLE,
