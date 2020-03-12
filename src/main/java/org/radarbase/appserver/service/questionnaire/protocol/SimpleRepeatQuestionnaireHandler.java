@@ -33,7 +33,7 @@ import java.time.Instant;
 import java.util.*;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHandler {
+public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
     private transient TaskService taskService;
@@ -42,8 +42,13 @@ public class SimpleRepeatQuestionnaireHandler implements RepeatQuestionnaireHand
         this.taskService = taskService;
     }
 
-    @Override
-    public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
+        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
+        assessmentSchedule.setTasks(tasks);
+        return assessmentSchedule;
+    }
+
+    private List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer> unitsFromZero = repeatQuestionnaire.getUnitsFromZero();

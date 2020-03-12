@@ -26,7 +26,7 @@ import org.radarbase.appserver.service.FcmNotificationService;
 
 public class NotificationHandlerFactory {
 
-    public static NotificationHandler getNotificationHandler(NotificationHandlerType name, FcmNotificationService notificationService) {
+    public static ProtocolHandler getNotificationHandler(NotificationHandlerType name, FcmNotificationService notificationService) {
         switch (name) {
             case SIMPLE:
                 return new SimpleNotificationHandler(notificationService);

@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-public class SimpleNotificationHandler implements NotificationHandler {
+public class SimpleNotificationHandler implements ProtocolHandler {
     private transient NotificationGeneratorService notificationGeneratorService = new NotificationGeneratorService();
     private transient FcmNotificationService notificationService;
 

@@ -24,7 +24,7 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 
 public class RepeatProtocolHandlerFactory {
 
-    public static RepeatProtocolHandler getRepeatProtocolHandler(RepeatProtocolHandlerType name) {
+    public static ProtocolHandler getRepeatProtocolHandler(RepeatProtocolHandlerType name) {
         switch (name) {
             case SIMPLE:
                 return new SimpleRepeatProtocolHandler();

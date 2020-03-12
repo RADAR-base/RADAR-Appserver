@@ -24,6 +24,7 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.TaskService;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class RandomRepeatQuestionnaireHandler implements RepeatQuestionnaireHandler {
+public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
     private transient TaskService taskService;
@@ -44,8 +45,13 @@ public class RandomRepeatQuestionnaireHandler implements RepeatQuestionnaireHand
         this.taskService = taskService;
     }
 
-    @Override
-    public List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
+        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
+        assessmentSchedule.setTasks(tasks);
+        return assessmentSchedule;
+    }
+
+    private List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer[]> randomUnitsFromZeroBetween = repeatQuestionnaire.getRandomUnitsFromZeroBetween();

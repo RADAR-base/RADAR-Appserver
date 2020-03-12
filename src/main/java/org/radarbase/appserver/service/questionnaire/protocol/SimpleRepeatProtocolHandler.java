@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class SimpleRepeatProtocolHandler implements RepeatProtocolHandler {
+public class SimpleRepeatProtocolHandler implements ProtocolHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     // Test timeperiod
     private transient TimePeriod defaultTimePeriod = new TimePeriod("week", 1);

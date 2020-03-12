@@ -25,7 +25,7 @@ import org.radarbase.appserver.service.TaskService;
 
 public class RepeatQuestionnaireHandlerFactory {
 
-    public static RepeatQuestionnaireHandler getRepeatQuestionnaireHandler(RepeatQuestionnaireHandlerType name, TaskService taskService) {
+    public static ProtocolHandler getRepeatQuestionnaireHandler(RepeatQuestionnaireHandlerType name, TaskService taskService) {
         switch (name) {
             case SIMPLE:
                 return new SimpleRepeatQuestionnaireHandler(taskService);
