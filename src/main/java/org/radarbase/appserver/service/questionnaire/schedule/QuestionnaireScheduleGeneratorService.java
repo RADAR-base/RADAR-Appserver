@@ -21,14 +21,8 @@
 
 package org.radarbase.appserver.service.questionnaire.schedule;
 
-import java.time.Instant;
-import java.util.*;
-
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.*;
-import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
-import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.TaskService;
 import org.radarbase.appserver.service.questionnaire.protocol.*;
@@ -37,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorService {
     private transient FcmNotificationService notificationService;
     private transient TaskService taskService;
@@ -47,57 +42,37 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
         this.taskService = taskService;
     }
 
-
     @Override
-    public AssessmentSchedule handleProtocol(AssessmentSchedule schedule, Assessment assessment, User user) {
-        schedule = ProtocolHandlerFactory.getProtocolHandler(this.getProtocolHandlerType(assessment)).handle(schedule, assessment, user);
-        return schedule;
+    public ProtocolHandler getProtocolHandler(Assessment assessment) {
+        return ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE);
     }
 
     @Override
-    public AssessmentSchedule handleRepeatProtocol(AssessmentSchedule schedule, Assessment assessment, User user) {
-        schedule = RepeatProtocolHandlerFactory.getRepeatProtocolHandler(this.getRepeatProtocolHandlerType(assessment)).handle(schedule, assessment, user);
-        return schedule;
-    }
-
-    @Override
-    public AssessmentSchedule handleRepeatQuestionnaire(AssessmentSchedule schedule, Assessment assessment, User user) {
-        schedule = RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(this.getRepeatQuestionnaireHandlerType(assessment), taskService).handle(schedule, assessment, user);
-        return schedule;
-    }
-
-    @Override
-    public AssessmentSchedule handleNotifications(AssessmentSchedule schedule, Assessment assessment, User user) {
-        schedule = NotificationHandlerFactory.getNotificationHandler(this.getNotificationHandlerType(assessment), notificationService).handle(schedule, assessment, user);
-        return schedule;
-    }
-
-    @Override
-    public AssessmentSchedule handleClinicalProtocol(AssessmentSchedule schedule, Assessment assessment, User user) {
-        return schedule;
-    }
-
-    private ProtocolHandlerType getProtocolHandlerType(Assessment assessment) {
-        return ProtocolHandlerType.SIMPLE;
-    }
-
-    private RepeatProtocolHandlerType getRepeatProtocolHandlerType(Assessment assessment) {
+    public ProtocolHandler getRepeatProtocolHandler(Assessment assessment) {
+        RepeatProtocolHandlerType type = RepeatProtocolHandlerType.SIMPLE;
         RepeatProtocol repeatProtocol = assessment.getProtocol().getRepeatProtocol();
         if (repeatProtocol.getDayOfWeek() != null)
-            return RepeatProtocolHandlerType.DAYOFWEEK;
-        return RepeatProtocolHandlerType.SIMPLE;
+            type = RepeatProtocolHandlerType.DAYOFWEEK;
+        return RepeatProtocolHandlerFactory.getRepeatProtocolHandler(type);
     }
 
-    private RepeatQuestionnaireHandlerType getRepeatQuestionnaireHandlerType(Assessment assessment) {
+    @Override
+    public ProtocolHandler getRepeatQuestionnaireHandler(Assessment assessment) {
+        RepeatQuestionnaireHandlerType type = RepeatQuestionnaireHandlerType.SIMPLE;
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         if (repeatQuestionnaire.getDayOfWeekMap() != null)
-            return RepeatQuestionnaireHandlerType.DAYOFWEEKMAP;
+            type = RepeatQuestionnaireHandlerType.DAYOFWEEKMAP;
         if (repeatQuestionnaire.getRandomUnitsFromZeroBetween() != null)
-            return RepeatQuestionnaireHandlerType.RANDOM;
-        return RepeatQuestionnaireHandlerType.SIMPLE;
+            type = RepeatQuestionnaireHandlerType.RANDOM;
+        return RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(type, taskService);
     }
 
-    private NotificationHandlerType getNotificationHandlerType(Assessment assessment) {
-        return NotificationHandlerType.SIMPLE;
+    @Override
+    public ProtocolHandler getNotificationHandler(Assessment assessment) {
+        return NotificationHandlerFactory.getNotificationHandler(NotificationHandlerType.SIMPLE, notificationService);
     }
+
+    //TODO: Add clinical protocol handler
+
+
 }
