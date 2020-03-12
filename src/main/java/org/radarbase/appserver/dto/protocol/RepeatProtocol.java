@@ -43,11 +43,12 @@ public class RepeatProtocol {
     private String dayOfWeek;
 
     public Integer[] getRandomAmountBetween() {
-        return Arrays.copyOf(this.randomAmountBetween, 2);
+        if (this.randomAmountBetween == null) return null;
+        return Arrays.copyOf(this.randomAmountBetween, this.randomAmountBetween.length);
     }
 
     public RepeatProtocol setRandomAmountBetween(Integer[] randomAmountBetween) {
-        this.randomAmountBetween = Arrays.copyOf(randomAmountBetween, 2);
+        this.randomAmountBetween = Arrays.copyOf(randomAmountBetween, randomAmountBetween.length);
         return this;
     }
 }
