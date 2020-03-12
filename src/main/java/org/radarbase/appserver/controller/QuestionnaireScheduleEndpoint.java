@@ -54,20 +54,36 @@ public class QuestionnaireScheduleEndpoint {
     public ResponseEntity<Schedule> generateScheduleUsingSubjectId(
             @PathVariable String subjectId)
             throws URISyntaxException {
-        Schedule schedule = this.scheduleService.generateScheduleBySubjectId(subjectId);
+        Schedule schedule = this.scheduleService.generateScheduleUsingSubjectId(subjectId);
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/"))
                 .body(schedule);
     }
 
     @GetMapping(
-            "/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT + "/"
+            "/"
+                    + PathsUtil.USER_PATH
+                    + "/"
+                    + PathsUtil.SUBJECT_ID_CONSTANT
+                    + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
     public List<Task> getScheduleUsingSubjectId(
             @Valid @PathVariable String subjectId) {
-        return this.scheduleService.getScheduleBySubjectId(subjectId);
+        return this.scheduleService.getScheduleUsingSubjectId(subjectId);
 
     }
 
+    @DeleteMapping(
+            "/"
+                    + PathsUtil.USER_PATH
+                    + "/"
+                    + PathsUtil.SUBJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+    public ResponseEntity deleteScheduleForUser(
+            @PathVariable String subjectId) {
+        this.scheduleService.removeScheduleForUserUsingSubjectId(subjectId);
+        return ResponseEntity.ok().build();
+    }
 
 }

@@ -31,6 +31,7 @@ import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireSched
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -69,21 +70,24 @@ public class QuestionnaireScheduleService {
         subjectScheduleMap.get();
     }
 
-    public List<Task> getScheduleBySubjectId(String subjectId) {
-        Optional<User> user = userRepository.findBySubjectId(subjectId);
+    @Transactional
+    public List<Task> getScheduleUsingSubjectId(String subjectId) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
         if (user.isPresent())
             return this.getScheduleForUser(user.get());
 
         return null;
     }
 
+    @Transactional
     public List<Task> getScheduleForUser(User user) {
-        return taskRepository.findByUserId(user.getId());
+        return this.taskRepository.findByUserId(user.getId());
 
     }
 
-    public Schedule generateScheduleBySubjectId(String subjectId) {
-        Optional<User> user = userRepository.findBySubjectId(subjectId);
+    @Transactional
+    public Schedule generateScheduleUsingSubjectId(String subjectId) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
         if (user.isPresent()) {
             Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user.get(), this.protocolGenerator);
             return schedule;
@@ -95,4 +99,17 @@ public class QuestionnaireScheduleService {
         // Check if protocol hash has changed. only then update the map
         return Collections.emptyMap();
     }
+
+    @Transactional
+    public void removeScheduleForUserUsingSubjectId(String subjectId) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if (user.isPresent())
+            this.removeScheduleForUser(user.get());
+    }
+
+    @Transactional
+    public void removeScheduleForUser(User user) {
+        this.taskRepository.deleteByUserId(user.getId());
+    }
+
 }
