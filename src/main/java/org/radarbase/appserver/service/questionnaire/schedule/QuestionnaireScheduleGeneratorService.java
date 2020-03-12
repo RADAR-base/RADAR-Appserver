@@ -26,14 +26,7 @@ import org.radarbase.appserver.dto.protocol.*;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.TaskService;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.ProtocolHandlerFactory;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.ProtocolHandlerType;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatProtocolHandlerFactory;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatProtocolHandlerType;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatQuestionnaireHandlerFactory;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatQuestionnaireHandlerType;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.NotificationHandlerFactory;
-import org.radarbase.appserver.service.questionnaire.protocol.factory.NotificationHandlerType;
+import org.radarbase.appserver.service.questionnaire.protocol.factory.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
