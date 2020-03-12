@@ -25,8 +25,6 @@ import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.User;
 
-import java.time.Instant;
-
 public interface ProtocolHandler {
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user);
 }

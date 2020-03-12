@@ -5,7 +5,8 @@ import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.service.questionnaire.protocol.*;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 
 import java.util.Iterator;
 
