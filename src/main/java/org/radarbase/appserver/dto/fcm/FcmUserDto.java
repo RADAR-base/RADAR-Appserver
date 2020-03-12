@@ -67,8 +67,9 @@ public class FcmUserDto implements Serializable {
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant enrolmentDate;
 
-  // Timezone offset of the user in seconds
-  @NotNull private double timezone;
+  // Timezone of the user based on tz database names
+  @NotNull
+  private String timezone;
 
   private String fcmToken;
 
@@ -139,7 +140,7 @@ public class FcmUserDto implements Serializable {
     return this;
   }
 
-  public FcmUserDto setTimezone(double timezone) {
+  public FcmUserDto setTimezone(String timezone) {
     this.timezone = timezone;
     return this;
   }

@@ -24,6 +24,7 @@ package org.radarbase.appserver.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
+
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,24 +32,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Validator for RADAR Active RMT app notifications.
  *
- * @see ARmtNotificationConstraint
  * @author yatharthranjan
+ * @see ARmtNotificationConstraint
  */
 public class ARmtNotificationValidator
-    implements ConstraintValidator<ARmtNotificationConstraint, Notification> {
+        implements ConstraintValidator<ARmtNotificationConstraint, Notification> {
 
-  @Autowired private transient QuestionnaireScheduleService scheduleService;
+    @Autowired
+    private transient QuestionnaireScheduleService scheduleService;
 
-  @Override
-  public void initialize(ARmtNotificationConstraint constraintAnnotation) {
-    // TODO
-  }
+    @Override
+    public void initialize(ARmtNotificationConstraint constraintAnnotation) {
+        // TODO
+    }
 
-  @Override
-  public boolean isValid(@Valid Notification notification, ConstraintValidatorContext context) {
-    return scheduleService
-        .getScheduleForUser(notification.getUser())
-        .getNotifications()
-        .contains(notification);
-  }
+    @Override
+    public boolean isValid(@Valid Notification notification, ConstraintValidatorContext context) {
+        // TODO: Fix
+        return true;
+//        return scheduleService
+//                .getScheduleForUser(notification.getUser())
+//                .contains(notification);
+    }
 }

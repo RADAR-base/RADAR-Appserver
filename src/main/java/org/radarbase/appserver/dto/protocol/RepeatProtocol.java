@@ -21,18 +21,35 @@
 
 package org.radarbase.appserver.dto.protocol;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.radarbase.appserver.validation.CheckExactlyOneNotNull;
 
+import javax.validation.constraints.NotNull;
+import java.util.Arrays;
+
+/**
+ * @author yatharthranjan
+ */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TimePeriod {
-
+@CheckExactlyOneNotNull(fieldNames = {"amount", "randomAmountBetween"})
+public class RepeatProtocol {
+    @NotNull
     private String unit;
 
     private Integer amount;
 
+    private Integer[] randomAmountBetween;
+
+    private String dayOfWeek;
+
+    public Integer[] getRandomAmountBetween() {
+        if (this.randomAmountBetween == null) return null;
+        return Arrays.copyOf(this.randomAmountBetween, this.randomAmountBetween.length);
+    }
+
+    public RepeatProtocol setRandomAmountBetween(Integer[] randomAmountBetween) {
+        this.randomAmountBetween = Arrays.copyOf(randomAmountBetween, randomAmountBetween.length);
+        return this;
+    }
 }
+

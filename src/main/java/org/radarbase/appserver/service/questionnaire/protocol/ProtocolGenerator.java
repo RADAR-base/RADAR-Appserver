@@ -19,20 +19,19 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.Map;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TimePeriod {
+import org.radarbase.appserver.dto.protocol.Protocol;
+import org.springframework.stereotype.Service;
 
-    private String unit;
+@Service
+public interface ProtocolGenerator {
 
-    private Integer amount;
+    void init();
 
+    Map<String, Protocol> getAllProtocols();
+
+    Protocol getProtocol(String projectId);
 }

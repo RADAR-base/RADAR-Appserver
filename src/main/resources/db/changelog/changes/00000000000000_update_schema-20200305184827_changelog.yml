@@ -1,0 +1,113 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1583418918003-01
+      author: pauline
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: task_id
+                  type: BIGINT
+            tableName: notifications
+  - changeSet:
+      id: 1583418918003-02
+      author: pauline
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: task_id
+                  type: BIGINT
+            tableName: data_messages
+  - changeSet:
+      id: 1583418918003-03
+      author: pauline
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: tasksPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  name: completed
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timestamp
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_completed
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: name
+                  type: VARCHAR(1250)
+              - column:
+                  name: estimated_completion_time
+                  type: BIGINT
+              - column:
+                  name: completion_window
+                  type: BIGINT
+              - column:
+                  name: warning
+                  type: VARCHAR(1250)
+              - column:
+                  name: is_clinical
+                  type: boolean
+              - column:
+                  name: show_in_calendar
+                  type: boolean
+              - column:
+                  name: is_demo
+                  type: boolean
+              - column:
+                  name: order
+                  type: int
+              - column:
+                  name: n_questions
+                  type: int
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: BIGINT
+            tableName: tasks
+  - changeSet:
+      id: 1583418918003-04
+      author: pauline
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: tasks
+            constraintName: FK9ygdsgfsdhxn0ayjhfocscqox7bh
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1583418918003-05
+      author: pauline
+      changes:
+        - modifyDataType:
+            columnName: timezone
+            newDataType: VARCHAR(255)
+            tableName: users

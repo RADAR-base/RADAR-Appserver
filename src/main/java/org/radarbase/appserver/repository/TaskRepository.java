@@ -19,26 +19,34 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.repository;
+
+import org.radarbase.appserver.entity.Task;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
-
-import lombok.Data;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yatharthranjan
  */
-@Data
-public class AssessmentProtocol {
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    private RepeatProtocol repeatProtocol;
+    List<Task> findByUserId(Long userId);
 
-    private TimePeriod reminders;
+    void deleteByUserId(Long userId);
 
-    private TimePeriod completionWindow;
+    boolean existsByIdAndUserId(Long id, Long userId);
 
-    private RepeatQuestionnaire repeatQuestionnaire;
+    boolean existsById(Long id);
 
-    private Instant referenceTimestamp;
+    boolean existsByUserIdAndNameAndTimestamp(
+            Long userId,
+            String name,
+            Instant timestamp);
 
+    Optional<Task> findByIdAndUserId(long id, long userId);
 }

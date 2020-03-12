@@ -19,31 +19,22 @@
  *
  */
 
-package org.radarbase.appserver.dto.questionnaire;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import lombok.Data;
-import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleNotificationHandler;
 
-@Data
-public class Schedule {
-    private List<AssessmentSchedule> assessmentSchedules;
+public class NotificationHandlerFactory {
 
-    private User user;
-
-    public Schedule(User user) {
-        String timezone = "Europe/London";
-        this.user = user;
-        this.user.setTimezone(timezone);
-        this.assessmentSchedules = new ArrayList<>();
-
-    }
-
-    public Schedule addAssessmentSchedule(AssessmentSchedule assessmentSchedule) {
-        this.assessmentSchedules.add(assessmentSchedule);
-        return this;
+    public static ProtocolHandler getNotificationHandler(NotificationHandlerType name, FcmNotificationService notificationService) {
+        switch (name) {
+            case SIMPLE:
+                return new SimpleNotificationHandler(notificationService);
+            default:
+                return new SimpleNotificationHandler(notificationService);
+        }
     }
 
 }

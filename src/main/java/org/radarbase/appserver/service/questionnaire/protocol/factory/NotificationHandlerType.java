@@ -19,20 +19,9 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TimePeriod {
-
-    private String unit;
-
-    private Integer amount;
-
+public enum NotificationHandlerType {
+    SIMPLE,
+    OTHER
 }

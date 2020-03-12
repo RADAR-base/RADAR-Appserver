@@ -19,20 +19,12 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.radarbase.appserver.dto.protocol.Assessment;
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
+import org.radarbase.appserver.entity.User;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TimePeriod {
-
-    private String unit;
-
-    private Integer amount;
-
+public interface ProtocolHandler {
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user);
 }

@@ -19,20 +19,22 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.dto.questionnaire;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.entity.Task;
+
+import java.time.Instant;
+import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TimePeriod {
+public class AssessmentSchedule {
+    private String name;
 
-    private String unit;
+    private Instant referenceTimestamp;
 
-    private Integer amount;
+    private List<Instant> referenceTimestamps;
 
+    private List<Task> tasks;
 }

@@ -64,7 +64,8 @@ public class UserEndpointAuthTest {
           .setLanguage("en")
           .setEnrolmentDate(Instant.now())
           .setFcmToken("xxx")
-          .setSubjectId("sub-1");
+          .setSubjectId("sub-1")
+          .setTimezone("Europe/London");
   @LocalServerPort private transient int port;
 
   @BeforeAll

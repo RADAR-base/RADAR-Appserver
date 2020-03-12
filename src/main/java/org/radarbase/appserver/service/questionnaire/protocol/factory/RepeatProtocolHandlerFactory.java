@@ -19,20 +19,21 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TimePeriod {
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatProtocolHandler;
 
-    private String unit;
+public class RepeatProtocolHandlerFactory {
 
-    private Integer amount;
+    public static ProtocolHandler getRepeatProtocolHandler(RepeatProtocolHandlerType name) {
+        switch (name) {
+            case SIMPLE:
+                return new SimpleRepeatProtocolHandler();
+            default:
+                return new SimpleRepeatProtocolHandler();
+        }
+    }
 
 }

@@ -19,20 +19,14 @@
  *
  */
 
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.io.IOException;
+import java.util.Map;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TimePeriod {
+import org.radarbase.appserver.dto.protocol.Protocol;
 
-    private String unit;
+public interface ProtocolFetcherStrategy {
 
-    private Integer amount;
-
+    Map<String, Protocol> fetchProtocols() throws IOException;
 }

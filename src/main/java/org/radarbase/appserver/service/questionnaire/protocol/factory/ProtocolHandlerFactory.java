@@ -19,18 +19,21 @@
  *
  */
 
-package org.radarbase.appserver.service.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
-import java.util.Map;
-import org.radarbase.appserver.dto.protocol.Protocol;
-import org.springframework.stereotype.Service;
 
-@Service
-public interface ProtocolGenerator {
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleProtocolHandler;
 
-  void init();
+public class ProtocolHandlerFactory {
 
-  Map<String, Protocol> getAllProtocols();
+    public static ProtocolHandler getProtocolHandler(ProtocolHandlerType name) {
+        switch (name) {
+            case SIMPLE:
+                return new SimpleProtocolHandler();
+            default:
+                return new SimpleProtocolHandler();
+        }
+    }
 
-  Protocol getProtocol(String projectId);
 }

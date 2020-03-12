@@ -21,50 +21,95 @@
 
 package org.radarbase.appserver.service;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.service.protocol.ProtocolGenerator;
+import org.radarbase.appserver.repository.TaskRepository;
+import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
+import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 @Service
 public class QuestionnaireScheduleService {
+    private transient ProtocolGenerator protocolGenerator;
 
-  private transient ProtocolGenerator protocolGenerator;
+    private transient CachedMap<String, Schedule> subjectScheduleMap;
 
-  private transient CachedMap<String, Schedule> subjectScheduleMap;
+    private final transient UserRepository userRepository;
 
-  @Autowired
-  public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator) {
-    this.protocolGenerator = protocolGenerator;
-    protocolGenerator.init();
-    subjectScheduleMap =
-        new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
-  }
+    private final transient TaskRepository taskRepository;
 
-  // Use cached map of schedule of user
-  public void getProtocolForProject(String projectId) throws IOException {
-    protocolGenerator.getAllProtocols();
-    subjectScheduleMap.get();
-  }
+    private transient QuestionnaireScheduleGeneratorService scheduleGeneratorService;
 
-  public Schedule getScheduleForUser(User user) {
-    return null;
-  }
+    @Autowired
 
-  public Schedule generateScheduleForUser(User user) {
-    return null;
-  }
+    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskRepository taskRepository) {
+        this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
+        this.protocolGenerator = protocolGenerator;
+        protocolGenerator.init();
+        subjectScheduleMap =
+                new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
+        this.scheduleGeneratorService = scheduleGeneratorService;
+    }
 
-  public Map<String, Schedule> getAllSchedules() {
-    // Check if protocol hash has changed. only then update the map
-    return Collections.emptyMap();
-  }
+    // Use cached map of schedule of user
+    public void getProtocolForProject(String projectId) throws IOException {
+        protocolGenerator.getAllProtocols();
+        subjectScheduleMap.get();
+    }
+
+    @Transactional
+    public List<Task> getScheduleUsingSubjectId(String subjectId) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if (user.isPresent())
+            return this.getScheduleForUser(user.get());
+
+        return null;
+    }
+
+    @Transactional
+    public List<Task> getScheduleForUser(User user) {
+        return this.taskRepository.findByUserId(user.getId());
+
+    }
+
+    @Transactional
+    public Schedule generateScheduleUsingSubjectId(String subjectId) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if (user.isPresent()) {
+            Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user.get(), this.protocolGenerator);
+            return schedule;
+        }
+        return null;
+    }
+
+    public Map<String, Schedule> getAllSchedules() {
+        // Check if protocol hash has changed. only then update the map
+        return Collections.emptyMap();
+    }
+
+    @Transactional
+    public void removeScheduleForUserUsingSubjectId(String subjectId) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if (user.isPresent())
+            this.removeScheduleForUser(user.get());
+    }
+
+    @Transactional
+    public void removeScheduleForUser(User user) {
+        this.taskRepository.deleteByUserId(user.getId());
+    }
+
 }
