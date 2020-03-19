@@ -191,13 +191,14 @@ public class UserEndpointAuthTest {
 
   @Test
   @Order(5)
-  public void forbiddenViewAllUsers() {
+  public void viewAllUsers() {
     HttpEntity<FcmUsers> userDtoHttpEntity = new HttpEntity<>(null, AUTH_HEADER);
 
     ResponseEntity<FcmUsers> responseEntity =
         restTemplate.exchange(
             createURLWithPort(port, USER_PATH), HttpMethod.GET, userDtoHttpEntity, FcmUsers.class);
 
-    assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+    // This should return a filtered list of users for which the token has access.
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
 }

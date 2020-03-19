@@ -33,6 +33,8 @@ repositories {
     maven { url "https://jitpack.io" }
     maven { url "http://dl.bintray.com/typesafe/maven-releases" }
     maven { url 'https://dl.bintray.com/radar-cns/org.radarcns' }
+    maven { url "https://dl.bintray.com/radar-base/org.radarbase" }
+    //mavenLocal()
 }
 
 configurations { codacy }
@@ -50,8 +52,8 @@ ext {
     lombokVersion = '1.18.12'
     bootAdminVersion = '2.2.2'
     throwingFunctionVersion = '1.5.0'
-    mpVersion = '0.5.8'
     junit5Version = '5.6.0'
+    radarSpringAuthVersion = '1.0.0'
 }
 
 sourceSets {
@@ -78,7 +80,6 @@ dependencies {
 
     compile(group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion)
     implementation(group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion)
-    compile(group: 'org.radarcns', name: 'radar-auth', version: mpVersion)
 
     // Fix potential vulnerabilities
     compile(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.4.0.RELEASE')
@@ -108,6 +109,14 @@ dependencies {
 
     // FCM Admin SDK
     implementation 'com.google.firebase:firebase-admin:6.12.2'
+
+    // AOP
+    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.2.4.RELEASE'
+    implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: '1.0.0'){
+        exclude group: 'javax.servlet', module: 'servlet-api'
+    }
+    compile "org.jetbrains.kotlin:kotlin-stdlib:1.3.70"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.70"
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 

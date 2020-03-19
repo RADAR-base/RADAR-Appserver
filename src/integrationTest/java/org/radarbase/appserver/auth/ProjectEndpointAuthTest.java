@@ -31,10 +31,13 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.runner.RunWith;
 import org.radarbase.appserver.auth.common.MPOAuthHelper;
 import org.radarbase.appserver.auth.common.OAuthHelper;
+import org.radarbase.appserver.config.AuthConfig;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -60,6 +63,10 @@ public class ProjectEndpointAuthTest {
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
   }
 
+  public static String createURLWithPort(int port, String uri) {
+    return "http://localhost:" + port + uri;
+  }
+
   @Test
   public void unauthorisedCreateProject() {
 
@@ -68,7 +75,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, PROJECT_PATH), HttpMethod.POST, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH),
+            HttpMethod.POST,
+            projectEntity,
+            ProjectDto.class);
     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
   }
 
@@ -90,7 +100,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, "/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/radar"),
+            HttpMethod.GET,
+            projectEntity,
+            ProjectDto.class);
     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
   }
 
@@ -114,7 +127,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, PROJECT_PATH), HttpMethod.POST, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH),
+            HttpMethod.POST,
+            projectEntity,
+            ProjectDto.class);
 
     if (responseEntity.getStatusCode().equals(HttpStatus.EXPECTATION_FAILED)) {
       // The auth was successful but expectation failed if the project already exits.
@@ -131,7 +147,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, "/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/radar"),
+            HttpMethod.GET,
+            projectEntity,
+            ProjectDto.class);
 
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
@@ -143,13 +162,21 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, "/projects/test"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/test"),
+            HttpMethod.GET,
+            projectEntity,
+            ProjectDto.class);
 
     // Access denied as the user has only access to the project that it is part of.
     assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
   }
 
-  public static String createURLWithPort(int port, String uri) {
-    return "http://localhost:" + port + uri;
+  @TestConfiguration
+  public class ConfigureAuth {
+
+    @Bean
+    public AuthConfig loadAuthConfig() {
+      return new AuthConfig();
+    }
   }
 }
