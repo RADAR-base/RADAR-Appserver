@@ -31,13 +31,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.runner.RunWith;
 import org.radarbase.appserver.auth.common.MPOAuthHelper;
 import org.radarbase.appserver.auth.common.OAuthHelper;
-import org.radarbase.appserver.config.AuthConfig;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -169,14 +166,5 @@ public class ProjectEndpointAuthTest {
 
     // Access denied as the user has only access to the project that it is part of.
     assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-  }
-
-  @TestConfiguration
-  public class ConfigureAuth {
-
-    @Bean
-    public AuthConfig loadAuthConfig() {
-      return new AuthConfig();
-    }
   }
 }
