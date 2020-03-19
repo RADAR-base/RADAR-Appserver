@@ -20,10 +20,10 @@ import radar.spring.auth.managementportal.ManagementPortalAuthorization;
 public class AuthConfig {
 
   @Value("${security.radar.managementportal.url}")
-  private String baseUrl;
+  private transient String baseUrl;
 
   @Value("${security.oauth2.resource.id}")
-  private String resourceName;
+  private transient String resourceName;
 
   @Bean
   public ManagementPortalAuthProperties getAuthProperties() {
@@ -46,5 +46,18 @@ public class AuthConfig {
       @Autowired AuthValidator<RadarToken> authValidator,
       @Autowired Authorization<RadarToken> authorization) {
     return new AuthAspect<>(authValidator, authorization);
+  }
+
+  public interface AuthEntities {
+    String MEASUREMENT = "MEASUREMENT";
+    String PROJECT = "PROJECT";
+    String SUBJECT = "SUBJECT";
+    String SOURCE = "SOURCE";
+  }
+
+  public interface AuthPermissions {
+    String READ = "READ";
+    String CREATE = "CREATE";
+    String UPDATE = "UPDATE";
   }
 }

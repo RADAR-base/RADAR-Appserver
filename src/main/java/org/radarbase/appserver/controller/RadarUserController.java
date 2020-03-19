@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
-import org.jetbrains.annotations.NotNull;
+import org.radarbase.appserver.config.AuthConfig.AuthEntities;
+import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -67,7 +68,7 @@ public class RadarUserController {
     this.authorization = authorization.orElse(null);
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @PostMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -86,8 +87,8 @@ public class RadarUserController {
       RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
       if (authorization.hasPermission(
           token,
-          "CREATE",
-          "MEASUREMENT",
+          AuthPermissions.CREATE,
+          AuthEntities.MEASUREMENT,
           PermissionOn.SUBJECT,
           projectId,
           userDto.getSubjectId(),
@@ -107,7 +108,10 @@ public class RadarUserController {
     }
   }
 
-  @Authorized(permission = "UPDATE", entity = "SUBJECT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -127,12 +131,11 @@ public class RadarUserController {
     return ResponseEntity.ok(user);
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.USER_PATH)
   public ResponseEntity<FcmUsers> getAllRadarUsers(HttpServletRequest request) {
     FcmUsers users = this.userService.getAllRadarUsers();
     if (authorization != null) {
-      RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
       // Filter the users based on access.
       FcmUsers usersFinal =
           new FcmUsers()
@@ -141,21 +144,21 @@ public class RadarUserController {
                       .filter(
                           user ->
                               authorization.hasPermission(
-                                  token,
-                                  "READ",
-                                  "SUBJECT",
+                                  (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY),
+                                  AuthPermissions.READ,
+                                  AuthEntities.SUBJECT,
                                   PermissionOn.SUBJECT,
                                   user.getProjectId(),
                                   user.getSubjectId(),
                                   null))
                       .collect(Collectors.toList()));
-      return ResponseEntity.ok(users);
+      return ResponseEntity.ok(usersFinal);
     } else {
       return ResponseEntity.ok(users);
     }
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/user")
   public ResponseEntity<FcmUserDto> getRadarUserUsingId(
       HttpServletRequest request, @PathParam("id") Long id) {
@@ -167,7 +170,7 @@ public class RadarUserController {
     return getFcmUserDtoResponseEntity(request, userDto);
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
       HttpServletRequest request, @PathVariable String subjectId) {
@@ -176,15 +179,14 @@ public class RadarUserController {
     return getFcmUserDtoResponseEntity(request, userDto);
   }
 
-  @NotNull
   private ResponseEntity<FcmUserDto> getFcmUserDtoResponseEntity(
       HttpServletRequest request, FcmUserDto userDto) {
     if (authorization != null) {
       RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
       if (authorization.hasPermission(
           token,
-          "READ",
-          "SUBJECT",
+          AuthPermissions.READ,
+          AuthEntities.SUBJECT,
           PermissionOn.SUBJECT,
           userDto.getProjectId(),
           userDto.getSubjectId(),
@@ -199,7 +201,10 @@ public class RadarUserController {
     }
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT", permissionOn = PermissionOn.PROJECT)
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -211,7 +216,10 @@ public class RadarUserController {
     return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       "/"
           + PathsUtil.PROJECT_PATH

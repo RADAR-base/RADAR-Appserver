@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
+import org.radarbase.appserver.config.AuthConfig.AuthEntities;
+import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.radarbase.appserver.dto.fcm.FcmDataMessages;
 import org.radarbase.appserver.service.FcmDataMessageService;
@@ -55,12 +57,12 @@ public class FcmDataMessageController {
   }
 
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH)
-  @Authorized(permission = "READ", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
   public ResponseEntity<FcmDataMessages> getAllDataMessages() {
     return ResponseEntity.ok(this.dataMessageService.getAllDataMessages());
   }
 
-  @Authorized(permission = "READ", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/{id}")
   public ResponseEntity<FcmDataMessageDto> getDataMessageUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.dataMessageService.getDataMessageById(id));
@@ -68,7 +70,7 @@ public class FcmDataMessageController {
 
   // TODO: get notifications/data messages based on other params. Maybe use projections ?
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/filtered")
-  @Authorized(permission = "READ", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
   public ResponseEntity<FcmDataMessages> getFilteredDataMessages(
       @Valid @RequestParam(value = "type", required = false) String type,
       @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
@@ -81,7 +83,10 @@ public class FcmDataMessageController {
             type, delivered, ttlSeconds, startTime, endTime, limit));
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       value =
           "/"
@@ -100,7 +105,10 @@ public class FcmDataMessageController {
         this.dataMessageService.getDataMessagesByProjectIdAndSubjectId(projectId, subjectId));
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT", permissionOn = PermissionOn.PROJECT)
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -114,7 +122,7 @@ public class FcmDataMessageController {
   }
 
   // TODO: Edit this as this needs to be on the Subject level.
-  @Authorized(permission = "READ", entity = "SUBJECT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping(
       "/"
           + PathsUtil.USER_PATH
@@ -127,7 +135,10 @@ public class FcmDataMessageController {
     return ResponseEntity.ok(this.dataMessageService.getDataMessagesBySubjectId(subjectId));
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -151,7 +162,10 @@ public class FcmDataMessageController {
         .body(dataMessageDto);
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -172,7 +186,10 @@ public class FcmDataMessageController {
         this.dataMessageService.addDataMessages(dataMessages, subjectId, projectId));
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -193,7 +210,10 @@ public class FcmDataMessageController {
         this.dataMessageService.updateDataMessage(dataMessage, subjectId, projectId));
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -212,7 +232,10 @@ public class FcmDataMessageController {
     return ResponseEntity.ok().build();
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
           + PathsUtil.PROJECT_PATH

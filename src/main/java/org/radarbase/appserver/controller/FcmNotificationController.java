@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
+import org.radarbase.appserver.config.AuthConfig.AuthEntities;
+import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -54,19 +56,19 @@ public class FcmNotificationController {
     this.notificationService = notificationService;
   }
 
-  @Authorized(permission = "READ", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getAllNotifications() {
     return ResponseEntity.ok(this.notificationService.getAllNotifications());
   }
 
-  @Authorized(permission = "READ", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{id}")
   public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.notificationService.getNotificationById(id));
   }
   // TODO: get notifications based on other params. Maybe use projections ?
-  @Authorized(permission = "READ", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/filtered")
   public ResponseEntity<FcmNotifications> getFilteredNotifications(
       @Valid @RequestParam(value = "type", required = false) String type,
@@ -80,7 +82,10 @@ public class FcmNotificationController {
             type, delivered, ttlSeconds, startTime, endTime, limit));
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       value =
           "/"
@@ -99,7 +104,10 @@ public class FcmNotificationController {
         this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId));
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT", permissionOn = PermissionOn.PROJECT)
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -113,7 +121,7 @@ public class FcmNotificationController {
   }
 
   // TODO: Edit this as this needs to be on the Subject level.
-  @Authorized(permission = "READ", entity = "SUBJECT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping(
       "/"
           + PathsUtil.USER_PATH
@@ -126,7 +134,10 @@ public class FcmNotificationController {
     return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -150,7 +161,10 @@ public class FcmNotificationController {
         .body(notificationDto);
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -171,7 +185,10 @@ public class FcmNotificationController {
         this.notificationService.addNotifications(notifications, subjectId, projectId));
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -192,7 +209,10 @@ public class FcmNotificationController {
         this.notificationService.updateNotification(notification, subjectId, projectId));
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -211,7 +231,10 @@ public class FcmNotificationController {
     return ResponseEntity.ok().build();
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
           + PathsUtil.PROJECT_PATH

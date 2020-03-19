@@ -23,6 +23,8 @@ package org.radarbase.appserver.controller;
 
 import java.util.List;
 import javax.naming.SizeLimitExceededException;
+import org.radarbase.appserver.config.AuthConfig.AuthEntities;
+import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.NotificationStateEventService;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +46,7 @@ public class NotificationStateEventController {
     this.notificationStateEventService = notificationStateEventService;
   }
 
-  @Authorized(permission = "READ", entity = "MEASUREMENT")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
   @GetMapping(
       value =
           "/"
@@ -59,7 +61,10 @@ public class NotificationStateEventController {
         notificationStateEventService.getNotificationStateEventsByNotificationId(notificationId));
   }
 
-  @Authorized(permission = "READ", entity = "SUBJECT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       value =
           "/"
@@ -85,7 +90,10 @@ public class NotificationStateEventController {
             projectId, subjectId, notificationId));
   }
 
-  @Authorized(permission = "CREATE", entity = "MEASUREMENT", permissionOn = PermissionOn.SUBJECT)
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       value =
           "/"
