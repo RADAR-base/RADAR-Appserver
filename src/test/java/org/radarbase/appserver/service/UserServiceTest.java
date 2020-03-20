@@ -197,7 +197,7 @@ class UserServiceTest {
         assertEquals(USER_ID, userDto.getSubjectId());
         assertEquals("es", userDto.getLanguage());
         assertEquals(PROJECT_ID, userDto.getProjectId());
-        assertEquals(72d, userDto.getTimezone());
+        assertEquals("Europe/Bucharest", userDto.getTimezone());
         assertEquals("xxxxyyy", userDto.getFcmToken());
         assertEquals(Long.valueOf(1L), userDto.getId());
     }
