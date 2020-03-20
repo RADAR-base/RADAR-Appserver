@@ -97,6 +97,7 @@ dependencies {
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
     runtime('com.h2database:h2:1.4.200')
+    runtime(group: 'org.postgresql', name: 'postgresql', version: '42.2.11')
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     compile group: 'org.projectlombok', name: 'lombok', version: lombokVersion

@@ -22,7 +22,7 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d hsqldb managementportal
+  - docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d postgres managementportal
   # Wait for services to start up.
   - sleep 50
 
