@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -94,7 +95,7 @@ class NotificationSchedulerServiceTest {
                         .setId(1L)
                         .setSubjectId("test-subject")
                         .setLanguage("en")
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setProject(new Project())
                         .setEnrolmentDate(Instant.now())
                         .setFcmToken("xxxx");

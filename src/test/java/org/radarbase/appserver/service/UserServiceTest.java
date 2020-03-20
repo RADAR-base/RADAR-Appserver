@@ -25,11 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
 import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
 import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -53,162 +55,167 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 class UserServiceTest {
 
-  @Autowired private transient UserService userService;
+    @Autowired
+    private transient UserService userService;
 
-  @MockBean private transient UserRepository userRepository;
+    @MockBean
+    private transient UserRepository userRepository;
 
-  @MockBean private transient ProjectRepository projectRepository;
+    @MockBean
+    private transient ProjectRepository projectRepository;
 
-  private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
+    private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
-  @BeforeEach
-  void setUp() {
-    // given
-    Project project = new Project().setProjectId(PROJECT_ID).setId(1L);
+    @BeforeEach
+    void setUp() {
+        // given
+        Project project = new Project().setProjectId(PROJECT_ID).setId(1L);
 
-    Mockito.when(projectRepository.findByProjectId(project.getProjectId()))
-        .thenReturn(Optional.of(project));
+        Mockito.when(projectRepository.findByProjectId(project.getProjectId()))
+                .thenReturn(Optional.of(project));
 
-    User user =
-        new User()
-            .setFcmToken(FCM_TOKEN_1)
-            .setEnrolmentDate(enrolmentDate)
-            .setProject(project)
-            .setTimezone(0d)
-            .setLanguage("en")
-            .setSubjectId(USER_ID)
-            .setId(1L);
+        User user =
+                new User()
+                        .setFcmToken(FCM_TOKEN_1)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setProject(project)
+                        .setTimezone(TIMEZONE)
+                        .setLanguage("en")
+                        .setSubjectId(USER_ID)
+                        .setId(1L);
 
-    Mockito.when(userRepository.findAll()).thenReturn(List.of(user));
+        Mockito.when(userRepository.findAll()).thenReturn(List.of(user));
 
-    Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-    Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.findBySubjectId(user.getSubjectId())).thenReturn(Optional.of(user));
 
-    Mockito.when(userRepository.findBySubjectIdAndProjectId(USER_ID, 1L))
-        .thenReturn(Optional.of(user));
+        Mockito.when(userRepository.findBySubjectIdAndProjectId(USER_ID, 1L))
+                .thenReturn(Optional.of(user));
 
-    Mockito.when(userRepository.findByProjectId(1L)).thenReturn(List.of(user));
+        Mockito.when(userRepository.findByProjectId(1L)).thenReturn(List.of(user));
 
-    User userNew =
-        new User()
-            .setSubjectId(USER_ID + "-2")
-            .setFcmToken(FCM_TOKEN_1)
-            .setProject(project)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("es")
-            .setTimezone(0d);
+        User userNew =
+                new User()
+                        .setSubjectId(USER_ID + "-2")
+                        .setFcmToken(FCM_TOKEN_1)
+                        .setProject(project)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("es")
+                        .setTimezone(TIMEZONE);
 
-    Mockito.when(userRepository.save(userNew)).thenReturn(userNew.setId(2L));
+        Mockito.when(userRepository.save(userNew)).thenReturn(userNew.setId(2L));
 
-    User userUpdated =
-        new User()
-            .setSubjectId(USER_ID)
-            .setFcmToken("xxxxyyy")
-            .setProject(project)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("es")
-            .setTimezone(72d)
-            .setUserMetrics(
-                new UserMetrics().setLastDelivered(enrolmentDate).setLastOpened(enrolmentDate));
+        User userUpdated =
+                new User()
+                        .setSubjectId(USER_ID)
+                        .setFcmToken("xxxxyyy")
+                        .setProject(project)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("es")
+                        .setTimezone("Europe/Bucharest")
+                        .setUserMetrics(
+                                new UserMetrics().setLastDelivered(enrolmentDate).setLastOpened(enrolmentDate));
 
-    Mockito.when(userRepository.save(userUpdated)).thenReturn(userUpdated.setId(1L));
-  }
-
-  @Test
-  void getAllRadarUsers() {
-    FcmUsers users = userService.getAllRadarUsers();
-
-    assertEquals(USER_ID, users.getUsers().get(0).getSubjectId());
-    assertEquals("en", users.getUsers().get(0).getLanguage(), "en");
-    assertEquals(PROJECT_ID, users.getUsers().get(0).getProjectId());
-  }
-
-  @Test
-  void getUserById() {
-
-    FcmUserDto userDto = userService.getUserById(1L);
-
-    assertEquals(USER_ID, userDto.getSubjectId());
-    assertEquals("en", userDto.getLanguage());
-    assertEquals(PROJECT_ID, userDto.getProjectId());
-  }
-
-  @Test
-  void getUserBySubjectId() {
-    FcmUserDto userDto = userService.getUserBySubjectId(USER_ID);
-
-    assertEquals(USER_ID, userDto.getSubjectId());
-    assertEquals("en", userDto.getLanguage());
-    assertEquals(PROJECT_ID, userDto.getProjectId());
-    assertEquals(Long.valueOf(1L), userDto.getId());
-  }
-
-  @Test
-  void getUsersByProjectId() {
-    FcmUsers users = userService.getUsersByProjectId(PROJECT_ID);
-
-    assertEquals(USER_ID, users.getUsers().get(0).getSubjectId());
-    assertEquals("en", users.getUsers().get(0).getLanguage(), "en");
-    assertEquals(PROJECT_ID, users.getUsers().get(0).getProjectId());
-  }
-
-  @Test
-  void saveUserInProject() {
-
-    FcmUserDto userDtoNew =
-        new FcmUserDto()
-            .setSubjectId(USER_ID + "-2")
-            .setFcmToken(FCM_TOKEN_1)
-            .setProjectId(PROJECT_ID)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("es")
-            .setTimezone(0d);
-
-    FcmUserDto userDto = userService.saveUserInProject(userDtoNew);
-
-    assertEquals(USER_ID + "-2", userDto.getSubjectId());
-    assertEquals("es", userDto.getLanguage());
-    assertEquals(PROJECT_ID, userDto.getProjectId());
-    assertEquals(Long.valueOf(2L), userDto.getId());
-  }
-
-  @Test
-  void updateUser() {
-
-    FcmUserDto userDtoNew =
-        new FcmUserDto()
-            .setSubjectId(USER_ID)
-            .setFcmToken("xxxxyyy")
-            .setProjectId(PROJECT_ID)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("es")
-            .setLastDelivered(enrolmentDate)
-            .setLastOpened(enrolmentDate)
-            .setTimezone(72d);
-
-    FcmUserDto userDto = userService.updateUser(userDtoNew);
-
-    assertEquals(USER_ID, userDto.getSubjectId());
-    assertEquals("es", userDto.getLanguage());
-    assertEquals(PROJECT_ID, userDto.getProjectId());
-    assertEquals(72d, userDto.getTimezone());
-    assertEquals("xxxxyyy", userDto.getFcmToken());
-    assertEquals(Long.valueOf(1L), userDto.getId());
-  }
-
-  @TestConfiguration
-  static class UserServiceConfig {
-
-    @Autowired private transient UserRepository userRepository;
-
-    @Autowired private transient ProjectRepository projectRepository;
-
-    private final transient UserConverter userConverter = new UserConverter();
-
-    @Bean
-    public UserService userServiceBeanConfig() {
-      return new UserService(userConverter, userRepository, projectRepository);
+        Mockito.when(userRepository.save(userUpdated)).thenReturn(userUpdated.setId(1L));
     }
-  }
+
+    @Test
+    void getAllRadarUsers() {
+        FcmUsers users = userService.getAllRadarUsers();
+
+        assertEquals(USER_ID, users.getUsers().get(0).getSubjectId());
+        assertEquals("en", users.getUsers().get(0).getLanguage(), "en");
+        assertEquals(PROJECT_ID, users.getUsers().get(0).getProjectId());
+    }
+
+    @Test
+    void getUserById() {
+
+        FcmUserDto userDto = userService.getUserById(1L);
+
+        assertEquals(USER_ID, userDto.getSubjectId());
+        assertEquals("en", userDto.getLanguage());
+        assertEquals(PROJECT_ID, userDto.getProjectId());
+    }
+
+    @Test
+    void getUserBySubjectId() {
+        FcmUserDto userDto = userService.getUserBySubjectId(USER_ID);
+
+        assertEquals(USER_ID, userDto.getSubjectId());
+        assertEquals("en", userDto.getLanguage());
+        assertEquals(PROJECT_ID, userDto.getProjectId());
+        assertEquals(Long.valueOf(1L), userDto.getId());
+    }
+
+    @Test
+    void getUsersByProjectId() {
+        FcmUsers users = userService.getUsersByProjectId(PROJECT_ID);
+
+        assertEquals(USER_ID, users.getUsers().get(0).getSubjectId());
+        assertEquals("en", users.getUsers().get(0).getLanguage(), "en");
+        assertEquals(PROJECT_ID, users.getUsers().get(0).getProjectId());
+    }
+
+    @Test
+    void saveUserInProject() {
+
+        FcmUserDto userDtoNew =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-2")
+                        .setFcmToken(FCM_TOKEN_1)
+                        .setProjectId(PROJECT_ID)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("es")
+                        .setTimezone(TIMEZONE);
+
+        FcmUserDto userDto = userService.saveUserInProject(userDtoNew);
+
+        assertEquals(USER_ID + "-2", userDto.getSubjectId());
+        assertEquals("es", userDto.getLanguage());
+        assertEquals(PROJECT_ID, userDto.getProjectId());
+        assertEquals(Long.valueOf(2L), userDto.getId());
+    }
+
+    @Test
+    void updateUser() {
+
+        FcmUserDto userDtoNew =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID)
+                        .setFcmToken("xxxxyyy")
+                        .setProjectId(PROJECT_ID)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("es")
+                        .setLastDelivered(enrolmentDate)
+                        .setLastOpened(enrolmentDate)
+                        .setTimezone("Europe/Bucharest");
+
+        FcmUserDto userDto = userService.updateUser(userDtoNew);
+
+        assertEquals(USER_ID, userDto.getSubjectId());
+        assertEquals("es", userDto.getLanguage());
+        assertEquals(PROJECT_ID, userDto.getProjectId());
+        assertEquals(72d, userDto.getTimezone());
+        assertEquals("xxxxyyy", userDto.getFcmToken());
+        assertEquals(Long.valueOf(1L), userDto.getId());
+    }
+
+    @TestConfiguration
+    static class UserServiceConfig {
+
+        @Autowired
+        private transient UserRepository userRepository;
+
+        @Autowired
+        private transient ProjectRepository projectRepository;
+
+        private final transient UserConverter userConverter = new UserConverter();
+
+        @Bean
+        public UserService userServiceBeanConfig() {
+            return new UserService(userConverter, userRepository, projectRepository);
+        }
+    }
 }

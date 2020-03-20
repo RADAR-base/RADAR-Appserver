@@ -30,10 +30,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -52,198 +54,202 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(RadarUserController.class)
 public class RadarUserControllerTest {
 
-  @Autowired private transient MockMvc mockMvc;
+    @Autowired
+    private transient MockMvc mockMvc;
 
-  @Autowired private transient ObjectMapper objectMapper;
+    @Autowired
+    private transient ObjectMapper objectMapper;
 
-  @MockBean private transient UserService userService;
+    @MockBean
+    private transient UserService userService;
 
-  public static final String FCM_TOKEN_1 = "xxxx";
-  private static final String FCM_TOKEN_2 = "xxxxyyy";
-  private static final String FCM_TOKEN_3 = "xxxxyyyzzz";
-  private static final String FCM_TOKEN_JSON_PATH = "$.fcmToken";
-  private static final String LANGUAGE_JSON_PATH = "$.language";
-  private static final String ENROLMENT_DATE_JSON_PATH = "$.enrolmentDate";
+    public static final String FCM_TOKEN_1 = "xxxx";
+    private static final String FCM_TOKEN_2 = "xxxxyyy";
+    private static final String FCM_TOKEN_3 = "xxxxyyyzzz";
+    private static final String FCM_TOKEN_JSON_PATH = "$.fcmToken";
+    private static final String LANGUAGE_JSON_PATH = "$.language";
+    private static final String ENROLMENT_DATE_JSON_PATH = "$.enrolmentDate";
+    public static final String TIMEZONE = "Europe/London";
 
-  private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
+    private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
-  @BeforeEach
-  void setUp() {
-    FcmUserDto userDto =
-        new FcmUserDto()
-            .setSubjectId(USER_ID)
-            .setFcmToken(FCM_TOKEN_1)
-            .setProjectId(PROJECT_ID)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("es")
-            .setTimezone(0d);
+    @BeforeEach
+    void setUp() {
+        FcmUserDto userDto =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID)
+                        .setFcmToken(FCM_TOKEN_1)
+                        .setProjectId(PROJECT_ID)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("es")
+                        .setTimezone(TIMEZONE);
 
-    given(userService.getAllRadarUsers())
-        .willReturn(new FcmUsers().setUsers(List.of(userDto.setId(1L))));
+        given(userService.getAllRadarUsers())
+                .willReturn(new FcmUsers().setUsers(List.of(userDto.setId(1L))));
 
-    given(userService.getUserById(1L)).willReturn(userDto.setId(1L));
+        given(userService.getUserById(1L)).willReturn(userDto.setId(1L));
 
-    given(userService.getUserBySubjectId(USER_ID)).willReturn(userDto.setId(1L));
+        given(userService.getUserBySubjectId(USER_ID)).willReturn(userDto.setId(1L));
 
-    given(userService.getUsersByProjectId(PROJECT_ID))
-        .willReturn(new FcmUsers().setUsers(List.of(userDto.setId(1L))));
+        given(userService.getUsersByProjectId(PROJECT_ID))
+                .willReturn(new FcmUsers().setUsers(List.of(userDto.setId(1L))));
 
-    FcmUserDto userDtoNew =
-        new FcmUserDto()
-            .setSubjectId(USER_ID + "-new")
-            .setFcmToken(FCM_TOKEN_2)
-            .setProjectId(PROJECT_ID)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("en")
-            .setTimezone(0d)
-            .setId(2L);
+        FcmUserDto userDtoNew =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-new")
+                        .setFcmToken(FCM_TOKEN_2)
+                        .setProjectId(PROJECT_ID)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("en")
+                        .setTimezone(TIMEZONE)
+                        .setId(2L);
 
-    given(userService.saveUserInProject(userDtoNew)).willReturn(userDtoNew.setId(2L));
+        given(userService.saveUserInProject(userDtoNew)).willReturn(userDtoNew.setId(2L));
 
-    FcmUserDto userUpdated =
-        new FcmUserDto()
-            .setSubjectId(USER_ID + "-updated")
-            .setFcmToken(FCM_TOKEN_3)
-            .setProjectId(PROJECT_ID)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("da")
-            .setTimezone(0d)
-            .setId(1L);
+        FcmUserDto userUpdated =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-updated")
+                        .setFcmToken(FCM_TOKEN_3)
+                        .setProjectId(PROJECT_ID)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("da")
+                        .setTimezone(TIMEZONE)
+                        .setId(1L);
 
-    given(userService.updateUser(userUpdated)).willReturn(userUpdated);
-  }
+        given(userService.updateUser(userUpdated)).willReturn(userUpdated);
+    }
 
-  @Test
-  void addUser() throws Exception {
-    FcmUserDto userDtoNew =
-        new FcmUserDto()
-            .setSubjectId(USER_ID + "-new")
-            .setFcmToken(FCM_TOKEN_2)
-            .setProjectId(PROJECT_ID)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("en")
-            .setTimezone(0d)
-            .setId(2L);
+    @Test
+    void addUser() throws Exception {
+        FcmUserDto userDtoNew =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-new")
+                        .setFcmToken(FCM_TOKEN_2)
+                        .setProjectId(PROJECT_ID)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("en")
+                        .setTimezone(TIMEZONE)
+                        .setId(2L);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(new URI("/users"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDtoNew)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_2)))
-        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
-        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
-        .andExpect(jsonPath(ID_JSON_PATH, is(2)));
-  }
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders.post(new URI("/users"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDtoNew)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_2)))
+                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
+                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+                .andExpect(jsonPath(ID_JSON_PATH, is(2)));
+    }
 
-  @Test
-  void addUserToProject() throws Exception {
-    FcmUserDto userDtoNew =
-        new FcmUserDto()
-            .setSubjectId(USER_ID + "-new")
-            .setFcmToken(FCM_TOKEN_2)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("en")
-            .setTimezone(0d)
-            .setId(2L);
+    @Test
+    void addUserToProject() throws Exception {
+        FcmUserDto userDtoNew =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-new")
+                        .setFcmToken(FCM_TOKEN_2)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("en")
+                        .setTimezone(TIMEZONE)
+                        .setId(2L);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(new URI("/projects/test-project/users"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDtoNew)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_2)))
-        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
-        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
-        .andExpect(jsonPath(ID_JSON_PATH, is(2)));
-  }
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders.post(new URI("/projects/test-project/users"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDtoNew)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_2)))
+                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
+                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+                .andExpect(jsonPath(ID_JSON_PATH, is(2)));
+    }
 
-  @Test
-  void updateUserInProject() throws Exception {
-    FcmUserDto userDtoUpdated =
-        new FcmUserDto()
-            .setSubjectId("test-user-updated")
-            .setFcmToken(FCM_TOKEN_3)
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("da")
-            .setTimezone(0d)
-            .setId(1L);
+    @Test
+    void updateUserInProject() throws Exception {
+        FcmUserDto userDtoUpdated =
+                new FcmUserDto()
+                        .setSubjectId("test-user-updated")
+                        .setFcmToken(FCM_TOKEN_3)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("da")
+                        .setTimezone(TIMEZONE)
+                        .setId(1L);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(new URI("/projects/test-project/users"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDtoUpdated)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)))
-        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("da")))
-        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
-        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
-  }
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders.put(new URI("/projects/test-project/users"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDtoUpdated)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)))
+                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("da")))
+                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+                .andExpect(jsonPath(ID_JSON_PATH, is(1)));
+    }
 
-  @Test
-  void updateUser() throws Exception {
-    FcmUserDto userDtoUpdated =
-        new FcmUserDto()
-            .setSubjectId("test-user-updated")
-            .setFcmToken(FCM_TOKEN_3)
-            .setProjectId("test-project")
-            .setEnrolmentDate(enrolmentDate)
-            .setLanguage("da")
-            .setTimezone(0d)
-            .setId(1L);
+    @Test
+    void updateUser() throws Exception {
+        FcmUserDto userDtoUpdated =
+                new FcmUserDto()
+                        .setSubjectId("test-user-updated")
+                        .setFcmToken(FCM_TOKEN_3)
+                        .setProjectId("test-project")
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("da")
+                        .setTimezone(TIMEZONE)
+                        .setId(1L);
 
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(new URI("/users"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDtoUpdated)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)))
-        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("da")))
-        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
-        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
-  }
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders.put(new URI("/users"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDtoUpdated)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)))
+                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("da")))
+                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
+                .andExpect(jsonPath(ID_JSON_PATH, is(1)));
+    }
 
-  @Test
-  void getAllRadarUsers() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(new URI("/users")))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.users[0].fcmToken", is(FCM_TOKEN_1)))
-        .andExpect(jsonPath("$.users[0].language", is("es")))
-        .andExpect(jsonPath("$.users[0].enrolmentDate", is(enrolmentDate.toString())));
-  }
+    @Test
+    void getAllRadarUsers() throws Exception {
+        mockMvc
+                .perform(MockMvcRequestBuilders.get(new URI("/users")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.users[0].fcmToken", is(FCM_TOKEN_1)))
+                .andExpect(jsonPath("$.users[0].language", is("es")))
+                .andExpect(jsonPath("$.users[0].enrolmentDate", is(enrolmentDate.toString())));
+    }
 
-  @Test
-  void getRadarUserUsingId() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(new URI("/users/user?id=1")))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_1)))
-        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("es")))
-        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())));
-  }
+    @Test
+    void getRadarUserUsingId() throws Exception {
+        mockMvc
+                .perform(MockMvcRequestBuilders.get(new URI("/users/user?id=1")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_1)))
+                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("es")))
+                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())));
+    }
 
-  @Test
-  void getRadarUserUsingSubjectId() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(new URI("/users/test-user")))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_1)))
-        .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("es")))
-        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())));
-  }
+    @Test
+    void getRadarUserUsingSubjectId() throws Exception {
+        mockMvc
+                .perform(MockMvcRequestBuilders.get(new URI("/users/test-user")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_1)))
+                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("es")))
+                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())));
+    }
 
-  @Test
-  void getUsersUsingProjectId() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(new URI("/projects/test-project/users")))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.users[0].fcmToken", is(FCM_TOKEN_1)))
-        .andExpect(jsonPath("$.users[0].language", is("es")))
-        .andExpect(jsonPath("$.users[0].enrolmentDate", is(enrolmentDate.toString())));
-  }
+    @Test
+    void getUsersUsingProjectId() throws Exception {
+        mockMvc
+                .perform(MockMvcRequestBuilders.get(new URI("/projects/test-project/users")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.users[0].fcmToken", is(FCM_TOKEN_1)))
+                .andExpect(jsonPath("$.users[0].language", is("es")))
+                .andExpect(jsonPath("$.users[0].enrolmentDate", is(enrolmentDate.toString())));
+    }
 }

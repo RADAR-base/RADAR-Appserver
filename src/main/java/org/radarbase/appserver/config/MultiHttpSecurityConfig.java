@@ -21,11 +21,9 @@
 
 package org.radarbase.appserver.config;
 
-import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -38,21 +36,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.CorsUtils;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import scala.Array;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 
 @Slf4j
 @EnableWebSecurity
@@ -89,7 +78,7 @@ public class MultiHttpSecurityConfig {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            
+
             http.antMatcher("/v3/api-docs**")
                     .authorizeRequests()
                     .anyRequest()
@@ -124,7 +113,7 @@ public class MultiHttpSecurityConfig {
 
             // Added because of
             // https://stackoverflow.com/questions/53395200/h2-console-is-not-showing-in-browser
-           http.headers().frameOptions().disable();
+            http.headers().frameOptions().disable();
 
         }
 
@@ -133,7 +122,7 @@ public class MultiHttpSecurityConfig {
 
     @Component
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public class SimpleCorsFilter implements Filter {
+    public static class SimpleCorsFilter implements Filter {
 
         public SimpleCorsFilter() {
         }

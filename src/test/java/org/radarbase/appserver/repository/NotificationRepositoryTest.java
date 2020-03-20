@@ -24,6 +24,7 @@ package org.radarbase.appserver.repository;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -72,7 +73,7 @@ public class NotificationRepositoryTest {
                         .setFcmToken("xxxx")
                         .setEnrolmentDate(Instant.now())
                         .setProject(project)
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setLanguage("en")
                         .setSubjectId("test-user");
         entityManager.persist(this.user);
@@ -154,7 +155,7 @@ public class NotificationRepositoryTest {
                         .setFcmToken("xxxx")
                         .setEnrolmentDate(Instant.now())
                         .setProject(new Project())
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setLanguage("en")
                         .setSubjectId("test-user");
 
