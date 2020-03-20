@@ -99,7 +99,8 @@ public class NotificationEndpointAuthTest {
             .setLanguage("en")
             .setEnrolmentDate(Instant.now())
             .setFcmToken("xxx")
-            .setSubjectId("sub-1");
+            .setSubjectId("sub-1")
+            .setTimezone("Europe/London");
 
     HttpEntity<FcmUserDto> userDtoHttpEntity = new HttpEntity<>(userDto, AUTH_HEADER);
 
