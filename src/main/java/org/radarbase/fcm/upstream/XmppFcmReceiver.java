@@ -59,19 +59,21 @@ public class XmppFcmReceiver implements CcsClient {
 
   // We need to use an Xmpp sender here as we need to send ACK messages back to FCM server which is
   // not possible with Admin SDK.
-  private final transient XmppFcmSender fcmSender = new XmppFcmSender();
+  private final transient XmppFcmSender fcmSender;
 
   private final transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
 
   public XmppFcmReceiver(
-      UpstreamMessageHandler messageHandler,
-      ObjectMapper mapper,
-      ErrorHandlingStrategy errorHandlingStrategy,
-      ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean) {
-    this.messageHandler = messageHandler;
-    this.mapper = mapper;
-    this.errorHandlingStrategy = errorHandlingStrategy;
-    this.connectionFactoryBean = connectionFactoryBean;
+          UpstreamMessageHandler messageHandler,
+          ObjectMapper mapper,
+          ErrorHandlingStrategy errorHandlingStrategy,
+          ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean, 
+          XmppFcmSender fcmSender) {
+      this.messageHandler = messageHandler;
+      this.mapper = mapper;
+      this.errorHandlingStrategy = errorHandlingStrategy;
+      this.connectionFactoryBean = connectionFactoryBean;
+      this.fcmSender = fcmSender;
   }
 
   public void handleIncomingMessage(Message<String> message) throws Exception {
