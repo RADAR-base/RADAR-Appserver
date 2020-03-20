@@ -9,19 +9,17 @@ networks:
     internal: true
 
 services:
-  hsqldb:
-    build: database
-    image: radarbase/hsqldb:2.4.0
+  postgres:
+    image: postgres
     restart: always
     networks:
       - db
       - default
+    environment:
+      POSTGRES_DB: radar
+      POSTGRES_PASSWORD: radar
     ports:
-      - 9001:9001
-    volumes:
-      - ../../../../db:/usr/hsql/
-      - ./database/server.properties:/etc/opt/hsqldb/conf/server.properties
-      - ./database/sqltool.rc:/etc/opt/hsqldb/conf/sqltool.rc
+      - 5432:5432
 
   appserver:
     build: ../../../..
@@ -33,7 +31,7 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - hsqldb
+      - postgres
       - spring-boot-admin
     volumes:
       - ../radar_is.yml:/resources/radar_is.yml

@@ -61,7 +61,6 @@ public class MultiHttpSecurityConfig {
             .roles("ADMIN")
             .authorities("ROLE_SYS_ADMIN")
             .build());
-    // manager.createUser(users.username("default").password("radar").roles("USER","ADMIN").build());
     return manager;
   }
 

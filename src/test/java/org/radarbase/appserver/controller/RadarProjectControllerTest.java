@@ -98,7 +98,7 @@ class RadarProjectControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.put(new URI("/projects"))
+            MockMvcRequestBuilders.put(new URI("/projects/" + PROJECT_ID))
                 .content(objectMapper.writeValueAsString(projectDtoUpdated))
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
