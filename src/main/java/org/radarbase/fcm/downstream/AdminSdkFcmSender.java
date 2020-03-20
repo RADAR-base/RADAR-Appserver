@@ -56,7 +56,11 @@ public class AdminSdkFcmSender implements FcmSender {
             .setCredentials(GoogleCredentials.getApplicationDefault())
             .build();
 
-    FirebaseApp.initializeApp(options);
+    try {
+      FirebaseApp.initializeApp(options);
+    } catch (IllegalStateException exc) {
+      log.warn("Firebase app was already initialised. {}", exc.getMessage());
+    }
   }
 
   @Override

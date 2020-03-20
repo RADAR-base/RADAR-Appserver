@@ -60,6 +60,10 @@ public class ProjectEndpointAuthTest {
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
   }
 
+  public static String createURLWithPort(int port, String uri) {
+    return "http://localhost:" + port + uri;
+  }
+
   @Test
   public void unauthorisedCreateProject() {
 
@@ -68,7 +72,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, PROJECT_PATH), HttpMethod.POST, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH),
+            HttpMethod.POST,
+            projectEntity,
+            ProjectDto.class);
     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
   }
 
@@ -90,7 +97,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, "/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/radar"),
+            HttpMethod.GET,
+            projectEntity,
+            ProjectDto.class);
     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
   }
 
@@ -114,7 +124,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, PROJECT_PATH), HttpMethod.POST, projectEntity, ProjectDto.class);
+            createURLWithPort(port, PROJECT_PATH),
+            HttpMethod.POST,
+            projectEntity,
+            ProjectDto.class);
 
     if (responseEntity.getStatusCode().equals(HttpStatus.EXPECTATION_FAILED)) {
       // The auth was successful but expectation failed if the project already exits.
@@ -131,7 +144,10 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, "/projects/radar"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/radar"),
+            HttpMethod.GET,
+            projectEntity,
+            ProjectDto.class);
 
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
@@ -143,13 +159,12 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, "/projects/test"), HttpMethod.GET, projectEntity, ProjectDto.class);
+            createURLWithPort(port, "/projects/test"),
+            HttpMethod.GET,
+            projectEntity,
+            ProjectDto.class);
 
     // Access denied as the user has only access to the project that it is part of.
     assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-  }
-
-  public static String createURLWithPort(int port, String uri) {
-    return "http://localhost:" + port + uri;
   }
 }

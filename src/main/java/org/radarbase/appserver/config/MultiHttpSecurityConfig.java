@@ -37,6 +37,9 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +71,6 @@ public class MultiHttpSecurityConfig {
                         .roles("ADMIN")
                         .authorities("ROLE_SYS_ADMIN")
                         .build());
-        // manager.createUser(users.username("default").password("radar").roles("USER","ADMIN").build());
         return manager;
     }
 
@@ -120,36 +122,46 @@ public class MultiHttpSecurityConfig {
 
     }
 
-    @Component
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public static class SimpleCorsFilter implements Filter {
-
-        public SimpleCorsFilter() {
-        }
-
-        @Override
-        public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-            HttpServletResponse response = (HttpServletResponse) res;
-            HttpServletRequest request = (HttpServletRequest) req;
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-            response.setHeader("Access-Control-Max-Age", "3600");
-            response.setHeader("Access-Control-Allow-Headers", "x-requested-with, authorization, content-type");
-
-            if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-                response.setStatus(HttpServletResponse.SC_OK);
-            } else {
-                chain.doFilter(req, res);
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("*");
             }
-        }
-
-        @Override
-        public void init(FilterConfig filterConfig) {
-        }
-
-        @Override
-        public void destroy() {
-        }
+        };
     }
+
+    // @Component
+    // @Order(Ordered.HIGHEST_PRECEDENCE)
+    // public static class SimpleCorsFilter implements Filter {
+
+    //     public SimpleCorsFilter() {
+    //     }
+
+    //     @Override
+    //     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+    //         HttpServletResponse response = (HttpServletResponse) res;
+    //         HttpServletRequest request = (HttpServletRequest) req;
+    //         response.setHeader("Access-Control-Allow-Origin", "*");
+    //         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+    //         response.setHeader("Access-Control-Max-Age", "3600");
+    //         response.setHeader("Access-Control-Allow-Headers", "x-requested-with, authorization, content-type");
+
+    //         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+    //             response.setStatus(HttpServletResponse.SC_OK);
+    //         } else {
+    //             chain.doFilter(req, res);
+    //         }
+    //     }
+
+    //     @Override
+    //     public void init(FilterConfig filterConfig) {
+    //     }
+
+    //     @Override
+    //     public void destroy() {
+    //     }
+    // }
 
 }

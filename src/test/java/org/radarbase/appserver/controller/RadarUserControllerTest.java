@@ -54,15 +54,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(RadarUserController.class)
 public class RadarUserControllerTest {
 
-    @Autowired
-    private transient MockMvc mockMvc;
-
-    @Autowired
-    private transient ObjectMapper objectMapper;
-
-    @MockBean
-    private transient UserService userService;
-
     public static final String FCM_TOKEN_1 = "xxxx";
     private static final String FCM_TOKEN_2 = "xxxxyyy";
     private static final String FCM_TOKEN_3 = "xxxxyyyzzz";
@@ -70,7 +61,12 @@ public class RadarUserControllerTest {
     private static final String LANGUAGE_JSON_PATH = "$.language";
     private static final String ENROLMENT_DATE_JSON_PATH = "$.enrolmentDate";
     public static final String TIMEZONE = "Europe/London";
-
+    @Autowired
+    private transient MockMvc mockMvc;
+    @Autowired
+    private transient ObjectMapper objectMapper;
+    @MockBean
+    private transient UserService userService;
     private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
     @BeforeEach
@@ -120,30 +116,6 @@ public class RadarUserControllerTest {
     }
 
     @Test
-    void addUser() throws Exception {
-        FcmUserDto userDtoNew =
-                new FcmUserDto()
-                        .setSubjectId(USER_ID + "-new")
-                        .setFcmToken(FCM_TOKEN_2)
-                        .setProjectId(PROJECT_ID)
-                        .setEnrolmentDate(enrolmentDate)
-                        .setLanguage("en")
-                        .setTimezone(TIMEZONE)
-                        .setId(2L);
-
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.post(new URI("/users"))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userDtoNew)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_2)))
-                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
-                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
-                .andExpect(jsonPath(ID_JSON_PATH, is(2)));
-    }
-
-    @Test
     void addUserToProject() throws Exception {
         FcmUserDto userDtoNew =
                 new FcmUserDto()
@@ -179,31 +151,7 @@ public class RadarUserControllerTest {
 
         mockMvc
                 .perform(
-                        MockMvcRequestBuilders.put(new URI("/projects/test-project/users"))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userDtoUpdated)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)))
-                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("da")))
-                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
-                .andExpect(jsonPath(ID_JSON_PATH, is(1)));
-    }
-
-    @Test
-    void updateUser() throws Exception {
-        FcmUserDto userDtoUpdated =
-                new FcmUserDto()
-                        .setSubjectId("test-user-updated")
-                        .setFcmToken(FCM_TOKEN_3)
-                        .setProjectId("test-project")
-                        .setEnrolmentDate(enrolmentDate)
-                        .setLanguage("da")
-                        .setTimezone(TIMEZONE)
-                        .setId(1L);
-
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.put(new URI("/users"))
+                        MockMvcRequestBuilders.put(new URI("/projects/test-project/users/test-user-updated"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userDtoUpdated)))
                 .andExpect(status().isOk())
