@@ -25,10 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -285,7 +282,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                 .setEnrolmentDate(
                         jsonMessage.get("enrolmentDate") == null
                                 ? Instant.now()
-                                : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L));
+                                : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L))
+                .setTimezone(TimeZone.getDefault().getID().toString());
     }
 
     @Configuration
