@@ -283,7 +283,9 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                         jsonMessage.get("enrolmentDate") == null
                                 ? Instant.now()
                                 : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L))
-                .setTimezone(TimeZone.getDefault().getID().toString());
+                .setTimezone(jsonMessage.get("timezone") == null
+                                ? TimeZone.getDefault().getID().toString()
+                                : jsonMessage.get("timezone").asText());
     }
 
     @Configuration
