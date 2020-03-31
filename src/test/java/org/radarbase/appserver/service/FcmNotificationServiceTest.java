@@ -34,6 +34,7 @@ import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTI
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_FCM_MESSAGE_ID;
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_SOURCE_ID;
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_TITLE;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -207,7 +208,7 @@ class FcmNotificationServiceTest {
                         .setFcmToken(FCM_TOKEN_1)
                         .setEnrolmentDate(Instant.now())
                         .setProject(project)
-                        .setTimezone(0d)
+                        .setTimezone(TIMEZONE)
                         .setLanguage("en")
                         .setSubjectId(USER_ID)
                         .setUserMetrics(

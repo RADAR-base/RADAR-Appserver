@@ -115,6 +115,7 @@ public class XmppFcmReceiver implements CcsClient {
         messageHandler.handleNackReceipt(tree);
         break;
       case RECEIPT:
+        // NOTE: FCM has stopped sending delivery receipts so this is never run.
         messageHandler.handleStatusReceipt(tree);
         break;
       case CONTROL:
