@@ -12,7 +12,7 @@ buildscript {
 plugins {
     id 'checkstyle'
     id 'pmd'
-    id "com.github.spotbugs" version "2.0.0"
+    id "com.github.spotbugs" version "4.2.2"
     id 'jacoco'
     id "com.github.lkishalmi.gatling" version "3.2.9"
 }
