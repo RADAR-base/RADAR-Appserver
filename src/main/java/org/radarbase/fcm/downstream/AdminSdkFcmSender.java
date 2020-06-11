@@ -73,13 +73,14 @@ public class AdminSdkFcmSender implements FcmSender {
             .setToken(downstreamMessage.getTo())
             .setFcmOptions(FcmOptions.builder().build())
             .setCondition(downstreamMessage.getCondition());
+
     if (downstreamMessage instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) downstreamMessage;
       message
           .setAndroidConfig(
               AndroidConfig.builder()
                   .setCollapseKey(downstreamMessage.getCollapseKey())
-                  .setPriority(Priority.valueOf(priority == null ? "NORMAL" : priority))
+                  .setPriority(priority == null ? Priority.HIGH : Priority.valueOf(priority))
                   .setTtl(downstreamMessage.getTimeToLive())
                   .setNotification(getAndroidNotification(notificationMessage))
                   .putAllData(notificationMessage.getData())
@@ -96,27 +97,25 @@ public class AdminSdkFcmSender implements FcmSender {
                   .setImage(
                       String.valueOf(
                           notificationMessage.getNotification().getOrDefault("image_url", "")))
-                  .build())
-          .build();
+                  .build());
     } else if (downstreamMessage instanceof FcmDataMessage) {
       FcmDataMessage dataMessage = (FcmDataMessage) downstreamMessage;
       message
           .setAndroidConfig(
               AndroidConfig.builder()
                   .setCollapseKey(downstreamMessage.getCollapseKey())
-                  .setPriority(Priority.valueOf(priority == null ? "NORMAL" : priority))
+                  .setPriority(priority == null ? Priority.NORMAL : Priority.valueOf(priority))
                   .setTtl(downstreamMessage.getTimeToLive())
                   .putAllData(dataMessage.getData())
                   .build())
-          .putAllData(dataMessage.getData())
-          .build();
+          .putAllData(dataMessage.getData());
     } else {
       throw new IllegalArgumentException(
           "The Message type is not known." + downstreamMessage.getClass());
     }
 
     String response = FirebaseMessaging.getInstance().send(message.build());
-    log.debug("Message Sent with response : {}", response);
+    log.info("Message Sent with response : {}", response);
   }
 
   private AndroidNotification getAndroidNotification(FcmNotificationMessage notificationMessage) {
