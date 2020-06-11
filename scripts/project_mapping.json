@@ -1,0 +1,57 @@
+{
+    "RADAR-MDD-KCL-s1": {
+        "timezone": "Europe/London",
+        "language": "en",
+        "location": "London"
+    },
+    "RADAR-MDD-CIBER-s1": {
+        "timezone": "Europe/Madrid",
+        "language": "es",
+        "Location": "Spain"
+    },
+    "RADAR-MDD-VUmc-s1": {
+        "timezone": "Europe/Amsterdam",
+        "language": "nl",
+        "Location": "Netherlands"
+    },
+    "RADAR-MSDep-RegionH-s1": {
+        "timezone": "Europe/Copenhagen",
+        "language": "da",
+        "Location": "Denmark"
+    },
+    "RADAR-MSDis-RegionH-s1": {
+        "timezone": "Europe/Copenhagen",
+        "language": "da",
+        "Location": "Denmark"
+    },
+    "RADAR-MSDep-OSR-s1": {
+        "timezone": "Europe/Rome",
+        "language": "it",
+        "Location": "Italy"
+    },
+    "RADAR-MSDis-OSR-s1": {
+        "timezone": "Europe/Rome",
+        "language": "it",
+        "Location": "Italy"
+    },
+    "RADAR-MSDis-VHIR-s1": {
+        "timezone": "Europe/Madrid",
+        "language": "es",
+        "Location": "Spain"
+    },
+    "RADAR-MSDep-VHIR-s1": {
+        "timezone": "Europe/Madrid",
+        "language": "es",
+        "Location": "Spain"
+    },
+    "RADAR-MDD-IISPV-s1": {
+        "timezone": "Europe/Madrid",
+        "language": "es",
+        "Location": "Spain"
+    },
+    "Default": {
+        "timezone": "Europe/London",
+        "language": "en",
+        "Location": "Spain"
+    }
+}
