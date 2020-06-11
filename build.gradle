@@ -139,6 +139,7 @@ dependencies {
 checkstyle {
     configDir file("config/checkstyle")
     toolVersion "8.20"
+    showViolations = false
 }
 
 pmd {
