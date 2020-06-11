@@ -14,6 +14,7 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   - sudo mkdir -p /usr/local/var/lib/radar/appserver/logs/
+  - sudo chown -R $(whoami) /usr/local/var/lib/radar/appserver/logs
   - docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d postgres managementportal
   # Wait for services to start up.
   - sleep 50
