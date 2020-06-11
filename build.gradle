@@ -210,3 +210,14 @@ integrationTest {
     }
     environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
 }
+
+test {
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+
+        error {
+            exceptionFormat "full"
+        }
+    }
+}
