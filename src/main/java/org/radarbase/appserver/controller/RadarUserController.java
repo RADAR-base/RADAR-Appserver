@@ -33,13 +33,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 import org.radarbase.appserver.config.AuthConfig.AuthEntities;
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
-import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.UserService;
 import org.radarcns.auth.token.RadarToken;
 import org.springframework.http.ResponseEntity;
@@ -129,18 +127,6 @@ public class RadarUserController {
         } else {
             return ResponseEntity.ok(users);
         }
-    }
-
-    @Authorized(permission = READ, entity = SUBJECT)
-    @GetMapping("/users/{id}")
-    public ResponseEntity<FcmUserDto> getRadarUserUsingId(HttpServletRequest request,
-            @PathParam("id") Long id) {
-        if (id == null) {
-            throw new InvalidUserDetailsException("The given id must not be null!");
-        }
-
-        FcmUserDto userDto = this.userService.getUserById(id);
-        return getFcmUserDtoResponseEntity(request, userDto);
     }
 
     @Authorized(permission = READ, entity = SUBJECT)

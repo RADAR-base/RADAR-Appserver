@@ -172,16 +172,6 @@ public class RadarUserControllerTest {
     }
 
     @Test
-    void getRadarUserUsingId() throws Exception {
-        mockMvc
-                .perform(MockMvcRequestBuilders.get(new URI("/users/user?id=1")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_1)))
-                .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("es")))
-                .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())));
-    }
-
-    @Test
     void getRadarUserUsingSubjectId() throws Exception {
         mockMvc
                 .perform(MockMvcRequestBuilders.get(new URI("/users/test-user")))

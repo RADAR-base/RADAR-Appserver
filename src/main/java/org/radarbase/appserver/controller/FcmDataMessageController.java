@@ -29,8 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import javax.validation.Valid;
-import org.radarbase.appserver.config.AuthConfig.AuthEntities;
-import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.radarbase.appserver.dto.fcm.FcmDataMessages;
 import org.radarbase.appserver.service.FcmDataMessageService;
@@ -68,10 +66,10 @@ public class FcmDataMessageController {
           @Valid @RequestParam(value = "subjectId", required = false) String subjectId,
           @Valid @RequestParam(value = "type", required = false) String type,
           @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
-          @Valid @RequestParam(value = "ttlSeconds", required = false) int ttlSeconds,
+          @Valid @RequestParam(value = "ttlSeconds", required = false) Integer ttlSeconds,
           @Valid @RequestParam(value = "startTime", required = false) LocalDateTime startTime,
           @Valid @RequestParam(value = "endTime", required = false) LocalDateTime endTime,
-          @Valid @RequestParam(value = "limit", required = false) int limit
+          @Valid @RequestParam(value = "limit", required = false) Integer limit
   ) {
     // TODO: process filter param
     if (projectId != null && subjectId != null) {
@@ -107,7 +105,7 @@ public class FcmDataMessageController {
   }
 
   @Authorized(permission = CREATE, entity = MEASUREMENT, permissionOn = PermissionOn.SUBJECT)
-  @PostMapping("")
+  @PostMapping("/projects/{projectId}/users/{subjectId}/messaging/data/batch")
   public ResponseEntity<FcmDataMessages> addBatchDataMessages(
       @PathVariable String projectId,
       @PathVariable String subjectId,

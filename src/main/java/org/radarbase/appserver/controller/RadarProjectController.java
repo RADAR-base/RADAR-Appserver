@@ -140,30 +140,8 @@ public class RadarProjectController {
         }
     }
 
-    // TODO think about plain authorized
-    @Authorized(permission = CREATE, entity = MEASUREMENT)
-    @GetMapping("/projects/project/{id}")
-    public ResponseEntity<ProjectDto> getProjectsUsingId(HttpServletRequest request,
-            @Valid @PathParam("id") Long id) {
-        ProjectDto projectDto = this.projectService.getProjectById(id);
-        if (authorization != null) {
-            RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
-            if (authorization.hasPermission(token, CREATE, MEASUREMENT, PermissionOn.PROJECT,
-                    projectDto.getProjectId(), null, null)) {
-                return ResponseEntity.ok(projectDto);
-            } else {
-                throw new AuthorizationFailedException(
-                        "The token does not have permission for the project " + projectDto
-                                .getProjectId());
-            }
-        } else {
-            return ResponseEntity.ok(projectDto);
-        }
-    }
-
     @Authorized(permission = CREATE, entity = MEASUREMENT, permissionOn = PermissionOn.PROJECT)
-    @GetMapping(
-            "/projects/{projectId}" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT)
+    @GetMapping("/projects/{projectId}")
     public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
             @Valid @PathVariable String projectId) {
         return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));

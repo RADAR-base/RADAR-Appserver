@@ -65,10 +65,10 @@ public class FcmNotificationController {
             @Valid @RequestParam(value = "subjectId", required = false) String subjectId,
             @Valid @RequestParam(value = "type", required = false) String type,
             @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
-            @Valid @RequestParam(value = "ttlSeconds", required = false) int ttlSeconds,
+            @Valid @RequestParam(value = "ttlSeconds", required = false) Integer ttlSeconds,
             @Valid @RequestParam(value = "startTime", required = false) LocalDateTime startTime,
             @Valid @RequestParam(value = "endTime", required = false) LocalDateTime endTime,
-            @Valid @RequestParam(value = "limit", required = false) int limit) {
+            @Valid @RequestParam(value = "limit", required = false) Integer limit) {
         // TODO: process query parameters
         if (projectId != null && subjectId != null) {
             return ResponseEntity.ok(this.notificationService
