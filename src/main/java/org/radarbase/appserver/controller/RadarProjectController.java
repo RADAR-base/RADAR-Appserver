@@ -21,6 +21,11 @@
 
 package org.radarbase.appserver.controller;
 
+import static org.radarbase.appserver.config.AuthConfig.AuthEntities.MEASUREMENT;
+import static org.radarbase.appserver.config.AuthConfig.AuthEntities.PROJECT;
+import static org.radarbase.appserver.config.AuthConfig.AuthPermissions.CREATE;
+import static org.radarbase.appserver.config.AuthConfig.AuthPermissions.READ;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -28,6 +33,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
+
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.config.AuthConfig.AuthEntities;
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
@@ -35,7 +41,6 @@ import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.service.ProjectService;
 import org.radarcns.auth.token.RadarToken;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,141 +59,113 @@ import radar.spring.auth.exception.AuthorizationFailedException;
  * org.radarbase.appserver.entity.User} needs to be associated to a project. A project may represent
  * a Management Portal project.
  *
- * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
  * @author yatharthranjan
+ * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
  */
 @RestController
 @Slf4j
 public class RadarProjectController {
 
-  private transient ProjectService projectService;
-  private transient Authorization<RadarToken> authorization;
+    private transient ProjectService projectService;
+    private transient Authorization<RadarToken> authorization;
 
-  public RadarProjectController(
-      ProjectService projectService, Optional<Authorization<RadarToken>> authorization) {
-    this.projectService = projectService;
-    this.authorization = authorization.orElse(null);
-  }
-
-  /**
-   * Method for updating a project.
-   *
-   * @param projectDto The project info to update
-   * @return The updated Project DTO. Throws {@link
-   *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
-   */
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
-  @PostMapping(
-      value = "/" + PathsUtil.PROJECT_PATH,
-      consumes = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<ProjectDto> addProject(
-      HttpServletRequest request, @Valid @RequestBody ProjectDto projectDto)
-      throws URISyntaxException {
-
-    if (authorization != null) {
-      RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
-      if (authorization.hasPermission(
-          token,
-          "CREATE",
-          "MEASUREMENT",
-          PermissionOn.PROJECT,
-          projectDto.getProjectId(),
-          null,
-          null)) {
-        ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
-        return ResponseEntity.created(new URI("/projects/project?id=" + projectDtoNew.getId()))
-            .body(projectDtoNew);
-      } else {
-        throw new AuthorizationFailedException(
-            "The token does not have permission for the project " + projectDto.getProjectId());
-      }
-    } else {
-      ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
-      return ResponseEntity.created(new URI("/projects/project?id=" + projectDtoNew.getId()))
-          .body(projectDtoNew);
+    public RadarProjectController(ProjectService projectService,
+            Optional<Authorization<RadarToken>> authorization) {
+        this.projectService = projectService;
+        this.authorization = authorization.orElse(null);
     }
-  }
 
-  /**
-   * Method for updating a project.
-   *
-   * @param projectDto The project info to update
-   * @return The updated Project DTO. Throws {@link
-   *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
-   */
-  @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
-      permissionOn = PermissionOn.PROJECT)
-  @PutMapping(
-      value = "/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT,
-      consumes = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<ProjectDto> updateProject(
-      @Valid @PathParam("projectId") String projectId, @Valid @RequestBody ProjectDto projectDto) {
-    ProjectDto projectDto1 = this.projectService.updateProject(projectDto);
-    return ResponseEntity.ok(projectDto1);
-  }
+    /**
+     * Method for creating a project.
+     *
+     * @param projectDto The project info to update
+     * @return The updated Project DTO. Throws {@link
+     * AuthorizationFailedException} if user does not have authority to create a project.
+     */
+    @Authorized(permission = CREATE, entity = MEASUREMENT)
+    @PostMapping("/projects")
+    public ResponseEntity<ProjectDto> addProject(HttpServletRequest request,
+            @Valid @RequestBody ProjectDto projectDto) throws URISyntaxException {
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
-  @GetMapping("/" + PathsUtil.PROJECT_PATH)
-  public ResponseEntity<ProjectDtos> getAllProjects(HttpServletRequest request) {
-
-    ProjectDtos projectDtos = this.projectService.getAllProjects();
-    if (authorization != null) {
-      ProjectDtos finalProjectDtos =
-          new ProjectDtos()
-              .setProjects(
-                  projectDtos.getProjects().stream()
-                      .filter(
-                          project ->
-                              authorization.hasPermission(
-                                  (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY),
-                                  AuthPermissions.READ,
-                                  AuthEntities.PROJECT,
-                                  PermissionOn.PROJECT,
-                                  project.getProjectId(),
-                                  null,
-                                  null))
-                      .collect(Collectors.toList()));
-      return ResponseEntity.ok(finalProjectDtos);
-    } else {
-      return ResponseEntity.ok(projectDtos);
+        if (authorization != null) {
+            RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
+            if (authorization.hasPermission(token, "CREATE", "MEASUREMENT", PermissionOn.PROJECT,
+                    projectDto.getProjectId(), null, null)) {
+                ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
+                return ResponseEntity
+                        .created(new URI("/projects/project?id=" + projectDtoNew.getId()))
+                        .body(projectDtoNew);
+            } else {
+                throw new AuthorizationFailedException(
+                        "The token does not have permission for the project " + projectDto
+                                .getProjectId());
+            }
+        } else {
+            ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
+            return ResponseEntity.created(new URI("/projects/project?id=" + projectDtoNew.getId()))
+                    .body(projectDtoNew);
+        }
     }
-  }
 
-  // TODO think about plain authorized
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
-  @GetMapping("/" + PathsUtil.PROJECT_PATH + "/project")
-  public ResponseEntity<ProjectDto> getProjectsUsingId(
-      HttpServletRequest request, @Valid @PathParam("id") Long id) {
-    ProjectDto projectDto = this.projectService.getProjectById(id);
-    if (authorization != null) {
-      RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
-      if (authorization.hasPermission(
-          token,
-          AuthPermissions.CREATE,
-          AuthEntities.MEASUREMENT,
-          PermissionOn.PROJECT,
-          projectDto.getProjectId(),
-          null,
-          null)) {
-        return ResponseEntity.ok(projectDto);
-      } else {
-        throw new AuthorizationFailedException(
-            "The token does not have permission for the project " + projectDto.getProjectId());
-      }
-    } else {
-      return ResponseEntity.ok(projectDto);
+    /**
+     * Method for updating a project.
+     *
+     * @param projectDto The project info to update
+     * @return The updated Project DTO. Throws {@link
+     * org.radarbase.appserver.exception.NotFoundException} if project was not found.
+     */
+    @Authorized(permission = CREATE, entity = MEASUREMENT, permissionOn = PermissionOn.PROJECT)
+    @PutMapping("/projects/{projectId}")
+    public ResponseEntity<ProjectDto> updateProject(@Valid @PathParam("projectId") String projectId,
+            @Valid @RequestBody ProjectDto projectDto) {
+        ProjectDto projectDto1 = this.projectService.updateProject(projectDto);
+        return ResponseEntity.ok(projectDto1);
     }
-  }
 
-  @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
-      permissionOn = PermissionOn.PROJECT)
-  @GetMapping("/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT)
-  public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
-      @Valid @PathVariable String projectId) {
-    return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
-  }
+    @Authorized(permission = READ, entity = PROJECT)
+    @GetMapping("/projects")
+    public ResponseEntity<ProjectDtos> getAllProjects(HttpServletRequest request) {
+
+        ProjectDtos projectDtos = this.projectService.getAllProjects();
+        if (authorization != null) {
+            ProjectDtos finalProjectDtos = new ProjectDtos().setProjects(
+                    projectDtos.getProjects().stream().filter(project -> authorization
+                            .hasPermission((RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY),
+                                    AuthPermissions.READ, AuthEntities.PROJECT,
+                                    PermissionOn.PROJECT, project.getProjectId(), null, null))
+                            .collect(Collectors.toList()));
+            return ResponseEntity.ok(finalProjectDtos);
+        } else {
+            return ResponseEntity.ok(projectDtos);
+        }
+    }
+
+    // TODO think about plain authorized
+    @Authorized(permission = CREATE, entity = MEASUREMENT)
+    @GetMapping("/projects/project/{id}")
+    public ResponseEntity<ProjectDto> getProjectsUsingId(HttpServletRequest request,
+            @Valid @PathParam("id") Long id) {
+        ProjectDto projectDto = this.projectService.getProjectById(id);
+        if (authorization != null) {
+            RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
+            if (authorization.hasPermission(token, CREATE, MEASUREMENT, PermissionOn.PROJECT,
+                    projectDto.getProjectId(), null, null)) {
+                return ResponseEntity.ok(projectDto);
+            } else {
+                throw new AuthorizationFailedException(
+                        "The token does not have permission for the project " + projectDto
+                                .getProjectId());
+            }
+        } else {
+            return ResponseEntity.ok(projectDto);
+        }
+    }
+
+    @Authorized(permission = CREATE, entity = MEASUREMENT, permissionOn = PermissionOn.PROJECT)
+    @GetMapping(
+            "/projects/{projectId}" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT)
+    public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
+            @Valid @PathVariable String projectId) {
+        return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
+    }
 }
