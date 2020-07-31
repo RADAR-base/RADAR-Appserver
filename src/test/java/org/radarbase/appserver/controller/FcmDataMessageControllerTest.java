@@ -23,7 +23,6 @@ package org.radarbase.appserver.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
@@ -162,28 +161,12 @@ public class FcmDataMessageControllerTest {
     }
 
     @Test
-    @Disabled("Not implemented yet")
-    void getFilteredDataMessages() {
-        // TODO
-    }
-
-    @Test
     void getDataMessagesUsingProjectIdAndSubjectId() throws Exception {
 
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.get(
-                                URI.create(
-                                        "/"
-                                                + PathsUtil.PROJECT_PATH
-                                                + "/"
-                                                + PROJECT_ID
-                                                + "/"
-                                                + PathsUtil.USER_PATH
-                                                + "/"
-                                                + USER_ID
-                                                + "/"
-                                                + PathsUtil.MESSAGING_DATA_PATH)))
+        mockMvc.perform(
+                MockMvcRequestBuilders.get(URI.create("/" + PathsUtil.MESSAGING_DATA_PATH))
+                        .param("projectId", PROJECT_ID)
+                        .param("subjectId", USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize(1)))
                 .andExpect(jsonPath(DATA_MESSAGE_FCMID_JSON_PATH, is(FCM_MESSAGE_ID)));
@@ -192,12 +175,9 @@ public class FcmDataMessageControllerTest {
     @Test
     void getDataMessagesUsingProjectId() throws Exception {
 
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.get(
-                                URI.create(
-                                        "/" + PathsUtil.PROJECT_PATH + "/" + PROJECT_ID + "/"
-                                                + PathsUtil.MESSAGING_DATA_PATH)))
+        mockMvc.perform(
+                MockMvcRequestBuilders.get(URI.create("/" + PathsUtil.MESSAGING_DATA_PATH))
+                        .param("projectId", PROJECT_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize(1)))
                 .andExpect(jsonPath(DATA_MESSAGE_FCMID_JSON_PATH, is(FCM_MESSAGE_ID)));
@@ -205,11 +185,9 @@ public class FcmDataMessageControllerTest {
 
     @Test
     void getDataMessagesUsingSubjectId() throws Exception {
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.get(
-                                URI.create("/" + PathsUtil.USER_PATH + "/" + USER_ID + "/"
-                                        + PathsUtil.MESSAGING_DATA_PATH)))
+        mockMvc.perform(
+                MockMvcRequestBuilders.get(URI.create("/" + PathsUtil.MESSAGING_DATA_PATH))
+                        .param("subjectId", USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize(1)))
                 .andExpect(jsonPath(DATA_MESSAGE_FCMID_JSON_PATH, is(FCM_MESSAGE_ID)));

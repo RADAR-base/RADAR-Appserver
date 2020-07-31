@@ -122,12 +122,7 @@ public class NotificationEndpointAuthTest {
     ResponseEntity<FcmNotifications> notificationDtoResponseEntity =
         restTemplate.exchange(
             createURLWithPort(
-                port,
-                ProjectEndpointAuthTest.PROJECT_PATH
-                    + UserEndpointAuthTest.DEFAULT_PROJECT
-                    + UserEndpointAuthTest.USER_PATH
-                    + DEFAULT_USER
-                    + "/messaging/notifications"),
+                    port,createURLWithPort(port, "messaging/notifications?subjectId=sub-1")),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);
@@ -142,10 +137,7 @@ public class NotificationEndpointAuthTest {
     ResponseEntity<FcmNotifications> notificationDtoResponseEntity =
         restTemplate.exchange(
             createURLWithPort(
-                port,
-                ProjectEndpointAuthTest.PROJECT_PATH
-                    + UserEndpointAuthTest.DEFAULT_PROJECT
-                    + "/messaging/notifications"),
+                port,createURLWithPort(port, "messaging/notifications?projectId=radar")),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);
@@ -229,13 +221,7 @@ public class NotificationEndpointAuthTest {
 
     ResponseEntity<FcmNotifications> notificationDtoResponseEntity =
         restTemplate.exchange(
-            createURLWithPort(
-                port,
-                ProjectEndpointAuthTest.PROJECT_PATH
-                    + UserEndpointAuthTest.DEFAULT_PROJECT
-                    + UserEndpointAuthTest.USER_PATH
-                    + DEFAULT_USER
-                    + NOTIFICATION_PATH),
+            createURLWithPort(port, "messaging/notifications?projectId=radar&subjectId=sub-1"),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);
@@ -249,11 +235,7 @@ public class NotificationEndpointAuthTest {
 
     ResponseEntity<FcmNotifications> notificationDtoResponseEntity =
         restTemplate.exchange(
-            createURLWithPort(
-                port,
-                ProjectEndpointAuthTest.PROJECT_PATH
-                    + UserEndpointAuthTest.DEFAULT_PROJECT
-                    + NOTIFICATION_PATH),
+                createURLWithPort(port, "messaging/notifications?projectId=radar"),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);
@@ -267,13 +249,7 @@ public class NotificationEndpointAuthTest {
 
     ResponseEntity<FcmNotifications> notificationDtoResponseEntity =
         restTemplate.exchange(
-            createURLWithPort(
-                port,
-                ProjectEndpointAuthTest.PROJECT_PATH
-                    + UserEndpointAuthTest.DEFAULT_PROJECT
-                    + UserEndpointAuthTest.USER_PATH
-                    + "/sub-2"
-                    + NOTIFICATION_PATH),
+                createURLWithPort(port, "messaging/notifications?subjectId=sub-2"),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);
@@ -287,8 +263,7 @@ public class NotificationEndpointAuthTest {
 
     ResponseEntity<FcmNotifications> notificationDtoResponseEntity =
         restTemplate.exchange(
-            createURLWithPort(
-                port, ProjectEndpointAuthTest.PROJECT_PATH + "/test" + NOTIFICATION_PATH),
+                createURLWithPort(port, "messaging/notifications?projectId=test"),
             HttpMethod.GET,
             notificationDtoHttpEntity,
             FcmNotifications.class);

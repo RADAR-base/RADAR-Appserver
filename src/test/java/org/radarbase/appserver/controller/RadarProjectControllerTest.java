@@ -115,14 +115,6 @@ class RadarProjectControllerTest {
   }
 
   @Test
-  void getProjectsUsingId() throws Exception {
-    mockMvc
-        .perform(MockMvcRequestBuilders.get(new URI("/projects/project?id=1")))
-        .andExpect(jsonPath(PROJECT_ID_JSON_PATH, is(PROJECT_ID)))
-        .andExpect(jsonPath(ID_JSON_PATH, is(1)));
-  }
-
-  @Test
   void getProjectsUsingProjectId() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/projects/test-project")))
