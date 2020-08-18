@@ -35,7 +35,7 @@ import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.event.state.NotificationStateEventDto;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -194,8 +194,8 @@ public class FcmNotificationService implements NotificationService {
     private void addNotificationStateEvent(
             Notification notification, MessageState state, Instant time) {
         if (notificationStateEventPublisher != null) {
-            NotificationStateEvent notificationStateEvent =
-                    new NotificationStateEvent(this, notification, state, null, time);
+            NotificationStateEventDto notificationStateEvent =
+                    new NotificationStateEventDto(this, notification, state, null, time);
             notificationStateEventPublisher.publishEvent(notificationStateEvent);
         }
     }

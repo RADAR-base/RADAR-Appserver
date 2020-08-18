@@ -23,6 +23,12 @@ package org.radarbase.appserver.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.naming.SizeLimitExceededException;
 import org.radarbase.appserver.dto.DataMessageStateEventDto;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.DataMessageStateEvent;
@@ -31,13 +37,6 @@ import org.radarbase.appserver.repository.DataMessageStateEventRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.naming.SizeLimitExceededException;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -139,8 +138,8 @@ public class DataMessageStateEventService {
             }
         }
 
-        org.radarbase.appserver.event.state.DataMessageStateEvent stateEvent =
-                new org.radarbase.appserver.event.state.DataMessageStateEvent(
+        org.radarbase.appserver.event.state.DataMessageStateEventDto stateEvent =
+                new org.radarbase.appserver.event.state.DataMessageStateEventDto(
                         this,
                         dataMessage,
                         dataMessageStateEventDto.getState(),

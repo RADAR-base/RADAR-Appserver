@@ -34,7 +34,7 @@ import org.radarbase.appserver.dto.fcm.FcmDataMessages;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.event.state.DataMessageStateEvent;
+import org.radarbase.appserver.event.state.DataMessageStateEventDto;
 import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
@@ -191,8 +191,8 @@ public class FcmDataMessageService implements DataMessageService {
     private void addDataMessageStateEvent(
             DataMessage dataMessage, MessageState state, Instant time) {
         if (dataMessageStateEventPublisher != null) {
-            DataMessageStateEvent dataMessageStateEvent =
-                    new DataMessageStateEvent(this, dataMessage, state, null, time);
+            DataMessageStateEventDto dataMessageStateEvent =
+                    new DataMessageStateEventDto(this, dataMessage, state, null, time);
             dataMessageStateEventPublisher.publishEvent(dataMessageStateEvent);
         }
     }

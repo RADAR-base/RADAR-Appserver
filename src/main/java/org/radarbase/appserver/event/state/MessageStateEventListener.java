@@ -53,8 +53,8 @@ public class MessageStateEventListener {
      *
      * @param event the event to respond to
      */
-    @EventListener(value = NotificationStateEvent.class)
-    public void onNotificationStateChange(NotificationStateEvent event) {
+    @EventListener(value = NotificationStateEventDto.class)
+    public void onNotificationStateChange(NotificationStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());
         org.radarbase.appserver.entity.NotificationStateEvent eventEntity =
@@ -63,8 +63,8 @@ public class MessageStateEventListener {
         notificationStateEventService.addNotificationStateEvent(eventEntity);
     }
 
-    @EventListener(value = DataMessageStateEvent.class)
-    public void onDataMessageStateChange(DataMessageStateEvent event) {
+    @EventListener(value = DataMessageStateEventDto.class)
+    public void onDataMessageStateChange(DataMessageStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getDataMessage().getId(), event.getState());
         org.radarbase.appserver.entity.DataMessageStateEvent eventEntity =

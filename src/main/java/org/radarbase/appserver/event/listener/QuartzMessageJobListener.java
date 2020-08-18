@@ -35,9 +35,9 @@ import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.event.state.DataMessageStateEvent;
+import org.radarbase.appserver.event.state.DataMessageStateEventDto;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.event.state.NotificationStateEventDto;
 import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.service.MessageType;
@@ -123,8 +123,8 @@ public class QuartzMessageJobListener implements JobListener {
                     Map<String, String> additionalInfo = new HashMap<>();
                     additionalInfo.put("error", jobException.getMessage());
                     additionalInfo.put("error_description", jobException.toString());
-                    NotificationStateEvent notificationStateEventError =
-                            new NotificationStateEvent(
+                    NotificationStateEventDto notificationStateEventError =
+                            new NotificationStateEventDto(
                                     this, notification.get(), MessageState.ERRORED, additionalInfo, Instant.now());
                     messageStateEventPublisher.publishEvent(notificationStateEventError);
 
@@ -132,8 +132,8 @@ public class QuartzMessageJobListener implements JobListener {
                     return;
                 }
 
-                NotificationStateEvent notificationStateEvent =
-                        new NotificationStateEvent(
+                NotificationStateEventDto notificationStateEvent =
+                        new NotificationStateEventDto(
                                 this, notification.get(), MessageState.EXECUTED, null, Instant.now());
                 messageStateEventPublisher.publishEvent(notificationStateEvent);
                 break;
@@ -150,8 +150,8 @@ public class QuartzMessageJobListener implements JobListener {
                     Map<String, String> additionalInfo = new HashMap<>();
                     additionalInfo.put("error", jobException.getMessage());
                     additionalInfo.put("error_description", jobException.toString());
-                    DataMessageStateEvent dataMessageStateEventError =
-                            new DataMessageStateEvent(
+                    DataMessageStateEventDto dataMessageStateEventError =
+                            new DataMessageStateEventDto(
                                     this, dataMessage.get(), MessageState.ERRORED, additionalInfo, Instant.now());
                     messageStateEventPublisher.publishEvent(dataMessageStateEventError);
 
@@ -159,8 +159,8 @@ public class QuartzMessageJobListener implements JobListener {
                     return;
                 }
 
-                DataMessageStateEvent dataMessageStateEvent =
-                        new DataMessageStateEvent(
+                DataMessageStateEventDto dataMessageStateEvent =
+                        new DataMessageStateEventDto(
                                 this, dataMessage.get(), MessageState.EXECUTED, null, Instant.now());
                 messageStateEventPublisher.publishEvent(dataMessageStateEvent);
                 break;
