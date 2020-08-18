@@ -110,8 +110,8 @@ public class RadarUserController {
   }
 
   @Authorized(
-      permission = AuthPermissions.UPDATE,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
@@ -132,7 +132,7 @@ public class RadarUserController {
     return ResponseEntity.ok(user);
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.USER_PATH)
   public ResponseEntity<FcmUsers> getAllRadarUsers(HttpServletRequest request) {
     FcmUsers users = this.userService.getAllRadarUsers();
@@ -159,7 +159,7 @@ public class RadarUserController {
     }
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/user")
   public ResponseEntity<FcmUserDto> getRadarUserUsingId(
       HttpServletRequest request, @PathParam("id") Long id) {
@@ -171,7 +171,7 @@ public class RadarUserController {
     return getFcmUserDtoResponseEntity(request, userDto);
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
       HttpServletRequest request, @PathVariable String subjectId) {
@@ -203,8 +203,8 @@ public class RadarUserController {
   }
 
   @Authorized(
-      permission = AuthPermissions.READ,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
@@ -238,8 +238,8 @@ public class RadarUserController {
   }
 
   @Authorized(
-      permission = AuthPermissions.UPDATE,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
