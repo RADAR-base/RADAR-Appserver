@@ -115,8 +115,6 @@ dependencies {
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion) {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
-    compile "org.jetbrains.kotlin:kotlin-stdlib:1.3.70"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.70"
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
