@@ -150,7 +150,7 @@ javadoc {
 }
 
 wrapper {
-    gradleVersion '5.4'
+    gradleVersion '6.6'
 }
 
 test {
