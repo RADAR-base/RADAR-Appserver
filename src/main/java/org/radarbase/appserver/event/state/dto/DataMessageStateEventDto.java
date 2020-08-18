@@ -19,20 +19,20 @@
  *
  */
 
-package org.radarbase.appserver.event.state;
-
-import lombok.Getter;
-import lombok.ToString;
-import org.radarbase.appserver.entity.DataMessage;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+package org.radarbase.appserver.event.state.dto;
 
 import java.time.Instant;
 import java.util.Map;
+import lombok.Getter;
+import lombok.ToString;
+import org.radarbase.appserver.entity.DataMessage;
+import org.radarbase.appserver.event.state.MessageState;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Getter
 @ToString
-public class DataMessageStateEvent extends MessageStateEvent {
+public class DataMessageStateEventDto extends MessageStateEventDto {
     private static final long serialVersionUID = 327842183571939L;
 
     private DataMessage dataMessage;
@@ -46,7 +46,7 @@ public class DataMessageStateEvent extends MessageStateEvent {
      *                       DataMessage} entity.
      * @param additionalInfo any additional info associated with the state change.
      */
-    public DataMessageStateEvent(
+    public DataMessageStateEventDto(
             Object source,
             @NonNull DataMessage dataMessage,
             @NonNull MessageState state,

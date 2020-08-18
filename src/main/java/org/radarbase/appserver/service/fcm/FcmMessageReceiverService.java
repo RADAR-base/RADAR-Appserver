@@ -22,18 +22,20 @@
 package org.radarbase.appserver.service.fcm;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
-import org.radarbase.appserver.event.state.DataMessageStateEvent;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -41,6 +43,7 @@ import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.fcm.upstream.UpstreamMessageHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,6 +59,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
+@ConditionalOnProperty(name = "fcmserver.xmpp.upstream.enable", havingValue = "true")
 public class FcmMessageReceiverService implements UpstreamMessageHandler {
 
     // TODO: Add batching of schedule requests (The database service function is already there)
@@ -164,8 +168,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
             Map<String, String> additionalInfo = new HashMap<>();
             additionalInfo.put("error", jsonMessage.get("error").asText());
             additionalInfo.put("error_description", jsonMessage.get("error_description").asText());
-            NotificationStateEvent notificationStateEvent =
-                    new NotificationStateEvent(
+            NotificationStateEventDto notificationStateEvent =
+                    new NotificationStateEventDto(
                             this,
                             notificationService.getNotificationByMessageId(
                                     jsonMessage.get("message_id").asText()),
@@ -188,8 +192,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                 try {
                     notificationService.updateDeliveryStatus(fcmMessageId, true);
 
-                    NotificationStateEvent notificationStateEvent =
-                            new NotificationStateEvent(
+                    NotificationStateEventDto notificationStateEvent =
+                            new NotificationStateEventDto(
                                     this,
                                     notificationService.getNotificationByMessageId(
                                             jsonData.get().get("original_message_id").asText()),
@@ -200,8 +204,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                 } catch (InvalidNotificationDetailsException e) {
                     try {
                         dataMessageService.updateDeliveryStatus(fcmMessageId, true);
-                        DataMessageStateEvent dataMessageStateEvent =
-                                new DataMessageStateEvent(
+                        DataMessageStateEventDto dataMessageStateEvent =
+                                new DataMessageStateEventDto(
                                         this,
                                         dataMessageService.getDataMessageByMessageId(
                                                 jsonData.get().get("original_message_id").asText()),
@@ -284,7 +288,7 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                                 ? Instant.now()
                                 : Instant.ofEpochSecond(jsonMessage.get("enrolmentDate").asLong() / 1000L))
                 .setTimezone(jsonMessage.get("timezone") == null
-                                ? TimeZone.getDefault().getID().toString()
+                                ? TimeZone.getDefault().getID()
                                 : jsonMessage.get("timezone").asText());
     }
 

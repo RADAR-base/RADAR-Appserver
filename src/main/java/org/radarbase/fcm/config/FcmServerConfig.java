@@ -31,7 +31,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author yatharthranjan
  */
 @Data
-@ConfigurationProperties(value = "fcmserver", ignoreUnknownFields = false)
+@ConfigurationProperties(value = "fcmserver")
 public class FcmServerConfig {
 
   @JsonProperty("senderid")

@@ -46,7 +46,7 @@ public class NotificationStateEventController {
     this.notificationStateEventService = notificationStateEventService;
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping(
       value =
           "/"
@@ -62,8 +62,8 @@ public class NotificationStateEventController {
   }
 
   @Authorized(
-      permission = AuthPermissions.READ,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       value =

@@ -181,4 +181,21 @@ public abstract class MessageSchedulerService<T extends Message> {
             return MessageType.UNKNOWN;
         }
     }
+
+    protected void handleErrorCode(String errorCode) {
+        // More info on ErrorCode: https://firebase.google.com/docs/reference/fcm/rest/v1/ErrorCode
+        switch (errorCode) {
+            case "INVALID_ARGUMENT":
+            case "SENDER_ID_MISMATCH":
+            case "QUOTA_EXCEEDED":
+            case "UNAVAILABLE":
+            case "INTERNAL":
+            case "THIRD_PARTY_AUTH_ERROR":
+            case "UNSPECIFIED_ERROR":
+                break;
+            case "UNREGISTERED":
+                //TODO: remove all scheduled notifications/messages for this user.
+                break;
+        }
+    }
 }

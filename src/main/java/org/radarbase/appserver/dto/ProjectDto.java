@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.Data;
@@ -33,6 +34,7 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @author yatharthranjan
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectDto implements Serializable {
 
   private static final long serialVersionUID = 2L;
