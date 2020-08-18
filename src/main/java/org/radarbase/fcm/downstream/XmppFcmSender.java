@@ -27,6 +27,7 @@ import java.util.Map;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -41,6 +42,7 @@ import org.springframework.stereotype.Component;
  * @author yatharthranjan
  */
 @Component
+@ConditionalOnProperty(name = "fcmserver.xmpp.upstream.enable", havingValue = "true")
 public class XmppFcmSender implements CcsClient, FcmSender {
 
   private static final String XMPP_TO_FCM_DEFAULT = "devices@gcm.googleapis.com";
@@ -52,7 +54,7 @@ public class XmppFcmSender implements CcsClient, FcmSender {
 
     Map<String, Object> headers = new HashMap<>();
     headers.put(XmppHeaders.TO, XMPP_TO_FCM_DEFAULT);
-    Message outMessage =
+    Message<String> outMessage =
         MessageBuilder.createMessage(
             mapper.writerFor(message.getClass()).writeValueAsString(message),
             new MessageHeaders(headers));

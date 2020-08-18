@@ -139,6 +139,7 @@ dependencies {
 checkstyle {
     configDir file("config/checkstyle")
     toolVersion "8.20"
+    showViolations = false
 }
 
 pmd {
@@ -208,4 +209,15 @@ integrationTest {
         excludeEngines 'junit-vintage'
     }
     environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
+}
+
+test {
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+
+        error {
+            exceptionFormat "full"
+        }
+    }
 }

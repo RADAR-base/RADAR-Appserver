@@ -200,4 +200,27 @@ public class UserService {
       userRepository.save(user1);
     }
   }
+
+  public void deleteUserByProjectIdAndSubjectId(String projectId, String subjectId) {
+
+    Optional<Project> project = this.projectRepository.findByProjectId(projectId);
+    if (project.isEmpty()) {
+      throw new NotFoundException(
+          "Project Id does not exist. Cannot delete user without a valid project.");
+    }
+
+    Optional<User> user =
+        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
+
+    if (user.isEmpty()) {
+      throw new InvalidUserDetailsException(
+          "The user with specified subject ID "
+              + subjectId
+              + " does not exist in project ID "
+              + projectId
+              + ". Please specify a valid user for deleting.");
+    } else {
+      this.userRepository.deleteById(user.get().getId());
+    }
+  }
 }

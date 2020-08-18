@@ -21,21 +21,20 @@
 
 package org.radarbase.appserver.event.state;
 
+import java.time.Instant;
+import java.util.Map;
 import lombok.Getter;
 import lombok.ToString;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import java.time.Instant;
-import java.util.Map;
-
 @Getter
 @ToString
 public class NotificationStateEvent extends MessageStateEvent {
     private static final long serialVersionUID = 327842183571938L;
 
-    private Notification notification;
+    private final Notification notification;
 
     /**
      * Create a new ApplicationEvent.
