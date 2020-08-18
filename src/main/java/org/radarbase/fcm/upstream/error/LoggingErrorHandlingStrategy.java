@@ -55,7 +55,8 @@ public class LoggingErrorHandlingStrategy implements ErrorHandlingStrategy {
         connectionFactoryBean.setIsConnectionDraining(true);
         break;
       case "DEVICE_UNREGISTERED":
-        log.info("Received unknown FCM Error Code: {}", error);
+        log.info("The device was unregistered: {} -> {}", message.get("error"),
+                message.get("error_description"));
         break;
       default:
         log.info("Received unknown FCM Error Code: {}", error);
