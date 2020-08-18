@@ -34,6 +34,7 @@ import org.radarbase.fcm.config.ReconnectionEnabledXmppConnectionFactoryBean;
 import org.radarbase.fcm.downstream.XmppFcmSender;
 import org.radarbase.fcm.model.FcmAckMessage;
 import org.radarbase.fcm.upstream.error.ErrorHandlingStrategy;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component("fcmReceiver")
+@ConditionalOnProperty(name = "fcmserver.xmpp.upstream.enable", havingValue = "true")
 public class XmppFcmReceiver implements CcsClient {
 
   // TODO add support for subscribing to publisher updates added in Java 9

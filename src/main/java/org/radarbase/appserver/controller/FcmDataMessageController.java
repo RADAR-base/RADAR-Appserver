@@ -57,12 +57,12 @@ public class FcmDataMessageController {
   }
 
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH)
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   public ResponseEntity<FcmDataMessages> getAllDataMessages() {
     return ResponseEntity.ok(this.dataMessageService.getAllDataMessages());
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/{id}")
   public ResponseEntity<FcmDataMessageDto> getDataMessageUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.dataMessageService.getDataMessageById(id));
@@ -70,7 +70,7 @@ public class FcmDataMessageController {
 
   // TODO: get notifications/data messages based on other params. Maybe use projections ?
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/filtered")
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   public ResponseEntity<FcmDataMessages> getFilteredDataMessages(
       @Valid @RequestParam(value = "type", required = false) String type,
       @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
@@ -84,8 +84,8 @@ public class FcmDataMessageController {
   }
 
   @Authorized(
-      permission = AuthPermissions.READ,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       value =
@@ -106,8 +106,8 @@ public class FcmDataMessageController {
   }
 
   @Authorized(
-      permission = AuthPermissions.READ,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
@@ -122,7 +122,7 @@ public class FcmDataMessageController {
   }
 
   // TODO: Edit this as this needs to be on the Subject level.
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping(
       "/"
           + PathsUtil.USER_PATH
@@ -201,7 +201,7 @@ public class FcmDataMessageController {
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
           + PathsUtil.MESSAGING_DATA_PATH)
-  public ResponseEntity updateDataMessage(
+  public ResponseEntity<FcmDataMessageDto> updateDataMessage(
       @PathVariable String projectId,
       @PathVariable String subjectId,
       @Valid @RequestBody FcmDataMessageDto dataMessage) {

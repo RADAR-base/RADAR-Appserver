@@ -129,7 +129,7 @@ public class RadarProjectController {
     return ResponseEntity.ok(projectDto1);
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.PROJECT_PATH)
   public ResponseEntity<ProjectDtos> getAllProjects(HttpServletRequest request) {
 

@@ -23,37 +23,40 @@ package org.radarbase.appserver.event.state;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.DataMessageStateEventService;
 import org.radarbase.appserver.service.NotificationStateEventService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Slf4j
 @Component
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class MessageStateEventListener {
 
-    @Autowired
-    private transient ObjectMapper objectMapper;
-    @Autowired
-    private transient NotificationStateEventService notificationStateEventService;
-    @Autowired
-    private transient DataMessageStateEventService dataMessageStateEventService;
+    private final transient ObjectMapper objectMapper;
+    private final transient NotificationStateEventService notificationStateEventService;
+    private final transient DataMessageStateEventService dataMessageStateEventService;
+
+    public MessageStateEventListener(ObjectMapper objectMapper,
+                                     NotificationStateEventService notificationStateEventService,
+                                     DataMessageStateEventService dataMessageStateEventService) {
+        this.objectMapper = objectMapper;
+        this.notificationStateEventService = notificationStateEventService;
+        this.dataMessageStateEventService = dataMessageStateEventService;
+    }
 
 
     /**
-     * Handle an application event. Async so will return immediately.
+     * Handle an application event.
      *
      * @param event the event to respond to
      */
-    @Async
-    @EventListener(value = NotificationStateEvent.class)
-    public void onNotificationStateChange(NotificationStateEvent event) {
+    @EventListener(value = NotificationStateEventDto.class)
+    public void onNotificationStateChange(NotificationStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());
         org.radarbase.appserver.entity.NotificationStateEvent eventEntity =
@@ -62,9 +65,8 @@ public class MessageStateEventListener {
         notificationStateEventService.addNotificationStateEvent(eventEntity);
     }
 
-    @Async
-    @EventListener(value = DataMessageStateEvent.class)
-    public void onDataMessageStateChange(DataMessageStateEvent event) {
+    @EventListener(value = DataMessageStateEventDto.class)
+    public void onDataMessageStateChange(DataMessageStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getDataMessage().getId(), event.getState());
         org.radarbase.appserver.entity.DataMessageStateEvent eventEntity =

@@ -34,9 +34,9 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.event.state.DataMessageStateEvent;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.service.MessageType;
@@ -90,8 +90,8 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
                     log.warn("The notification does not exist in database and yet was scheduled.");
                     return;
                 }
-                NotificationStateEvent notificationStateEvent =
-                        new NotificationStateEvent(
+                NotificationStateEventDto notificationStateEvent =
+                        new NotificationStateEventDto(
                                 this, notification.get(), MessageState.SCHEDULED, null, Instant.now());
                 messageStateEventPublisher.publishEvent(notificationStateEvent);
                 break;
@@ -102,8 +102,8 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
                     log.warn("The data message does not exist in database and yet was scheduled.");
                     return;
                 }
-                DataMessageStateEvent dataMessageStateEvent =
-                        new DataMessageStateEvent(
+                DataMessageStateEventDto dataMessageStateEvent =
+                        new DataMessageStateEventDto(
                                 this, dataMessage.get(), MessageState.SCHEDULED, null, Instant.now());
                 messageStateEventPublisher.publishEvent(dataMessageStateEvent);
                 break;
@@ -135,8 +135,8 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
             log.warn("The notification does not exist in database and yet was unscheduled.");
             return;
         }
-        NotificationStateEvent notificationStateEvent =
-                new NotificationStateEvent(
+        NotificationStateEventDto notificationStateEvent =
+                new NotificationStateEventDto(
                         this, notification.get(), MessageState.CANCELLED, null, Instant.now());
         messageStateEventPublisher.publishEvent(notificationStateEvent);
     }

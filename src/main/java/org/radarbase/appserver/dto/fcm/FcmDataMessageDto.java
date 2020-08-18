@@ -21,6 +21,14 @@
 
 package org.radarbase.appserver.dto.fcm;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -28,20 +36,13 @@ import org.radarbase.appserver.entity.DataMessage;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-
 /**
  * @author yatharthranjan
  */
 @Getter
 @ToString
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FcmDataMessageDto implements Serializable {
 
     private static final long serialVersionUID = 3L;

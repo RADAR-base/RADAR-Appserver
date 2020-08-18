@@ -36,6 +36,7 @@ import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.UserService;
 import org.radarcns.auth.token.RadarToken;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,8 +60,8 @@ import radar.spring.auth.exception.AuthorizationFailedException;
 @RestController
 public class RadarUserController {
 
-  private transient UserService userService;
-  private transient Authorization<RadarToken> authorization;
+  private final transient UserService userService;
+  private final transient Authorization<RadarToken> authorization;
 
   public RadarUserController(
       UserService userService, Optional<Authorization<RadarToken>> authorization) {
@@ -76,7 +77,7 @@ public class RadarUserController {
           + PathsUtil.PROJECT_ID_CONSTANT
           + "/"
           + PathsUtil.USER_PATH)
-  public ResponseEntity addUserToProject(
+  public ResponseEntity<FcmUserDto> addUserToProject(
       HttpServletRequest request,
       @Valid @RequestBody FcmUserDto userDto,
       @Valid @PathVariable String projectId)
@@ -109,8 +110,8 @@ public class RadarUserController {
   }
 
   @Authorized(
-      permission = AuthPermissions.UPDATE,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
@@ -121,7 +122,7 @@ public class RadarUserController {
           + PathsUtil.USER_PATH
           + "/"
           + PathsUtil.SUBJECT_ID_CONSTANT)
-  public ResponseEntity updateUserInProject(
+  public ResponseEntity<FcmUserDto> updateUserInProject(
       @Valid @RequestBody FcmUserDto userDto,
       @Valid @PathVariable String subjectId,
       @Valid @PathVariable String projectId) {
@@ -131,7 +132,7 @@ public class RadarUserController {
     return ResponseEntity.ok(user);
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.USER_PATH)
   public ResponseEntity<FcmUsers> getAllRadarUsers(HttpServletRequest request) {
     FcmUsers users = this.userService.getAllRadarUsers();
@@ -158,7 +159,7 @@ public class RadarUserController {
     }
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/user")
   public ResponseEntity<FcmUserDto> getRadarUserUsingId(
       HttpServletRequest request, @PathParam("id") Long id) {
@@ -170,7 +171,7 @@ public class RadarUserController {
     return getFcmUserDtoResponseEntity(request, userDto);
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT)
   public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
       HttpServletRequest request, @PathVariable String subjectId) {
@@ -202,8 +203,8 @@ public class RadarUserController {
   }
 
   @Authorized(
-      permission = AuthPermissions.READ,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
@@ -234,5 +235,24 @@ public class RadarUserController {
 
     return ResponseEntity.ok(
         this.userService.getUsersByProjectIdAndSubjectId(projectId, subjectId));
+  }
+
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
+  @DeleteMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH
+          + "/"
+          + PathsUtil.SUBJECT_ID_CONSTANT)
+  public ResponseEntity<Object> deleteUserUsingProjectIdAndSubjectId(
+      @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
+    this.userService.deleteUserByProjectIdAndSubjectId(projectId, subjectId);
+    return ResponseEntity.ok().build();
   }
 }
