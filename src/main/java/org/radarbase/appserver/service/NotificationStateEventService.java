@@ -138,8 +138,8 @@ public class NotificationStateEventService {
             }
         }
 
-        org.radarbase.appserver.event.state.NotificationStateEventDto stateEvent =
-                new org.radarbase.appserver.event.state.NotificationStateEventDto(
+        org.radarbase.appserver.event.state.dto.NotificationStateEventDto stateEvent =
+                new org.radarbase.appserver.event.state.dto.NotificationStateEventDto(
                         this,
                         notification,
                         notificationStateEventDto.getState(),

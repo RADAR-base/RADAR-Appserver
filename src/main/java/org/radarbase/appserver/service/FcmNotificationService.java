@@ -35,7 +35,7 @@ import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;

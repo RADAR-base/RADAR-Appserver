@@ -19,12 +19,13 @@
  *
  */
 
-package org.radarbase.appserver.event.state;
+package org.radarbase.appserver.event.state.dto;
 
 import java.time.Instant;
 import java.util.Map;
 import lombok.Getter;
 import lombok.ToString;
+import org.radarbase.appserver.event.state.MessageState;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;

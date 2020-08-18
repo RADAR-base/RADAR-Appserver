@@ -138,8 +138,8 @@ public class DataMessageStateEventService {
             }
         }
 
-        org.radarbase.appserver.event.state.DataMessageStateEventDto stateEvent =
-                new org.radarbase.appserver.event.state.DataMessageStateEventDto(
+        org.radarbase.appserver.event.state.dto.DataMessageStateEventDto stateEvent =
+                new org.radarbase.appserver.event.state.dto.DataMessageStateEventDto(
                         this,
                         dataMessage,
                         dataMessageStateEventDto.getState(),

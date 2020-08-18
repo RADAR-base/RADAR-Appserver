@@ -25,6 +25,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.DataMessageStateEventService;
 import org.radarbase.appserver.service.NotificationStateEventService;
 import org.springframework.context.event.EventListener;
@@ -49,7 +51,7 @@ public class MessageStateEventListener {
 
 
     /**
-     * Handle an application event. Async so will return immediately.
+     * Handle an application event.
      *
      * @param event the event to respond to
      */
