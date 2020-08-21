@@ -87,8 +87,7 @@ dependencies {
     compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
     compile(group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion)
 
-
-    // Swagger
+    // Open API spec
     compile(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
     compile 'org.scala-lang:scala-library:2.13.1'

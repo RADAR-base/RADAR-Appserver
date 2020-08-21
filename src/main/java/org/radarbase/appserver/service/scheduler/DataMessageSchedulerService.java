@@ -74,6 +74,7 @@ public class DataMessageSchedulerService extends MessageSchedulerService<DataMes
             log.error("Error occurred when sending downstream message.", exc);
             // TODO: update the data message status using event
             handleErrorCode(exc.getErrorCode());
+            handleFCMErrorCode(exc.getMessagingErrorCode());
         }
     }
 }

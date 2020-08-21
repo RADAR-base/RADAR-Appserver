@@ -21,6 +21,8 @@
 
 package org.radarbase.appserver.service.scheduler;
 
+import com.google.firebase.ErrorCode;
+import com.google.firebase.messaging.MessagingErrorCode;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -182,19 +184,40 @@ public abstract class MessageSchedulerService<T extends Message> {
         }
     }
 
-    protected void handleErrorCode(String errorCode) {
+    protected void handleErrorCode(ErrorCode errorCode) {
         // More info on ErrorCode: https://firebase.google.com/docs/reference/fcm/rest/v1/ErrorCode
         switch (errorCode) {
-            case "INVALID_ARGUMENT":
-            case "SENDER_ID_MISMATCH":
-            case "QUOTA_EXCEEDED":
-            case "UNAVAILABLE":
-            case "INTERNAL":
-            case "THIRD_PARTY_AUTH_ERROR":
-            case "UNSPECIFIED_ERROR":
+            case INVALID_ARGUMENT:
+            case INTERNAL:
+            case UNAVAILABLE:
+            case ABORTED:
+            case CONFLICT:
+            case CANCELLED:
+            case DATA_LOSS:
+            case NOT_FOUND:
+            case OUT_OF_RANGE:
+            case ALREADY_EXISTS:
+            case DEADLINE_EXCEEDED:
+            case PERMISSION_DENIED:
+            case RESOURCE_EXHAUSTED:
+            case FAILED_PRECONDITION:
+            case UNAUTHENTICATED:
+            case UNKNOWN:
                 break;
-            case "UNREGISTERED":
+
+        }
+    }
+
+    protected void handleFCMErrorCode(MessagingErrorCode errorCode) {
+        switch (errorCode) {
+            case INTERNAL:
+            case UNAVAILABLE:
+            case UNREGISTERED:
                 //TODO: remove all scheduled notifications/messages for this user.
+            case QUOTA_EXCEEDED:
+            case INVALID_ARGUMENT:
+            case SENDER_ID_MISMATCH:
+            case THIRD_PARTY_AUTH_ERROR:
                 break;
         }
     }

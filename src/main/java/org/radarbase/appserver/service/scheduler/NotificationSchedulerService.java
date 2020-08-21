@@ -99,6 +99,7 @@ public class NotificationSchedulerService extends MessageSchedulerService<Notifi
             log.error("Error occurred when sending downstream message.", exc);
             // TODO: update the notification status using event
             handleErrorCode(exc.getErrorCode());
+            handleFCMErrorCode(exc.getMessagingErrorCode());
         }
     }
 }
