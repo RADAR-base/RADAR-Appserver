@@ -217,19 +217,6 @@ public class FcmNotificationControllerTest {
   }
 
   @Test
-  void getNotificationsUsingSubjectId() throws Exception {
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                URI.create("/" + PathsUtil.USER_PATH + "/" + USER_ID + "/"
-                    + PathsUtil.MESSAGING_NOTIFICATION_PATH)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(1)))
-        .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_1)))
-        .andExpect(jsonPath(NOTIFICATION_FCMID_JSON_PATH, is(FCM_MESSAGE_ID)));
-  }
-
-  @Test
   void addSingleNotification() throws Exception {
 
     FcmNotificationDto notificationDto2 =

@@ -56,19 +56,19 @@ public class FcmNotificationController {
     this.notificationService = notificationService;
   }
 
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH)
   public ResponseEntity<FcmNotifications> getAllNotifications() {
     return ResponseEntity.ok(this.notificationService.getAllNotifications());
   }
 
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/{id}")
   public ResponseEntity<FcmNotificationDto> getNotificationUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.notificationService.getNotificationById(id));
   }
   // TODO: get notifications based on other params. Maybe use projections ?
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/filtered")
   public ResponseEntity<FcmNotifications> getFilteredNotifications(
       @Valid @RequestParam(value = "type", required = false) String type,
@@ -83,8 +83,8 @@ public class FcmNotificationController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       value =
@@ -105,8 +105,8 @@ public class FcmNotificationController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
@@ -120,23 +120,9 @@ public class FcmNotificationController {
     return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId));
   }
 
-  // TODO: Edit this as this needs to be on the Subject level.
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
-  @GetMapping(
-      "/"
-          + PathsUtil.USER_PATH
-          + "/"
-          + PathsUtil.SUBJECT_ID_CONSTANT
-          + "/"
-          + PathsUtil.MESSAGING_NOTIFICATION_PATH)
-  public ResponseEntity<FcmNotifications> getNotificationsUsingSubjectId(
-      @Valid @PathVariable String subjectId) {
-    return ResponseEntity.ok(this.notificationService.getNotificationsBySubjectId(subjectId));
-  }
-
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
@@ -162,8 +148,8 @@ public class FcmNotificationController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
@@ -186,8 +172,8 @@ public class FcmNotificationController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
@@ -210,8 +196,8 @@ public class FcmNotificationController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
@@ -232,8 +218,8 @@ public class FcmNotificationController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"

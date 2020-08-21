@@ -189,7 +189,6 @@ public abstract class MessageSchedulerService<T extends Message> {
         switch (errorCode) {
             case INVALID_ARGUMENT:
             case INTERNAL:
-            case UNAVAILABLE:
             case ABORTED:
             case CONFLICT:
             case CANCELLED:
@@ -204,6 +203,10 @@ public abstract class MessageSchedulerService<T extends Message> {
             case UNAUTHENTICATED:
             case UNKNOWN:
                 break;
+            case UNAVAILABLE:
+                // TODO: Could schedule for retry.
+                log.warn("The FCM service is unavailable.");
+                break;
 
         }
     }
@@ -211,13 +214,18 @@ public abstract class MessageSchedulerService<T extends Message> {
     protected void handleFCMErrorCode(MessagingErrorCode errorCode) {
         switch (errorCode) {
             case INTERNAL:
-            case UNAVAILABLE:
-            case UNREGISTERED:
-                //TODO: remove all scheduled notifications/messages for this user.
             case QUOTA_EXCEEDED:
             case INVALID_ARGUMENT:
             case SENDER_ID_MISMATCH:
             case THIRD_PARTY_AUTH_ERROR:
+                break;
+            case UNAVAILABLE:
+                // TODO: Could schedule for retry.
+                log.warn("The FCM service is unavailable.");
+                break;
+            case UNREGISTERED:
+                //TODO: remove all scheduled notifications/messages for this user.
+                log.warn("The Device was unregistered.");
                 break;
         }
     }
