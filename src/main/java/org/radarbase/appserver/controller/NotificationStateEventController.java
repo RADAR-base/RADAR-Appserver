@@ -22,27 +22,35 @@
 package org.radarbase.appserver.controller;
 
 import java.util.List;
+import javax.naming.SizeLimitExceededException;
+import org.radarbase.appserver.config.AuthConfig.AuthEntities;
+import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.NotificationStateEventService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import radar.spring.auth.common.Authorized;
+import radar.spring.auth.common.PermissionOn;
 
 @RestController
 public class NotificationStateEventController {
 
-  @Autowired private transient NotificationStateEventService notificationStateEventService;
+  private final transient NotificationStateEventService notificationStateEventService;
 
-  @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
+  public NotificationStateEventController(
+      NotificationStateEventService notificationStateEventService) {
+    this.notificationStateEventService = notificationStateEventService;
+  }
+
+  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
   @GetMapping(
       value =
           "/"
-              + PathsUtil.NOTIFICATION_PATH
+              + PathsUtil.MESSAGING_NOTIFICATION_PATH
               + "/"
               + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
@@ -53,14 +61,10 @@ public class NotificationStateEventController {
         notificationStateEventService.getNotificationStateEventsByNotificationId(notificationId));
   }
 
-  @PreAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_READ, "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.PROJECT_ID
-          + ", "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.SUBJECT_ID
-          + ")")
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       value =
           "/"
@@ -72,7 +76,7 @@ public class NotificationStateEventController {
               + "/"
               + PathsUtil.SUBJECT_ID_CONSTANT
               + "/"
-              + PathsUtil.NOTIFICATION_PATH
+              + PathsUtil.MESSAGING_NOTIFICATION_PATH
               + "/"
               + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
@@ -86,14 +90,10 @@ public class NotificationStateEventController {
             projectId, subjectId, notificationId));
   }
 
-  @PreAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.PROJECT_ID
-          + ", "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.SUBJECT_ID
-          + ")")
+  @Authorized(
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
+      permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       value =
           "/"
@@ -105,7 +105,7 @@ public class NotificationStateEventController {
               + "/"
               + PathsUtil.SUBJECT_ID_CONSTANT
               + "/"
-              + PathsUtil.NOTIFICATION_PATH
+              + PathsUtil.MESSAGING_NOTIFICATION_PATH
               + "/"
               + PathsUtil.NOTIFICATION_ID_CONSTANT
               + "/"
@@ -114,7 +114,8 @@ public class NotificationStateEventController {
       @PathVariable String projectId,
       @PathVariable String subjectId,
       @PathVariable long notificationId,
-      @RequestBody NotificationStateEventDto notificationStateEventDto) {
+      @RequestBody NotificationStateEventDto notificationStateEventDto)
+      throws SizeLimitExceededException {
 
     notificationStateEventService.publishNotificationStateEventExternal(
         projectId, subjectId, notificationId, notificationStateEventDto);

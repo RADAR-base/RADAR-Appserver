@@ -31,11 +31,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.fcm.common.CcsClient;
 import org.radarbase.fcm.config.ReconnectionEnabledXmppConnectionFactoryBean;
-import org.radarbase.fcm.downstream.FcmSender;
+import org.radarbase.fcm.downstream.XmppFcmSender;
 import org.radarbase.fcm.model.FcmAckMessage;
 import org.radarbase.fcm.upstream.error.ErrorHandlingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -49,21 +48,33 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component("fcmReceiver")
+@ConditionalOnProperty(name = "fcmserver.xmpp.upstream.enable", havingValue = "true")
 public class XmppFcmReceiver implements CcsClient {
 
   // TODO add support for subscribing to publisher updates added in Java 9
 
-  @Autowired private transient UpstreamMessageHandler messageHandler;
+  private final transient UpstreamMessageHandler messageHandler;
 
-  @Autowired private transient ObjectMapper mapper;
+  private final transient ObjectMapper mapper;
 
-  @Autowired private transient ErrorHandlingStrategy errorHandlingStrategy;
+  private final transient ErrorHandlingStrategy errorHandlingStrategy;
+  private final transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+  // We need to use an Xmpp sender here as we need to send ACK messages back to FCM server which is
+  // not possible with Admin SDK.
+  private transient XmppFcmSender fcmSender;
 
-  @Autowired
-  @Qualifier("fcmSenderProps")
-  private transient FcmSender fcmSender;
-
-  @Autowired private transient ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean;
+  public XmppFcmReceiver(
+      UpstreamMessageHandler messageHandler,
+      ObjectMapper mapper,
+      ErrorHandlingStrategy errorHandlingStrategy,
+      ReconnectionEnabledXmppConnectionFactoryBean connectionFactoryBean,
+      XmppFcmSender xmppFcmSender) {
+    this.messageHandler = messageHandler;
+    this.mapper = mapper;
+    this.errorHandlingStrategy = errorHandlingStrategy;
+    this.connectionFactoryBean = connectionFactoryBean;
+    this.fcmSender = xmppFcmSender;
+  }
 
   public void handleIncomingMessage(Message<String> message) throws Exception {
     log.debug("Header = " + message.getHeaders());
@@ -106,6 +117,7 @@ public class XmppFcmReceiver implements CcsClient {
         messageHandler.handleNackReceipt(tree);
         break;
       case RECEIPT:
+        // NOTE: FCM has stopped sending delivery receipts so this is never run.
         messageHandler.handleStatusReceipt(tree);
         break;
       case CONTROL:

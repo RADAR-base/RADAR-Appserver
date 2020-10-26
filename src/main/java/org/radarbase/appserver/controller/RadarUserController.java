@@ -23,22 +23,31 @@ package org.radarbase.appserver.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
+import org.radarbase.appserver.config.AuthConfig.AuthEntities;
+import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.radarcns.auth.token.RadarToken;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import radar.spring.auth.common.AuthAspect;
+import radar.spring.auth.common.Authorization;
+import radar.spring.auth.common.Authorized;
+import radar.spring.auth.common.PermissionOn;
+import radar.spring.auth.exception.AuthorizationFailedException;
 
 /**
  * Resource Endpoint for getting and adding users. Each notification {@link
@@ -51,32 +60,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RadarUserController {
 
-  @Autowired private transient UserService userService;
+  private final transient UserService userService;
+  private final transient Authorization<RadarToken> authorization;
 
-  @PreAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstantsUtil.ACCESSOR
-          + "userDto.getProjectId()"
-          + ", "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
-          + ")")
-  @PostMapping("/users")
-  public ResponseEntity<FcmUserDto> addUser(@Valid @RequestBody FcmUserDto userDto)
-      throws URISyntaxException {
-
-    FcmUserDto user = this.userService.saveUserInProject(userDto);
-    return ResponseEntity.created(new URI("/users/user?id=" + user.getId())).body(user);
+  public RadarUserController(
+      UserService userService, Optional<Authorization<RadarToken>> authorization) {
+    this.userService = userService;
+    this.authorization = authorization.orElse(null);
   }
 
-  @PreAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.PROJECT_ID
-          + ", "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
-          + ")")
+  @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)
   @PostMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -84,88 +77,135 @@ public class RadarUserController {
           + PathsUtil.PROJECT_ID_CONSTANT
           + "/"
           + PathsUtil.USER_PATH)
-  public ResponseEntity addUserToProject(
-      @Valid @RequestBody FcmUserDto userDto, @Valid @PathVariable String projectId)
+  public ResponseEntity<FcmUserDto> addUserToProject(
+      HttpServletRequest request,
+      @Valid @RequestBody FcmUserDto userDto,
+      @Valid @PathVariable String projectId)
       throws URISyntaxException {
     userDto.setProjectId(projectId);
-    FcmUserDto user = this.userService.saveUserInProject(userDto);
-    return ResponseEntity.created(new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
-        .body(user);
+
+    if (authorization != null) {
+      RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
+      if (authorization.hasPermission(
+          token,
+          AuthPermissions.UPDATE,
+          AuthEntities.SUBJECT,
+          PermissionOn.SUBJECT,
+          projectId,
+          userDto.getSubjectId(),
+          null)) {
+        FcmUserDto user = this.userService.saveUserInProject(userDto);
+        return ResponseEntity.created(
+                new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
+            .body(user);
+      } else {
+        throw new AuthorizationFailedException(
+            "The provided token does not have enough privileges.");
+      }
+    } else {
+      FcmUserDto user = this.userService.saveUserInProject(userDto);
+      return ResponseEntity.created(new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
+          .body(user);
+    }
   }
 
-  @PreAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_SUBJECT_MEASUREMENT_CREATE
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.PROJECT_ID
-          + ", "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
-          + ")")
+  @Authorized(
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
           + PathsUtil.PROJECT_PATH
           + "/"
           + PathsUtil.PROJECT_ID_CONSTANT
           + "/"
-          + PathsUtil.USER_PATH)
-  public ResponseEntity updateUserInProject(
-      @Valid @RequestBody FcmUserDto userDto, @Valid @PathVariable String projectId)
-      throws URISyntaxException {
+          + PathsUtil.USER_PATH
+          + "/"
+          + PathsUtil.SUBJECT_ID_CONSTANT)
+  public ResponseEntity<FcmUserDto> updateUserInProject(
+      @Valid @RequestBody FcmUserDto userDto,
+      @Valid @PathVariable String subjectId,
+      @Valid @PathVariable String projectId) {
+    userDto.setSubjectId(subjectId);
     userDto.setProjectId(projectId);
     FcmUserDto user = this.userService.updateUser(userDto);
     return ResponseEntity.ok(user);
   }
 
-  @PreAuthorize(
-      "hasPermissionOnSubject(T(org.radarcns.auth.authorization.Permission).SUBJECT_UPDATE, "
-          + AuthConstantsUtil.ACCESSOR
-          + "userDto.getProjectId()"
-          + ", "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.USER_DTO_SUBJECT_ID
-          + ")")
-  @PutMapping("/" + PathsUtil.USER_PATH)
-  public ResponseEntity updateUser(@Valid @RequestBody FcmUserDto userDto) {
-    FcmUserDto user = this.userService.updateUser(userDto);
-    return ResponseEntity.ok(user);
-  }
-
-  @PreAuthorize(AuthConstantsUtil.IS_ADMIN)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.USER_PATH)
-  public ResponseEntity<FcmUsers> getAllRadarUsers() {
-    return ResponseEntity.ok(this.userService.getAllRadarUsers());
+  public ResponseEntity<FcmUsers> getAllRadarUsers(HttpServletRequest request) {
+    FcmUsers users = this.userService.getAllRadarUsers();
+    if (authorization != null) {
+      // Filter the users based on access.
+      FcmUsers usersFinal =
+          new FcmUsers()
+              .setUsers(
+                  users.getUsers().stream()
+                      .filter(
+                          user ->
+                              authorization.hasPermission(
+                                  (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY),
+                                  AuthPermissions.READ,
+                                  AuthEntities.SUBJECT,
+                                  PermissionOn.SUBJECT,
+                                  user.getProjectId(),
+                                  user.getSubjectId(),
+                                  null))
+                      .collect(Collectors.toList()));
+      return ResponseEntity.ok(usersFinal);
+    } else {
+      return ResponseEntity.ok(users);
+    }
   }
 
-  @PostAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_SUBJECT_SUBJECT_READ
-          + "returnObject.body.getProjectId()"
-          + ", "
-          + "returnObject.body.getSubjectId()"
-          + ")")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/user")
-  public ResponseEntity<FcmUserDto> getRadarUserUsingId(@PathParam("id") Long id) {
+  public ResponseEntity<FcmUserDto> getRadarUserUsingId(
+      HttpServletRequest request, @PathParam("id") Long id) {
     if (id == null) {
       throw new InvalidUserDetailsException("The given id must not be null!");
     }
-    return ResponseEntity.ok(this.userService.getUserById(id));
+
+    FcmUserDto userDto = this.userService.getUserById(id);
+    return getFcmUserDtoResponseEntity(request, userDto);
   }
 
-  @PostAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_SUBJECT_SUBJECT_READ
-          + "returnObject.body.getProjectId()"
-          + ", "
-          + "returnObject.body.getSubjectId()"
-          + ")")
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT)
-  public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(@PathVariable String subjectId) {
-    return ResponseEntity.ok(this.userService.getUserBySubjectId(subjectId));
+  public ResponseEntity<FcmUserDto> getRadarUserUsingSubjectId(
+      HttpServletRequest request, @PathVariable String subjectId) {
+    FcmUserDto userDto = this.userService.getUserBySubjectId(subjectId);
+
+    return getFcmUserDtoResponseEntity(request, userDto);
   }
 
-  @PreAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_PROJECT_SUBJECT_READ
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.PROJECT_ID
-          + ")")
+  private ResponseEntity<FcmUserDto> getFcmUserDtoResponseEntity(
+      HttpServletRequest request, FcmUserDto userDto) {
+    if (authorization != null) {
+      RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
+      if (authorization.hasPermission(
+          token,
+          AuthPermissions.READ,
+          AuthEntities.SUBJECT,
+          PermissionOn.SUBJECT,
+          userDto.getProjectId(),
+          userDto.getSubjectId(),
+          null)) {
+        return ResponseEntity.ok(userDto);
+      } else {
+        throw new AuthorizationFailedException(
+            "The provided token does not have enough privileges.");
+      }
+    } else {
+      return ResponseEntity.ok(userDto);
+    }
+  }
+
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.PROJECT)
   @GetMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -177,14 +217,10 @@ public class RadarUserController {
     return ResponseEntity.ok(this.userService.getUsersByProjectId(projectId));
   }
 
-  @PreAuthorize(
-      AuthConstantsUtil.PERMISSION_ON_SUBJECT_SUBJECT_READ
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.PROJECT_ID
-          + ", "
-          + AuthConstantsUtil.ACCESSOR
-          + AuthConstantsUtil.SUBJECT_ID
-          + ")")
+  @Authorized(
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
   @GetMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -199,5 +235,24 @@ public class RadarUserController {
 
     return ResponseEntity.ok(
         this.userService.getUsersByProjectIdAndSubjectId(projectId, subjectId));
+  }
+
+  @Authorized(
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
+  @DeleteMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH
+          + "/"
+          + PathsUtil.SUBJECT_ID_CONSTANT)
+  public ResponseEntity<Object> deleteUserUsingProjectIdAndSubjectId(
+      @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
+    this.userService.deleteUserByProjectIdAndSubjectId(projectId, subjectId);
+    return ResponseEntity.ok().build();
   }
 }

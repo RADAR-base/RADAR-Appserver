@@ -57,7 +57,6 @@ public class UserEndpointAuthTest {
   public static final String DEFAULT_PROJECT = "/radar";
   private static final HttpHeaders HEADERS = new HttpHeaders();
   private static HttpHeaders AUTH_HEADER;
-  private static OAuthHelper oAuthHelper;
   private static TestRestTemplate restTemplate = new TestRestTemplate();
   private final transient FcmUserDto userDto =
       new FcmUserDto()
@@ -65,12 +64,13 @@ public class UserEndpointAuthTest {
           .setLanguage("en")
           .setEnrolmentDate(Instant.now())
           .setFcmToken("xxx")
-          .setSubjectId("sub-1");
+          .setSubjectId("sub-1")
+          .setTimezone("Europe/London");
   @LocalServerPort private transient int port;
 
   @BeforeAll
   static void init() {
-    oAuthHelper = new MPOAuthHelper();
+    OAuthHelper oAuthHelper = new MPOAuthHelper();
     AUTH_HEADER = new HttpHeaders();
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
   }
@@ -192,13 +192,14 @@ public class UserEndpointAuthTest {
 
   @Test
   @Order(5)
-  public void forbiddenViewAllUsers() {
+  public void viewAllUsers() {
     HttpEntity<FcmUsers> userDtoHttpEntity = new HttpEntity<>(null, AUTH_HEADER);
 
     ResponseEntity<FcmUsers> responseEntity =
         restTemplate.exchange(
             createURLWithPort(port, USER_PATH), HttpMethod.GET, userDtoHttpEntity, FcmUsers.class);
 
-    assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+    // This should return a filtered list of users for which the token has access.
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
 }

@@ -59,6 +59,12 @@
       "defaultValue": 5235
     },
     {
+      "name": "fcmserver.xmpp.upstream.enable",
+      "type": "java.lang.Boolean",
+      "description": "Specifies whether to enable upstream/inbound XMPP. This is also required to be true if XmppFcmSender is to be used",
+      "default": true
+    },
+    {
       "name": "managementportal.security.enabled",
       "type": "java.lang.Boolean",
       "description": "To enable OAuth 2 security using management portal as the Authorisation Server.",

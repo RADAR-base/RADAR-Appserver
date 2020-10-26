@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.dto.fcm;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
 import javax.validation.constraints.NotEmpty;
@@ -37,6 +38,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @EqualsAndHashCode
 @ToString
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FcmUserDto implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -67,8 +69,9 @@ public class FcmUserDto implements Serializable {
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant enrolmentDate;
 
-  // Timezone offset of the user in seconds
-  @NotNull private double timezone;
+  // Timezone of the user based on tz database names
+  @NotNull
+  private String timezone;
 
   private String fcmToken;
 
@@ -139,7 +142,7 @@ public class FcmUserDto implements Serializable {
     return this;
   }
 
-  public FcmUserDto setTimezone(double timezone) {
+  public FcmUserDto setTimezone(String timezone) {
     this.timezone = timezone;
     return this;
   }

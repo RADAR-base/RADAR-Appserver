@@ -25,10 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.time.Duration;
 import java.time.Instant;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,46 +47,53 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 public class FcmMessageReceiverTest {
 
-  @Qualifier("getMessageReceiver")
-  @Autowired
-  private transient FcmMessageReceiverService messageReceiverService;
+    @Qualifier("getMessageReceiver")
+    @Autowired
+    private transient FcmMessageReceiverService messageReceiverService;
 
-  @Test
-  public void checkScheduleNotificationRequest() {
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectNode rootNode = mapper.createObjectNode();
+    @Test
+    public void checkScheduleNotificationRequest() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode rootNode = mapper.createObjectNode();
 
-    rootNode.put("from", "xyz");
+        rootNode.put("from", "xyz");
 
-    ObjectNode data = mapper.createObjectNode();
-    data.put("action", "SCHEDULE");
-    data.put("projectId", "radar");
-    data.put("notificationTitle", "title");
-    data.put("notificationMessage", "body");
-    data.put("time", Instant.now().plus(Duration.ofHours(1)).toEpochMilli());
+        ObjectNode data = mapper.createObjectNode();
+        data.put("action", "SCHEDULE");
+        data.put("projectId", "radar");
+        data.put("notificationTitle", "title");
+        data.put("notificationMessage", "body");
+        data.put("time", Instant.now().plus(Duration.ofHours(1)).toEpochMilli());
 
-    rootNode.set("data", data);
+        rootNode.set("data", data);
 
-    // String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
+        // String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
 
-    assertDoesNotThrow(() -> messageReceiverService.handleUpstreamMessage(rootNode));
-  }
-
-  @TestConfiguration
-  public static class MessageReceiverConfig {
-
-    @MockBean private transient FcmNotificationService notificationService;
-    @MockBean private transient UserService userService;
-    @Autowired private transient ApplicationEventPublisher notificationStateEventPublisher;
-    @MockBean private transient ScheduleNotificationHandler scheduleNotificationHandler;
-
-    @Bean
-    public FcmMessageReceiverService getMessageReceiver() {
-      return new FcmMessageReceiverService(
-          notificationService,
-          userService,
-          notificationStateEventPublisher,
-          scheduleNotificationHandler);
+        assertDoesNotThrow(() -> messageReceiverService.handleUpstreamMessage(rootNode));
     }
-  }
+
+    @TestConfiguration
+    public static class MessageReceiverConfig {
+
+        @MockBean
+        private transient FcmNotificationService notificationService;
+        @MockBean
+        private transient FcmDataMessageService dataMessageService;
+        @MockBean
+        private transient UserService userService;
+        @Autowired
+        private transient ApplicationEventPublisher notificationStateEventPublisher;
+        @MockBean
+        private transient ScheduleNotificationHandler scheduleNotificationHandler;
+
+        @Bean
+        public FcmMessageReceiverService getMessageReceiver() {
+            return new FcmMessageReceiverService(
+                    notificationService,
+                    dataMessageService,
+                    userService,
+                    notificationStateEventPublisher,
+                    scheduleNotificationHandler);
+        }
+    }
 }

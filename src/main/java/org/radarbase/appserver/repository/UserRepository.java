@@ -23,12 +23,15 @@ package org.radarbase.appserver.repository;
 
 import java.util.List;
 import java.util.Optional;
+import javax.validation.constraints.NotNull;
 import org.radarbase.appserver.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
 /** @author yatharthranjan */
 @Repository
+@RepositoryRestResource(exported = false)
 public interface UserRepository extends JpaRepository<User, Long> {
 
   Optional<User> findBySubjectId(String subjectId);
@@ -38,4 +41,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findBySubjectIdAndProjectId(String subjectId, Long projectId);
 
   Optional<User> findByFcmToken(String fcmToken);
+
+  void deleteById(@NotNull Long id);
 }

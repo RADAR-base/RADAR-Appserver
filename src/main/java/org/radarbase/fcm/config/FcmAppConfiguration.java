@@ -29,8 +29,8 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.gcm.provider.GcmExtensionProvider;
 import org.jivesoftware.smackx.ping.PingFailedListener;
 import org.jivesoftware.smackx.ping.PingManager;
-import org.radarbase.fcm.downstream.FcmSender;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +45,7 @@ import org.springframework.integration.config.EnableIntegration;
  */
 @Configuration
 @EnableIntegration
+@ConditionalOnProperty(name = "fcmserver.xmpp.upstream.enable", havingValue = "true")
 @ImportResource({"classpath:inbound-xmpp.xml", "classpath:outbound-xmpp.xml"})
 @Slf4j
 public class FcmAppConfiguration implements PingFailedListener {
@@ -95,14 +96,6 @@ public class FcmAppConfiguration implements PingFailedListener {
     final PingManager pingManager = PingManager.getInstanceFor(connectionFactoryBean.getObject());
     pingManager.setPingInterval(100);
     pingManager.registerPingFailedListener(this);
-  }
-
-  @Bean("fcmSenderProps")
-  @SuppressWarnings("unchecked")
-  public FcmSender getFcmSender() throws Exception {
-    Class<? extends FcmSender> senderClass =
-        (Class<? extends FcmSender>) Class.forName(fcmServerConfig.getFcmsender());
-    return senderClass.getConstructor().newInstance();
   }
 
   @Override
