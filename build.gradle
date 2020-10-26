@@ -81,7 +81,7 @@ dependencies {
     implementation(group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion)
 
     // Fix potential vulnerabilities
-    compile(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.4.0.RELEASE')
+    compile(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.0.RELEASE')
 
     // XMPP
     compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
@@ -90,13 +90,13 @@ dependencies {
     // Open API spec
     compile(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
-    compile 'org.scala-lang:scala-library:2.13.1'
+    compile 'org.scala-lang:scala-library:2.13.3'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
     runtime('com.h2database:h2:1.4.200')
-    runtime(group: 'org.postgresql', name: 'postgresql', version: '42.2.11')
+    runtime(group: 'org.postgresql', name: 'postgresql', version: '42.2.15')
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     compile group: 'org.projectlombok', name: 'lombok', version: lombokVersion
