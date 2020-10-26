@@ -33,9 +33,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
-import org.radarbase.appserver.event.state.DataMessageStateEvent;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -168,8 +168,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
             Map<String, String> additionalInfo = new HashMap<>();
             additionalInfo.put("error", jsonMessage.get("error").asText());
             additionalInfo.put("error_description", jsonMessage.get("error_description").asText());
-            NotificationStateEvent notificationStateEvent =
-                    new NotificationStateEvent(
+            NotificationStateEventDto notificationStateEvent =
+                    new NotificationStateEventDto(
                             this,
                             notificationService.getNotificationByMessageId(
                                     jsonMessage.get("message_id").asText()),
@@ -192,8 +192,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                 try {
                     notificationService.updateDeliveryStatus(fcmMessageId, true);
 
-                    NotificationStateEvent notificationStateEvent =
-                            new NotificationStateEvent(
+                    NotificationStateEventDto notificationStateEvent =
+                            new NotificationStateEventDto(
                                     this,
                                     notificationService.getNotificationByMessageId(
                                             jsonData.get().get("original_message_id").asText()),
@@ -204,8 +204,8 @@ public class FcmMessageReceiverService implements UpstreamMessageHandler {
                 } catch (InvalidNotificationDetailsException e) {
                     try {
                         dataMessageService.updateDeliveryStatus(fcmMessageId, true);
-                        DataMessageStateEvent dataMessageStateEvent =
-                                new DataMessageStateEvent(
+                        DataMessageStateEventDto dataMessageStateEvent =
+                                new DataMessageStateEventDto(
                                         this,
                                         dataMessageService.getDataMessageByMessageId(
                                                 jsonData.get().get("original_message_id").asText()),

@@ -25,6 +25,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.DataMessageStateEventService;
 import org.radarbase.appserver.service.NotificationStateEventService;
 import org.springframework.context.event.EventListener;
@@ -49,12 +51,12 @@ public class MessageStateEventListener {
 
 
     /**
-     * Handle an application event. Async so will return immediately.
+     * Handle an application event.
      *
      * @param event the event to respond to
      */
-    @EventListener(value = NotificationStateEvent.class)
-    public void onNotificationStateChange(NotificationStateEvent event) {
+    @EventListener(value = NotificationStateEventDto.class)
+    public void onNotificationStateChange(NotificationStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());
         org.radarbase.appserver.entity.NotificationStateEvent eventEntity =
@@ -63,8 +65,8 @@ public class MessageStateEventListener {
         notificationStateEventService.addNotificationStateEvent(eventEntity);
     }
 
-    @EventListener(value = DataMessageStateEvent.class)
-    public void onDataMessageStateChange(DataMessageStateEvent event) {
+    @EventListener(value = DataMessageStateEventDto.class)
+    public void onDataMessageStateChange(DataMessageStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getDataMessage().getId(), event.getState());
         org.radarbase.appserver.entity.DataMessageStateEvent eventEntity =

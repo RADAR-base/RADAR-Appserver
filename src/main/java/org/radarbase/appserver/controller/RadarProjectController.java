@@ -77,7 +77,7 @@ public class RadarProjectController {
    * @return The updated Project DTO. Throws {@link
    *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
    */
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @PostMapping(
       value = "/" + PathsUtil.PROJECT_PATH,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -89,8 +89,8 @@ public class RadarProjectController {
       RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
       if (authorization.hasPermission(
           token,
-          "CREATE",
-          "MEASUREMENT",
+          "READ",
+          "SUBJECT",
           PermissionOn.PROJECT,
           projectDto.getProjectId(),
           null,
@@ -183,8 +183,8 @@ public class RadarProjectController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.READ,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.PROJECT)
   @GetMapping("/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT)
   public ResponseEntity<ProjectDto> getProjectsUsingProjectId(

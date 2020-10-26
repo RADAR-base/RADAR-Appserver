@@ -21,7 +21,20 @@
 
 package org.radarbase.appserver.controller;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doAnswer;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -37,20 +50,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.net.URI;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doAnswer;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(FcmDataMessageController.class)
@@ -198,18 +197,6 @@ public class FcmDataMessageControllerTest {
                                 URI.create(
                                         "/" + PathsUtil.PROJECT_PATH + "/" + PROJECT_ID + "/"
                                                 + PathsUtil.MESSAGING_DATA_PATH)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize(1)))
-                .andExpect(jsonPath(DATA_MESSAGE_FCMID_JSON_PATH, is(FCM_MESSAGE_ID)));
-    }
-
-    @Test
-    void getDataMessagesUsingSubjectId() throws Exception {
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.get(
-                                URI.create("/" + PathsUtil.USER_PATH + "/" + USER_ID + "/"
-                                        + PathsUtil.MESSAGING_DATA_PATH)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize(1)))
                 .andExpect(jsonPath(DATA_MESSAGE_FCMID_JSON_PATH, is(FCM_MESSAGE_ID)));

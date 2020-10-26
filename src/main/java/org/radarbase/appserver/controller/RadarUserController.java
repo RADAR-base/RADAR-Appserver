@@ -69,7 +69,7 @@ public class RadarUserController {
     this.authorization = authorization.orElse(null);
   }
 
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)
   @PostMapping(
       "/"
           + PathsUtil.PROJECT_PATH
@@ -88,8 +88,8 @@ public class RadarUserController {
       RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
       if (authorization.hasPermission(
           token,
-          AuthPermissions.CREATE,
-          AuthEntities.MEASUREMENT,
+          AuthPermissions.UPDATE,
+          AuthEntities.SUBJECT,
           PermissionOn.SUBJECT,
           projectId,
           userDto.getSubjectId(),

@@ -57,12 +57,12 @@ public class FcmDataMessageController {
   }
 
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH)
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   public ResponseEntity<FcmDataMessages> getAllDataMessages() {
     return ResponseEntity.ok(this.dataMessageService.getAllDataMessages());
   }
 
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/{id}")
   public ResponseEntity<FcmDataMessageDto> getDataMessageUsingId(@Valid @PathVariable Long id) {
     return ResponseEntity.ok(this.dataMessageService.getDataMessageById(id));
@@ -70,7 +70,7 @@ public class FcmDataMessageController {
 
   // TODO: get notifications/data messages based on other params. Maybe use projections ?
   @GetMapping("/" + PathsUtil.MESSAGING_DATA_PATH + "/filtered")
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   public ResponseEntity<FcmDataMessages> getFilteredDataMessages(
       @Valid @RequestParam(value = "type", required = false) String type,
       @Valid @RequestParam(value = "delivered", required = false) boolean delivered,
@@ -121,23 +121,9 @@ public class FcmDataMessageController {
     return ResponseEntity.ok(this.dataMessageService.getDataMessagesByProjectId(projectId));
   }
 
-  // TODO: Edit this as this needs to be on the Subject level.
-  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
-  @GetMapping(
-      "/"
-          + PathsUtil.USER_PATH
-          + "/"
-          + PathsUtil.SUBJECT_ID_CONSTANT
-          + "/"
-          + PathsUtil.MESSAGING_DATA_PATH)
-  public ResponseEntity<FcmDataMessages> getDataMessagesUsingSubjectId(
-      @Valid @PathVariable String subjectId) {
-    return ResponseEntity.ok(this.dataMessageService.getDataMessagesBySubjectId(subjectId));
-  }
-
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
@@ -163,8 +149,8 @@ public class FcmDataMessageController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @PostMapping(
       "/"
@@ -187,8 +173,8 @@ public class FcmDataMessageController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @PutMapping(
       "/"
@@ -201,7 +187,7 @@ public class FcmDataMessageController {
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
           + PathsUtil.MESSAGING_DATA_PATH)
-  public ResponseEntity updateDataMessage(
+  public ResponseEntity<FcmDataMessageDto> updateDataMessage(
       @PathVariable String projectId,
       @PathVariable String subjectId,
       @Valid @RequestBody FcmDataMessageDto dataMessage) {
@@ -211,8 +197,8 @@ public class FcmDataMessageController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
@@ -233,8 +219,8 @@ public class FcmDataMessageController {
   }
 
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.SUBJECT)
   @DeleteMapping(
       "/"
