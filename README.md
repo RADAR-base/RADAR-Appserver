@@ -29,15 +29,21 @@ There is also support for legacy XMPP protocol for FCM.
         
         This will start the database at `localhost:9001`
         
-   3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.
+   3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.  Also, change the properties in `src/main/resources/application.properties` to dev or prod according to your requirements. 
 
-4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
+4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. 
+
+5. The build will need to create a logs directory. The default path is `/usr/local/var/lib/radar/appserver/logs`. Either create the directory there using `sudo mkdir -p /usr/local/var/lib/radar/appserver/logs` followed by `sudo chown $USER /usr/local/var/lib/radar/appserver/logs` or change logs file directory in `src/main/resources/logback-spring.xml` to local log directory like `<property name="LOGS" value="logs" />`
+
+6. You need to configure adminSDK now. Follow the official Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize-sdk) till you setup the enviroment variable. 
+
+7. To run the build on mac or linux, run the below -
    ```bash
     ./gradlew bootRun
    ```
    You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
 
-5. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
+8. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
    ```json
     {
      "data":
@@ -54,11 +60,11 @@ There is also support for legacy XMPP protocol for FCM.
      }
    ```
 
-6. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
+9. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
 
-7. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
+10. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
 
-8. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
+11. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
 ## REST API
 
