@@ -36,3 +36,6 @@
 
 # logs
 /logs
+
+# vscode
+/.vscode
