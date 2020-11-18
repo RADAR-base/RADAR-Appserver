@@ -35,7 +35,7 @@ There is also support for legacy XMPP protocol for FCM.
 
 5. The build will need to create a logs directory. The default path is `/usr/local/var/lib/radar/appserver/logs`. Either create the directory there using `sudo mkdir -p /usr/local/var/lib/radar/appserver/logs` followed by `sudo chown $USER /usr/local/var/lib/radar/appserver/logs` or change logs file directory in `src/main/resources/logback-spring.xml` to local log directory like `<property name="LOGS" value="logs" />`
 
-6. You need to configure adminSDK now. Follow the official Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize-sdk) till you setup the enviroment variable. 
+6. There are 2 ways to communicate with the Firebase Cloud Messaging- XMPP and Admin SDK. At least one of these needs to be configured. To configure these, please look at the [FCM section](#fcm).
 
 7. To run the build on mac or linux, run the below -
    ```bash
@@ -113,6 +113,8 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
   There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.
     
 ## FCM
+
+### XMPP
 The FCM related code is provided in the `org.radarbase.fcm` package. This can be explored in java-docs as mention in the [Documentation](#documentation) section.
 To use Firebase Cloud Messaging(FCM), you will need to configure the following properties -
 
@@ -123,6 +125,10 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 | fcmserver.fcmsender | The Sender to use for sending messages. There is a choice of using XMPP or FCM Admin SDK. | `org.radarbase.fcm.downstream.XmppFcmSender` |    No     |
 
 **Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
+
+### AdminSDK
+To configure AdminSDK, follow the official Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize-sdk) till you setup the enviroment variable. In the properties file, you would need to change `fcmserver.fcmsender` to `org.radarbase.fcm.downstream.AdminSdkFcmSender` and set `fcmserver.xmpp.upstream.enable` to `false`. 
+
 
 ## Docker/ Docker Compose
 The AppServer is also available as a docker container. It's [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
