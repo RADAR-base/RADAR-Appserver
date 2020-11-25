@@ -241,13 +241,22 @@ public class FcmNotificationService implements NotificationService {
     }
 
     @Transactional
-    public FcmNotifications scheduleNotification(String subjectId, String projectId) {
+    public FcmNotifications scheduleAllUserNotifications(String subjectId, String projectId) {
 
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
         List<Notification> notifications = notificationRepository.findByUserId(user.getId());
         this.schedulerService.scheduleMultiple(notifications);
         return new FcmNotifications()
                 .setNotifications(notificationConverter.entitiesToDtos(notifications));
+    }
+
+    @Transactional
+    public FcmNotificationDto scheduleNotification(String subjectId, String projectId, long notificationId) {
+
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        Notification notification = this.getNotificationByProjectIdAndSubjectIdAndNotificationId(projectId, subjectId, notificationId);
+        this.schedulerService.schedule(notification);
+        return notificationConverter.entityToDto(notification);
     }
 
     @Transactional
