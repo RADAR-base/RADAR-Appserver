@@ -163,7 +163,7 @@ public class FcmNotificationService implements NotificationService {
 
     @Transactional
     public FcmNotificationDto addNotification(
-            FcmNotificationDto notificationDto, String subjectId, String projectId) {
+            FcmNotificationDto notificationDto, String subjectId, String projectId, String schedule) {
 
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
         if (!notificationRepository
@@ -183,7 +183,9 @@ public class FcmNotificationService implements NotificationService {
             this.userRepository.save(user);
             addNotificationStateEvent(
                     notificationSaved, MessageState.ADDED, notificationSaved.getCreatedAt().toInstant());
-            this.schedulerService.schedule(notificationSaved);
+            if(schedule =="true"){
+                this.schedulerService.schedule(notificationSaved);
+            }
             return notificationConverter.entityToDto(notificationSaved);
         } else {
             throw new AlreadyExistsException(
@@ -199,6 +201,7 @@ public class FcmNotificationService implements NotificationService {
             notificationStateEventPublisher.publishEvent(notificationStateEvent);
         }
     }
+
 
     @Transactional
     public FcmNotificationDto updateNotification(
@@ -235,6 +238,16 @@ public class FcmNotificationService implements NotificationService {
             this.schedulerService.updateScheduled(notificationSaved);
         }
         return notificationConverter.entityToDto(notificationSaved);
+    }
+
+    @Transactional
+    public FcmNotifications scheduleNotification(String subjectId, String projectId) {
+
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        List<Notification> notifications = notificationRepository.findByUserId(user.getId());
+        this.schedulerService.scheduleMultiple(notifications);
+        return new FcmNotifications()
+                .setNotifications(notificationConverter.entitiesToDtos(notifications));
     }
 
     @Transactional
@@ -294,7 +307,7 @@ public class FcmNotificationService implements NotificationService {
 
     @Transactional
     public FcmNotifications addNotifications(
-            FcmNotifications notificationDtos, String subjectId, String projectId) {
+            FcmNotifications notificationDtos, String subjectId, String projectId, String schedule) {
         final User user = subjectAndProjectExistElseThrow(subjectId, projectId);
         List<Notification> notifications = notificationRepository.findByUserId(user.getId());
 
@@ -309,7 +322,9 @@ public class FcmNotificationService implements NotificationService {
         this.notificationRepository.flush();
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
-        this.schedulerService.scheduleMultiple(savedNotifications);
+        if(schedule == "true"){
+            this.schedulerService.scheduleMultiple(savedNotifications);
+        }
         return new FcmNotifications()
                 .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
     }

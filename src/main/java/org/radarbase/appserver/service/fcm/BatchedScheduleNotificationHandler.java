@@ -81,7 +81,7 @@ public class BatchedScheduleNotificationHandler implements ScheduleNotificationH
       UserWithId user = entry.getKey();
       try {
         notificationService.addNotifications(
-            entry.getValue(), user.getSubjectId(), user.getProjectId());
+            entry.getValue(), user.getSubjectId(), user.getProjectId(), "true");
       } catch (NotFoundException ex) {
         if (ex.getMessage().contains("Project")) {
           try {
@@ -94,7 +94,7 @@ public class BatchedScheduleNotificationHandler implements ScheduleNotificationH
           userService.saveUserInProject(user.getFcmUserDto().setProjectId(user.getProjectId()));
         }
         notificationService.addNotifications(
-            entry.getValue(), user.getSubjectId(), user.getProjectId());
+            entry.getValue(), user.getSubjectId(), user.getProjectId(), "true");
       } catch (AlreadyExistsException ex) {
         log.warn("The Notification Already Exists.", ex);
       }
