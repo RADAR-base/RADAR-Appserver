@@ -193,6 +193,36 @@ public class FcmNotificationService implements NotificationService {
         }
     }
 
+    @Transactional
+    public FcmNotificationDto addNotification(
+            FcmNotificationDto notificationDto, String subjectId, String projectId) {
+
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        if (!notificationRepository
+                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                        user.getId(),
+                        notificationDto.getSourceId(),
+                        notificationDto.getScheduledTime(),
+                        notificationDto.getTitle(),
+                        notificationDto.getBody(),
+                        notificationDto.getType(),
+                        notificationDto.getTtlSeconds())) {
+
+            Notification notificationSaved =
+                    this.notificationRepository.saveAndFlush(
+                            new Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build());
+            user.getUsermetrics().setLastOpened(Instant.now());
+            this.userRepository.save(user);
+            addNotificationStateEvent(
+                    notificationSaved, MessageState.ADDED, notificationSaved.getCreatedAt().toInstant());
+            this.schedulerService.schedule(notificationSaved);
+            return notificationConverter.entityToDto(notificationSaved);
+        } else {
+            throw new AlreadyExistsException(
+                    "The Notification Already exists. Please Use update endpoint", notificationDto);
+        }
+    }
+
     private void addNotificationStateEvent(
             Notification notification, MessageState state, Instant time) {
         if (notificationStateEventPublisher != null) {
@@ -334,6 +364,28 @@ public class FcmNotificationService implements NotificationService {
         if(schedule == "true"){
             this.schedulerService.scheduleMultiple(savedNotifications);
         }
+        return new FcmNotifications()
+                .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
+    }
+
+    @Transactional
+    public FcmNotifications addNotifications(
+            FcmNotifications notificationDtos, String subjectId, String projectId) {
+        final User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        List<Notification> notifications = notificationRepository.findByUserId(user.getId());
+
+        List<Notification> newNotifications =
+                notificationDtos.getNotifications().stream()
+                        .map(notificationConverter::dtoToEntity)
+                        .map(n -> new Notification.NotificationBuilder(n).user(user).build())
+                        .filter(notification -> !notifications.contains(notification))
+                        .collect(Collectors.toList());
+
+        List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
+        this.notificationRepository.flush();
+        savedNotifications.forEach(
+                n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
+        this.schedulerService.scheduleMultiple(savedNotifications);
         return new FcmNotifications()
                 .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
     }

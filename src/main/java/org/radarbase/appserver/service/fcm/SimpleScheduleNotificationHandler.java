@@ -51,7 +51,7 @@ public class SimpleScheduleNotificationHandler implements ScheduleNotificationHa
   public void handleScheduleNotification(
       FcmNotificationDto notificationDto, FcmUserDto userDto, String projectId) {
     try {
-      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId, "true");
+      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
     } catch (NotFoundException ex) {
       if (ex.getMessage().contains("Project")) {
         try {
@@ -63,7 +63,7 @@ public class SimpleScheduleNotificationHandler implements ScheduleNotificationHa
       } else if (ex.getMessage().contains("Subject")) {
         userService.saveUserInProject(userDto.setProjectId(projectId));
       }
-      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId, "true");
+      notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
     } catch (AlreadyExistsException ex) {
       log.warn("The Notification Already Exists.", ex);
     }
