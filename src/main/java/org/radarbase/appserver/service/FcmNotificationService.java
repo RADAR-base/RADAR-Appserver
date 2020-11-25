@@ -183,7 +183,7 @@ public class FcmNotificationService implements NotificationService {
             this.userRepository.save(user);
             addNotificationStateEvent(
                     notificationSaved, MessageState.ADDED, notificationSaved.getCreatedAt().toInstant());
-            if(schedule =="true"){
+            if(schedule.equals("true")){
                 this.schedulerService.schedule(notificationSaved);
             }
             return notificationConverter.entityToDto(notificationSaved);
@@ -361,7 +361,7 @@ public class FcmNotificationService implements NotificationService {
         this.notificationRepository.flush();
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
-        if(schedule == "true"){
+        if(schedule.equals("true")){
             this.schedulerService.scheduleMultiple(savedNotifications);
         }
         return new FcmNotifications()
