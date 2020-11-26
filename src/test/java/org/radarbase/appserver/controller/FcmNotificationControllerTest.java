@@ -58,6 +58,7 @@ public class FcmNotificationControllerTest {
   public static final String FCM_MESSAGE_ID = "123456";
   public static final String PROJECT_ID = "test-project";
   public static final String USER_ID = "test-user";
+  public static final String SCHEDULE_NOW = "true";
   private static final String TITLE_1 = "Testing 1";
   private static final String TITLE_2 = "Testing 2";
   private static final String BODY = "Test notif";
@@ -113,7 +114,7 @@ public class FcmNotificationControllerTest {
             .setDelivered(false)
             .setId(2L);
 
-    given(notificationService.addNotification(notificationDto2, USER_ID, PROJECT_ID))
+    given(notificationService.addNotification(notificationDto2, USER_ID, PROJECT_ID, SCHEDULE_NOW))
         .willReturn(notificationDto2);
 
     FcmNotificationDto notificationDto3 =
@@ -132,7 +133,7 @@ public class FcmNotificationControllerTest {
     FcmNotifications fcmNotifications =
         new FcmNotifications().setNotifications(List.of(notificationDto2, notificationDto3));
 
-    given(notificationService.addNotifications(fcmNotifications, USER_ID, PROJECT_ID))
+    given(notificationService.addNotifications(fcmNotifications, USER_ID, PROJECT_ID, SCHEDULE_NOW))
         .willReturn(fcmNotifications);
 
     given(notificationService.getNotificationById(2L)).willReturn(notificationDto2);
@@ -245,7 +246,8 @@ public class FcmNotificationControllerTest {
                             + "/"
                             + USER_ID
                             + "/"
-                            + PathsUtil.MESSAGING_NOTIFICATION_PATH))
+                            + PathsUtil.MESSAGING_NOTIFICATION_PATH
+                            + "?schedule=true"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(notificationDto2)))
         .andExpect(status().isCreated())
@@ -300,7 +302,8 @@ public class FcmNotificationControllerTest {
                             + USER_ID
                             + "/"
                             + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                            + "/batch"))
+                            + "/batch"
+                            + "?schedule=true"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(fcmNotifications)))
         .andExpect(status().isOk())
