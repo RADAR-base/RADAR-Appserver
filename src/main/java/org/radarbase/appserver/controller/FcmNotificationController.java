@@ -138,7 +138,7 @@ public class FcmNotificationController {
   public ResponseEntity<FcmNotificationDto> addSingleNotification(
       @PathVariable String projectId,
       @PathVariable String subjectId,
-      @RequestParam(defaultValue = "") String schedule,
+      @RequestParam(required = false, defaultValue = "true") boolean schedule,
       @Valid @RequestBody FcmNotificationDto notification)
       throws URISyntaxException {
     FcmNotificationDto notificationDto =
@@ -218,7 +218,7 @@ public class FcmNotificationController {
   public ResponseEntity<FcmNotifications> addBatchNotifications(
       @PathVariable String projectId,
       @PathVariable String subjectId,
-      @RequestParam(defaultValue = "") String schedule,
+      @RequestParam(required = false, defaultValue = "true") boolean schedule,
       @Valid @RequestBody FcmNotifications notifications) {
     return ResponseEntity.ok(
         this.notificationService.addNotifications(notifications, subjectId, projectId, schedule));
