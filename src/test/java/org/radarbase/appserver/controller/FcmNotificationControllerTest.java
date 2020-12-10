@@ -58,7 +58,8 @@ public class FcmNotificationControllerTest {
   public static final String FCM_MESSAGE_ID = "123456";
   public static final String PROJECT_ID = "test-project";
   public static final String USER_ID = "test-user";
-  public static final String SCHEDULE_NOW = "true";
+  public static final boolean SCHEDULE_TRUE = true;
+  public static final boolean SCHEDULE_FALSE = false;
   private static final String TITLE_1 = "Testing 1";
   private static final String TITLE_2 = "Testing 2";
   private static final String BODY = "Test notif";
@@ -114,7 +115,13 @@ public class FcmNotificationControllerTest {
             .setDelivered(false)
             .setId(2L);
 
-    given(notificationService.addNotification(notificationDto2, USER_ID, PROJECT_ID, SCHEDULE_NOW))
+    given(notificationService.addNotification(notificationDto2, USER_ID, PROJECT_ID, SCHEDULE_TRUE))
+        .willReturn(notificationDto2);
+
+    given(notificationService.addNotification(notificationDto2, USER_ID, PROJECT_ID, SCHEDULE_FALSE))
+        .willReturn(notificationDto2);
+
+    given(notificationService.scheduleNotification(USER_ID, PROJECT_ID, 2L))
         .willReturn(notificationDto2);
 
     FcmNotificationDto notificationDto3 =
@@ -133,7 +140,13 @@ public class FcmNotificationControllerTest {
     FcmNotifications fcmNotifications =
         new FcmNotifications().setNotifications(List.of(notificationDto2, notificationDto3));
 
-    given(notificationService.addNotifications(fcmNotifications, USER_ID, PROJECT_ID, SCHEDULE_NOW))
+    given(notificationService.addNotifications(fcmNotifications, USER_ID, PROJECT_ID, SCHEDULE_TRUE))
+        .willReturn(fcmNotifications);
+
+    given(notificationService.addNotifications(fcmNotifications, USER_ID, PROJECT_ID, SCHEDULE_FALSE))
+        .willReturn(fcmNotifications);
+
+    given(notificationService.scheduleAllUserNotifications(USER_ID, PROJECT_ID))
         .willReturn(fcmNotifications);
 
     given(notificationService.getNotificationById(2L)).willReturn(notificationDto2);
@@ -246,11 +259,77 @@ public class FcmNotificationControllerTest {
                             + "/"
                             + USER_ID
                             + "/"
-                            + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                            + "?schedule=true"))
+                            + PathsUtil.MESSAGING_NOTIFICATION_PATH))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(notificationDto2)))
         .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.title", is(TITLE_2)))
+        .andExpect(jsonPath("$.fcmMessageId", is(FCM_MESSAGE_ID + "7")))
+        .andExpect(jsonPath("$.id", is(2)));
+  }
+
+@Test
+  void addSingleNotificationWithoutScheduling() throws Exception {
+
+    FcmNotificationDto notificationDto2 =
+        new FcmNotificationDto()
+            .setBody(BODY)
+            .setTitle(TITLE_2)
+            .setScheduledTime(scheduledTime)
+            .setSourceId(SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID + "7")
+            .setSourceType(SOURCE_TYPE)
+            .setType(TYPE)
+            .setAppPackage(SOURCE_TYPE)
+            .setTtlSeconds(86400)
+            .setDelivered(false);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    URI.create(
+                        "/"
+                            + PathsUtil.PROJECT_PATH
+                            + "/"
+                            + PROJECT_ID
+                            + "/"
+                            + PathsUtil.USER_PATH
+                            + "/"
+                            + USER_ID
+                            + "/"
+                            + PathsUtil.MESSAGING_NOTIFICATION_PATH
+                            + "/"
+                            + "?schedule=false"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(notificationDto2)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.title", is(TITLE_2)))
+        .andExpect(jsonPath("$.fcmMessageId", is(FCM_MESSAGE_ID + "7")))
+        .andExpect(jsonPath("$.id", is(2)));
+  }
+
+@Test
+  void scheduleUnscheduledNotification() throws Exception {
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    URI.create(
+                        "/"
+                            + PathsUtil.PROJECT_PATH
+                            + "/"
+                            + PROJECT_ID
+                            + "/"
+                            + PathsUtil.USER_PATH
+                            + "/"
+                            + USER_ID
+                            + "/"
+                            + PathsUtil.MESSAGING_NOTIFICATION_PATH
+                            + "/"
+                            + "2"
+                            + "/"
+                            + "schedule")))
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.title", is(TITLE_2)))
         .andExpect(jsonPath("$.fcmMessageId", is(FCM_MESSAGE_ID + "7")))
         .andExpect(jsonPath("$.id", is(2)));
@@ -302,8 +381,7 @@ public class FcmNotificationControllerTest {
                             + USER_ID
                             + "/"
                             + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                            + "/batch"
-                            + "?schedule=true"))
+                            + "/batch"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(fcmNotifications)))
         .andExpect(status().isOk())
@@ -313,6 +391,88 @@ public class FcmNotificationControllerTest {
   }
 
   @Test
+  void addBatchNotificationsWithoutScheduling() throws Exception {
+
+    FcmNotificationDto notificationDto2 =
+        new FcmNotificationDto()
+            .setBody(BODY)
+            .setTitle(TITLE_2)
+            .setScheduledTime(scheduledTime)
+            .setSourceId(SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID + "7")
+            .setSourceType(SOURCE_TYPE)
+            .setType(TYPE)
+            .setAppPackage(SOURCE_TYPE)
+            .setTtlSeconds(86400)
+            .setDelivered(false);
+
+    FcmNotificationDto notificationDto3 =
+        new FcmNotificationDto()
+            .setBody("Test notif 3")
+            .setTitle("Testing 3")
+            .setScheduledTime(scheduledTime)
+            .setSourceId(SOURCE_ID)
+            .setFcmMessageId(FCM_MESSAGE_ID + "7")
+            .setSourceType(SOURCE_TYPE)
+            .setType(TYPE)
+            .setAppPackage(SOURCE_TYPE)
+            .setTtlSeconds(86400)
+            .setDelivered(false);
+
+    FcmNotifications fcmNotifications =
+        new FcmNotifications().setNotifications(List.of(notificationDto2, notificationDto3));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    URI.create(
+                        "/"
+                            + PathsUtil.PROJECT_PATH
+                            + "/"
+                            + PROJECT_ID
+                            + "/"
+                            + PathsUtil.USER_PATH
+                            + "/"
+                            + USER_ID
+                            + "/"
+                            + PathsUtil.MESSAGING_NOTIFICATION_PATH
+                            + "/batch"
+                            + "/"
+                            + "?schedule=false"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(fcmNotifications)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(2)))
+        .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_2)))
+        .andExpect(jsonPath(NOTIFICATION_FCMID_JSON_PATH, is(FCM_MESSAGE_ID + "7")));
+  }
+
+@Test
+  void scheduleUnscheduledNotifications() throws Exception {
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    URI.create(
+                        "/"
+                            + PathsUtil.PROJECT_PATH
+                            + "/"
+                            + PROJECT_ID
+                            + "/"
+                            + PathsUtil.USER_PATH
+                            + "/"
+                            + USER_ID
+                            + "/"
+                            + PathsUtil.MESSAGING_NOTIFICATION_PATH
+                            + "/"
+                            + "schedule")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH, hasSize(2)))
+        .andExpect(jsonPath(NOTIFICATION_TITLE_JSON_PATH, is(TITLE_2)))
+        .andExpect(jsonPath(NOTIFICATION_FCMID_JSON_PATH, is(FCM_MESSAGE_ID + "7")));
+  }
+
+@Test
   void deleteNotificationsForUser() throws Exception {
     mockMvc.perform(
         MockMvcRequestBuilders.delete(
