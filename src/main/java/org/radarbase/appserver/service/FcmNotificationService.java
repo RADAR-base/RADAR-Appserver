@@ -283,7 +283,6 @@ public class FcmNotificationService implements NotificationService {
     @Transactional
     public FcmNotificationDto scheduleNotification(String subjectId, String projectId, long notificationId) {
 
-        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
         Notification notification = this.getNotificationByProjectIdAndSubjectIdAndNotificationId(projectId, subjectId, notificationId);
         this.schedulerService.schedule(notification);
         return notificationConverter.entityToDto(notification);

@@ -53,6 +53,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(FcmNotificationController.class)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class FcmNotificationControllerTest {
 
   public static final String FCM_MESSAGE_ID = "123456";
