@@ -283,9 +283,19 @@ public class FcmNotificationService implements NotificationService {
     @Transactional
     public FcmNotificationDto scheduleNotification(String subjectId, String projectId, long notificationId) {
 
-        Notification notification = this.getNotificationByProjectIdAndSubjectIdAndNotificationId(projectId, subjectId, notificationId);
-        this.schedulerService.schedule(notification);
-        return notificationConverter.entityToDto(notification);
+      User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+      Optional<Notification> notification = notificationRepository.findByIdAndUserId(notificationId, user.getId());
+      if (notification.isEmpty()) {
+                throw new NotFoundException(
+                        "The Notification with Id "
+                                + notificationId
+                                + " does not exist in project "
+                                + projectId
+                                + " for user "
+                                + subjectId);
+            }
+      this.schedulerService.schedule(notification.get());
+      return notificationConverter.entityToDto(notification.get());
     }
 
     @Transactional
