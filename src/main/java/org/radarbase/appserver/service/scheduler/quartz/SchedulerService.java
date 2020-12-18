@@ -43,6 +43,8 @@ public interface SchedulerService {
 
   void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> jobDetailTriggerMap);
 
+  boolean checkJobExists(JobKey jobKey);
+
   void updateScheduledJob(
       JobKey jobKey, TriggerKey triggerKey, JobDataMap jobDataMap, Object associatedObject);
 

@@ -84,6 +84,12 @@ public class SchedulerServiceImpl implements SchedulerService {
     scheduler.scheduleJob(jobDetail, trigger);
   }
 
+  @SneakyThrows
+  @Override
+  public boolean checkJobExists(JobKey jobKey) {
+    return scheduler.checkExists(jobKey);
+  }
+
   @Async
   @SneakyThrows
   @Override

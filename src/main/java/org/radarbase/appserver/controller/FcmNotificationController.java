@@ -138,10 +138,11 @@ public class FcmNotificationController {
   public ResponseEntity<FcmNotificationDto> addSingleNotification(
       @PathVariable String projectId,
       @PathVariable String subjectId,
+      @RequestParam(required = false, defaultValue = "true") boolean schedule,
       @Valid @RequestBody FcmNotificationDto notification)
       throws URISyntaxException {
     FcmNotificationDto notificationDto =
-        this.notificationService.addNotification(notification, subjectId, projectId);
+        this.notificationService.addNotification(notification, subjectId, projectId, schedule);
     return ResponseEntity.created(
             new URI("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/" + notificationDto.getId()))
         .body(notificationDto);
@@ -162,13 +163,65 @@ public class FcmNotificationController {
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
           + PathsUtil.MESSAGING_NOTIFICATION_PATH
+          + "/schedule")
+  public ResponseEntity<FcmNotifications> scheduleUserNotifications(
+      @PathVariable String projectId,
+      @PathVariable String subjectId)
+      throws URISyntaxException {
+        return ResponseEntity.ok(
+            this.notificationService.scheduleAllUserNotifications(subjectId, projectId));
+    }
+
+    @Authorized(
+        permission = AuthPermissions.UPDATE,
+        entity = AuthEntities.SUBJECT,
+        permissionOn = PermissionOn.SUBJECT)
+    @PostMapping(
+        "/"
+            + PathsUtil.PROJECT_PATH
+            + "/"
+            + PathsUtil.PROJECT_ID_CONSTANT
+            + "/"
+            + PathsUtil.USER_PATH
+            + "/"
+            + PathsUtil.SUBJECT_ID_CONSTANT
+            + "/"
+            + PathsUtil.MESSAGING_NOTIFICATION_PATH
+            + "/"
+            + PathsUtil.NOTIFICATION_ID_CONSTANT
+            + "/schedule")
+    public ResponseEntity<FcmNotificationDto> scheduleUserNotification(
+        @PathVariable String projectId,
+        @PathVariable String subjectId,
+        @PathVariable long notificationId)
+        throws URISyntaxException {
+          return ResponseEntity.ok(
+              this.notificationService.scheduleNotification(subjectId, projectId, notificationId));
+      }
+
+  @Authorized(
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.SUBJECT,
+      permissionOn = PermissionOn.SUBJECT)
+  @PostMapping(
+      "/"
+          + PathsUtil.PROJECT_PATH
+          + "/"
+          + PathsUtil.PROJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.USER_PATH
+          + "/"
+          + PathsUtil.SUBJECT_ID_CONSTANT
+          + "/"
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH
           + "/batch")
   public ResponseEntity<FcmNotifications> addBatchNotifications(
       @PathVariable String projectId,
       @PathVariable String subjectId,
+      @RequestParam(required = false, defaultValue = "true") boolean schedule,
       @Valid @RequestBody FcmNotifications notifications) {
     return ResponseEntity.ok(
-        this.notificationService.addNotifications(notifications, subjectId, projectId));
+        this.notificationService.addNotifications(notifications, subjectId, projectId, schedule));
   }
 
   @Authorized(
