@@ -1,4 +1,4 @@
-FROM openjdk:11.0.1-jdk-slim AS builder
+FROM openjdk:11-jdk-slim AS builder
 
 RUN mkdir /code
 WORKDIR /code
@@ -15,7 +15,7 @@ COPY ./shadow-radar-auth /code/shadow-radar-auth
 
 RUN ./gradlew unpack
 
-FROM openjdk:11.0.1-jre-slim
+FROM openjdk:11-jre-slim
 
 LABEL maintainer="Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>"
 
