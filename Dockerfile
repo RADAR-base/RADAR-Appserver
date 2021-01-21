@@ -11,6 +11,7 @@ RUN ./gradlew --version
 
 COPY ./build.gradle ./settings.gradle /code/
 COPY ./src /code/src
+COPY ./shadow-radar-auth /code/shadow-radar-auth
 
 RUN ./gradlew unpack
 
@@ -25,6 +26,11 @@ ENV SPRING_PROFILES_ACTIVE prod
 
 VOLUME /tmp
 ARG DEPENDENCY=/code/build/dependency
+
+RUN apt-get update && apt-get install -y \
+        curl \
+        wget \
+        && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF
