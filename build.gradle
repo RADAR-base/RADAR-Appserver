@@ -25,7 +25,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '1.0.1-SNAPSHOT'
+version = '1.1.0'
 sourceCompatibility = 1.11
 
 repositories {

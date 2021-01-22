@@ -124,7 +124,7 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 | fcmserver.serverkey | Server Key from FCM. Can be found in the FCM project settings                             |                      NA                      |    Yes    |
 | fcmserver.fcmsender | The Sender to use for sending messages. There is a choice of using XMPP or FCM Admin SDK. | `org.radarbase.fcm.downstream.XmppFcmSender` |    No     |
 
-**Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
+**Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM. 
 
 ### AdminSDK
 To configure AdminSDK, follow the official Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize-sdk) till you setup the enviroment variable. In the properties file, you would need to change `fcmserver.fcmsender` to `org.radarbase.fcm.downstream.AdminSdkFcmSender` and set `fcmserver.xmpp.upstream.enable` to `false`. 
@@ -144,7 +144,7 @@ The same can be achieved by running as a docker-compose service. Just specify th
 ```yml
     services:
       appserver:
-        image: radarbase/radar-appserver:0.0.1
+        image: radarbase/radar-appserver:1.1.0
         restart: always
         ports:
           - 8080:8080
@@ -356,7 +356,7 @@ To enable security of specific provider, please read the sections below.
 ### Management Portal
 To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), set the following property -
 ```ini
-managementportal.security.enabled=true
+security.radar.managementportal.url=true
 ```
 This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
 All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
@@ -481,19 +481,3 @@ This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
 - Has support for Auditing of database entities.
 - Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
 - Extends `XmppConnectionFactoryBean` with support for Reconnection and connection draining implementation using a Back-off strategy.
-
-### TODO
-
-- Add better documentation.
-- Add validation of notification requests using the protocol and enrolment date of the user.
-- Add endpoint to filter notifications based on different params.
-- ~~Update lastOpened metric for user when a request is received.~~
-- ~~Add batch scheduling of notifications.~~
-- Add Management Portal service for getting any missing info not present in a request.
-- Add support for sending messages via Firebase Admin SDK.
-- ~~Make the Xmpp Connection more robust by adding reconnection logic.~~
-- Break out the org.radarbase.fcm package into its own module to be used as a library.
-- ~~Add docker builds.~~
-- Add a Angular UI to view, update and schedule/send notifications to subjects.
-- Investigate the feasibility of adding as an integration to the Management Portal for various tasks. (For instance, a new token can be sent via push notification using a button on MP to the device if the token has expired).
-- ~~Add security to the application using MP OAuth client resource.~~
