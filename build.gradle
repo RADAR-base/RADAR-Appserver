@@ -15,6 +15,7 @@ plugins {
     id "com.github.spotbugs" version "4.5.0"
     id 'jacoco'
     id "com.github.lkishalmi.gatling" version "3.3.4"
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 apply plugin: 'java'
@@ -24,7 +25,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '1.0.0'
+version = '1.1.0'
 sourceCompatibility = 1.11
 
 repositories {
@@ -114,6 +115,8 @@ dependencies {
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion) {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
+
+    implementation project(path: ':shadow-radar-auth', configuration: 'shadow')
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 

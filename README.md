@@ -29,15 +29,21 @@ There is also support for legacy XMPP protocol for FCM.
         
         This will start the database at `localhost:9001`
         
-   3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.
+   3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.  Also, change the properties in `src/main/resources/application.properties` to dev or prod according to your requirements. 
 
-4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. On mac or linux, run the below -
+4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. 
+
+5. The build will need to create a logs directory. The default path is `/usr/local/var/lib/radar/appserver/logs`. Either create the directory there using `sudo mkdir -p /usr/local/var/lib/radar/appserver/logs` followed by `sudo chown $USER /usr/local/var/lib/radar/appserver/logs` or change logs file directory in `src/main/resources/logback-spring.xml` to local log directory like `<property name="LOGS" value="logs" />`
+
+6. There are 2 ways to communicate with the Firebase Cloud Messaging- XMPP and Admin SDK. At least one of these needs to be configured. To configure these, please look at the [FCM section](#fcm).
+
+7. To run the build on mac or linux, run the below -
    ```bash
     ./gradlew bootRun
    ```
    You can also run in an IDE (like IntelliJ Idea) by giving the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
 
-5. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
+8. The App-server is now connected to the FCM XMPP server and is able to send and receive messages. On your mobile application, try sending an upstream message using the FCM sdk for your platform. Notification scheduling parses payloads from upstream messages containing the action SCHEDULE. The format of the data payload of upstream message should contain at least-    
    ```json
     {
      "data":
@@ -54,11 +60,11 @@ There is also support for legacy XMPP protocol for FCM.
      }
    ```
 
-6. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
+9. Voila!, you will now receive a notification at the schedule time (specified by `time` in the payload) on your device.
 
-7. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
+10. You can also achieve the same using more reliable and flexible REST API using the schedule endpoint. Please refer to REST API section below for more info.
 
-8. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
+11. API documentation is available via Swagger UI when you launch the app server. Please refer to the Documentation section below.
 
 ## REST API
 
@@ -107,6 +113,8 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
   There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.
     
 ## FCM
+
+### XMPP
 The FCM related code is provided in the `org.radarbase.fcm` package. This can be explored in java-docs as mention in the [Documentation](#documentation) section.
 To use Firebase Cloud Messaging(FCM), you will need to configure the following properties -
 
@@ -116,7 +124,11 @@ To use Firebase Cloud Messaging(FCM), you will need to configure the following p
 | fcmserver.serverkey | Server Key from FCM. Can be found in the FCM project settings                             |                      NA                      |    Yes    |
 | fcmserver.fcmsender | The Sender to use for sending messages. There is a choice of using XMPP or FCM Admin SDK. | `org.radarbase.fcm.downstream.XmppFcmSender` |    No     |
 
-**Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM.
+**Note:** Only sending messages via XMPP protocol supports Delivery Receipts on FCM. 
+
+### AdminSDK
+To configure AdminSDK, follow the official Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize-sdk) till you setup the enviroment variable. In the properties file, you would need to change `fcmserver.fcmsender` to `org.radarbase.fcm.downstream.AdminSdkFcmSender` and set `fcmserver.xmpp.upstream.enable` to `false`. 
+
 
 ## Docker/ Docker Compose
 The AppServer is also available as a docker container. It's [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
@@ -132,7 +144,7 @@ The same can be achieved by running as a docker-compose service. Just specify th
 ```yml
     services:
       appserver:
-        image: radarbase/radar-appserver:0.0.1
+        image: radarbase/radar-appserver:1.1.0
         restart: always
         ports:
           - 8080:8080
@@ -344,7 +356,7 @@ To enable security of specific provider, please read the sections below.
 ### Management Portal
 To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), set the following property -
 ```ini
-managementportal.security.enabled=true
+security.radar.managementportal.url=true
 ```
 This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
 All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
@@ -469,19 +481,3 @@ This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
 - Has support for Auditing of database entities.
 - Uses and extends the Spring XMPP integration library for implementing the XMPP protocol. 
 - Extends `XmppConnectionFactoryBean` with support for Reconnection and connection draining implementation using a Back-off strategy.
-
-### TODO
-
-- Add better documentation.
-- Add validation of notification requests using the protocol and enrolment date of the user.
-- Add endpoint to filter notifications based on different params.
-- ~~Update lastOpened metric for user when a request is received.~~
-- ~~Add batch scheduling of notifications.~~
-- Add Management Portal service for getting any missing info not present in a request.
-- Add support for sending messages via Firebase Admin SDK.
-- ~~Make the Xmpp Connection more robust by adding reconnection logic.~~
-- Break out the org.radarbase.fcm package into its own module to be used as a library.
-- ~~Add docker builds.~~
-- Add a Angular UI to view, update and schedule/send notifications to subjects.
-- Investigate the feasibility of adding as an integration to the Management Portal for various tasks. (For instance, a new token can be sent via push notification using a button on MP to the device if the token has expired).
-- ~~Add security to the application using MP OAuth client resource.~~
