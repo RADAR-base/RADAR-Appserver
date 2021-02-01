@@ -11,7 +11,6 @@ RUN ./gradlew --version
 
 COPY ./build.gradle ./settings.gradle /code/
 COPY ./src /code/src
-COPY ./shadow-radar-auth /code/shadow-radar-auth
 
 RUN ./gradlew unpack
 
