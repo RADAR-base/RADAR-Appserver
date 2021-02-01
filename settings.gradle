@@ -1,2 +1,1 @@
 rootProject.name = 'appserver'
-include 'shadow-radar-auth'

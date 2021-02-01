@@ -53,7 +53,7 @@ ext {
     bootAdminVersion = '2.2.2'
     throwingFunctionVersion = '1.5.0'
     junit5Version = '5.6.0'
-    radarSpringAuthVersion = '1.0.0'
+    radarSpringAuthVersion = '1.1.0'
 }
 
 sourceSets {
@@ -115,8 +115,6 @@ dependencies {
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion) {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
-
-    implementation project(path: ':shadow-radar-auth', configuration: 'shadow')
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
