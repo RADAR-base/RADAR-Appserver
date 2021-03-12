@@ -36,10 +36,10 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
-import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
+import org.radarbase.appserver.exception.NotificationAlreadyExistsException;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
@@ -166,16 +166,17 @@ public class FcmNotificationService implements NotificationService {
             FcmNotificationDto notificationDto, String subjectId, String projectId, boolean schedule) {
 
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        if (!notificationRepository
-                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+        Optional<Notification> notification = notificationRepository
+                .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
                         user.getId(),
                         notificationDto.getSourceId(),
                         notificationDto.getScheduledTime(),
                         notificationDto.getTitle(),
                         notificationDto.getBody(),
                         notificationDto.getType(),
-                        notificationDto.getTtlSeconds())) {
+                        notificationDto.getTtlSeconds());
 
+        if (notification.isEmpty()) {
             Notification notificationSaved =
                     this.notificationRepository.saveAndFlush(
                             new Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build());
@@ -188,8 +189,9 @@ public class FcmNotificationService implements NotificationService {
             }
             return notificationConverter.entityToDto(notificationSaved);
         } else {
-            throw new AlreadyExistsException(
-                    "The Notification Already exists. Please Use update endpoint", notificationDto);
+            throw new NotificationAlreadyExistsException(
+                    "The Notification Already exists. Please Use update endpoint",
+                    notificationConverter.entityToDto(notification.get()));
         }
     }
 
@@ -198,16 +200,17 @@ public class FcmNotificationService implements NotificationService {
             FcmNotificationDto notificationDto, String subjectId, String projectId) {
 
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        if (!notificationRepository
-                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+        Optional<Notification> notification = notificationRepository
+                .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
                         user.getId(),
                         notificationDto.getSourceId(),
                         notificationDto.getScheduledTime(),
                         notificationDto.getTitle(),
                         notificationDto.getBody(),
                         notificationDto.getType(),
-                        notificationDto.getTtlSeconds())) {
+                        notificationDto.getTtlSeconds());
 
+        if (notification.isEmpty()) {
             Notification notificationSaved =
                     this.notificationRepository.saveAndFlush(
                             new Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build());
@@ -218,8 +221,9 @@ public class FcmNotificationService implements NotificationService {
             this.schedulerService.schedule(notificationSaved);
             return notificationConverter.entityToDto(notificationSaved);
         } else {
-            throw new AlreadyExistsException(
-                    "The Notification Already exists. Please Use update endpoint", notificationDto);
+            throw new NotificationAlreadyExistsException(
+                    "The Notification Already exists. Please Use update endpoint",
+                    notificationConverter.entityToDto(notification.get()));
         }
     }
 
@@ -444,4 +448,5 @@ public class FcmNotificationService implements NotificationService {
         }
         return notification.get();
     }
+
 }
