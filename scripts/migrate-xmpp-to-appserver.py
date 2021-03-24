@@ -66,6 +66,12 @@ def main():
     parser.add_argument("--managementportal-password", type=str, default="admin",
                         help="The password for the user to authorise with using password grant code.")
 
+    parser.add_argument("--managementportal-client-id", type=str, default="ManagementPortalapp",
+                        help="The client_id of the oauth client with access to res_ManagementPortal resource.")
+
+    parser.add_argument("--managementportal-client-secret", type=str, default="secret",
+                        help="The client_secret of the oauth client with access to res_ManagementPortal resource.")
+
     parser.add_argument("--appserver-base-url", type=str, default="http://localhost:8080",
                         help="Base URL where the Appserver is exposed.")
 
@@ -88,7 +94,8 @@ def main():
                                  args.hsqldb_properties,
                                  args.hsqldb_driver_path,
                                  )
-    mp_client = MpClient(args.managementportal_base_url, args.managementportal_user, args.managementportal_password)
+    mp_client = MpClient(args.managementportal_base_url, args.managementportal_user, args.managementportal_password,
+                         args.managementportal_client_id, args.managementportal_client_secret)
     appserver_client = AppServerClient(args.appserver_base_url, args.appserver_enable_auth,
                                        args.managementportal_base_url, args.appserver_client_id,
                                        args.appserver_client_secret)
@@ -137,10 +144,16 @@ def main():
         }
 
         # Create Project on AppServer using info from MP
-        subject = sanitise_subject(mp_client.get_subject_details_from_mp(notif_dict["subjectId"]), project_mapping)
+        try:
+            subject = sanitise_subject(mp_client.get_subject_details_from_mp(notif_dict["subjectId"]), project_mapping)
+        except IOError as e:
+            continue
         project_dict = {'projectId': subject['projectId']}
         if project_dict['projectId'] not in appserver_projects_created.keys():
-            project = appserver_client.create_project_on_appserver(project_dict)
+            try:
+                project = appserver_client.create_project_on_appserver(project_dict)
+            except IOError as e:
+                continue
             appserver_projects_created[project_dict['projectId']] = project
         else:
             project = appserver_projects_created[project_dict['projectId']]
@@ -155,7 +168,10 @@ def main():
             'language': subject['language'],
         }
         if user_dict['subjectId'] not in appserver_users_created.keys():
-            user = appserver_client.create_user_on_appserver(user_dict)
+            try:
+                user = appserver_client.create_user_on_appserver(user_dict)
+            except IOError as e:
+                continue
             appserver_users_created[user_dict['subjectId']] = subject
         else:
             user = appserver_users_created[user_dict['subjectId']]

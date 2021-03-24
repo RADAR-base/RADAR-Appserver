@@ -36,7 +36,7 @@ class HsqlDBClient:
 class MpClient:
 
     def __init__(self, mp_url, user="admin", password="admin", client_id="ManagementPortalapp",
-                 client_secret="") -> None:
+                 client_secret="secret") -> None:
         super().__init__()
         self.mp_url = mp_url
         token_url = f"{mp_url}/oauth/token"
@@ -72,10 +72,10 @@ class MpClient:
                     return subject
                 else:
                     print(f"Error getting subject {subject_id} from MP: {response}")
-                    exit(1)
+                    raise IOError(f"Error getting subject {subject_id} from MP: {response}")
             except ValueError as e:
                 print(f"Error reading JSON response from MP: {e}")
-                exit(1)
+                raise IOError(f"Error reading JSON response from MP: {e}")
 
 
 class AppServerClient:
@@ -109,7 +109,7 @@ class AppServerClient:
                 return requests.get(f"{project_endpoint}/{project['projectId']}").json()
             else:
                 print(f"Error making post request to create project: {project}, {response}")
-                exit(1)
+                raise IOError(f"Error making post request to create Project on appserver: {response.status_code}")
 
     def create_user_on_appserver(self, user: dict) -> dict:
         user_endpoint = f"{self.appserver_url}/projects/{user['projectId']}/users"
@@ -123,7 +123,7 @@ class AppServerClient:
             else:
                 print(
                     f"Error making post request to create User: {user}, {response.status_code}, {response.url}, {response.content}, {response.headers}")
-                exit(1)
+                raise IOError(f"Error making post request to create User on appserver: {response.status_code}")
 
     def write_notification_to_appserver(self, notification: dict) -> bool:
         notification_endpoint = f"{self.appserver_url}/projects/{notification['projectId']}/users/{notification['subjectId']}/messaging/notifications"
