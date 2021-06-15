@@ -55,6 +55,9 @@ to the [new AppServer](https://github.com/RADAR-base/RADAR-Appserver).
           --managementportal-password MANAGEMENTPORTAL_PASSWORD
                                 The password for the user to authorise with using
                                 password grant code. (default: admin)
+          --managementportal-secret MANAGEMENTPORTAL_SECRET
+                                The client secret for ManagementPortalapp client for authorising with password grant code.
+                                (default: )
           --appserver-base-url APPSERVER_BASE_URL
                                 Base URL where the Appserver is exposed. (default:
                                 http://localhost:8080)
