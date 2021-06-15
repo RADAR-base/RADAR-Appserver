@@ -92,7 +92,7 @@ def main():
                                  args.hsqldb_driver_path,
                                  )
     mp_client = MpClient(args.managementportal_base_url, args.managementportal_user, 
-                         args.managementportal_password, arg.managementportal_secret)
+                         args.managementportal_password, args.managementportal_secret)
     appserver_client = AppServerClient(args.appserver_base_url, args.appserver_enable_auth,
                                        args.managementportal_base_url, args.appserver_client_id,
                                        args.appserver_client_secret)
