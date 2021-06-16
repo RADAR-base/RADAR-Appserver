@@ -66,6 +66,12 @@ def main():
     parser.add_argument("--managementportal-password", type=str, default="admin",
                         help="The password for the user to authorise with using password grant code.")
 
+    parser.add_argument("--managementportal-client-id", type=str, default="ManagementPortalapp",
+                        help="The client id of Management Portal frontend client for authorising with password grant code.")
+
+    parser.add_argument("--managementportal-client-secret", type=str, default="",
+                        help="The client secret of Management Portal frontend client for authorising with password grant code.")
+
     parser.add_argument("--appserver-base-url", type=str, default="http://localhost:8080",
                         help="Base URL where the Appserver is exposed.")
 
@@ -88,7 +94,11 @@ def main():
                                  args.hsqldb_properties,
                                  args.hsqldb_driver_path,
                                  )
-    mp_client = MpClient(args.managementportal_base_url, args.managementportal_user, args.managementportal_password)
+    mp_client = MpClient(args.managementportal_base_url,
+                         user = args.managementportal_user,
+                         password = args.managementportal_password,
+                         client_id = args.managementportal_client_id,
+                         client_secret = args.managementportal_client_secret)
     appserver_client = AppServerClient(args.appserver_base_url, args.appserver_enable_auth,
                                        args.managementportal_base_url, args.appserver_client_id,
                                        args.appserver_client_secret)
