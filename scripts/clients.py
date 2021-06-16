@@ -35,8 +35,8 @@ class HsqlDBClient:
 
 class MpClient:
 
-    def __init__(self, mp_url, user="admin", password="admin", client_secret="", 
-                 client_id="ManagementPortalapp") -> None:
+    def __init__(self, mp_url, user="admin", password="admin", client_id="ManagementPortalapp",
+                 client_secret="") -> None:
         super().__init__()
         self.mp_url = mp_url
         token_url = f"{mp_url}/oauth/token"
