@@ -72,10 +72,10 @@ class MpClient:
                     return subject
                 else:
                     print(f"Error getting subject {subject_id} from MP: {response}")
-                    exit(1)
+                    #exit(1)
             except ValueError as e:
                 print(f"Error reading JSON response from MP: {e}")
-                exit(1)
+                #exit(1)
 
 
 class AppServerClient:
@@ -109,7 +109,7 @@ class AppServerClient:
                 return requests.get(f"{project_endpoint}/{project['projectId']}").json()
             else:
                 print(f"Error making post request to create project: {project}, {response}")
-                exit(1)
+                #exit(1)
 
     def create_user_on_appserver(self, user: dict) -> dict:
         user_endpoint = f"{self.appserver_url}/projects/{user['projectId']}/users"
@@ -123,7 +123,7 @@ class AppServerClient:
             else:
                 print(
                     f"Error making post request to create User: {user}, {response.status_code}, {response.url}, {response.content}, {response.headers}")
-                exit(1)
+                #exit(1)
 
     def write_notification_to_appserver(self, notification: dict) -> bool:
         notification_endpoint = f"{self.appserver_url}/projects/{notification['projectId']}/users/{notification['subjectId']}/messaging/notifications"
