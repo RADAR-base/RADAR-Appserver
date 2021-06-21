@@ -334,11 +334,12 @@ public class FcmNotificationService implements NotificationService {
     @Transactional
     public void deleteNotificationByProjectIdAndSubjectIdAndNotificationId(String projectId, String subjectId, Long id) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        Long userId = user.getId();
 
-        if (this.notificationRepository.existsByIdAndUserId(id, user.getId())) {
+        if (this.notificationRepository.existsByIdAndUserId(id, userId)) {
             this.schedulerService.deleteScheduled(
-                    this.notificationRepository.findByIdAndUserId(id, user.getId()).get());
-            this.notificationRepository.deleteByIdAndUserId(id, user.getId());
+                    this.notificationRepository.findByIdAndUserId(id, userId).get());
+            this.notificationRepository.deleteByIdAndUserId(id, userId);
         } else
             throw new InvalidNotificationDetailsException(
                     "Notification with the provided ID does not exist.");
