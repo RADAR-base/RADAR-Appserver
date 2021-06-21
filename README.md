@@ -364,7 +364,7 @@ All the classes are located in [/src/main/java/org/radarbase/appserver/auth/mana
 You can provide the Management Portal specific config in [radar_is.yml](radar_is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
 
 ### Management Portal Clients
-If security is enabled, please also make sure that the correct resources and scope are set in the OAuth Client configurations in Management Portal. The resource `res_AppServer` must be added to the `aRMT` client. Please check the `/src/integrationTest/resources/docker/etc/config/oauth_client_details.csv` for an example.
+If security is enabled, please also make sure that the correct resources and scope are set in the OAuth Client configurations in Management Portal. The resource `res_AppServer` must be added to the `aRMT` client. Please check the `/src/integrationTest/resources/docker/etc/config/oauth_client_details.csv` file for an example.
 
 ### Other Security Providers
 For using other type of security providers, set `managementportal.security.enabled=false` and configure the security provider in the spring context and add any necessary classes. See [Management Portal Security](#management-portal) section for an example.
