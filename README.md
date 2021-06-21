@@ -110,7 +110,7 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
     Please update the `scheduledTime` to the desired time of notification delivery.
 
 5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for the user.
-  There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.
+  There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer to [Documentation](#documentation) section.  
     
 ## FCM
 
@@ -362,6 +362,9 @@ This will instantiate all the classes needed for security using the management p
 All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
 
 You can provide the Management Portal specific config in [radar_is.yml](radar_is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
+
+### Management Portal Clients
+If security is enabled, please also make sure that the correct resources and scope are set in the OAuth Client configurations in Management Portal. The resource `res_AppServer` must be added to the `aRMT` client. Please check the `/src/integrationTest/resources/docker/etc/config/oauth_client_details.csv` for an example.
 
 ### Other Security Providers
 For using other type of security providers, set `managementportal.security.enabled=false` and configure the security provider in the spring context and add any necessary classes. See [Management Portal Security](#management-portal) section for an example.
