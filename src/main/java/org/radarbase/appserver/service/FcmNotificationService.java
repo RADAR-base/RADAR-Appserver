@@ -337,7 +337,7 @@ public class FcmNotificationService implements NotificationService {
 
         if (this.notificationRepository.existsByIdAndUserId(id, user.getId())) {
             this.schedulerService.deleteScheduled(
-                    this.notificationRepository.findById(id).get());
+                    this.notificationRepository.findByIdAndUserId(id, user.getId()).get());
             this.notificationRepository.deleteByIdAndUserId(id, user.getId());
         } else
             throw new InvalidNotificationDetailsException(
