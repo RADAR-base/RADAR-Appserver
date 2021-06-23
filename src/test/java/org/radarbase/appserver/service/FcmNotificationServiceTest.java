@@ -301,6 +301,8 @@ class FcmNotificationServiceTest {
                                 1L,
                                 1L))
                 .thenReturn(true);
+
+        Mockito.when(notificationRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(notification1));
     }
 
     @Test
