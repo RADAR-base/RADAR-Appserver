@@ -40,10 +40,12 @@ public class SimpleQuartzNamingStrategy implements QuartzNamingStrategy {
 
   @Override
   public String getJobKeyName(String userName, String messageId) {
-    return new StringBuilder(JOB_PREFIX)
-        .append(userName)
-        .append('-')
-        .append(messageId)
-        .toString();
+    return new StringBuilder(JOB_PREFIX).append(userName).append('-').append(messageId).toString();
+  }
+
+  @Override
+  public String getMessageId(String key) {
+    String[] keys = key.split("-");
+    return keys[keys.length - 1];
   }
 }

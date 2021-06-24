@@ -26,4 +26,6 @@ public interface QuartzNamingStrategy {
   String getTriggerName(String userName, String messageId);
 
   String getJobKeyName(String userName, String messageId);
+
+  String getMessageId(String key);
 }
