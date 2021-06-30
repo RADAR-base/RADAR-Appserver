@@ -43,7 +43,7 @@ public class GithubEndpoint {
     }
 
     @GetMapping("/" + PathsUtil.GITHUB_PATH)
-    public ResponseEntity getGithubContent(@RequestParam(required = false, defaultValue = "true") String url
+    public ResponseEntity getGithubContent(@RequestParam(required = true, defaultValue = "") String url
     ) {
         try {
             return ResponseEntity.ok().body(this.githubClient.getGithubContent(url));
