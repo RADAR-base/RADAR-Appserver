@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
+import org.radarbase.appserver.config.AuthConfig;
 import org.radarbase.appserver.service.protocol.GithubClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,9 +29,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import radar.spring.auth.common.Authorized;
+import radar.spring.auth.common.PermissionOn;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 @RestController
 public class GithubEndpoint {
@@ -42,13 +45,22 @@ public class GithubEndpoint {
         this.githubClient = githubClient;
     }
 
-    @GetMapping("/" + PathsUtil.GITHUB_PATH)
-    public ResponseEntity getGithubContent(@RequestParam(required = true, defaultValue = "") String url
+    @Authorized(
+            permission = AuthConfig.AuthPermissions.READ,
+            entity = AuthConfig.AuthEntities.SUBJECT,
+            permissionOn = PermissionOn.PROJECT)
+    @GetMapping("/" +
+            PathsUtil.GITHUB_PATH
+            + "/" +
+            PathsUtil.GITHUB_CONTENT_PATH)
+    public ResponseEntity getGithubContent(@RequestParam() String url
     ) {
         try {
             return ResponseEntity.ok().body(this.githubClient.getGithubContent(url));
-        } catch (ResponseStatusException | IOException | InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error getting content from Github.");
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IOException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Error getting content from Github.");
         }
     }
 }
