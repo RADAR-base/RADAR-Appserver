@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -66,7 +67,7 @@ public class GithubClient {
     public String getGithubContent(String url) throws IOException, InterruptedException {
         URI uri = URI.create(url);
         if (!this.isValidGithubUri(uri)) {
-            throw new IOException("Invalid Github url.");
+            throw new MalformedURLException("Invalid Github url.");
         }
         HttpResponse response = client.send(getRequest(uri), HttpResponse.BodyHandlers.ofString());
         if (isSuccessfulResponse(response)) {
@@ -83,11 +84,13 @@ public class GithubClient {
     }
 
     private HttpRequest getRequest(URI uri) {
-        return HttpRequest.newBuilder(uri)
-                .header("Authorization", !this.githubToken.isEmpty() ? "Bearer " + this.githubToken : "")
+        HttpRequest.Builder request = HttpRequest.newBuilder(uri)
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
                 .GET()
-                .timeout(Duration.ofSeconds(10))
-                .build();
+                .timeout(Duration.ofSeconds(10));
+        if (githubToken != null && !githubToken.isEmpty()) {
+            request.header("Authorization", "Bearer " + githubToken);
+        }
+        return request.build();
     }
 }
