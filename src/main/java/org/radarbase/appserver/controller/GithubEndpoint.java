@@ -48,7 +48,7 @@ public class GithubEndpoint {
     @Authorized(
             permission = AuthConfig.AuthPermissions.READ,
             entity = AuthConfig.AuthEntities.SUBJECT,
-            permissionOn = PermissionOn.PROJECT)
+            permissionOn = PermissionOn.SUBJECT)
     @GetMapping("/" +
             PathsUtil.GITHUB_PATH
             + "/" +
