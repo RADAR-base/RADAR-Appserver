@@ -58,7 +58,7 @@ public class GithubClient {
     @Autowired
     public GithubClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-        client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).connectTimeout(Duration.ofSeconds(10)).build();
     }
 
     private static boolean isSuccessfulResponse(HttpResponse response) {
@@ -74,11 +74,6 @@ public class GithubClient {
         if (isSuccessfulResponse(response)) {
             return response.body().toString();
         } else {
-            if (response.statusCode() == 301) {
-                // Handle Github redirects
-                String redirectUri = response.headers().map().get(LOCATION_HEADER).get(0);
-                return getGithubContent(redirectUri);
-            }
             log.error("Error getting Github content from URL {} : {}", url, response);
             throw new ResponseStatusException(
                     HttpStatus.valueOf(response.statusCode()), "Github content could not be retrieved");
