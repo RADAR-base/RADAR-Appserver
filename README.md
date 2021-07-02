@@ -356,7 +356,7 @@ To enable security of specific provider, please read the sections below.
 ### Management Portal
 To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), set the following property -
 ```ini
-security.radar.managementportal.url=true
+security.radar.managementportal.enabled=true
 ```
 This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
 All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
