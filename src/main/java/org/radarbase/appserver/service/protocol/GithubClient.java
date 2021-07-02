@@ -47,6 +47,7 @@ public class GithubClient {
 
     private static final String GITHUB_API_URI = "api.github.com";
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
+    private static final String LOCATION_HEADER = "location";
     private final transient ObjectMapper objectMapper;
     private final transient HttpClient client;
 
@@ -73,6 +74,11 @@ public class GithubClient {
         if (isSuccessfulResponse(response)) {
             return response.body().toString();
         } else {
+            if (response.statusCode() == 301) {
+                // Handle Github redirects
+                String redirectUri = response.headers().map().get(LOCATION_HEADER).get(0);
+                return getGithubContent(redirectUri);
+            }
             log.error("Error getting Github content from URL {} : {}", url, response);
             throw new ResponseStatusException(
                     HttpStatus.valueOf(response.statusCode()), "Github content could not be retrieved");
