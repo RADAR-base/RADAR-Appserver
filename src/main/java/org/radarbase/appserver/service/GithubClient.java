@@ -19,7 +19,7 @@
  *
  */
 
-package org.radarbase.appserver.service.protocol;
+package org.radarbase.appserver.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
