@@ -112,6 +112,8 @@ dependencies {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
 
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
+
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
     testCompile group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.3.1'
