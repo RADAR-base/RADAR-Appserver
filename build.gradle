@@ -114,7 +114,7 @@ dependencies {
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
-    testCompile group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.3.1'
+    testCompile group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.6.1'
     //compile('org.liquibase.ext:liquibase-hibernate5:3.6')
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
