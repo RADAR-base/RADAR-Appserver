@@ -210,7 +210,9 @@ public class FcmDataMessageController {
           + "/"
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
-          + PathsUtil.MESSAGING_DATA_PATH)
+          + PathsUtil.MESSAGING_DATA_PATH
+          + "/"
+          + PathsUtil.ALL_KEYWORD)
   public ResponseEntity deleteDataMessagesForUser(
       @PathVariable String projectId, @PathVariable String subjectId) {
 

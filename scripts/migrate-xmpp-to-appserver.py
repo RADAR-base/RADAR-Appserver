@@ -66,6 +66,12 @@ def main():
     parser.add_argument("--managementportal-password", type=str, default="admin",
                         help="The password for the user to authorise with using password grant code.")
 
+    parser.add_argument("--managementportal-client-id", type=str, default="ManagementPortalapp",
+                        help="The client id of Management Portal frontend client for authorising with password grant code.")
+
+    parser.add_argument("--managementportal-client-secret", type=str, default="",
+                        help="The client secret of Management Portal frontend client for authorising with password grant code.")
+
     parser.add_argument("--appserver-base-url", type=str, default="http://localhost:8080",
                         help="Base URL where the Appserver is exposed.")
 
@@ -88,7 +94,11 @@ def main():
                                  args.hsqldb_properties,
                                  args.hsqldb_driver_path,
                                  )
-    mp_client = MpClient(args.managementportal_base_url, args.managementportal_user, args.managementportal_password)
+    mp_client = MpClient(args.managementportal_base_url,
+                         user = args.managementportal_user,
+                         password = args.managementportal_password,
+                         client_id = args.managementportal_client_id,
+                         client_secret = args.managementportal_client_secret)
     appserver_client = AppServerClient(args.appserver_base_url, args.appserver_enable_auth,
                                        args.managementportal_base_url, args.appserver_client_id,
                                        args.appserver_client_secret)
@@ -113,60 +123,63 @@ def main():
 
     # Create notification lists for each user
     for notif in notifs:
+        try:
+            # if scheduled time is before now, skip those notifications
+            sch_time = float(notif[8]) / 1000
+            if sch_time < time.time():
+                print("Notification time is before now. Skipping...")
+                continue
 
-        # if scheduled time is before now, skip those notifications
-        sch_time = float(notif[8]) / 1000
-        if sch_time < time.time():
-            print("Notification time is before now. Skipping...")
+            # Create dict from tuple
+            notif_dict = {
+                'subjectId': notif[0],
+                'fcmToken': notif[1],
+                'notification_task_uuid': notif[2],
+                'fcmMessageId': notif[3],
+                'delivered': "false",
+                'title': notif[5],
+                'ttlSeconds': notif[6],
+                'body': notif[7],
+                'scheduledTime': sch_time,
+                'type': "Unknown",
+                'appPackage': "org.phidatalab.radar_armt",
+                'sourceType': "aRMT-App"
+            }
+
+            # Create Project on AppServer using info from MP
+            subject = sanitise_subject(mp_client.get_subject_details_from_mp(notif_dict["subjectId"]), project_mapping)
+            project_dict = {'projectId': subject['projectId']}
+            if project_dict['projectId'] not in appserver_projects_created.keys():
+                project = appserver_client.create_project_on_appserver(project_dict)
+                appserver_projects_created[project_dict['projectId']] = project
+            else:
+                project = appserver_projects_created[project_dict['projectId']]
+
+            # Create Subject/User on AppServer using info from MP
+            user_dict = {
+                'projectId': subject['projectId'],
+                'subjectId': notif_dict["subjectId"],
+                'enrolmentDate': subject['enrolmentDate'],
+                'timezone': subject['timezone'],
+                'fcmToken': notif_dict['fcmToken'],
+                'language': subject['language'],
+            }
+            if user_dict['subjectId'] not in appserver_users_created.keys():
+                user = appserver_client.create_user_on_appserver(user_dict)
+                appserver_users_created[user_dict['subjectId']] = subject
+            else:
+                user = appserver_users_created[user_dict['subjectId']]
+
+            # Append notification to the subject's list of notifications
+            notif_dict['projectId'] = subject['projectId']
+            notif_dict['sourceId'] = subject['sourceId']
+            if notif_dict['subjectId'] in notif_dict_list.keys():
+                notif_dict_list[notif_dict['subjectId']].append(notif_dict)
+            else:
+                notif_dict_list[notif_dict['subjectId']] = [notif_dict]
+        except IOError as e:
+            print(f"IOERROR: {e}")
             continue
-
-        # Create dict from tuple
-        notif_dict = {
-            'subjectId': notif[0],
-            'fcmToken': notif[1],
-            'notification_task_uuid': notif[2],
-            'fcmMessageId': notif[3],
-            'delivered': "false",
-            'title': notif[5],
-            'ttlSeconds': notif[6],
-            'body': notif[7],
-            'scheduledTime': sch_time,
-            'type': "Unknown",
-            'appPackage': "org.phidatalab.radar_armt",
-            'sourceType': "aRMT-App"
-        }
-
-        # Create Project on AppServer using info from MP
-        subject = sanitise_subject(mp_client.get_subject_details_from_mp(notif_dict["subjectId"]), project_mapping)
-        project_dict = {'projectId': subject['projectId']}
-        if project_dict['projectId'] not in appserver_projects_created.keys():
-            project = appserver_client.create_project_on_appserver(project_dict)
-            appserver_projects_created[project_dict['projectId']] = project
-        else:
-            project = appserver_projects_created[project_dict['projectId']]
-
-        # Create Subject/User on AppServer using info from MP
-        user_dict = {
-            'projectId': subject['projectId'],
-            'subjectId': notif_dict["subjectId"],
-            'enrolmentDate': subject['enrolmentDate'],
-            'timezone': subject['timezone'],
-            'fcmToken': notif_dict['fcmToken'],
-            'language': subject['language'],
-        }
-        if user_dict['subjectId'] not in appserver_users_created.keys():
-            user = appserver_client.create_user_on_appserver(user_dict)
-            appserver_users_created[user_dict['subjectId']] = subject
-        else:
-            user = appserver_users_created[user_dict['subjectId']]
-
-        # Append notification to the subject's list of notifications
-        notif_dict['projectId'] = subject['projectId']
-        notif_dict['sourceId'] = subject['sourceId']
-        if notif_dict['subjectId'] in notif_dict_list.keys():
-            notif_dict_list[notif_dict['subjectId']].append(notif_dict)
-        else:
-            notif_dict_list[notif_dict['subjectId']] = [notif_dict]
 
     # prints number of users with notifications
     print(f"Number of users with valid notifications: {len(notif_dict_list)}")

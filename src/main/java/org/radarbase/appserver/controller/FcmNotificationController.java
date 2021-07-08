@@ -262,7 +262,9 @@ public class FcmNotificationController {
           + "/"
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
-          + PathsUtil.MESSAGING_NOTIFICATION_PATH)
+          + PathsUtil.MESSAGING_NOTIFICATION_PATH
+          + "/"
+          + PathsUtil.ALL_KEYWORD)
   public ResponseEntity deleteNotificationsForUser(
       @PathVariable String projectId, @PathVariable String subjectId) {
 

@@ -1,10 +1,10 @@
 package org.radarbase.appserver.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.radarcns.auth.config.TokenValidatorConfig;
-import org.radarcns.auth.config.TokenVerifierPublicKeyConfig;
-import org.radarcns.auth.exception.ConfigurationException;
-import org.radarcns.auth.token.RadarToken;
+import org.radarbase.auth.config.TokenValidatorConfig;
+import org.radarbase.auth.config.TokenVerifierPublicKeyConfig;
+import org.radarbase.auth.exception.ConfigurationException;
+import org.radarbase.auth.token.RadarToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

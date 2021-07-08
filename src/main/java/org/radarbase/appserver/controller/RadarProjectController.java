@@ -34,7 +34,7 @@ import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.service.ProjectService;
-import org.radarcns.auth.token.RadarToken;
+import org.radarbase.auth.token.RadarToken;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.radarbase.appserver.converter.NotificationConverter;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
@@ -36,10 +37,10 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
-import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.InvalidNotificationDetailsException;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
+import org.radarbase.appserver.exception.NotificationAlreadyExistsException;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
@@ -166,16 +167,17 @@ public class FcmNotificationService implements NotificationService {
             FcmNotificationDto notificationDto, String subjectId, String projectId, boolean schedule) {
 
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        if (!notificationRepository
-                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+        Optional<Notification> notification = notificationRepository
+                .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
                         user.getId(),
                         notificationDto.getSourceId(),
                         notificationDto.getScheduledTime(),
                         notificationDto.getTitle(),
                         notificationDto.getBody(),
                         notificationDto.getType(),
-                        notificationDto.getTtlSeconds())) {
+                        notificationDto.getTtlSeconds());
 
+        if (notification.isEmpty()) {
             Notification notificationSaved =
                     this.notificationRepository.saveAndFlush(
                             new Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build());
@@ -183,13 +185,14 @@ public class FcmNotificationService implements NotificationService {
             this.userRepository.save(user);
             addNotificationStateEvent(
                     notificationSaved, MessageState.ADDED, notificationSaved.getCreatedAt().toInstant());
-            if(schedule){
+            if (schedule) {
                 this.schedulerService.schedule(notificationSaved);
             }
             return notificationConverter.entityToDto(notificationSaved);
         } else {
-            throw new AlreadyExistsException(
-                    "The Notification Already exists. Please Use update endpoint", notificationDto);
+            throw new NotificationAlreadyExistsException(
+                    "The Notification Already exists. Please Use update endpoint",
+                    notificationConverter.entityToDto(notification.get()));
         }
     }
 
@@ -198,16 +201,17 @@ public class FcmNotificationService implements NotificationService {
             FcmNotificationDto notificationDto, String subjectId, String projectId) {
 
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        if (!notificationRepository
-                .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+        Optional<Notification> notification = notificationRepository
+                .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
                         user.getId(),
                         notificationDto.getSourceId(),
                         notificationDto.getScheduledTime(),
                         notificationDto.getTitle(),
                         notificationDto.getBody(),
                         notificationDto.getType(),
-                        notificationDto.getTtlSeconds())) {
+                        notificationDto.getTtlSeconds());
 
+        if (notification.isEmpty()) {
             Notification notificationSaved =
                     this.notificationRepository.saveAndFlush(
                             new Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build());
@@ -218,8 +222,9 @@ public class FcmNotificationService implements NotificationService {
             this.schedulerService.schedule(notificationSaved);
             return notificationConverter.entityToDto(notificationSaved);
         } else {
-            throw new AlreadyExistsException(
-                    "The Notification Already exists. Please Use update endpoint", notificationDto);
+            throw new NotificationAlreadyExistsException(
+                    "The Notification Already exists. Please Use update endpoint",
+                    notificationConverter.entityToDto(notification.get()));
         }
     }
 
@@ -283,19 +288,19 @@ public class FcmNotificationService implements NotificationService {
     @Transactional
     public FcmNotificationDto scheduleNotification(String subjectId, String projectId, long notificationId) {
 
-      User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-      Optional<Notification> notification = notificationRepository.findByIdAndUserId(notificationId, user.getId());
-      if (notification.isEmpty()) {
-                throw new NotFoundException(
-                        "The Notification with Id "
-                                + notificationId
-                                + " does not exist in project "
-                                + projectId
-                                + " for user "
-                                + subjectId);
-            }
-      this.schedulerService.schedule(notification.get());
-      return notificationConverter.entityToDto(notification.get());
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        Optional<Notification> notification = notificationRepository.findByIdAndUserId(notificationId, user.getId());
+        if (notification.isEmpty()) {
+            throw new NotFoundException(
+                    "The Notification with Id "
+                            + notificationId
+                            + " does not exist in project "
+                            + projectId
+                            + " for user "
+                            + subjectId);
+        }
+        this.schedulerService.schedule(notification.get());
+        return notificationConverter.entityToDto(notification.get());
     }
 
     @Transactional
@@ -327,12 +332,15 @@ public class FcmNotificationService implements NotificationService {
 
     // TODO: Investigate if notifications can be marked in the state CANCELLED when deleted.
     @Transactional
-    public void deleteNotificationByProjectIdAndSubjectIdAndNotificationId(String projectId, String subjectId, long id) {
+    public void deleteNotificationByProjectIdAndSubjectIdAndNotificationId(String projectId, String subjectId, Long id) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        Long userId = user.getId();
 
-        if (this.notificationRepository.existsByIdAndUserId(id, user.getId()))
-            this.notificationRepository.deleteByIdAndUserId(id, user.getId());
-        else
+        if (this.notificationRepository.existsByIdAndUserId(id, userId)) {
+            this.schedulerService.deleteScheduled(
+                    this.notificationRepository.findByIdAndUserId(id, userId).get());
+            this.notificationRepository.deleteByIdAndUserId(id, userId);
+        } else
             throw new InvalidNotificationDetailsException(
                     "Notification with the provided ID does not exist.");
     }
@@ -344,7 +352,7 @@ public class FcmNotificationService implements NotificationService {
         user.ifPresentOrElse(
                 (User user1) -> {
                     this.schedulerService.deleteScheduledMultiple(
-                        this.notificationRepository.findByUserId(user1.getId()));
+                            this.notificationRepository.findByUserId(user1.getId()));
 
                     this.notificationRepository.deleteByUserId(user1.getId());
                 },
@@ -370,7 +378,7 @@ public class FcmNotificationService implements NotificationService {
         this.notificationRepository.flush();
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
-        if(schedule){
+        if (schedule) {
             this.schedulerService.scheduleMultiple(savedNotifications);
         }
         return new FcmNotifications()
@@ -444,4 +452,5 @@ public class FcmNotificationService implements NotificationService {
         }
         return notification.get();
     }
+
 }

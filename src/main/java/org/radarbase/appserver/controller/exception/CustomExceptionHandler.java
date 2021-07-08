@@ -23,6 +23,7 @@ package org.radarbase.appserver.controller.exception;
 
 import java.util.Map;
 import org.hibernate.exception.ConstraintViolationException;
+import org.radarbase.appserver.exception.NotificationAlreadyExistsException;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -58,5 +61,12 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     Map<String, Object> body = DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(request, true);
     body.put("status", status);
     return handleExceptionInternal(ex, body, headers, status, request);
+  }
+
+  @ExceptionHandler(NotificationAlreadyExistsException.class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  public @ResponseBody NotificationAlreadyExistsException handleException(
+      NotificationAlreadyExistsException e) {
+    return e;
   }
 }
