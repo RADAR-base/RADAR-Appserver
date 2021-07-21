@@ -25,6 +25,9 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.entity.DataMessage;
+import org.radarbase.appserver.service.FcmDataMessageService;
+import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.UserService;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmDataMessage;
@@ -46,8 +49,11 @@ public class DataMessageSchedulerService extends MessageSchedulerService<DataMes
 
     public DataMessageSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-            @Autowired SchedulerService schedulerService) {
-        super(fcmSender, schedulerService);
+            @Autowired SchedulerService schedulerService,
+            @Autowired UserService userService,
+            @Autowired FcmNotificationService notificationService,
+            @Autowired FcmDataMessageService dataMessageService) {
+        super(fcmSender, schedulerService, userService, notificationService, dataMessageService);
     }
 
     private static FcmDataMessage createMessageFromDataMessage(DataMessage dataMessage) {
@@ -73,8 +79,8 @@ public class DataMessageSchedulerService extends MessageSchedulerService<DataMes
         } catch (FirebaseMessagingException exc) {
             log.error("Error occurred when sending downstream message.", exc);
             // TODO: update the data message status using event
-            handleErrorCode(exc.getErrorCode());
-            handleFCMErrorCode(exc.getMessagingErrorCode());
+            handleErrorCode(exc.getErrorCode(), dataMessage);
+            handleFCMErrorCode(exc.getMessagingErrorCode(), dataMessage);
         }
     }
 }

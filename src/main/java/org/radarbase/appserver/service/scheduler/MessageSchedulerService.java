@@ -37,10 +37,14 @@ import org.quartz.JobKey;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
+import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.service.FcmDataMessageService;
+import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
+import org.radarbase.appserver.service.UserService;
 import org.radarbase.appserver.service.scheduler.quartz.MessageJob;
 import org.radarbase.appserver.service.scheduler.quartz.QuartzNamingStrategy;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
@@ -63,12 +67,21 @@ public abstract class MessageSchedulerService<T extends Message> {
     protected static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;
     protected final transient FcmSender fcmSender;
     protected final transient SchedulerService schedulerService;
+    protected final transient UserService userService;
+    protected final transient FcmNotificationService notificationService;
+    protected final transient FcmDataMessageService dataMessageService;
 
     public MessageSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-            @Autowired SchedulerService schedulerService) {
+            @Autowired SchedulerService schedulerService,
+            @Autowired UserService userService,
+            @Autowired FcmNotificationService notificationService,
+            @Autowired FcmDataMessageService dataMessageService) {
         this.fcmSender = fcmSender;
         this.schedulerService = schedulerService;
+        this.userService = userService;
+        this.notificationService = notificationService;
+        this.dataMessageService = dataMessageService;
     }
 
     public abstract void send(T message) throws Exception;
@@ -193,7 +206,7 @@ public abstract class MessageSchedulerService<T extends Message> {
         }
     }
 
-    protected void handleErrorCode(ErrorCode errorCode) {
+    protected void handleErrorCode(ErrorCode errorCode, Message message) {
         // More info on ErrorCode: https://firebase.google.com/docs/reference/fcm/rest/v1/ErrorCode
         switch (errorCode) {
             case INVALID_ARGUMENT:
@@ -220,7 +233,7 @@ public abstract class MessageSchedulerService<T extends Message> {
         }
     }
 
-    protected void handleFCMErrorCode(MessagingErrorCode errorCode) {
+    protected void handleFCMErrorCode(MessagingErrorCode errorCode, Message message) {
         switch (errorCode) {
             case INTERNAL:
             case QUOTA_EXCEEDED:
@@ -233,8 +246,13 @@ public abstract class MessageSchedulerService<T extends Message> {
                 log.warn("The FCM service is unavailable.");
                 break;
             case UNREGISTERED:
-                //TODO: remove all scheduled notifications/messages for this user.
-                log.warn("The Device was unregistered.");
+                FcmUserDto userDto = new FcmUserDto(message.getUser()).setFcmToken("undefined");
+                log.warn("The Device for user {} was unregistered.", userDto.getSubjectId());
+                notificationService
+                        .removeNotificationsForUser(userDto.getProjectId(), userDto.getSubjectId());
+                dataMessageService
+                        .removeDataMessagesForUser(userDto.getProjectId(), userDto.getSubjectId());
+                userService.updateUser(userDto);
                 break;
         }
     }

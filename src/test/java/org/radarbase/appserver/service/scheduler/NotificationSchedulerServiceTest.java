@@ -28,16 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +52,10 @@ import org.radarbase.appserver.config.SchedulerConfig;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.service.FcmDataMessageService;
+import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
+import org.radarbase.appserver.service.UserService;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerServiceTest.SchedulerServiceTestConfig;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerServiceImpl;
 import org.radarbase.fcm.downstream.FcmSender;
@@ -222,7 +223,9 @@ class NotificationSchedulerServiceTest {
 
             // mock FCM as we do not want to connect to the server
             return new NotificationSchedulerService(
-                    mock(FcmSender.class), new SchedulerServiceImpl(scheduler));
+                    mock(FcmSender.class), new SchedulerServiceImpl(scheduler),
+                    mock(UserService.class), mock(FcmNotificationService.class),
+                    mock(FcmDataMessageService.class));
         }
     }
 
