@@ -139,6 +139,45 @@ public class RadarUserControllerTest {
     }
 
     @Test
+    void addUserToProjectWhenFcmTokenExists() throws Exception {
+        FcmUserDto userDtoNew =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-new")
+                        .setFcmToken(FCM_TOKEN_2)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("en")
+                        .setTimezone(TIMEZONE)
+                        .setId(2L);
+
+        FcmUserDto userDtoSameToken =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-new-user")
+                        .setFcmToken(FCM_TOKEN_2)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("en")
+                        .setTimezone(TIMEZONE)
+                        .setId(1L);
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders.post(new URI("/projects/test-project/users"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDtoNew)))
+                .andDo(result ->
+                        mockMvc.perform(MockMvcRequestBuilders.post(new URI("/projects/test-project/users"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDtoSameToken)))
+                .andExpect(status().isConflict()));
+
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders.post(new URI("/projects/test-project/users?forceFcmToken=true"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDtoSameToken)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)));
+    }
+
+    @Test
     void updateUserInProject() throws Exception {
         FcmUserDto userDtoUpdated =
                 new FcmUserDto()
