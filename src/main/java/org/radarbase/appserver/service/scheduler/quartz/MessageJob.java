@@ -164,13 +164,13 @@ public class MessageJob implements Job {
         log.warn("The FCM service is unavailable.");
         break;
       case UNREGISTERED:
-        FcmUserDto userDto = new FcmUserDto(message.getUser()).setFcmToken("undefined");
+        FcmUserDto userDto = new FcmUserDto(message.getUser());
         log.warn("The Device for user {} was unregistered.", userDto.getSubjectId());
         notificationService.removeNotificationsForUser(
             userDto.getProjectId(), userDto.getSubjectId());
         dataMessageService.removeDataMessagesForUser(
             userDto.getProjectId(), userDto.getSubjectId());
-        userService.updateUser(userDto);
+        userService.checkFcmTokenExistsAndReplace(userDto);
         break;
     }
   }
