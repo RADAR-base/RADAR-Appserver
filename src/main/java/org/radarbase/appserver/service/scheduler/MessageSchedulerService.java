@@ -21,8 +21,6 @@
 
 package org.radarbase.appserver.service.scheduler;
 
-import com.google.firebase.ErrorCode;
-import com.google.firebase.messaging.MessagingErrorCode;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,14 +35,10 @@ import org.quartz.JobKey;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.service.FcmDataMessageService;
-import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
-import org.radarbase.appserver.service.UserService;
 import org.radarbase.appserver.service.scheduler.quartz.MessageJob;
 import org.radarbase.appserver.service.scheduler.quartz.QuartzNamingStrategy;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
@@ -67,21 +61,12 @@ public abstract class MessageSchedulerService<T extends Message> {
     protected static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;
     protected final transient FcmSender fcmSender;
     protected final transient SchedulerService schedulerService;
-    protected final transient UserService userService;
-    protected final transient FcmNotificationService notificationService;
-    protected final transient FcmDataMessageService dataMessageService;
 
     public MessageSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-            @Autowired SchedulerService schedulerService,
-            @Autowired UserService userService,
-            @Autowired FcmNotificationService notificationService,
-            @Autowired FcmDataMessageService dataMessageService) {
+            @Autowired SchedulerService schedulerService) {
         this.fcmSender = fcmSender;
         this.schedulerService = schedulerService;
-        this.userService = userService;
-        this.notificationService = notificationService;
-        this.dataMessageService = dataMessageService;
     }
 
     public abstract void send(T message) throws Exception;
@@ -203,57 +188,6 @@ public abstract class MessageSchedulerService<T extends Message> {
             return MessageType.DATA;
         } else {
             return MessageType.UNKNOWN;
-        }
-    }
-
-    protected void handleErrorCode(ErrorCode errorCode, Message message) {
-        // More info on ErrorCode: https://firebase.google.com/docs/reference/fcm/rest/v1/ErrorCode
-        switch (errorCode) {
-            case INVALID_ARGUMENT:
-            case INTERNAL:
-            case ABORTED:
-            case CONFLICT:
-            case CANCELLED:
-            case DATA_LOSS:
-            case NOT_FOUND:
-            case OUT_OF_RANGE:
-            case ALREADY_EXISTS:
-            case DEADLINE_EXCEEDED:
-            case PERMISSION_DENIED:
-            case RESOURCE_EXHAUSTED:
-            case FAILED_PRECONDITION:
-            case UNAUTHENTICATED:
-            case UNKNOWN:
-                break;
-            case UNAVAILABLE:
-                // TODO: Could schedule for retry.
-                log.warn("The FCM service is unavailable.");
-                break;
-
-        }
-    }
-
-    protected void handleFCMErrorCode(MessagingErrorCode errorCode, Message message) {
-        switch (errorCode) {
-            case INTERNAL:
-            case QUOTA_EXCEEDED:
-            case INVALID_ARGUMENT:
-            case SENDER_ID_MISMATCH:
-            case THIRD_PARTY_AUTH_ERROR:
-                break;
-            case UNAVAILABLE:
-                // TODO: Could schedule for retry.
-                log.warn("The FCM service is unavailable.");
-                break;
-            case UNREGISTERED:
-                FcmUserDto userDto = new FcmUserDto(message.getUser()).setFcmToken("undefined");
-                log.warn("The Device for user {} was unregistered.", userDto.getSubjectId());
-                notificationService
-                        .removeNotificationsForUser(userDto.getProjectId(), userDto.getSubjectId());
-                dataMessageService
-                        .removeDataMessagesForUser(userDto.getProjectId(), userDto.getSubjectId());
-                userService.updateUser(userDto);
-                break;
         }
     }
 }

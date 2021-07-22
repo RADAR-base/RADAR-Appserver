@@ -21,15 +21,11 @@
 
 package org.radarbase.appserver.service.scheduler;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.service.FcmDataMessageService;
-import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.UserService;
 import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
 import org.radarbase.fcm.downstream.FcmSender;
 import org.radarbase.fcm.model.FcmNotificationMessage;
@@ -50,11 +46,8 @@ public class NotificationSchedulerService extends MessageSchedulerService<Notifi
 
     public NotificationSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-            @Autowired SchedulerService schedulerService,
-            @Autowired UserService userService,
-            @Autowired FcmNotificationService notificationService,
-            @Autowired FcmDataMessageService dataMessageService) {
-        super(fcmSender, schedulerService, userService, notificationService, dataMessageService);
+            @Autowired SchedulerService schedulerService) {
+        super(fcmSender, schedulerService);
     }
 
     private static Map<String, Object> getNotificationMap(Notification notification) {
@@ -99,13 +92,6 @@ public class NotificationSchedulerService extends MessageSchedulerService<Notifi
 
 
     public void send(Notification notification) throws Exception {
-        try {
         fcmSender.send(createMessageFromNotification(notification));
-        } catch (FirebaseMessagingException exc) {
-            log.error("Error occurred when sending downstream message.", exc);
-            // TODO: update the notification status using event
-            handleErrorCode(exc.getErrorCode(), notification);
-            handleFCMErrorCode(exc.getMessagingErrorCode(), notification);
-        }
     }
 }
