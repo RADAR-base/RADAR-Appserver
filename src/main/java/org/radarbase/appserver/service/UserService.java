@@ -53,6 +53,8 @@ public class UserService {
   private final transient UserRepository userRepository;
   private final transient ProjectRepository projectRepository;
 
+  private static final String FCM_TOKEN_PREFIX = "unregistered_";
+
   @Autowired
   public UserService(
       UserConverter userConverter,
@@ -127,7 +129,7 @@ public class UserService {
       if (user.isPresent()) {
           User existingUser = user.get();
           if (!existingUser.getSubjectId().equals(userDto.getSubjectId())) {
-              existingUser.setFcmToken(Instant.now().toString());
+              existingUser.setFcmToken(FCM_TOKEN_PREFIX + Instant.now().toString());
               this.userRepository.save(existingUser);
           }
       }
