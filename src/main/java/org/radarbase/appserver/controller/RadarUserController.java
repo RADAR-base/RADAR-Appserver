@@ -36,13 +36,7 @@ import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.auth.token.RadarToken;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import radar.spring.auth.common.AuthAspect;
 import radar.spring.auth.common.Authorization;
 import radar.spring.auth.common.Authorized;
@@ -80,7 +74,8 @@ public class RadarUserController {
   public ResponseEntity<FcmUserDto> addUserToProject(
       HttpServletRequest request,
       @Valid @RequestBody FcmUserDto userDto,
-      @Valid @PathVariable String projectId)
+      @Valid @PathVariable String projectId,
+      @RequestParam(required = false, defaultValue = "false") boolean forceFcmToken)
       throws URISyntaxException {
     userDto.setProjectId(projectId);
 
@@ -94,6 +89,7 @@ public class RadarUserController {
           projectId,
           userDto.getSubjectId(),
           null)) {
+        if (forceFcmToken) this.userService.checkFcmTokenExistsAndReplace(userDto);
         FcmUserDto user = this.userService.saveUserInProject(userDto);
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
@@ -103,6 +99,7 @@ public class RadarUserController {
             "The provided token does not have enough privileges.");
       }
     } else {
+      if (forceFcmToken) this.userService.checkFcmTokenExistsAndReplace(userDto);
       FcmUserDto user = this.userService.saveUserInProject(userDto);
       return ResponseEntity.created(new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
           .body(user);
@@ -125,9 +122,11 @@ public class RadarUserController {
   public ResponseEntity<FcmUserDto> updateUserInProject(
       @Valid @RequestBody FcmUserDto userDto,
       @Valid @PathVariable String subjectId,
-      @Valid @PathVariable String projectId) {
+      @Valid @PathVariable String projectId,
+      @RequestParam(required = false, defaultValue = "false") boolean forceFcmToken) {
     userDto.setSubjectId(subjectId);
     userDto.setProjectId(projectId);
+    if (forceFcmToken) this.userService.checkFcmTokenExistsAndReplace(userDto);
     FcmUserDto user = this.userService.updateUser(userDto);
     return ResponseEntity.ok(user);
   }

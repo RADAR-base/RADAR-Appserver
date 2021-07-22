@@ -53,6 +53,8 @@ public class UserService {
   private final transient UserRepository userRepository;
   private final transient ProjectRepository projectRepository;
 
+  private static final String FCM_TOKEN_PREFIX = "unregistered_";
+
   @Autowired
   public UserService(
       UserConverter userConverter,
@@ -119,6 +121,18 @@ public class UserService {
     } else {
       throw new NotFoundException("No User was found with the subject ID - " + subjectId);
     }
+  }
+
+  @Transactional
+  public void checkFcmTokenExistsAndReplace(FcmUserDto userDto) {
+      Optional<User> user = this.userRepository.findByFcmToken(userDto.getFcmToken());
+      if (user.isPresent()) {
+          User existingUser = user.get();
+          if (!existingUser.getSubjectId().equals(userDto.getSubjectId())) {
+              existingUser.setFcmToken(FCM_TOKEN_PREFIX + Instant.now().toString());
+              this.userRepository.save(existingUser);
+          }
+      }
   }
 
   @Transactional
