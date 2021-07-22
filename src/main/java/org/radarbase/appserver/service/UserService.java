@@ -122,6 +122,18 @@ public class UserService {
   }
 
   @Transactional
+  public void checkFcmTokenExistsAndReplace(FcmUserDto userDto) {
+      Optional<User> user = this.userRepository.findByFcmToken(userDto.getFcmToken());
+      if (user.isPresent()) {
+          User existingUser = user.get();
+          if (!existingUser.getSubjectId().equals(userDto.getSubjectId())) {
+              existingUser.setFcmToken(Instant.now().toString());
+              this.userRepository.save(existingUser);
+          }
+      }
+  }
+
+  @Transactional
   public FcmUserDto saveUserInProject(FcmUserDto userDto) {
 
     // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject
