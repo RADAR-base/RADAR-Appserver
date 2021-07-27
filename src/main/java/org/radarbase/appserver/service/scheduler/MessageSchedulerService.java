@@ -21,8 +21,6 @@
 
 package org.radarbase.appserver.service.scheduler;
 
-import com.google.firebase.ErrorCode;
-import com.google.firebase.messaging.MessagingErrorCode;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -190,52 +188,6 @@ public abstract class MessageSchedulerService<T extends Message> {
             return MessageType.DATA;
         } else {
             return MessageType.UNKNOWN;
-        }
-    }
-
-    protected void handleErrorCode(ErrorCode errorCode) {
-        // More info on ErrorCode: https://firebase.google.com/docs/reference/fcm/rest/v1/ErrorCode
-        switch (errorCode) {
-            case INVALID_ARGUMENT:
-            case INTERNAL:
-            case ABORTED:
-            case CONFLICT:
-            case CANCELLED:
-            case DATA_LOSS:
-            case NOT_FOUND:
-            case OUT_OF_RANGE:
-            case ALREADY_EXISTS:
-            case DEADLINE_EXCEEDED:
-            case PERMISSION_DENIED:
-            case RESOURCE_EXHAUSTED:
-            case FAILED_PRECONDITION:
-            case UNAUTHENTICATED:
-            case UNKNOWN:
-                break;
-            case UNAVAILABLE:
-                // TODO: Could schedule for retry.
-                log.warn("The FCM service is unavailable.");
-                break;
-
-        }
-    }
-
-    protected void handleFCMErrorCode(MessagingErrorCode errorCode) {
-        switch (errorCode) {
-            case INTERNAL:
-            case QUOTA_EXCEEDED:
-            case INVALID_ARGUMENT:
-            case SENDER_ID_MISMATCH:
-            case THIRD_PARTY_AUTH_ERROR:
-                break;
-            case UNAVAILABLE:
-                // TODO: Could schedule for retry.
-                log.warn("The FCM service is unavailable.");
-                break;
-            case UNREGISTERED:
-                //TODO: remove all scheduled notifications/messages for this user.
-                log.warn("The Device was unregistered.");
-                break;
         }
     }
 }

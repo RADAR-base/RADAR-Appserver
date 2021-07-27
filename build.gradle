@@ -25,7 +25,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '1.2.0'
+version = '1.3.0'
 sourceCompatibility = 1.11
 
 repositories {
@@ -111,6 +111,8 @@ dependencies {
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion) {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
+
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 

@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service.scheduler;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -93,13 +92,6 @@ public class NotificationSchedulerService extends MessageSchedulerService<Notifi
 
 
     public void send(Notification notification) throws Exception {
-        try {
         fcmSender.send(createMessageFromNotification(notification));
-        } catch (FirebaseMessagingException exc) {
-            log.error("Error occurred when sending downstream message.", exc);
-            // TODO: update the notification status using event
-            handleErrorCode(exc.getErrorCode());
-            handleFCMErrorCode(exc.getMessagingErrorCode());
-        }
     }
 }
