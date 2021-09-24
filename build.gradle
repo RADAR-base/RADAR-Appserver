@@ -104,7 +104,7 @@ dependencies {
     compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.12'
 
     // FCM Admin SDK
-    implementation 'com.google.firebase:firebase-admin:7.0.0'
+    implementation 'com.google.firebase:firebase-admin:8.1.0'
 
     // AOP
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.2.8.RELEASE'
