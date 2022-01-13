@@ -93,6 +93,7 @@ jobs:
               key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'src/main/**') }}
               restore-keys: |
                   ${{ runner.os }}-buildx-
+
         - name: Cache parameters
           id: cache-parameters
           run: |
@@ -101,6 +102,7 @@ jobs:
               else
                 echo "::set-output name=cache-to::type=local,dest=/tmp/.buildx-cache-new,mode=max"
               fi
+
         - name: Build docker
           uses: docker/build-push-action@v2
           with:
@@ -115,11 +117,9 @@ jobs:
                   org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
                   org.opencontainers.image.vendor=RADAR-base
                   org.opencontainers.image.licenses=Apache-2.0
+                  
         - name: Inspect docker image
           run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
-
-        - name: Check docker image
-          run: docker run --rm --env SPRING_PROFILES_ACTIVE=dev ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help
 
         # Push the image on the dev and master branches
         - name: Push image
