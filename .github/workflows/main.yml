@@ -119,7 +119,7 @@ jobs:
           run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
 
         - name: Check docker image
-          run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help --env SPRING_DATASOURCE_URL=jdbc:hsqldb:hsql://localhost:9001/appserver
+          run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} --env SPRING_PROFILES_ACTIVE=dev curl --help
 
         # Push the image on the dev and master branches
         - name: Push image
