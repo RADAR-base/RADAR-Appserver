@@ -113,11 +113,11 @@ jobs:
               # Use runtime labels from docker_meta as well as fixed labels
               labels: |
                   ${{ steps.docker_meta.outputs.labels }}
-                  maintainer=Joris Borgdorff <joris@thehyve.nl>
-                  org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
+                  maintainer=Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>
+                  org.opencontainers.image.authors=Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>
                   org.opencontainers.image.vendor=RADAR-base
                   org.opencontainers.image.licenses=Apache-2.0
-                  
+
         - name: Inspect docker image
           run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
 
