@@ -77,7 +77,7 @@ dependencies {
     implementation(group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion)
 
     // Fix potential vulnerabilities
-    implementation(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.0.RELEASE')
+    implementation(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.1.RELEASE')
 
     // XMPP
     implementation group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
