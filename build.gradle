@@ -86,7 +86,7 @@ dependencies {
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
-    implementation 'org.scala-lang:scala-library:2.13.6'
+    implementation 'org.scala-lang:scala-library:2.13.8'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
