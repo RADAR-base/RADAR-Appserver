@@ -25,12 +25,11 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '1.2.0-SNAPSHOT'
+version = '1.4.0-SNAPSHOT'
 sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 configurations { codacy }
@@ -78,18 +77,16 @@ dependencies {
     implementation(group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion)
 
     // Fix potential vulnerabilities
-    implementation(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2' +
-            '.5.1.RELEASE')
+    implementation(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.0.RELEASE')
 
     // XMPP
-    implementation group: 'org.springframework.integration', name: 'spring-integration-xmpp', version:
-            springInegrationXmppVersion
+    implementation group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
     implementation(group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion)
 
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
-    implementation 'org.scala-lang:scala-library:2.13.3'
+    implementation 'org.scala-lang:scala-library:2.13.6'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
@@ -97,16 +94,17 @@ dependencies {
     runtimeOnly('com.h2database:h2:1.4.200')
     runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.2.23')
 
+
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-    annotationProcessor "org.springframework:spring-context-indexer:5.2.8.RELEASE"
+    annotationProcessor 'org.springframework:spring-context-indexer:5.3.15'
 
     compileOnly 'net.jcip:jcip-annotations:1.0'
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.12'
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.5.3'
 
     // FCM Admin SDK
-    implementation 'com.google.firebase:firebase-admin:8.0.0'
+    implementation 'com.google.firebase:firebase-admin:8.1.0'
 
     // AOP
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.2.8.RELEASE'
@@ -119,7 +117,9 @@ dependencies {
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.3.1'
-    //compile('org.liquibase.ext:liquibase-hibernate5:3.6')
+
+    implementation('org.liquibase.ext:liquibase-hibernate5:3.6')
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
     }
@@ -130,7 +130,7 @@ dependencies {
     testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.6.2'
     testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.6.2'
 
-    testImplementation 'com.github.spotbugs:spotbugs-annotations:3.1.3'
+    testCompileOnly 'com.github.spotbugs:spotbugs-annotations:4.5.3'
 
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 }
@@ -142,20 +142,16 @@ checkstyle {
     sourceSets = [it.sourceSets.main]
 }
 
-pmd {
-    toolVersion "6.14.0"
-}
-
-javadoc {
+tasks.javadoc {
     options.addBooleanOption('html5', true)
     destinationDir = new File("${project.rootDir}/src/main/resources/static/java-docs".toString())
 }
 
-wrapper {
-    gradleVersion '7.1.1'
+tasks.wrapper {
+    gradleVersion '7.4'
 }
 
-test {
+tasks.test {
     useJUnitPlatform() {
         excludeEngines 'junit-vintage'
     }
@@ -169,7 +165,7 @@ task unpack(type: Copy) {
 }
 
 task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
-    main = "com.codacy.CodacyCoverageReporter"
+    mainClass = "com.codacy.CodacyCoverageReporter"
     classpath = configurations.codacy
     args = [
             "-l",
@@ -187,7 +183,7 @@ task loadTest(type: JavaExec) {
     jvmArgs = [
             "-Dgatling.core.directory.binaries=${sourceSets.main.output.classesDirs.toString()}"
     ]
-    main = "io.gatling.app.Gatling"
+    mainClass = "io.gatling.app.Gatling"
     args = [
             "--simulation", "org.radarbase.appserver.ApiGatlingSimulationTest",
             "--results-folder", "${buildDir}/gatling-results",

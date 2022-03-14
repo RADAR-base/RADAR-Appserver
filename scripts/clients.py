@@ -71,10 +71,8 @@ class MpClient:
                     self.subject_cache[subject_id] = subject
                     return subject
                 else:
-                    # print(f"Error getting subject {subject_id} from MP: {response}")
                     raise IOError(f"Error getting subject {subject_id} from MP: {response}")
             except ValueError as e:
-                # print(f"Error reading JSON response from MP: {e}")
                 raise IOError(f"Error reading JSON response from MP: {e}")
 
 
@@ -108,7 +106,6 @@ class AppServerClient:
                 print(f"The project {project} already exists")
                 return requests.get(f"{project_endpoint}/{project['projectId']}").json()
             else:
-                # print(f"Error making post request to create project: {project}, {response}")
                 raise IOError(f"Error making post request to create project: {project}, {response}")
 
     def create_user_on_appserver(self, user: dict) -> dict:
@@ -121,7 +118,6 @@ class AppServerClient:
                 print(f"The user {user} already exists")
                 return requests.get(f"{user_endpoint}/{user['subjectId']}").json()
             else:
-                # print(f"Error making post request to create User: {user}, {response.status_code}, {response.url}, {response.content}, {response.headers}")
                 raise IOError(f"Error making post request to create User: {user}, {response.status_code}, {response.url}, {response.content}, {response.headers}")
 
     def write_notification_to_appserver(self, notification: dict) -> bool:
