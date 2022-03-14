@@ -10,7 +10,6 @@ buildscript {
     }
 }
 plugins {
-    id 'checkstyle'
     id 'pmd'
     id "com.github.spotbugs" version "4.5.0"
     id 'jacoco'
@@ -18,6 +17,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
+apply plugin: 'checkstyle'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
@@ -45,7 +45,7 @@ ext {
     smackVersion = '4.3.1'
     springDocVersion = '1.2.33'
     springInegrationXmppVersion = '5.2.4.RELEASE'
-    lombokVersion = '1.18.12'
+    lombokVersion = '1.18.22'
     bootAdminVersion = '2.2.2'
     throwingFunctionVersion = '1.5.0'
     junit5Version = '5.6.0'
@@ -74,29 +74,31 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
 
-    compile(group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion)
+    implementation(group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion)
     implementation(group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion)
 
     // Fix potential vulnerabilities
-    compile(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.0.RELEASE')
+    implementation(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2' +
+            '.5.1.RELEASE')
 
     // XMPP
-    compile group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
-    compile(group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion)
+    implementation group: 'org.springframework.integration', name: 'spring-integration-xmpp', version:
+            springInegrationXmppVersion
+    implementation(group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion)
 
     // Open API spec
-    compile(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
+    implementation(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
-    compile 'org.scala-lang:scala-library:2.13.3'
+    implementation 'org.scala-lang:scala-library:2.13.3'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
-    runtime('com.h2database:h2:1.4.200')
-    runtime(group: 'org.postgresql', name: 'postgresql', version: '42.2.15')
+    runtimeOnly('com.h2database:h2:1.4.200')
+    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.2.23')
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-    compile group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+    implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
     annotationProcessor "org.springframework:spring-context-indexer:5.2.8.RELEASE"
 
@@ -104,7 +106,7 @@ dependencies {
     compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.12'
 
     // FCM Admin SDK
-    implementation 'com.google.firebase:firebase-admin:7.0.0'
+    implementation 'com.google.firebase:firebase-admin:8.0.0'
 
     // AOP
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.2.8.RELEASE'
@@ -116,7 +118,7 @@ dependencies {
 
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
-    testCompile group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.3.1'
+    testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.3.1'
     //compile('org.liquibase.ext:liquibase-hibernate5:3.6')
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
@@ -128,15 +130,16 @@ dependencies {
     testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.6.2'
     testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.6.2'
 
-    testCompileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.3'
+    testImplementation 'com.github.spotbugs:spotbugs-annotations:3.1.3'
 
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 }
 
 checkstyle {
-    configDir file("config/checkstyle")
-    toolVersion "8.20"
+    configDirectory = file("config/checkstyle")
+    toolVersion = "8.20"
     showViolations = false
+    sourceSets = [it.sourceSets.main]
 }
 
 pmd {
@@ -149,7 +152,7 @@ javadoc {
 }
 
 wrapper {
-    gradleVersion '6.6'
+    gradleVersion '7.1.1'
 }
 
 test {
@@ -159,6 +162,7 @@ test {
 }
 
 task unpack(type: Copy) {
+    duplicatesStrategy = 'include'
     dependsOn bootJar
     from(zipTree(tasks.bootJar.outputs.files.singleFile))
     into("build/dependency")
@@ -197,6 +201,10 @@ task integrationTest(type: Test) {
     classpath = sourceSets.integrationTest.runtimeClasspath
 
     shouldRunAfter test
+}
+
+rootProject.tasks.named("processIntegrationTestResources") {
+    duplicatesStrategy = 'include'
 }
 
 check.dependsOn integrationTest
