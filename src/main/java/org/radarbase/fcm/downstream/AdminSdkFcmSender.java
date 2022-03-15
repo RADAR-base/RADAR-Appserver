@@ -53,7 +53,7 @@ import org.radarbase.fcm.model.FcmNotificationMessage;
  * @author yatharthranjan
  */
 @Slf4j
-@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.AvoidDuplicateLiterals"})
 public class AdminSdkFcmSender implements FcmSender {
 
   public AdminSdkFcmSender() throws IOException {
