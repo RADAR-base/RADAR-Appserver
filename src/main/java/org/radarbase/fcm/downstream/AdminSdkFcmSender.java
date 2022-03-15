@@ -172,56 +172,81 @@ public class AdminSdkFcmSender implements FcmSender {
   }
 
   /**
-   * Get the APNS config builder.
-   * More info on values and keys - https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns/
-   * and https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+   * Get the APNS config builder. More info on values and keys -
+   * https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns/
+   * and
+   * https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
    */
   private ApnsConfig.Builder getApnsConfigBuilder(FcmDownstreamMessage message, int ttl) {
+    ApnsConfig.Builder config = ApnsConfig.builder();
+
+    if (message.getCollapseKey() != null)
+      config.putHeader("apns-collapse-id", message.getCollapseKey());
+
+    // The date at which the notification is no longer valid. This value is a UNIX epoch
+    // expressed in seconds (UTC).
+    config.putHeader(
+        "apns-expiration",
+        String.valueOf(Instant.now().plus(Duration.ofMillis(ttl)).toEpochMilli() / 1000));
+
     if (message instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) message;
       Map<String, Object> apnsData = new HashMap<>(notificationMessage.getData());
 
-      return ApnsConfig.builder()
+      ApsAlert.Builder apsAlertBuilder = ApsAlert.builder();
+      String title = getString(notificationMessage.getNotification().get("title"));
+      if (title != null) apsAlertBuilder.setTitle(title);
+
+      String body = getString(notificationMessage.getNotification().get("body"));
+      if (body != null) apsAlertBuilder.setBody(body);
+
+      String titleLocKey = getString(notificationMessage.getNotification().get("title_loc_key"));
+      if (titleLocKey != null) apsAlertBuilder.setTitleLocalizationKey(titleLocKey);
+
+      String titleLocArgs = getString(notificationMessage.getNotification().get("title_loc_args"));
+      if (titleLocKey != null && titleLocArgs != null)
+        apsAlertBuilder.addTitleLocalizationArg(titleLocArgs);
+
+      String bodyLocKey = getString(notificationMessage.getNotification().get("body_loc_key"));
+      if (bodyLocKey != null) apsAlertBuilder.setLocalizationKey("body_loc_key");
+
+      String bodyLocArgs = getString(notificationMessage.getNotification().get("body_loc_args"));
+      if (bodyLocKey != null && bodyLocArgs != null)
+        apsAlertBuilder.addLocalizationArg(bodyLocArgs);
+
+      Aps.Builder apsBuilder = Aps.builder();
+      String sound = getString(notificationMessage.getNotification().get("sound"));
+      if (sound != null) apsBuilder.setSound(sound);
+
+      String badge = getString(notificationMessage.getNotification().get("badge"));
+      if (badge != null) apsBuilder.setBadge(Integer.parseInt(badge));
+
+      String category = getString(notificationMessage.getNotification().get("category"));
+      if (category != null) apsBuilder.setCategory(category);
+
+      String threadId = getString(notificationMessage.getNotification().get("thread_id"));
+      if (threadId != null) apsBuilder.setThreadId(threadId);
+
+      if (notificationMessage.getContentAvailable() != null)
+        apsBuilder.setContentAvailable(notificationMessage.getContentAvailable());
+
+      if (notificationMessage.getMutableContent() != null)
+        apsBuilder.setMutableContent(notificationMessage.getMutableContent());
+
+      return config
           .putAllCustomData(apnsData)
-          .setAps(
-              Aps.builder()
-                  .setSound(getString(notificationMessage.getNotification().get("sound")))
-                  .setAlert(
-                      ApsAlert.builder()
-                          .setTitle(getString(notificationMessage.getNotification().get("title")))
-                          .setBody(getString(notificationMessage.getNotification().get("body")))
-                          .setTitleLocalizationKey(
-                              getString(notificationMessage.getNotification().get("title_loc_key")))
-                          .addTitleLocalizationArg(
-                              getString(
-                                  notificationMessage.getNotification().get("title_loc_args")))
-                          .addLocalizationArg(
-                              getString(notificationMessage.getNotification().get("body_loc_args")))
-                          .setLocalizationKey(
-                              getString(notificationMessage.getNotification().get("body_loc_key")))
-                          .build())
-                  .setContentAvailable(notificationMessage.getContentAvailable())
-                  .setMutableContent(notificationMessage.getMutableContent())
-                  .build())
-            // The date at which the notification is no longer valid. This value is a UNIX epoch
-            // expressed in seconds (UTC).
-          .putHeader(
-              "apns-expiration",
-              String.valueOf(Instant.now().plus(Duration.ofMillis(ttl)).toEpochMilli() / 1000))
-          .putHeader("apns-collapse-id", notificationMessage.getCollapseKey());
+          .setAps(apsBuilder.setAlert(apsAlertBuilder.build()).build())
+          .putHeader("apns-push-type", "alert");
+
     } else if (message instanceof FcmDataMessage) {
       FcmDataMessage dataMessage = (FcmDataMessage) message;
       Map<String, Object> apnsData = new HashMap<>(dataMessage.getData());
-      return ApnsConfig.builder()
+
+      return config
           .putAllCustomData(apnsData)
-          // The date at which the notification is no longer valid. This value is a UNIX epoch
-          // expressed in seconds (UTC).
-          .putHeader(
-              "apns-expiration",
-              String.valueOf(Instant.now().plus(Duration.ofMillis(ttl)).toEpochMilli() / 1000))
+          .setAps(Aps.builder().setSound("default").build())
           .putHeader("apns-push-type", "background") // No alert is shown
-          .putHeader("apns-priority", "5") // 5 required in case of background type
-          .putHeader("apns-collapse-id", dataMessage.getCollapseKey());
+          .putHeader("apns-priority", "5"); // 5 required in case of background type
     } else {
       throw new IllegalArgumentException("The Message type is not known." + message.getClass());
     }
