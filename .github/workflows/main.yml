@@ -56,7 +56,7 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
       - name: Decrypt google application credentials
         run: |
-          gpg --batch --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
+          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
 
       # Gradle check
       - name: Check
