@@ -25,9 +25,7 @@ import org.radarbase.fcm.model.FcmDownstreamMessage;
 
 /**
  * Generic contract for sending messages to devices via Firebase.
- *
- * @see XmppFcmSender
- * @see AdminSdkFcmSender
+ * @see org.radarbase.fcm.downstream.AdminSdkFcmSender
  * @author yatharthranjan
  */
 public interface FcmSender {
