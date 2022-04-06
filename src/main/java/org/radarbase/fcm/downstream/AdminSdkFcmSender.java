@@ -72,7 +72,7 @@ public class AdminSdkFcmSender implements FcmSender {
 
   @Override
   public void send(FcmDownstreamMessage downstreamMessage) throws FirebaseMessagingException {
-    // TODO Add support for APNS and WebPush as well
+    // TODO Add support for WebPush as well
     String priority = downstreamMessage.getPriority();
 
     Message.Builder message =
@@ -244,7 +244,7 @@ public class AdminSdkFcmSender implements FcmSender {
 
       return config
           .putAllCustomData(apnsData)
-          .setAps(Aps.builder().setSound("default").build())
+          .setAps(Aps.builder().setContentAvailable(true).setSound("default").build())
           .putHeader("apns-push-type", "background") // No alert is shown
           .putHeader("apns-priority", "5"); // 5 required in case of background type
     } else {
