@@ -27,12 +27,19 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.AndroidConfig.Priority;
 import com.google.firebase.messaging.AndroidNotification;
+import com.google.firebase.messaging.ApnsConfig;
+import com.google.firebase.messaging.Aps;
+import com.google.firebase.messaging.ApsAlert;
 import com.google.firebase.messaging.FcmOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.fcm.model.FcmDataMessage;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
@@ -46,7 +53,7 @@ import org.radarbase.fcm.model.FcmNotificationMessage;
  * @author yatharthranjan
  */
 @Slf4j
-@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+@SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.AvoidDuplicateLiterals"})
 public class AdminSdkFcmSender implements FcmSender {
 
   public AdminSdkFcmSender() throws IOException {
@@ -74,18 +81,26 @@ public class AdminSdkFcmSender implements FcmSender {
             .setFcmOptions(FcmOptions.builder().build())
             .setCondition(downstreamMessage.getCondition());
 
+    int ttl = downstreamMessage.getTimeToLive() * 1000; // Convert to milliseconds
+
     if (downstreamMessage instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) downstreamMessage;
+
       message
           .setAndroidConfig(
               AndroidConfig.builder()
                   .setCollapseKey(downstreamMessage.getCollapseKey())
                   .setPriority(priority == null ? Priority.HIGH : Priority.valueOf(priority))
-                  .setTtl(downstreamMessage.getTimeToLive())
+                  .setTtl(ttl)
                   .setNotification(getAndroidNotification(notificationMessage))
                   .putAllData(notificationMessage.getData())
                   .build())
+          .setApnsConfig(
+              getApnsConfigBuilder(notificationMessage, ttl)
+                  .putHeader("apns-push-type", "alert")
+                  .build())
           .putAllData(notificationMessage.getData())
+          .setCondition(notificationMessage.getCondition())
           .setNotification(
               Notification.builder()
                   .setBody(
@@ -105,9 +120,11 @@ public class AdminSdkFcmSender implements FcmSender {
               AndroidConfig.builder()
                   .setCollapseKey(downstreamMessage.getCollapseKey())
                   .setPriority(priority == null ? Priority.NORMAL : Priority.valueOf(priority))
-                  .setTtl(downstreamMessage.getTimeToLive())
+                  .setTtl(ttl)
                   .putAllData(dataMessage.getData())
                   .build())
+          .setApnsConfig(getApnsConfigBuilder(dataMessage, ttl).build())
+          .setCondition(dataMessage.getCondition())
           .putAllData(dataMessage.getData());
     } else {
       throw new IllegalArgumentException(
@@ -152,6 +169,87 @@ public class AdminSdkFcmSender implements FcmSender {
     }
 
     return builder.build();
+  }
+
+  /**
+   * Get the APNS config builder. More info on values and keys -
+   * https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns/
+   * and
+   * https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+   */
+  private ApnsConfig.Builder getApnsConfigBuilder(FcmDownstreamMessage message, int ttl) {
+    ApnsConfig.Builder config = ApnsConfig.builder();
+
+    if (message.getCollapseKey() != null)
+      config.putHeader("apns-collapse-id", message.getCollapseKey());
+
+    // The date at which the notification is no longer valid. This value is a UNIX epoch
+    // expressed in seconds (UTC).
+    config.putHeader(
+        "apns-expiration",
+        String.valueOf(Instant.now().plus(Duration.ofMillis(ttl)).toEpochMilli() / 1000));
+
+    if (message instanceof FcmNotificationMessage) {
+      FcmNotificationMessage notificationMessage = (FcmNotificationMessage) message;
+      Map<String, Object> apnsData = new HashMap<>(notificationMessage.getData());
+
+      ApsAlert.Builder apsAlertBuilder = ApsAlert.builder();
+      String title = getString(notificationMessage.getNotification().get("title"));
+      if (title != null) apsAlertBuilder.setTitle(title);
+
+      String body = getString(notificationMessage.getNotification().get("body"));
+      if (body != null) apsAlertBuilder.setBody(body);
+
+      String titleLocKey = getString(notificationMessage.getNotification().get("title_loc_key"));
+      if (titleLocKey != null) apsAlertBuilder.setTitleLocalizationKey(titleLocKey);
+
+      String titleLocArgs = getString(notificationMessage.getNotification().get("title_loc_args"));
+      if (titleLocKey != null && titleLocArgs != null)
+        apsAlertBuilder.addTitleLocalizationArg(titleLocArgs);
+
+      String bodyLocKey = getString(notificationMessage.getNotification().get("body_loc_key"));
+      if (bodyLocKey != null) apsAlertBuilder.setLocalizationKey("body_loc_key");
+
+      String bodyLocArgs = getString(notificationMessage.getNotification().get("body_loc_args"));
+      if (bodyLocKey != null && bodyLocArgs != null)
+        apsAlertBuilder.addLocalizationArg(bodyLocArgs);
+
+      Aps.Builder apsBuilder = Aps.builder();
+      String sound = getString(notificationMessage.getNotification().get("sound"));
+      if (sound != null) apsBuilder.setSound(sound);
+
+      String badge = getString(notificationMessage.getNotification().get("badge"));
+      if (badge != null) apsBuilder.setBadge(Integer.parseInt(badge));
+
+      String category = getString(notificationMessage.getNotification().get("category"));
+      if (category != null) apsBuilder.setCategory(category);
+
+      String threadId = getString(notificationMessage.getNotification().get("thread_id"));
+      if (threadId != null) apsBuilder.setThreadId(threadId);
+
+      if (notificationMessage.getContentAvailable() != null)
+        apsBuilder.setContentAvailable(notificationMessage.getContentAvailable());
+
+      if (notificationMessage.getMutableContent() != null)
+        apsBuilder.setMutableContent(notificationMessage.getMutableContent());
+
+      return config
+          .putAllCustomData(apnsData)
+          .setAps(apsBuilder.setAlert(apsAlertBuilder.build()).build())
+          .putHeader("apns-push-type", "alert");
+
+    } else if (message instanceof FcmDataMessage) {
+      FcmDataMessage dataMessage = (FcmDataMessage) message;
+      Map<String, Object> apnsData = new HashMap<>(dataMessage.getData());
+
+      return config
+          .putAllCustomData(apnsData)
+          .setAps(Aps.builder().setSound("default").build())
+          .putHeader("apns-push-type", "background") // No alert is shown
+          .putHeader("apns-priority", "5"); // 5 required in case of background type
+    } else {
+      throw new IllegalArgumentException("The Message type is not known." + message.getClass());
+    }
   }
 
   private String getString(Object obj) {

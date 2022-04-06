@@ -10,7 +10,6 @@ buildscript {
     }
 }
 plugins {
-    id 'checkstyle'
     id 'pmd'
     id "com.github.spotbugs" version "4.5.0"
     id 'jacoco'
@@ -18,6 +17,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
+apply plugin: 'checkstyle'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
@@ -44,7 +44,7 @@ ext {
     smackVersion = '4.3.1'
     springDocVersion = '1.2.33'
     springInegrationXmppVersion = '5.2.4.RELEASE'
-    lombokVersion = '1.18.12'
+    lombokVersion = '1.18.22'
     bootAdminVersion = '2.2.2'
     throwingFunctionVersion = '1.5.0'
     junit5Version = '5.6.0'
@@ -92,7 +92,8 @@ dependencies {
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
     runtimeOnly('com.h2database:h2:1.4.200')
-    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.2.15')
+    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.2.23')
+
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
@@ -116,7 +117,9 @@ dependencies {
     codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.3.1'
-    //implementation('org.liquibase.ext:liquibase-hibernate5:3.6')
+
+    implementation('org.liquibase.ext:liquibase-hibernate5:3.6')
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
     }
@@ -132,9 +135,11 @@ dependencies {
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 }
 
-tasks.withType(Checkstyle) {
+checkstyle {
     configDirectory = file("config/checkstyle")
+    toolVersion = "8.20"
     showViolations = false
+    sourceSets = [it.sourceSets.main]
 }
 
 tasks.javadoc {
@@ -153,6 +158,7 @@ tasks.test {
 }
 
 task unpack(type: Copy) {
+    duplicatesStrategy = 'include'
     dependsOn bootJar
     from(zipTree(tasks.bootJar.outputs.files.singleFile))
     into("build/dependency")
@@ -191,6 +197,10 @@ task integrationTest(type: Test) {
     classpath = sourceSets.integrationTest.runtimeClasspath
 
     shouldRunAfter test
+}
+
+rootProject.tasks.named("processIntegrationTestResources") {
+    duplicatesStrategy = 'include'
 }
 
 check.dependsOn integrationTest

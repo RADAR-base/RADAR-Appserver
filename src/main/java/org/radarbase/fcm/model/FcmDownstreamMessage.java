@@ -33,7 +33,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @SuppressFBWarnings("URF_UNREAD_FIELD")
 @Getter
-public class FcmDownstreamMessage implements FcmMessage {
+public abstract class FcmDownstreamMessage implements FcmMessage {
 
   @JsonProperty @NotEmpty private String to;
 
