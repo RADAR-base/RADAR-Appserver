@@ -60,7 +60,7 @@ public class NotificationEndpointAuthTest {
   private static final String NOTIFICATION_PATH = "/messaging/notifications";
   private static final String DEFAULT_USER = "/sub-1";
   private static HttpHeaders AUTH_HEADER;
-  private static TestRestTemplate restTemplate = new TestRestTemplate();
+  private static final TestRestTemplate restTemplate = new TestRestTemplate();
   private final transient FcmNotificationDto fcmNotificationDto =
       new FcmNotificationDto()
           .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
