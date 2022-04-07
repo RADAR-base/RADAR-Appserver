@@ -31,7 +31,6 @@ import static org.mockito.Mockito.mock;
 import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -85,7 +84,6 @@ class NotificationSchedulerServiceTest {
     private transient Scheduler scheduler;
 
     @BeforeEach
-    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     void setUp() throws SchedulerException {
         scheduler.clear();
         User user =
