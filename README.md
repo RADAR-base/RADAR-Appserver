@@ -75,6 +75,7 @@ server. Please refer to the [Documentation section](#documentation) below.
    ```
 3. Create a notification.
     ```
+    POST http://localhost:8080/projects/p1/users/u2/messaging/notifications
     {
         "title" : "Questionnaire Time",
         "body": "Urgent Questionnaire Pending. Please complete now.",
