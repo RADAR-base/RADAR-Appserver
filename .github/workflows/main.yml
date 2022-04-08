@@ -50,10 +50,17 @@ jobs:
             docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d postgres managementportal
             # Wait for services to start up.
             sleep 50
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+      - name: Decrypt google application credentials
+        run: |
+          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
 
       # Gradle check
       - name: Check
-        run: ./gradlew check
+        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/src/integrationTest/resources/google-credentials.json ./gradlew check
 
   # Check that the docker image builds correctly
   docker:

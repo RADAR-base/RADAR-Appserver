@@ -1,53 +1,38 @@
-buildscript {
-    ext {
-        springBootVersion = '2.3.3.RELEASE'
-    }
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
-}
 plugins {
     id 'pmd'
-    id "com.github.spotbugs" version "4.5.0"
-    id 'jacoco'
     id "com.github.lkishalmi.gatling" version "3.3.4"
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.springframework.boot' version "2.6.6"
 }
 
 apply plugin: 'checkstyle'
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
 version = '1.4.0-SNAPSHOT'
-sourceCompatibility = 1.11
+sourceCompatibility = 11
 
 repositories {
     mavenCentral()
 }
 
-configurations { codacy }
-
 bootJar {
-    mainClassName = 'org.radarbase.appserver.AppserverApplication'
+    mainClass = 'org.radarbase.appserver.AppserverApplication'
 }
 
 //apply from: 'gradle/liquibase.gradle'
 
 ext {
-    smackVersion = '4.3.1'
-    springDocVersion = '1.2.33'
-    springInegrationXmppVersion = '5.2.4.RELEASE'
+    springBootVersion = '2.6.6'
+    springOauth2Version = "2.5.1.RELEASE"
+    springDocVersion = '1.6.6'
     lombokVersion = '1.18.22'
-    bootAdminVersion = '2.2.2'
-    throwingFunctionVersion = '1.5.0'
-    junit5Version = '5.6.0'
+    bootAdminVersion = '2.6.4'
+    throwingFunctionVersion = '1.5.1'
+    junit5Version = '5.8.2'
     radarSpringAuthVersion = '1.1.4'
 }
 
@@ -67,70 +52,57 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-data-rest')
     implementation('org.springframework.boot:spring-boot-starter-web')
-    implementation('org.springframework.boot:spring-boot-starter-integration')
     implementation('org.springframework.boot:spring-boot-starter-quartz')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springBootVersion)
+    implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
     implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
 
     implementation(group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion)
-    implementation(group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: springBootVersion)
-
-    // Fix potential vulnerabilities
-    implementation(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.0.RELEASE')
-
-    // XMPP
-    implementation group: 'org.springframework.integration', name: 'spring-integration-xmpp', version: springInegrationXmppVersion
-    implementation(group: 'org.igniterealtime.smack', name: 'smack-experimental', version: smackVersion)
 
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
-    implementation 'org.scala-lang:scala-library:2.13.6'
+    implementation 'org.scala-lang:scala-library:2.13.8'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
     runtimeOnly('com.h2database:h2:1.4.200')
-    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.2.23')
+    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.3.3')
 
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-    annotationProcessor 'org.springframework:spring-context-indexer:5.3.15'
+    annotationProcessor 'org.springframework:spring-context-indexer:5.3.18'
 
     compileOnly 'net.jcip:jcip-annotations:1.0'
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.5.3'
 
     // FCM Admin SDK
     implementation 'com.google.firebase:firebase-admin:8.1.0'
 
     // AOP
-    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.2.8.RELEASE'
+    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.3.18'
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion) {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
 
-    implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
+    testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.6.1'
 
-    codacy 'com.github.codacy:codacy-coverage-reporter:-SNAPSHOT'
-
-    testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.3.1'
-
-    implementation('org.liquibase.ext:liquibase-hibernate5:3.6')
+    implementation('org.liquibase.ext:liquibase-hibernate5:4.9.0')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
     }
+
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: junit5Version
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit5Version
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit5Version
-    testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.6.2'
-    testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.6.2'
-    testRuntimeOnly group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.6.2'
-
-    testCompileOnly 'com.github.spotbugs:spotbugs-annotations:4.5.3'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit5Version
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.8.2'
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 }
@@ -142,16 +114,16 @@ checkstyle {
     sourceSets = [it.sourceSets.main]
 }
 
-tasks.javadoc {
+javadoc {
     options.addBooleanOption('html5', true)
     destinationDir = new File("${project.rootDir}/src/main/resources/static/java-docs".toString())
 }
 
-tasks.wrapper {
+wrapper {
     gradleVersion '7.4'
 }
 
-tasks.test {
+test {
     useJUnitPlatform() {
         excludeEngines 'junit-vintage'
     }
@@ -162,17 +134,6 @@ task unpack(type: Copy) {
     dependsOn bootJar
     from(zipTree(tasks.bootJar.outputs.files.singleFile))
     into("build/dependency")
-}
-
-task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
-    mainClass = "com.codacy.CodacyCoverageReporter"
-    classpath = configurations.codacy
-    args = [
-            "-l",
-            "Java",
-            "-r",
-            "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-    ]
 }
 
 task loadTest(type: JavaExec) {

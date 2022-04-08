@@ -28,11 +28,12 @@ import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZON
 
 import java.time.Duration;
 import java.time.Instant;
+import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -40,13 +41,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
 @EnableJpaAuditing
 public class DataMessageRepositoryTest {
-    public static final Long DATA_MESSAGE_ID = 12345L;
     public static final String DATA_MESSAGE_FCM_MESSAGE_ID = "12345";
     public static final String DATA_MESSAGE_SOURCE_ID = "test";
     @Autowired
@@ -60,7 +60,7 @@ public class DataMessageRepositoryTest {
     /**
      * Insert a DataMessage Before each test.
      */
-    @Before
+    @BeforeEach
     public void initDataMessage() {
         // given
         Project project = new Project().setProjectId("test-project");
@@ -80,7 +80,6 @@ public class DataMessageRepositoryTest {
 
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
-                        .id(DATA_MESSAGE_ID)
                         .user(user)
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(this.scheduledTime)
@@ -98,7 +97,6 @@ public class DataMessageRepositoryTest {
         // given
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
-                        .id(DATA_MESSAGE_ID)
                         .user(new User())
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
@@ -123,7 +121,6 @@ public class DataMessageRepositoryTest {
         // given
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
-                        .id(DATA_MESSAGE_ID)
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
                         .sourceId(DATA_MESSAGE_SOURCE_ID)
@@ -132,7 +129,7 @@ public class DataMessageRepositoryTest {
                         .build();
 
         assertThrows(
-                ConstraintViolationException.class,
+                PersistenceException.class,
                 () -> {
                     entityManager.persist(dataMessage);
                     entityManager.flush();
@@ -163,7 +160,6 @@ public class DataMessageRepositoryTest {
 
         DataMessage dataMessage =
                 new DataMessage.DataMessageBuilder()
-                        .id(DATA_MESSAGE_ID)
                         .user(user)
                         .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
                         .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
@@ -202,7 +198,7 @@ public class DataMessageRepositoryTest {
     @Test
     public void whenDeleteDataMessageById_thenExistsFalse() {
         // when
-        dataMessageRepository.deleteById(DATA_MESSAGE_ID);
+        dataMessageRepository.deleteById(this.id);
 
         // then
         DataMessage dataMessage = entityManager.find(DataMessage.class, this.id);
