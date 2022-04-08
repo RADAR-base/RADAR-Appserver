@@ -69,7 +69,7 @@ dependencies {
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core')
-    runtimeOnly('com.h2database:h2:1.4.200')
+    runtimeOnly('com.h2database:h2:2.1.210')
     runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.3.3')
 
 
