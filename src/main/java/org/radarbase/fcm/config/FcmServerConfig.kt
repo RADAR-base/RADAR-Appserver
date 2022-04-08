@@ -18,23 +18,18 @@
  *  *
  *
  */
+package org.radarbase.fcm.config
 
-package org.radarbase.fcm.config;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * Loads Configuration required to connect to the FCM server.
  *
  * @author yatharthranjan
  */
-@Data
 @ConfigurationProperties(value = "fcmserver")
-public class FcmServerConfig {
-
-  @JsonProperty("fcmsender")
-  private String fcmsender;
-
-}
+data class FcmServerConfig(
+    @JsonProperty("fcmsender")
+    val fcmsender: String = "org.radarbase.fcm.downstream.AdminSdkFcmSender"
+)

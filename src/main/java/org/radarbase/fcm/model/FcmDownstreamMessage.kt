@@ -18,46 +18,31 @@
  *  *
  *
  */
+package org.radarbase.fcm.model
 
-package org.radarbase.fcm.model;
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.google.firebase.messaging.AndroidConfig
+import com.google.firebase.messaging.ApnsConfig
+import com.google.firebase.messaging.WebpushConfig
+import javax.validation.constraints.NotEmpty
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.validation.constraints.NotEmpty;
-import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-
-/** @author yatharthranjan */
+/** @author yatharthranjan
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuperBuilder
-@Getter
-public abstract class FcmDownstreamMessage implements FcmMessage {
+interface FcmDownstreamMessage : FcmMessage {
+    val to: @NotEmpty String?
+    val condition: String?
+    val messageId: @NotEmpty String?
+    val collapseKey: String?
+    val priority: String?
+    val contentAvailable: Boolean?
+    val mutableContent: Boolean?
+    val timeToLive: Int
+    val deliveryReceiptRequested: Boolean
+    val dryRun: Boolean
+    val data: Map<String, String>?
 
-  @JsonProperty @NotEmpty private String to;
-
-  @JsonProperty private String condition;
-
-  @NotEmpty
-  @JsonProperty("message_id")
-  private String messageId;
-
-  @JsonProperty("collapse_key")
-  private String collapseKey;
-
-  @JsonProperty private String priority;
-
-  @JsonProperty("content_available")
-  private Boolean contentAvailable;
-
-  @JsonProperty("mutable_content")
-  private Boolean mutableContent;
-
-  @JsonProperty("time_to_live")
-  private Integer timeToLive;
-
-  @JsonProperty("delivery_receipt_requested")
-  private Boolean deliveryReceiptRequested;
-
-  @JsonProperty("dry_run")
-  private Boolean dryRun;
+    fun getAndroidConfig(): AndroidConfig
+    fun getApnsConfig(): ApnsConfig
+    fun getWebPushConfig(): WebpushConfig
 }

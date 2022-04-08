@@ -18,80 +18,72 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.scheduler
 
-package org.radarbase.appserver.service.scheduler;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
-import org.radarbase.fcm.downstream.FcmSender;
-import org.radarbase.fcm.model.FcmNotificationMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
+import org.radarbase.appserver.entity.Notification
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerService
+import org.radarbase.fcm.downstream.FcmSender
+import org.radarbase.fcm.model.FcmNotificationMessage
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Service
+import kotlin.random.Random
 
 /**
- * {@link Service} for scheduling Notifications to be sent through FCM at the {@link
- * org.radarbase.appserver.entity.Scheduled} time. It also provided functions for updating/ deleting
+ * [Service] for scheduling Notifications to be sent through FCM at the [ ] time. It also provided functions for updating/ deleting
  * already scheduled Notification Jobs.
  *
  * @author yatharthranjan
  */
 @Service
-@Slf4j
-public class NotificationSchedulerService extends MessageSchedulerService<Notification> {
-
-    public NotificationSchedulerService(
-            @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-            @Autowired SchedulerService schedulerService) {
-        super(fcmSender, schedulerService);
+class NotificationSchedulerService(
+    @Autowired @Qualifier("fcmSenderProps") fcmSender: FcmSender?,
+    @Autowired schedulerService: SchedulerService?
+) : MessageSchedulerService<Notification?>(fcmSender, schedulerService) {
+    @Throws(Exception::class)
+    override fun send(notification: Notification?) {
+        notification?.let {
+            fcmSender.send(createMessageFromNotification(it))
+        }
     }
 
-    private static Map<String, Object> getNotificationMap(Notification notification) {
-        Map<String, Object> notificationMap = new HashMap<>();
-        notificationMap.put("body", notification.getBody());
-        notificationMap.put("title", notification.getTitle());
-        notificationMap.put("sound", "default");
+    companion object {
+        private fun getNotificationMap(notification: Notification): Map<String, Any> {
+            val notificationMap: MutableMap<String, Any> = HashMap()
+            notificationMap["body"] = notification.body ?: ""
+            notificationMap["title"] = notification.title
+            notificationMap["sound"] = "default"
+            putIfNotNull(notificationMap, "sound", notification.sound)
+            putIfNotNull(notificationMap, "badge", notification.badge)
+            putIfNotNull(notificationMap, "click_action", notification.clickAction)
+            putIfNotNull(notificationMap, "subtitle", notification.subtitle)
+            putIfNotNull(notificationMap, "body_loc_key", notification.bodyLocKey)
+            putIfNotNull(notificationMap, "body_loc_args", notification.bodyLocArgs)
+            putIfNotNull(notificationMap, "title_loc_key", notification.titleLocKey)
+            putIfNotNull(notificationMap, "title_loc_args", notification.titleLocArgs)
+            putIfNotNull(notificationMap, "android_channel_id", notification.androidChannelId)
+            putIfNotNull(notificationMap, "icon", notification.icon)
+            putIfNotNull(notificationMap, "tag", notification.tag)
+            putIfNotNull(notificationMap, "color", notification.color)
+            return notificationMap
+        }
 
-        putIfNotNull(notificationMap, "sound", notification.getSound());
-        putIfNotNull(notificationMap, "badge", notification.getBadge());
-        putIfNotNull(notificationMap, "click_action", notification.getClickAction());
-        putIfNotNull(notificationMap, "subtitle", notification.getSubtitle());
-        putIfNotNull(notificationMap, "body_loc_key", notification.getBodyLocKey());
-        putIfNotNull(notificationMap, "body_loc_args", notification.getBodyLocArgs());
-        putIfNotNull(notificationMap, "title_loc_key", notification.getTitleLocKey());
-        putIfNotNull(notificationMap, "title_loc_args", notification.getTitleLocArgs());
-        putIfNotNull(notificationMap, "android_channel_id", notification.getAndroidChannelId());
-        putIfNotNull(notificationMap, "icon", notification.getIcon());
-        putIfNotNull(notificationMap, "tag", notification.getTag());
-        putIfNotNull(notificationMap, "color", notification.getColor());
+        private fun createMessageFromNotification(notification: Notification): FcmNotificationMessage {
+            val to = notification.fcmTopic ?: notification.user?.fcmToken
+            ?: throw IllegalArgumentException("FCM Topic or User FCM Token is not set")
 
-        return notificationMap;
-    }
-
-    private static FcmNotificationMessage createMessageFromNotification(Notification notification) {
-
-        String to =
-                Objects.requireNonNullElseGet(
-                        notification.getFcmTopic(), notification.getUser()::getFcmToken);
-        return FcmNotificationMessage.builder()
-                .to(to)
-                .condition(notification.getFcmCondition())
-                .priority(notification.getPriority())
-                .mutableContent(notification.isMutableContent())
-                .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
-                .messageId(String.valueOf(notification.getFcmMessageId()))
-                .timeToLive(Objects.requireNonNullElse(notification.getTtlSeconds(), 2_419_200))
-                .notification(getNotificationMap(notification))
-                .data(notification.getAdditionalData())
-                .build();
-    }
-
-
-    public void send(Notification notification) throws Exception {
-        fcmSender.send(createMessageFromNotification(notification));
+            return FcmNotificationMessage(
+                to = to,
+                condition = notification.fcmCondition,
+                priority = notification.priority,
+                mutableContent = notification.mutableContent,
+                deliveryReceiptRequested = IS_DELIVERY_RECEIPT_REQUESTED,
+                messageId = notification.fcmMessageId
+                    ?: Random(System.currentTimeMillis()).nextLong().toString(),
+                timeToLive = notification.ttlSeconds,
+                notification = getNotificationMap(notification),
+                data = notification.additionalData,
+            )
+        }
     }
 }

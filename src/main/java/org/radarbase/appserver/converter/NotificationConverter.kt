@@ -18,59 +18,55 @@
  *  *
  *
  */
+package org.radarbase.appserver.converter
 
-package org.radarbase.appserver.converter;
-
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-import org.radarbase.appserver.entity.Notification;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto
+import org.radarbase.appserver.entity.Notification
+import org.springframework.beans.factory.config.ConfigurableBeanFactory
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
 
 /**
- * Converter {@link Converter} class for {@link Notification} entity.
+ * Converter [Converter] class for [Notification] entity.
  *
  * @author yatharthranjan
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class NotificationConverter implements Converter<Notification, FcmNotificationDto> {
+class NotificationConverter : Converter<Notification, FcmNotificationDto> {
 
-    @Override
-    public Notification dtoToEntity(FcmNotificationDto notificationDto) {
-
-        return new Notification.NotificationBuilder()
-                .body(notificationDto.getBody())
-                .scheduledTime(notificationDto.getScheduledTime())
-                .title(notificationDto.getTitle())
-                .sourceId(notificationDto.getSourceId())
-                .type(notificationDto.getType())
-                .ttlSeconds(notificationDto.getTtlSeconds())
-                .fcmMessageId(String.valueOf(notificationDto.hashCode()))
-                .appPackage(notificationDto.getAppPackage())
-                .sourceType(notificationDto.getSourceType())
-                .additionalData(notificationDto.getAdditionalData())
-                .androidChannelId(notificationDto.getAndroidChannelId())
-                .bodyLocArgs(notificationDto.getBodyLocArgs())
-                .bodyLocKey(notificationDto.getBodyLocKey())
-                .titleLocKey(notificationDto.getTitleLocKey())
-                .titleLocArgs(notificationDto.getTitleLocArgs())
-                .badge(notificationDto.getBadge())
-                .clickAction(notificationDto.getClickAction())
-                .color(notificationDto.getColor())
-                .fcmCondition(notificationDto.getFcmCondition())
-                .fcmTopic(notificationDto.getFcmTopic())
-                .icon(notificationDto.getIcon())
-                .mutableContent(notificationDto.isMutableContent())
-                .priority(notificationDto.getPriority())
-                .sound(notificationDto.getSound())
-                .subtitle(notificationDto.getSubtitle())
-                .tag(notificationDto.getTag())
-                .build();
+    override fun dtoToEntity(notificationDto: FcmNotificationDto): Notification {
+        return Notification(
+            body = notificationDto.body,
+            scheduledTime = notificationDto.scheduledTime,
+            title = notificationDto.title,
+            sourceId = notificationDto.sourceId,
+            type = notificationDto.type,
+            ttlSeconds = notificationDto.ttlSeconds,
+            fcmMessageId = notificationDto.hashCode().toString(),
+            appPackage = notificationDto.appPackage,
+            sourceType = notificationDto.sourceType,
+            additionalData = notificationDto.additionalData,
+            androidChannelId = notificationDto.androidChannelId,
+            bodyLocArgs = notificationDto.bodyLocArgs,
+            bodyLocKey = notificationDto.bodyLocKey,
+            titleLocArgs = notificationDto.titleLocArgs,
+            titleLocKey = notificationDto.titleLocKey,
+            badge = notificationDto.badge,
+            clickAction = notificationDto.clickAction,
+            color = notificationDto.color,
+            fcmCondition = notificationDto.fcmCondition,
+            fcmTopic = notificationDto.fcmTopic,
+            icon = notificationDto.icon,
+            mutableContent = notificationDto.isMutableContent,
+            priority = notificationDto.priority,
+            sound = notificationDto.sound,
+            subtitle = notificationDto.subtitle,
+            tag = notificationDto.tag,
+        )
     }
 
-    @Override
-    public FcmNotificationDto entityToDto(Notification notification) {
-        return new FcmNotificationDto(notification);
+    override fun entityToDto(notification: Notification): FcmNotificationDto {
+        return FcmNotificationDto(notification)
     }
 }

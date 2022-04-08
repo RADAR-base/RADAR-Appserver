@@ -18,44 +18,40 @@
  *  *
  *
  */
+package org.radarbase.appserver.converter
 
-package org.radarbase.appserver.converter;
-
-import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
-import org.radarbase.appserver.entity.DataMessage;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.radarbase.appserver.dto.fcm.FcmDataMessageDto
+import org.radarbase.appserver.entity.DataMessage
+import org.springframework.beans.factory.config.ConfigurableBeanFactory
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
 
 /**
- * Converter {@link Converter} class for {@link DataMessage} entity.
+ * Converter [Converter] class for [DataMessage] entity.
  *
  * @author yatharthranjan
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class DataMessageConverter implements Converter<DataMessage, FcmDataMessageDto> {
+class DataMessageConverter : Converter<DataMessage, FcmDataMessageDto> {
 
-    @Override
-    public DataMessage dtoToEntity(FcmDataMessageDto dataMessageDto) {
-
-        return new DataMessage.DataMessageBuilder()
-                .mutableContent(dataMessageDto.isMutableContent())
-                .priority(dataMessageDto.getPriority())
-                .fcmCondition(dataMessageDto.getFcmCondition())
-                .fcmTopic(dataMessageDto.getFcmTopic())
-                .fcmMessageId(String.valueOf(dataMessageDto.hashCode()))
-                .appPackage(dataMessageDto.getAppPackage())
-                .sourceType(dataMessageDto.getSourceType())
-                .sourceId(dataMessageDto.getSourceId())
-                .ttlSeconds(dataMessageDto.getTtlSeconds())
-                .scheduledTime(dataMessageDto.getScheduledTime())
-                .dataMap(dataMessageDto.getDataMap())
-                .build();
+    override fun dtoToEntity(dataMessageDto: FcmDataMessageDto): DataMessage {
+        return DataMessage(
+            mutableContent = dataMessageDto.isMutableContent,
+            priority = dataMessageDto.priority,
+            fcmCondition = dataMessageDto.fcmCondition,
+            fcmTopic = dataMessageDto.fcmTopic,
+            fcmMessageId = dataMessageDto.hashCode().toString(),
+            appPackage = dataMessageDto.appPackage,
+            sourceType = dataMessageDto.sourceType,
+            sourceId = dataMessageDto.sourceId,
+            ttlSeconds = dataMessageDto.ttlSeconds,
+            scheduledTime = dataMessageDto.scheduledTime,
+            dataMap = dataMessageDto.dataMap
+        )
     }
 
-    @Override
-    public FcmDataMessageDto entityToDto(DataMessage dataMessage) {
-        return new FcmDataMessageDto(dataMessage);
+    override fun entityToDto(dataMessage: DataMessage): FcmDataMessageDto {
+        return FcmDataMessageDto(dataMessage)
     }
 }

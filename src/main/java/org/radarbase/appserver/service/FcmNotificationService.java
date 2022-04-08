@@ -269,7 +269,7 @@ public class FcmNotificationService implements NotificationService {
         Notification notificationSaved = this.notificationRepository.saveAndFlush(newNotification);
         addNotificationStateEvent(
                 notificationSaved, MessageState.UPDATED, notificationSaved.getUpdatedAt().toInstant());
-        if (!notification.get().isDelivered()) {
+        if (!notification.get().getDelivered()) {
             this.schedulerService.updateScheduled(notificationSaved);
         }
         return notificationConverter.entityToDto(notificationSaved);

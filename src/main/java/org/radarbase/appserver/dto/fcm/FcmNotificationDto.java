@@ -122,7 +122,7 @@ public class FcmNotificationDto implements Serializable {
     this.scheduledTime = notificationEntity.getScheduledTime();
     this.title = notificationEntity.getTitle();
     this.body = notificationEntity.getBody();
-    this.delivered = notificationEntity.isDelivered();
+    this.delivered = notificationEntity.getDelivered();
     this.fcmMessageId = notificationEntity.getFcmMessageId();
     this.sourceId = notificationEntity.getSourceId();
     this.type = notificationEntity.getType();
@@ -152,7 +152,7 @@ public class FcmNotificationDto implements Serializable {
     this.androidChannelId = notificationEntity.getAndroidChannelId();
     this.tag = notificationEntity.getTag();
     this.clickAction = notificationEntity.getClickAction();
-    this.mutableContent = notificationEntity.isMutableContent();
+    this.mutableContent = notificationEntity.getMutableContent();
   }
 
   public FcmNotificationDto setCreatedAt(Instant createdAt) {

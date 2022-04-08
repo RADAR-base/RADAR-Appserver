@@ -18,127 +18,105 @@
  *  *
  *
  */
+package org.radarbase.appserver.entity
 
-package org.radarbase.appserver.entity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.lang.Nullable;
+import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
+import org.springframework.lang.Nullable
+import java.io.Serializable
+import java.time.Instant
+import java.util.*
+import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 @MappedSuperclass
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
-public class Message extends AuditModel implements Serializable, Scheduled {
-
-    private static final long serialVersionUID = -367424816328519L;
-
+abstract class Message(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    val id: Long? = null,
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    private User user;
+    val user: @NotNull User?,
 
     @Nullable
     @Column(name = "source_id")
-    private String sourceId;
+    val sourceId: String? = null,
 
-    @NotNull
     @Column(name = "scheduled_time", nullable = false)
-    private Instant scheduledTime;
+    override val scheduledTime: @NotNull Instant,
 
     @Column(name = "ttl_seconds")
-    private int ttlSeconds;
+    val ttlSeconds: Int = 0,
 
     @Column(name = "fcm_message_id", unique = true)
-    private String fcmMessageId;
+    val fcmMessageId: String? = null,
 
     // for use with the FCM admin SDK
     @Column(name = "fcm_topic")
     @Nullable
-    private String fcmTopic;
+    val fcmTopic: String? = null,
 
     // for use with the FCM admin SDK
     @Column(name = "fcm_condition")
     @Nullable
-    private String fcmCondition;
+    val fcmCondition: String? = null,
 
     // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
-    private boolean delivered;
-
-    private boolean validated;
+    val delivered: Boolean = false,
+    val validated: Boolean = false,
 
     @Nullable
     @Column(name = "app_package")
-    private String appPackage;
+    val appPackage: String? = null,
 
     // Source Type from the Management Portal
     @Nullable
     @Column(name = "source_type")
-    private String sourceType;
+    val sourceType: String? = null,
 
-    @Column(name = "dry_run")
+    @Column(name = "dry_run") // for use with the FCM admin SDK
+    val dryRun: Boolean = false,
 
-    // for use with the FCM admin SDK
-    private boolean dryRun;
-
-    private String priority;
+    val priority: String? = null,
 
     @Column(name = "mutable_content")
-    private boolean mutableContent;
+    val mutableContent: Boolean = false,
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    ) : AuditModel(), Serializable, Scheduled {
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
         }
-        if (!(o instanceof Message)) {
-            return false;
+        if (other !is Message) {
+            return false
         }
-        Message that = (Message) o;
-        return getTtlSeconds() == that.getTtlSeconds()
-                && isDelivered() == that.isDelivered()
-                && isDryRun() == that.isDryRun()
-                && Objects.equals(getUser(), that.getUser())
-                && Objects.equals(getSourceId(), that.getSourceId())
-                && Objects.equals(getScheduledTime(), that.getScheduledTime())
-                && Objects.equals(getAppPackage(), that.getAppPackage());
+        return (ttlSeconds == other.ttlSeconds && delivered == other.delivered
+                && dryRun == other.dryRun && user == other.user
+                && sourceId == other.sourceId
+                && scheduledTime == other.scheduledTime
+                && appPackage == other.appPackage)
     }
 
-    @Override
-    public int hashCode() {
+    override fun hashCode(): Int {
         return Objects.hash(
-                getUser(),
-                getSourceId(),
-                getScheduledTime(),
-                getTtlSeconds(),
-                isDelivered(),
-                isDryRun(),
-                getAppPackage(),
-                getSourceType());
+            user,
+            sourceId,
+            scheduledTime,
+            ttlSeconds,
+            delivered,
+            dryRun,
+            appPackage,
+            sourceType
+        )
+    }
+
+    companion object {
+        private const val serialVersionUID = -367424816328519L
     }
 }

@@ -18,55 +18,51 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.scheduler
 
-package org.radarbase.appserver.service.scheduler;
-
-import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.service.scheduler.quartz.SchedulerService;
-import org.radarbase.fcm.downstream.FcmSender;
-import org.radarbase.fcm.model.FcmDataMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
+import org.radarbase.appserver.entity.DataMessage
+import org.radarbase.appserver.service.scheduler.quartz.SchedulerService
+import org.radarbase.fcm.downstream.FcmSender
+import org.radarbase.fcm.model.FcmDataMessage
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Service
+import kotlin.random.Random
 
 /**
- * {@link Service} for scheduling Data Messages to be sent through FCM at the {@link
- * org.radarbase.appserver.entity.Scheduled} time. It also provided functions for updating/ deleting
+ * [Service] for scheduling Data Messages to be sent through FCM at the [ ] time. It also provided functions for updating/ deleting
  * already scheduled Data Messsage Jobs.
  *
  * @author yatharthranjan
  */
 @Service
-@Slf4j
-@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class DataMessageSchedulerService extends MessageSchedulerService<DataMessage> {
-
-    public DataMessageSchedulerService(
-            @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
-            @Autowired SchedulerService schedulerService) {
-        super(fcmSender, schedulerService);
+class DataMessageSchedulerService(
+    @Autowired @Qualifier("fcmSenderProps") fcmSender: FcmSender?,
+    @Autowired schedulerService: SchedulerService?
+) : MessageSchedulerService<DataMessage?>(fcmSender, schedulerService) {
+    @Throws(Exception::class)
+    override fun send(dataMessage: DataMessage?) {
+        dataMessage?.let {
+            fcmSender.send(createMessageFromDataMessage(it))
+        }
     }
 
-    private static FcmDataMessage createMessageFromDataMessage(DataMessage dataMessage) {
+    companion object {
+        private fun createMessageFromDataMessage(dataMessage: DataMessage): FcmDataMessage {
+            val to = dataMessage.fcmTopic ?: dataMessage.user?.fcmToken
+            ?: throw IllegalArgumentException("FCM Topic or User FCM Token is not set")
 
-        String to =
-                Objects.requireNonNullElseGet(
-                        dataMessage.getFcmTopic(), dataMessage.getUser()::getFcmToken);
-        return FcmDataMessage.builder()
-                .to(to)
-                .condition(dataMessage.getFcmCondition())
-                .priority(dataMessage.getPriority())
-                .mutableContent(dataMessage.isMutableContent())
-                .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
-                .messageId(String.valueOf(dataMessage.getFcmMessageId()))
-                .timeToLive(Objects.requireNonNullElse(dataMessage.getTtlSeconds(), 2_419_200))
-                .data(dataMessage.getDataMap())
-                .build();
-    }
-
-    public void send(DataMessage dataMessage) throws Exception {
-        fcmSender.send(createMessageFromDataMessage(dataMessage));
+            return FcmDataMessage(
+                to = to,
+                condition = dataMessage.fcmCondition,
+                priority = dataMessage.priority,
+                mutableContent = dataMessage.mutableContent,
+                deliveryReceiptRequested = IS_DELIVERY_RECEIPT_REQUESTED,
+                messageId = dataMessage.fcmMessageId
+                    ?: Random(System.currentTimeMillis()).nextLong().toString(),
+                timeToLive = dataMessage.ttlSeconds,
+                data = dataMessage.dataMap,
+            )
+        }
     }
 }

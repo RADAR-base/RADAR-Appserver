@@ -18,19 +18,18 @@
  *  *
  *
  */
+package org.radarbase.fcm.downstream
 
-package org.radarbase.fcm.downstream;
-
-import org.radarbase.fcm.model.FcmDownstreamMessage;
+import org.radarbase.fcm.model.FcmDownstreamMessage
 
 /**
  * Generic contract for sending messages to devices via Firebase.
  * @see org.radarbase.fcm.downstream.AdminSdkFcmSender
+ *
  * @author yatharthranjan
  */
-public interface FcmSender {
-
-  void send(FcmDownstreamMessage message) throws Exception;
-
-  boolean doesProvideDeliveryReceipt();
+interface FcmSender {
+    @Throws(Exception::class)
+    fun send(downstreamMessage: FcmDownstreamMessage)
+    fun doesProvideDeliveryReceipt(): Boolean
 }

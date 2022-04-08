@@ -1,3 +1,12 @@
+buildscript {
+    ext.kotlin_version = '1.6.20'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
 plugins {
     id 'pmd'
     id "com.github.lkishalmi.gatling" version "3.3.4"
@@ -6,6 +15,7 @@ plugins {
 }
 
 apply plugin: 'checkstyle'
+apply plugin: 'kotlin'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'io.spring.dependency-management'
@@ -37,6 +47,8 @@ ext {
 }
 
 sourceSets {
+    main.kotlin.srcDirs += 'src/main/java'
+
     integrationTest {
         java {
             compileClasspath += main.output + test.output + test.compileClasspath
@@ -105,6 +117,8 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
 }
 
 checkstyle {
@@ -181,5 +195,15 @@ test {
         error {
             exceptionFormat "full"
         }
+    }
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }

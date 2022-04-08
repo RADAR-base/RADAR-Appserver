@@ -89,7 +89,7 @@ public class FcmDataMessageDto implements Serializable {
     public FcmDataMessageDto(DataMessage dataMessageEntity) {
         this.id = dataMessageEntity.getId();
         this.scheduledTime = dataMessageEntity.getScheduledTime();
-        this.delivered = dataMessageEntity.isDelivered();
+        this.delivered = dataMessageEntity.getDelivered();
         this.fcmMessageId = dataMessageEntity.getFcmMessageId();
         this.sourceId = dataMessageEntity.getSourceId();
         this.appPackage = dataMessageEntity.getAppPackage();
@@ -106,7 +106,7 @@ public class FcmDataMessageDto implements Serializable {
         this.fcmTopic = dataMessageEntity.getFcmTopic();
         this.fcmCondition = dataMessageEntity.getFcmCondition();
         this.priority = dataMessageEntity.getPriority();
-        this.mutableContent = dataMessageEntity.isMutableContent();
+        this.mutableContent = dataMessageEntity.getMutableContent();
     }
 
     public FcmDataMessageDto setCreatedAt(Instant createdAt) {

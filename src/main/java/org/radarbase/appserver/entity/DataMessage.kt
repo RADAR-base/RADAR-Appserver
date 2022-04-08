@@ -18,220 +18,88 @@
  *  *
  *
  */
+package org.radarbase.appserver.entity
 
-package org.radarbase.appserver.entity;
-
-import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
-import org.springframework.lang.Nullable;
+import org.springframework.lang.Nullable
+import java.time.Instant
+import java.util.*
+import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 /**
- * {@link Entity} for persisting data messages. The corresponding DTO is {@link FcmDataMessageDto}.
+ * [Entity] for persisting data messages. The corresponding DTO is [FcmDataMessageDto].
  * This also includes information for scheduling the data message through the Firebase Cloud
  * Messaging(FCM) system.
  *
  * @author yatharthranjan
  * @see Scheduled
+ *
  * @see org.radarbase.appserver.service.scheduler.DataMessageSchedulerService
  */
 @Entity
 @Table(
-        name = "data_messages",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = {
-                                "user_id",
-                                "source_id",
-                                "scheduled_time",
-                                "ttl_seconds",
-                                "delivered",
-                                "dry_run"
-                        })
-        })
+    name = "data_messages",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "source_id", "scheduled_time", "ttl_seconds", "delivered", "dry_run"])]
+)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
-public class DataMessage extends Message {
-    private static final long serialVersionUID = 4L;
+class DataMessage(
+    id: Long? = null,
+    user: @NotNull User? = null,
+    sourceId: String? = null,
+    scheduledTime: @NotNull Instant,
+    ttlSeconds: Int = 0,
+    fcmMessageId: String? = null,
+    fcmTopic: String? = null,
+    fcmCondition: String? = null,
+    delivered: Boolean = false,
+    validated: Boolean = false,
+    appPackage: String? = null,
+    sourceType: String? = null,
+    dryRun: Boolean = false,
+    priority: String? = null,
+    mutableContent: Boolean = false,
 
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "data_message_map")
     @MapKeyColumn(name = "key", nullable = true)
     @Column(name = "value")
-    private Map<String, String> dataMap;
+    val dataMap: Map<String, String>? = null,
+) : Message(
+    id,
+    user,
+    sourceId,
+    scheduledTime,
+    ttlSeconds,
+    fcmMessageId,
+    fcmTopic,
+    fcmCondition,
+    delivered,
+    validated,
+    appPackage,
+    sourceType,
+    dryRun,
+    priority,
+    mutableContent
+) {
 
-    @NoArgsConstructor
-    public static class DataMessageBuilder {
-        transient Long id;
-        transient User user;
-        transient String sourceId;
-        transient Instant scheduledTime;
-        transient int ttlSeconds;
-        transient String fcmMessageId;
-        transient String fcmTopic;
-        transient String fcmCondition;
-        transient boolean delivered;
-        transient boolean validated;
-        transient String appPackage;
-        transient String sourceType;
-        transient boolean dryRun;
-        transient String priority;
-        transient boolean mutableContent;
-        transient Map<String, String> dataMap;
-
-        public DataMessageBuilder(DataMessage dataMessage) {
-            this.id = dataMessage.getId();
-            this.user = dataMessage.getUser();
-            this.sourceId = dataMessage.getSourceId();
-            this.scheduledTime = dataMessage.getScheduledTime();
-            this.ttlSeconds = dataMessage.getTtlSeconds();
-            this.fcmMessageId = dataMessage.getFcmMessageId();
-            this.fcmTopic = dataMessage.getFcmTopic();
-            this.fcmCondition = dataMessage.getFcmCondition();
-            this.delivered = dataMessage.isDelivered();
-            this.validated = dataMessage.isValidated();
-            this.appPackage = dataMessage.getAppPackage();
-            this.sourceType = dataMessage.getSourceType();
-            this.dryRun = dataMessage.isDryRun();
-            this.mutableContent = dataMessage.isMutableContent();
-            this.dataMap = dataMessage.getDataMap();
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
         }
-
-        public DataMessageBuilder id(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public DataMessageBuilder user(User user) {
-            this.user = user;
-            return this;
-        }
-
-        public DataMessageBuilder sourceId(String sourceId) {
-            this.sourceId = sourceId;
-            return this;
-        }
-
-        public DataMessageBuilder scheduledTime(Instant scheduledTime) {
-            this.scheduledTime = scheduledTime;
-            return this;
-        }
-
-        public DataMessageBuilder ttlSeconds(int ttlSeconds) {
-            this.ttlSeconds = ttlSeconds;
-            return this;
-        }
-
-        public DataMessageBuilder fcmMessageId(String fcmMessageId) {
-            this.fcmMessageId = fcmMessageId;
-            return this;
-        }
-
-        public DataMessageBuilder fcmTopic(String fcmTopic) {
-            this.fcmTopic = fcmTopic;
-            return this;
-        }
-
-        public DataMessageBuilder fcmCondition(String fcmCondition) {
-            this.fcmCondition = fcmCondition;
-            return this;
-        }
-
-        public DataMessageBuilder delivered(boolean delivered) {
-            this.delivered = delivered;
-            return this;
-        }
-
-        public DataMessageBuilder appPackage(String appPackage) {
-            this.appPackage = appPackage;
-            return this;
-        }
-
-        public DataMessageBuilder sourceType(String sourceType) {
-            this.sourceType = sourceType;
-            return this;
-        }
-
-        public DataMessageBuilder dryRun(boolean dryRun) {
-            this.dryRun = dryRun;
-            return this;
-        }
-
-        public DataMessageBuilder priority(String priority) {
-            this.priority = priority;
-            return this;
-        }
-
-        public DataMessageBuilder mutableContent(boolean mutableContent) {
-            this.mutableContent = mutableContent;
-            return this;
-        }
-
-
-        public DataMessageBuilder dataMap(Map<String, String> dataMap) {
-            this.dataMap = dataMap;
-            return this;
-        }
-
-        public DataMessage build() {
-            DataMessage dataMessage = new DataMessage();
-            dataMessage.setId(this.id);
-            dataMessage.setUser(this.user);
-            dataMessage.setSourceId(this.sourceId);
-            dataMessage.setScheduledTime(this.scheduledTime);
-            dataMessage.setTtlSeconds(this.ttlSeconds);
-            dataMessage.setFcmMessageId(this.fcmMessageId);
-            dataMessage.setFcmTopic(this.fcmTopic);
-            dataMessage.setFcmCondition(this.fcmCondition);
-            dataMessage.setDelivered(this.delivered);
-            dataMessage.setValidated(this.validated);
-            dataMessage.setAppPackage(this.appPackage);
-            dataMessage.setSourceType(this.sourceType);
-            dataMessage.setDryRun(this.dryRun);
-            dataMessage.setPriority(this.priority);
-            dataMessage.setMutableContent(this.mutableContent);
-            dataMessage.setDataMap(this.dataMap);
-
-            return dataMessage;
-        }
+        return if (other !is DataMessage) {
+            false
+        } else super.equals(other)
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof DataMessage)) {
-            return false;
-        }
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
+    override fun hashCode(): Int {
         return Objects.hash(
-                super.hashCode(),
-                getDataMap());
+            super.hashCode(),
+            dataMap
+        )
     }
 
+    companion object {
+        private const val serialVersionUID = 4L
+    }
 }
