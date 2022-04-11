@@ -36,19 +36,19 @@ import org.springframework.stereotype.Component
 class DataMessageConverter : Converter<DataMessage, FcmDataMessageDto> {
 
     override fun dtoToEntity(dataMessageDto: FcmDataMessageDto): DataMessage {
-        return DataMessage(
-            mutableContent = dataMessageDto.isMutableContent,
-            priority = dataMessageDto.priority,
-            fcmCondition = dataMessageDto.fcmCondition,
-            fcmTopic = dataMessageDto.fcmTopic,
-            fcmMessageId = dataMessageDto.hashCode().toString(),
-            appPackage = dataMessageDto.appPackage,
-            sourceType = dataMessageDto.sourceType,
-            sourceId = dataMessageDto.sourceId,
-            ttlSeconds = dataMessageDto.ttlSeconds,
-            scheduledTime = dataMessageDto.scheduledTime,
+        return DataMessage().apply {
+            mutableContent = dataMessageDto.isMutableContent
+            priority = dataMessageDto.priority
+            fcmCondition = dataMessageDto.fcmCondition
+            fcmTopic = dataMessageDto.fcmTopic
+            fcmMessageId = dataMessageDto.hashCode().toString()
+            appPackage = dataMessageDto.appPackage
+            sourceType = dataMessageDto.sourceType
+            sourceId = dataMessageDto.sourceId
+            ttlSeconds = dataMessageDto.ttlSeconds
+            scheduledTime = dataMessageDto.scheduledTime
             dataMap = dataMessageDto.dataMap
-        )
+        }
     }
 
     override fun entityToDto(dataMessage: DataMessage): FcmDataMessageDto {

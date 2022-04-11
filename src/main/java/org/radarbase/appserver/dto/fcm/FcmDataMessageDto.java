@@ -39,7 +39,6 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 /**
  * @author yatharthranjan
  */
-@Getter
 @ToString
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -85,6 +84,66 @@ public class FcmDataMessageDto implements Serializable {
 
     @DateTimeFormat(iso = ISO.DATE_TIME)
     private Instant updatedAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public Instant getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public int getTtlSeconds() {
+        return ttlSeconds;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public String getFcmMessageId() {
+        return fcmMessageId;
+    }
+
+    public String getFcmTopic() {
+        return fcmTopic;
+    }
+
+    public String getFcmCondition() {
+        return fcmCondition;
+    }
+
+    public String getAppPackage() {
+        return appPackage;
+    }
+
+    public String getSourceType() {
+        return sourceType;
+    }
+
+    public Map<String, String> getDataMap() {
+        return dataMap;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public boolean isMutableContent() {
+        return mutableContent;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 
     public FcmDataMessageDto(DataMessage dataMessageEntity) {
         this.id = dataMessageEntity.getId();

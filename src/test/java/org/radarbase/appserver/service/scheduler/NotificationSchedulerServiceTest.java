@@ -96,20 +96,17 @@ class NotificationSchedulerServiceTest {
                         .setEnrolmentDate(Instant.now())
                         .setFcmToken("xxxx");
 
-        notification =
-                new Notification.NotificationBuilder()
-                        .delivered(false)
-                        .ttlSeconds(900)
-                        .sourceId("aRMT")
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(3)))
-                        .fcmMessageId("xxxx")
-                        .title("Testing")
-                        .body("Testing")
-                        .user(user)
-                        .type("ESM")
-                        .appPackage("aRMT")
-                        .id(1L)
-                        .build();
+        notification = new Notification();
+        notification.setId(1L);
+        notification.setUser(user);
+        notification.setSourceId("aRMT");
+        notification.setScheduledTime(Instant.now().plus(Duration.ofSeconds(3)));
+        notification.setTtlSeconds(900);
+        notification.setFcmMessageId("xxxx");
+        notification.setAppPackage("aRMT");
+        notification.setTitle("Testing");
+        notification.setBody("Testing");
+        notification.setType("ESM");
     }
 
     @Test
@@ -144,13 +141,12 @@ class NotificationSchedulerServiceTest {
                 NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
-        Notification notification2 =
-                new Notification.NotificationBuilder(notification)
-                        .fcmMessageId("yyyy")
-                        .body("New body")
-                        .title("New Title")
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .build();
+        Notification notification2 = notification.copy();
+        notification2.setScheduledTime(Instant.now().plus(Duration.ofSeconds(3)));
+        notification2.setTtlSeconds(900);
+        notification2.setFcmMessageId("yyyy");
+        notification2.setTitle("Testing");
+        notification2.setBody("Testing");
 
         // when
         notificationSchedulerService.updateScheduled(notification2);

@@ -29,8 +29,6 @@ import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZON
 import java.time.Duration;
 import java.time.Instant;
 import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolationException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,15 +76,13 @@ public class DataMessageRepositoryTest {
 
         this.scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
 
-        DataMessage dataMessage =
-                new DataMessage.DataMessageBuilder()
-                        .user(user)
-                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
-                        .scheduledTime(this.scheduledTime)
-                        .sourceId(DATA_MESSAGE_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        DataMessage dataMessage = new DataMessage();
+        dataMessage.setFcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID);
+        dataMessage.setSourceId(DATA_MESSAGE_SOURCE_ID);
+        dataMessage.setScheduledTime(this.scheduledTime);
+        dataMessage.setUser(this.user);
+        dataMessage.setTtlSeconds(86400);
+        dataMessage.setDelivered(false);
 
         this.id = (Long) entityManager.persistAndGetId(dataMessage);
         entityManager.flush();
@@ -95,15 +91,13 @@ public class DataMessageRepositoryTest {
     @Test
     public void whenInsertWithTransientUser_thenThrowException() {
         // given
-        DataMessage dataMessage =
-                new DataMessage.DataMessageBuilder()
-                        .user(new User())
-                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(DATA_MESSAGE_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        DataMessage dataMessage = new DataMessage();
+        dataMessage.setUser(new User());
+        dataMessage.setSourceId(DATA_MESSAGE_SOURCE_ID);
+        dataMessage.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
+        dataMessage.setTtlSeconds(86400);
+        dataMessage.setDelivered(false);
+        dataMessage.setFcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID);
 
         IllegalStateException ex =
                 assertThrows(
@@ -119,14 +113,12 @@ public class DataMessageRepositoryTest {
     @Test
     public void whenInsertWithoutUser_thenThrowException() {
         // given
-        DataMessage dataMessage =
-                new DataMessage.DataMessageBuilder()
-                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(DATA_MESSAGE_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        DataMessage dataMessage = new DataMessage();
+        dataMessage.setSourceId(DATA_MESSAGE_SOURCE_ID);
+        dataMessage.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
+        dataMessage.setTtlSeconds(86400);
+        dataMessage.setDelivered(false);
+        dataMessage.setFcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID);
 
         assertThrows(
                 PersistenceException.class,
@@ -158,15 +150,13 @@ public class DataMessageRepositoryTest {
 
         assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
 
-        DataMessage dataMessage =
-                new DataMessage.DataMessageBuilder()
-                        .user(user)
-                        .fcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID)
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(DATA_MESSAGE_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        DataMessage dataMessage = new DataMessage();
+        dataMessage.setUser(user);
+        dataMessage.setSourceId(DATA_MESSAGE_SOURCE_ID);
+        dataMessage.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
+        dataMessage.setTtlSeconds(86400);
+        dataMessage.setDelivered(false);
+        dataMessage.setFcmMessageId(DATA_MESSAGE_FCM_MESSAGE_ID);
 
         ex =
                 assertThrows(

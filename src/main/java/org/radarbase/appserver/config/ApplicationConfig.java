@@ -33,4 +33,5 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableConfigurationProperties({FcmServerConfig.class})
 @EnableTransactionManagement
 @EnableAsync
-public class ApplicationConfig {}
+public class ApplicationConfig {
+}

@@ -18,58 +18,56 @@
  *  *
  *
  */
+package org.radarbase.appserver.converter
 
-package org.radarbase.appserver.converter;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
-import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.entity.UserMetrics;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.radarbase.appserver.dto.fcm.FcmUserDto
+import org.radarbase.appserver.entity.User
+import org.radarbase.appserver.entity.UserMetrics
+import org.springframework.beans.factory.config.ConfigurableBeanFactory
+import org.springframework.context.annotation.Scope
+import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 /**
- * Converter {@link Converter} class for {@link User} entity and {@link FcmUserDto} DTO.
+ * Converter [Converter] class for [User] entity and [FcmUserDto] DTO.
  *
  * @author yatharthranjan
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class UserConverter implements Converter<User, FcmUserDto> {
-
-  public static UserMetrics getValidUserMetrics(FcmUserDto fcmUserDto) {
-    UserMetrics userMetrics;
-    if (fcmUserDto.getLastOpened() == null && fcmUserDto.getLastDelivered() == null) {
-      userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), null);
-    } else if (fcmUserDto.getLastDelivered() == null) {
-      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), null);
-    } else if (fcmUserDto.getLastOpened() == null) {
-      userMetrics =
-          new UserMetrics(
-              LocalDateTime.now().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered());
-    } else {
-      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), fcmUserDto.getLastDelivered());
+class UserConverter : Converter<User, FcmUserDto> {
+    override fun dtoToEntity(fcmUserDto: FcmUserDto): User {
+        return User()
+            .setFcmToken(fcmUserDto.fcmToken)
+            .setSubjectId(fcmUserDto.subjectId)
+            .setUserMetrics(getValidUserMetrics(fcmUserDto))
+            .setEnrolmentDate(fcmUserDto.enrolmentDate)
+            .setTimezone(fcmUserDto.timezone)
+            .setLanguage(fcmUserDto.language)
     }
 
-    return userMetrics;
-  }
+    override fun entityToDto(user: User): FcmUserDto {
+        return FcmUserDto(user)
+    }
 
-  @Override
-  public User dtoToEntity(FcmUserDto fcmUserDto) {
-
-    return new User()
-        .setFcmToken(fcmUserDto.getFcmToken())
-        .setSubjectId(fcmUserDto.getSubjectId())
-        .setUserMetrics(getValidUserMetrics(fcmUserDto))
-        .setEnrolmentDate(fcmUserDto.getEnrolmentDate())
-        .setTimezone(fcmUserDto.getTimezone())
-        .setLanguage(fcmUserDto.getLanguage());
-  }
-
-  @Override
-  public FcmUserDto entityToDto(User user) {
-    return new FcmUserDto(user);
-  }
+    companion object {
+        @JvmStatic
+        fun getValidUserMetrics(fcmUserDto: FcmUserDto): UserMetrics {
+            val userMetrics: UserMetrics =
+                if (fcmUserDto.lastOpened == null && fcmUserDto.lastDelivered == null) {
+                    UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), null)
+                } else if (fcmUserDto.lastDelivered == null) {
+                    UserMetrics(fcmUserDto.lastOpened, null)
+                } else if (fcmUserDto.lastOpened == null) {
+                    UserMetrics(
+                        LocalDateTime.now().toInstant(ZoneOffset.UTC),
+                        fcmUserDto.lastDelivered
+                    )
+                } else {
+                    UserMetrics(fcmUserDto.lastOpened, fcmUserDto.lastDelivered)
+                }
+            return userMetrics
+        }
+    }
 }

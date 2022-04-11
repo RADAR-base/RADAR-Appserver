@@ -35,6 +35,7 @@ import java.util.stream.Collectors
 interface Converter<T, S> {
     fun dtoToEntity(s: S): T
     fun entityToDto(t: T): S
+
     fun dtosToEntities(ss: Collection<S>): List<T> {
         return ss.parallelStream().map { s: S -> dtoToEntity(s) }.collect(Collectors.toList())
     }

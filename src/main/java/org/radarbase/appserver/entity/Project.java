@@ -41,7 +41,6 @@ import org.radarbase.appserver.dto.ProjectDto;
  */
 @Table(name = "projects")
 @Entity
-@Getter
 @ToString
 @NoArgsConstructor
 public class Project extends AuditModel implements Serializable {
@@ -64,6 +63,14 @@ public class Project extends AuditModel implements Serializable {
   public Project setProjectId(String projectId) {
     this.projectId = projectId;
     return this;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public String getProjectId() {
+    return projectId;
   }
 
   @Override

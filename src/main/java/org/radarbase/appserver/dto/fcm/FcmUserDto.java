@@ -34,7 +34,6 @@ import org.radarbase.appserver.entity.User;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /** @author yatharthranjan */
-@Getter
 @EqualsAndHashCode
 @ToString
 @NoArgsConstructor
@@ -150,5 +149,49 @@ public class FcmUserDto implements Serializable {
   public FcmUserDto setLanguage(String language) {
     this.language = language;
     return this;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public String getProjectId() {
+    return projectId;
+  }
+
+  public String getSubjectId() {
+    return subjectId;
+  }
+
+  public Instant getLastOpened() {
+    return lastOpened;
+  }
+
+  public Instant getLastDelivered() {
+    return lastDelivered;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public Instant getEnrolmentDate() {
+    return enrolmentDate;
+  }
+
+  public String getTimezone() {
+    return timezone;
+  }
+
+  public String getFcmToken() {
+    return fcmToken;
+  }
+
+  public String getLanguage() {
+    return language;
   }
 }

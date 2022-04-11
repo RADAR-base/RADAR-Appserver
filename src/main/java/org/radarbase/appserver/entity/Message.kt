@@ -28,66 +28,63 @@ import java.io.Serializable
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
-import javax.validation.constraints.NotNull
 
 @MappedSuperclass
-abstract class Message(
+abstract class Message : AuditModel(), Serializable, Scheduled {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    val id: Long? = null,
+    var id: Long? = null
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    val user: @NotNull User?,
+    var user: User? = null
 
     @Nullable
     @Column(name = "source_id")
-    val sourceId: String? = null,
+    var sourceId: String? = null
 
     @Column(name = "scheduled_time", nullable = false)
-    override val scheduledTime: @NotNull Instant,
+    override var scheduledTime: Instant? = null
 
     @Column(name = "ttl_seconds")
-    val ttlSeconds: Int = 0,
+    var ttlSeconds: Int = 0
 
     @Column(name = "fcm_message_id", unique = true)
-    val fcmMessageId: String? = null,
+    var fcmMessageId: String? = null
 
     // for use with the FCM admin SDK
     @Column(name = "fcm_topic")
     @Nullable
-    val fcmTopic: String? = null,
+    var fcmTopic: String? = null
 
     // for use with the FCM admin SDK
     @Column(name = "fcm_condition")
     @Nullable
-    val fcmCondition: String? = null,
+    var fcmCondition: String? = null
 
     // TODO: REMOVE DELIVERED AND VALIDATED. These can be handled by state lifecycle.
-    val delivered: Boolean = false,
-    val validated: Boolean = false,
+    var delivered: Boolean = false
+    var validated: Boolean = false
 
     @Nullable
     @Column(name = "app_package")
-    val appPackage: String? = null,
+    var appPackage: String? = null
 
     // Source Type from the Management Portal
     @Nullable
     @Column(name = "source_type")
-    val sourceType: String? = null,
+    var sourceType: String? = null
 
     @Column(name = "dry_run") // for use with the FCM admin SDK
-    val dryRun: Boolean = false,
+    var dryRun: Boolean = false
 
-    val priority: String? = null,
+    var priority: String? = null
 
     @Column(name = "mutable_content")
-    val mutableContent: Boolean = false,
-
-    ) : AuditModel(), Serializable, Scheduled {
-
+    var mutableContent: Boolean = false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

@@ -24,7 +24,6 @@ import org.springframework.lang.Nullable
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
-import javax.validation.constraints.NotNull
 
 /**
  * [Entity] for persisting data messages. The corresponding DTO is [FcmDataMessageDto].
@@ -42,46 +41,14 @@ import javax.validation.constraints.NotNull
     uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "source_id", "scheduled_time", "ttl_seconds", "delivered", "dry_run"])]
 )
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-class DataMessage(
-    id: Long? = null,
-    user: @NotNull User? = null,
-    sourceId: String? = null,
-    scheduledTime: @NotNull Instant,
-    ttlSeconds: Int = 0,
-    fcmMessageId: String? = null,
-    fcmTopic: String? = null,
-    fcmCondition: String? = null,
-    delivered: Boolean = false,
-    validated: Boolean = false,
-    appPackage: String? = null,
-    sourceType: String? = null,
-    dryRun: Boolean = false,
-    priority: String? = null,
-    mutableContent: Boolean = false,
+class DataMessage : Message() {
 
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "data_message_map")
     @MapKeyColumn(name = "key", nullable = true)
     @Column(name = "value")
-    val dataMap: Map<String, String>? = null,
-) : Message(
-    id,
-    user,
-    sourceId,
-    scheduledTime,
-    ttlSeconds,
-    fcmMessageId,
-    fcmTopic,
-    fcmCondition,
-    delivered,
-    validated,
-    appPackage,
-    sourceType,
-    dryRun,
-    priority,
-    mutableContent
-) {
+    var dataMap: Map<String, String>? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -98,6 +65,52 @@ class DataMessage(
             dataMap
         )
     }
+
+    @JvmOverloads
+    fun copy(
+        id: Long? = this.id,
+        user: User? = this.user,
+        scheduledTime: Instant? = this.scheduledTime,
+        sourceId: String? = this.sourceId,
+        sourceType: String? = this.sourceType,
+        ttlSeconds: Int = this.ttlSeconds,
+        fcmMessageId: String? = this.fcmMessageId,
+        fcmTopic: String? = this.fcmTopic,
+        fcmCondition: String? = this.fcmCondition,
+        appPackage: String? = this.appPackage,
+        dryRun: Boolean = this.dryRun,
+        delivered: Boolean = this.delivered,
+        validated: Boolean = this.validated,
+        priority: String? = this.priority,
+        mutableContent: Boolean = this.mutableContent,
+        createdAt: Date = this.createdAt,
+        updatedAt: Date = this.updatedAt,
+    ): DataMessage {
+        return DataMessage().apply {
+            this.id = id
+            this.user = user
+            this.scheduledTime = scheduledTime
+            this.sourceId = sourceId
+            this.sourceType = sourceType
+            this.ttlSeconds = ttlSeconds
+            this.fcmMessageId = fcmMessageId
+            this.fcmTopic = fcmTopic
+            this.fcmCondition = fcmCondition
+            this.appPackage = appPackage
+            this.dryRun = dryRun
+            this.delivered = delivered
+            this.validated = validated
+            this.priority = priority
+            this.mutableContent = mutableContent
+            this.createdAt = createdAt
+            this.updatedAt = updatedAt
+        }
+    }
+
+    override fun toString(): String {
+        return "DataMessage(id=$id, dataMap=$dataMap)"
+    }
+
 
     companion object {
         private const val serialVersionUID = 4L

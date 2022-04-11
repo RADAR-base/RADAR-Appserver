@@ -112,18 +112,15 @@ class FcmNotificationServiceTest {
 
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(userNew);
 
-        Notification notification3 =
-                new Notification.NotificationBuilder()
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE_3)
-                        .scheduledTime(scheduledTime)
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .fcmMessageId("1234567")
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .user(user)
-                        .id(3L)
-                        .build();
+        Notification notification3 = new Notification();
+        notification3.setUser(user);
+        notification3.setId(3L);
+        notification3.setTitle(NOTIFICATION_TITLE_3);
+        notification3.setScheduledTime(scheduledTime);
+        notification3.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification3.setFcmMessageId("1234567");
+        notification3.setTtlSeconds(86400);
+
         notification3.setCreatedAt(new Date());
 
         Mockito.when(notificationRepository.save(notification3)).thenReturn(notification3);
@@ -143,18 +140,15 @@ class FcmNotificationServiceTest {
                                 86400))
                 .thenReturn(false);
 
-        Notification notification4 =
-                new Notification.NotificationBuilder()
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE_4)
-                        .scheduledTime(scheduledTime)
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .fcmMessageId("12345678")
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .user(userNew)
-                        .id(4L)
-                        .build();
+        Notification notification4 = new Notification();
+        notification4.setId(4L);
+        notification4.setUser(userNew);
+        notification4.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification4.setScheduledTime(scheduledTime);
+        notification4.setTitle(NOTIFICATION_TITLE_4);
+        notification4.setBody(NOTIFICATION_BODY);
+        notification4.setFcmMessageId("12345678");
+        notification4.setTtlSeconds(86400);
 
         notification4.setCreatedAt(new Date());
         notification4.setUpdatedAt(new Date());
@@ -175,18 +169,16 @@ class FcmNotificationServiceTest {
                                 86400))
                 .thenReturn(false);
 
-        Notification notification5 =
-                new Notification.NotificationBuilder()
-                        .body(NOTIFICATION_BODY + " Updated")
-                        .title("Testing 2 Updated")
-                        .user(user)
-                        .scheduledTime(scheduledTime)
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .fcmMessageId(FCM_MESSAGE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .id(5L)
-                        .build();
+        Notification notification5 = new Notification();
+        notification5.setId(5L);
+        notification5.setUser(user);
+        notification5.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification5.setScheduledTime(scheduledTime);
+        notification5.setTitle("Testing 2 Updated");
+        notification5.setBody(NOTIFICATION_BODY + " Updated");
+        notification5.setDelivered(false);
+        notification5.setFcmMessageId(FCM_MESSAGE_ID);
+
 
         notification5.setCreatedAt(new Date());
         notification5.setUpdatedAt(new Date());
@@ -224,33 +216,28 @@ class FcmNotificationServiceTest {
     }
 
     private void setUpNotification1And2() {
-        Notification notification1 =
-                new Notification.NotificationBuilder()
-                        .user(user)
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .scheduledTime(scheduledTime)
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .id(1L)
-                        .build();
+        Notification notification1 = new Notification();
+        notification1.setId(1L);
+        notification1.setUser(user);
+        notification1.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification1.setScheduledTime(scheduledTime);
+        notification1.setTitle(NOTIFICATION_TITLE);
+        notification1.setBody(NOTIFICATION_BODY);
+        notification1.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        notification1.setTtlSeconds(86400);
+
         notification1.setUpdatedAt(new Date());
         notification1.setCreatedAt(new Date());
 
-        Notification notification2 =
-                new Notification.NotificationBuilder()
-                        .user(user)
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE_2)
-                        .scheduledTime(scheduledTime)
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .fcmMessageId(FCM_MESSAGE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .id(2L)
-                        .build();
+        Notification notification2 = new Notification();
+        notification2.setId(2L);
+        notification2.setUser(user);
+        notification2.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification2.setScheduledTime(scheduledTime);
+        notification2.setTitle(NOTIFICATION_TITLE_2);
+        notification2.setBody(NOTIFICATION_BODY);
+        notification2.setFcmMessageId(FCM_MESSAGE_ID);
+        notification2.setTtlSeconds(86400);
 
         notification2.setCreatedAt(new Date());
         notification2.setUpdatedAt(new Date());

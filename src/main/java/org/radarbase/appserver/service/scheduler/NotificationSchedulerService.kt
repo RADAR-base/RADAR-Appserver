@@ -51,7 +51,7 @@ class NotificationSchedulerService(
         private fun getNotificationMap(notification: Notification): Map<String, Any> {
             val notificationMap: MutableMap<String, Any> = HashMap()
             notificationMap["body"] = notification.body ?: ""
-            notificationMap["title"] = notification.title
+            notificationMap["title"] = notification.title ?: "Alert from RADAR-Base"
             notificationMap["sound"] = "default"
             putIfNotNull(notificationMap, "sound", notification.sound)
             putIfNotNull(notificationMap, "badge", notification.badge)

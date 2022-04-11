@@ -29,7 +29,6 @@ import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZON
 import java.time.Duration;
 import java.time.Instant;
 import javax.persistence.PersistenceException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,17 +78,15 @@ public class NotificationRepositoryTest {
 
         this.scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
 
-        Notification notification =
-                new Notification.NotificationBuilder()
-                        .user(user)
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-                        .scheduledTime(this.scheduledTime)
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        Notification notification = new Notification();
+        notification.setBody(NOTIFICATION_BODY);
+        notification.setTitle(NOTIFICATION_TITLE);
+        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        notification.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification.setScheduledTime(this.scheduledTime);
+        notification.setUser(this.user);
+        notification.setTtlSeconds(86400);
+        notification.setDelivered(false);
 
         this.id = (Long) entityManager.persistAndGetId(notification);
         entityManager.flush();
@@ -98,17 +95,17 @@ public class NotificationRepositoryTest {
     @Test
     public void whenInsertWithTransientUser_thenThrowException() {
         // given
-        Notification notification =
-                new Notification.NotificationBuilder()
-                        .user(new User())
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        Notification notification = new Notification();
+        notification.setBody(NOTIFICATION_BODY);
+        notification.setTitle(NOTIFICATION_TITLE);
+        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        notification.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
+        notification.setUser(new User());
+        notification.setTtlSeconds(86400);
+        notification.setDelivered(false);
+
+
 
         IllegalStateException ex =
                 assertThrows(
@@ -124,16 +121,14 @@ public class NotificationRepositoryTest {
     @Test
     public void whenInsertWithoutUser_thenThrowException() {
         // given
-        Notification notification =
-                new Notification.NotificationBuilder()
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        Notification notification = new Notification();
+        notification.setBody(NOTIFICATION_BODY);
+        notification.setTitle(NOTIFICATION_TITLE);
+        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        notification.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
+        notification.setTtlSeconds(86400);
+        notification.setDelivered(false);
 
         assertThrows(
                 PersistenceException.class,
@@ -165,17 +160,15 @@ public class NotificationRepositoryTest {
 
         assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
 
-        Notification notification =
-                new Notification.NotificationBuilder()
-                        .user(user)
-                        .body(NOTIFICATION_BODY)
-                        .title(NOTIFICATION_TITLE)
-                        .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
-                        .scheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-                        .sourceId(NOTIFICATION_SOURCE_ID)
-                        .ttlSeconds(86400)
-                        .delivered(false)
-                        .build();
+        Notification notification = new Notification();
+        notification.setBody(NOTIFICATION_BODY);
+        notification.setTitle(NOTIFICATION_TITLE);
+        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
+        notification.setSourceId(NOTIFICATION_SOURCE_ID);
+        notification.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
+        notification.setUser(user);
+        notification.setTtlSeconds(86400);
+        notification.setDelivered(false);
 
         ex =
                 assertThrows(

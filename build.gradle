@@ -12,6 +12,9 @@ plugins {
     id "com.github.lkishalmi.gatling" version "3.3.4"
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'org.springframework.boot' version "2.6.6"
+    id "org.jetbrains.kotlin.plugin.spring" version "1.6.20"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.6.20"
+    id "org.jetbrains.kotlin.plugin.jpa" version "1.6.20"
 }
 
 apply plugin: 'checkstyle'
@@ -59,6 +62,11 @@ sourceSets {
     }
 }
 
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.Embeddable")
+    annotation("javax.persistence.MappedSuperclass")
+}
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
@@ -69,6 +77,11 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springBootVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
+
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
     implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
 
     implementation(group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion)
@@ -117,8 +130,7 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
+
 }
 
 checkstyle {

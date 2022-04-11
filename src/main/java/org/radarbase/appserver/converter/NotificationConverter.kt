@@ -36,34 +36,34 @@ import org.springframework.stereotype.Component
 class NotificationConverter : Converter<Notification, FcmNotificationDto> {
 
     override fun dtoToEntity(notificationDto: FcmNotificationDto): Notification {
-        return Notification(
-            body = notificationDto.body,
-            scheduledTime = notificationDto.scheduledTime,
-            title = notificationDto.title,
-            sourceId = notificationDto.sourceId,
-            type = notificationDto.type,
-            ttlSeconds = notificationDto.ttlSeconds,
-            fcmMessageId = notificationDto.hashCode().toString(),
-            appPackage = notificationDto.appPackage,
-            sourceType = notificationDto.sourceType,
-            additionalData = notificationDto.additionalData,
-            androidChannelId = notificationDto.androidChannelId,
-            bodyLocArgs = notificationDto.bodyLocArgs,
-            bodyLocKey = notificationDto.bodyLocKey,
-            titleLocArgs = notificationDto.titleLocArgs,
-            titleLocKey = notificationDto.titleLocKey,
-            badge = notificationDto.badge,
-            clickAction = notificationDto.clickAction,
-            color = notificationDto.color,
-            fcmCondition = notificationDto.fcmCondition,
-            fcmTopic = notificationDto.fcmTopic,
-            icon = notificationDto.icon,
-            mutableContent = notificationDto.isMutableContent,
-            priority = notificationDto.priority,
-            sound = notificationDto.sound,
-            subtitle = notificationDto.subtitle,
-            tag = notificationDto.tag,
-        )
+        return Notification().apply {
+            body = notificationDto.body
+            scheduledTime = notificationDto.scheduledTime
+            title = notificationDto.title
+            sourceId = notificationDto.sourceId
+            type = notificationDto.type
+            ttlSeconds = notificationDto.ttlSeconds
+            fcmMessageId = notificationDto.hashCode().toString()
+            appPackage = notificationDto.appPackage
+            sourceType = notificationDto.sourceType
+            additionalData = notificationDto.additionalData
+            androidChannelId = notificationDto.androidChannelId
+            bodyLocArgs = notificationDto.bodyLocArgs
+            bodyLocKey = notificationDto.bodyLocKey
+            titleLocArgs = notificationDto.titleLocArgs
+            titleLocKey = notificationDto.titleLocKey
+            badge = notificationDto.badge
+            clickAction = notificationDto.clickAction
+            color = notificationDto.color
+            fcmCondition = notificationDto.fcmCondition
+            fcmTopic = notificationDto.fcmTopic
+            icon = notificationDto.icon
+            mutableContent = notificationDto.isMutableContent
+            priority = notificationDto.priority
+            sound = notificationDto.sound
+            subtitle = notificationDto.subtitle
+            tag = notificationDto.tag
+        }
     }
 
     override fun entityToDto(notification: Notification): FcmNotificationDto {

@@ -56,4 +56,20 @@ public abstract class AuditModel {
   @Column(name = "updated_at", nullable = false)
   @LastModifiedDate
   private Date updatedAt;
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public void setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 }
