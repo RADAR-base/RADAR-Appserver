@@ -29,6 +29,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -61,6 +62,7 @@ public class MPOAuthHelper implements OAuthHelper {
   static {
     // Get valid token from Management Portal
     final RestTemplate restTemplate = new RestTemplate();
+    restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("username", ADMIN_USER);
