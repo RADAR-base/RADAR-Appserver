@@ -20,7 +20,6 @@
  */
 package org.radarbase.appserver.converter
 
-import java.util.stream.Collectors
 
 /**
  * Generic converter class for conversions between entity [org.radarbase.appserver.entity] and
@@ -36,11 +35,11 @@ interface Converter<T, S> {
     fun dtoToEntity(s: S): T
     fun entityToDto(t: T): S
 
-    fun dtosToEntities(ss: Collection<S>): List<T> {
-        return ss.parallelStream().map { s: S -> dtoToEntity(s) }.collect(Collectors.toList())
+    fun dtosToEntities(ss: MutableCollection<S>): MutableList<T> {
+        return ss.map { s: S -> dtoToEntity(s) }.toMutableList()
     }
 
-    fun entitiesToDtos(ts: Collection<T>): List<S> {
-        return ts.parallelStream().map { t: T -> entityToDto(t) }.collect(Collectors.toList())
+    fun entitiesToDtos(ts: MutableCollection<T>): MutableList<S> {
+        return ts.map { t: T -> entityToDto(t) }.toMutableList()
     }
 }

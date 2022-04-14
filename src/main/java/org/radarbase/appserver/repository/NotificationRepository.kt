@@ -18,54 +18,47 @@
  *  *
  *
  */
+package org.radarbase.appserver.repository
 
-package org.radarbase.appserver.repository;
+import org.radarbase.appserver.entity.Notification
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.rest.core.annotation.RepositoryRestResource
+import org.springframework.stereotype.Repository
+import java.time.Instant
+import java.util.*
+import javax.validation.constraints.NotNull
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import javax.validation.constraints.NotNull;
-import org.radarbase.appserver.entity.Notification;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.stereotype.Repository;
-
-/** @author yatharthranjan */
+/** @author yatharthranjan
+ */
 @Repository
 @RepositoryRestResource(exported = false)
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+interface NotificationRepository : JpaRepository<Notification?, Long?> {
+    fun findByUserId(userId: Long?): List<Notification?>
+    fun deleteByUserId(userId: Long?)
+    fun existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+        userId: Long?,
+        sourceId: String?,
+        scheduledTime: Instant?,
+        title: String?,
+        body: String?,
+        type: String?,
+        ttlSeconds: Int
+    ): Boolean
 
-    List<Notification> findByUserId(Long userId);
+    fun findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+        userId: Long?,
+        sourceId: String?,
+        scheduledTime: Instant?,
+        title: String?,
+        body: String?,
+        type: String?,
+        ttlSeconds: Int
+    ): Optional<Notification?>?
 
-    void deleteByUserId(Long userId);
-
-    boolean existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-            Long userId,
-            String sourceId,
-            Instant scheduledTime,
-            String title,
-            String body,
-            String type,
-            int ttlSeconds);
-
-    Optional<Notification> findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-            Long userId,
-            String sourceId,
-            Instant scheduledTime,
-            String title,
-            String body,
-            String type,
-            int ttlSeconds);
-
-    boolean existsByIdAndUserId(Long id, Long userId);
-
-    boolean existsById(@NotNull Long id);
-
-    void deleteByFcmMessageId(String fcmMessageId);
-
-    void deleteByIdAndUserId(Long id, Long userId);
-
-    Optional<Notification> findByFcmMessageId(String fcmMessageId);
-
-    Optional<Notification> findByIdAndUserId(long id, long userId);
+    fun existsByIdAndUserId(id: Long?, userId: Long?): Boolean
+    override fun existsById(id: @NotNull Long?): Boolean
+    fun deleteByFcmMessageId(fcmMessageId: String?)
+    fun deleteByIdAndUserId(id: Long?, userId: Long?)
+    fun findByFcmMessageId(fcmMessageId: String?): Optional<Notification?>?
+    fun findByIdAndUserId(id: Long, userId: Long): Optional<Notification?>?
 }

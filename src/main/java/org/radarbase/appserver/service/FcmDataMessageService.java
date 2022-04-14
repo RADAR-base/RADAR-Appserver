@@ -145,8 +145,8 @@ public class FcmDataMessageService implements DataMessageService {
         if (user.isEmpty()) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        DataMessage dataMessage =
-                dataMessageConverter.dtoToEntity(dataMessageDto).copy(null, user.get());
+        DataMessage dataMessage = dataMessageConverter.dtoToEntity(dataMessageDto);
+        dataMessage.setUser(user.get());
 
         List<DataMessage> dataMessages = this.dataMessageRepository.findByUserId(user.get().getId());
         return dataMessages.contains(dataMessage);
@@ -176,7 +176,8 @@ public class FcmDataMessageService implements DataMessageService {
                         dataMessageDto.getScheduledTime(),
                         dataMessageDto.getTtlSeconds())) {
 
-            DataMessage dataMessage = dataMessageConverter.dtoToEntity(dataMessageDto).copy(null, user);
+            DataMessage dataMessage = dataMessageConverter.dtoToEntity(dataMessageDto);
+            dataMessage.setUser(user);
 
             DataMessage dataMessageSaved = this.dataMessageRepository.saveAndFlush(dataMessage);
             user.getUsermetrics().setLastOpened(Instant.now());

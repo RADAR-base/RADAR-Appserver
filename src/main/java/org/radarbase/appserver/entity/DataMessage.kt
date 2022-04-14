@@ -20,7 +20,6 @@
  */
 package org.radarbase.appserver.entity
 
-import org.springframework.lang.Nullable
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
@@ -43,12 +42,11 @@ import javax.persistence.*
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 class DataMessage : Message() {
 
-    @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "data_message_map")
     @MapKeyColumn(name = "key", nullable = true)
     @Column(name = "value")
-    var dataMap: Map<String, String>? = null
+    var dataMap: Map<String, String?>? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -74,7 +72,7 @@ class DataMessage : Message() {
         sourceId: String? = this.sourceId,
         sourceType: String? = this.sourceType,
         ttlSeconds: Int = this.ttlSeconds,
-        fcmMessageId: String? = this.fcmMessageId,
+        fcmMessageId: String = this.fcmMessageId,
         fcmTopic: String? = this.fcmTopic,
         fcmCondition: String? = this.fcmCondition,
         appPackage: String? = this.appPackage,
@@ -83,8 +81,6 @@ class DataMessage : Message() {
         validated: Boolean = this.validated,
         priority: String? = this.priority,
         mutableContent: Boolean = this.mutableContent,
-        createdAt: Date = this.createdAt,
-        updatedAt: Date = this.updatedAt,
     ): DataMessage {
         return DataMessage().apply {
             this.id = id
@@ -102,8 +98,6 @@ class DataMessage : Message() {
             this.validated = validated
             this.priority = priority
             this.mutableContent = mutableContent
-            this.createdAt = createdAt
-            this.updatedAt = updatedAt
         }
     }
 

@@ -42,7 +42,7 @@ class ProjectConverter : Converter<Project, ProjectDto> {
         return ProjectDto()
             .setId(project.id)
             .setProjectId(project.projectId)
-            .setCreatedAt(project.createdAt.toInstant())
-            .setUpdatedAt(project.updatedAt.toInstant())
+            .setCreatedAt(project.createdAt?.toInstant())
+            .setUpdatedAt(project.updatedAt?.toInstant())
     }
 }

@@ -62,7 +62,7 @@ class FcmNotificationMessage(
     override val dryRun: Boolean = false,
 
     @JsonProperty
-    override val data: Map<String, String>? = null,
+    override val data: Map<String, String?>? = null,
 
     // TODO Add specific Notification model and data model classes instead of using Maps.
     @JsonProperty
@@ -141,25 +141,39 @@ class FcmNotificationMessage(
     }
 
     private fun getAndroidNotification(): AndroidNotification {
-        val builder = AndroidNotification.builder()
-            .setBody(notification.getOrDefault("body", "").toString())
-            .setTitle(notification.getOrDefault("title", "").toString())
-            .setChannelId(notification["android_channel_id"].toString())
-            .setColor(notification["color"].toString())
-            .setTag(notification["tag"].toString())
-            .setIcon(notification["icon"].toString())
-            .setSound(notification["sound"].toString())
-            .setClickAction(notification["click_action"].toString())
-        notification["body_loc_key"]?.let {
-            builder
-                .setBodyLocalizationKey(notification["body_loc_key"].toString())
-                .addBodyLocalizationArg(notification["body_loc_args"].toString())
-        }
-        notification["title_loc_key"]?.let {
-            builder
-                .addTitleLocalizationArg(notification["title_loc_args"].toString())
-                .setTitleLocalizationKey(notification["title_loc_key"].toString())
-        }
-        return builder.build()
+        return AndroidNotification.builder().apply {
+            setBody(notification.getOrDefault("body", "").toString())
+            setTitle(notification.getOrDefault("title", "").toString())
+            notification["android_channel_id"]?.let {
+                setChannelId(it.toString())
+            }
+            notification["color"]?.let {
+                setColor(it.toString())
+            }
+            notification["icon"]?.let {
+                setIcon(it.toString())
+            }
+            notification["image"]?.let {
+                setImage(it.toString())
+            }
+            notification["tag"]?.let {
+                setTag(it.toString())
+            }
+            notification["click_action"]?.let {
+                setClickAction(it.toString())
+            }
+            notification["body_loc_key"]?.let {
+                setBodyLocalizationKey(it.toString())
+                addBodyLocalizationArg(notification["body_loc_args"].toString())
+            }
+
+            notification["title_loc_key"]?.let {
+                setTitleLocalizationKey(it.toString())
+                addTitleLocalizationArg(notification["title_loc_args"].toString())
+            }
+            notification["sound"]?.let {
+                setSound(it.toString())
+            }
+        }.build()
     }
 }

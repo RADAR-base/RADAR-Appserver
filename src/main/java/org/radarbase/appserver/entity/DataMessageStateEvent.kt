@@ -18,23 +18,24 @@
  *  *
  *
  */
-package org.radarbase.appserver
+package org.radarbase.appserver.entity
 
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration
-import org.springframework.boot.runApplication
+import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
+import javax.persistence.*
 
-/** @author yatharthranjan
- */
-@SpringBootApplication(
-    exclude = [SolrAutoConfiguration::class],
-    scanBasePackages = [
-        "org.radarbase.appserver",
-        "org.radarbase.fcm",
-    ],
-)
-class AppserverApplication
+@Entity
+@Table(name = "data_message_state_events")
+class DataMessageStateEvent : MessageStateEvent() {
 
-fun main(args: Array<String>) {
-    runApplication<AppserverApplication>(*args)
+    @field:JsonIgnore
+    @field:OnDelete(action = OnDeleteAction.CASCADE)
+    @field:JoinColumn(name = "data_message_id", nullable = false)
+    @field:ManyToOne(fetch = FetchType.EAGER, optional = false)
+    lateinit var dataMessage: DataMessage
+
+    companion object {
+        private const val serialVersionUID = 876253616328520L
+    }
 }

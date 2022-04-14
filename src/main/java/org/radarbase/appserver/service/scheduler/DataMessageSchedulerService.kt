@@ -49,8 +49,9 @@ class DataMessageSchedulerService(
 
     companion object {
         private fun createMessageFromDataMessage(dataMessage: DataMessage): FcmDataMessage {
-            val to = dataMessage.fcmTopic ?: dataMessage.user?.fcmToken
-            ?: throw IllegalArgumentException("FCM Topic or User FCM Token is not set")
+            val to = checkNotNull(
+                dataMessage.fcmTopic ?: dataMessage.user?.fcmToken
+            ) { "FCM Topic or User FCM Token is not set" }
 
             return FcmDataMessage(
                 to = to,
@@ -58,8 +59,7 @@ class DataMessageSchedulerService(
                 priority = dataMessage.priority,
                 mutableContent = dataMessage.mutableContent,
                 deliveryReceiptRequested = IS_DELIVERY_RECEIPT_REQUESTED,
-                messageId = dataMessage.fcmMessageId
-                    ?: Random(System.currentTimeMillis()).nextLong().toString(),
+                messageId = dataMessage.fcmMessageId,
                 timeToLive = dataMessage.ttlSeconds,
                 data = dataMessage.dataMap,
             )

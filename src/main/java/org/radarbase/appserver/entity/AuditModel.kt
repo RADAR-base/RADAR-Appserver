@@ -18,58 +18,35 @@
  *  *
  *
  */
+package org.radarbase.appserver.entity
 
-package org.radarbase.appserver.entity;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.EntityListeners;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.util.*
+import javax.persistence.*
 
 /**
  * Enables Auditing on various JPA entities. This automatically adds and updates the `create at` and
  * `updated at` attributes for any entity that extends this class.
  *
  * @see AuditingEntityListener
+ *
  * @author yatharthranjan
  */
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(
-    value = {"createdAt", "updatedAt"},
-    allowGetters = true)
-@Data
-public abstract class AuditModel {
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "created_at", nullable = false, updatable = false)
-  @CreatedDate
-  private Date createdAt;
+@EntityListeners(AuditingEntityListener::class)
+@JsonIgnoreProperties(value = ["createdAt", "updatedAt"], allowGetters = true)
+abstract class AuditModel {
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreatedDate
+    var createdAt: Date? = null
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "updated_at", nullable = false)
-  @LastModifiedDate
-  private Date updatedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at", nullable = false)
+    @LastModifiedDate
+    var updatedAt: Date? = null
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public void setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-  }
 }

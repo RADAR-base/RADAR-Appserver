@@ -18,133 +18,131 @@
  *  *
  *
  */
+package org.radarbase.appserver.repository
 
-package org.radarbase.appserver.repository;
+import org.hibernate.exception.ConstraintViolationException
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.radarbase.appserver.controller.FcmNotificationControllerTest
+import org.radarbase.appserver.controller.RadarUserControllerTest
+import org.radarbase.appserver.entity.Project
+import org.radarbase.appserver.entity.User
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Instant
+import javax.persistence.PersistenceException
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
-import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
-import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
-
-import java.time.Instant;
-import javax.persistence.PersistenceException;
-
-import org.hibernate.exception.ConstraintViolationException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.radarbase.appserver.entity.Project;
-import org.radarbase.appserver.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-@ExtendWith(SpringExtension.class)
+@ExtendWith(SpringExtension::class)
 @DataJpaTest
 @EnableJpaAuditing
-class UserRepositoryTest {
+internal class UserRepositoryTest {
+    @Autowired
+    @Transient
+    lateinit var entityManager: TestEntityManager
 
     @Autowired
-    private transient TestEntityManager entityManager;
+    @Transient
+    lateinit var userRepository: UserRepository
 
-    @Autowired
-    private transient UserRepository userRepository;
+    @Transient
+    private var project: Project? = null
 
-    private transient Project project;
-    private transient Long projectId;
-    private transient Long userId;
+    @Transient
+    private var projectId: Long? = null
+
+    @Transient
+    private var userId: Long? = null
 
     @BeforeEach
-    void setUp() {
-
-        this.project = new Project().setProjectId("test-project");
-        this.projectId = entityManager.persistAndGetId(project, Long.class);
-
-        User user =
-                new User()
-                        .setFcmToken(FCM_TOKEN_1)
-                        .setEnrolmentDate(Instant.now())
-                        .setProject(project)
-                        .setTimezone(TIMEZONE)
-                        .setLanguage("en")
-                        .setSubjectId(USER_ID);
-        this.userId = entityManager.persistAndGetId(user, Long.class);
-        entityManager.flush();
+    fun setUp() {
+        project = Project().setProjectId("test-project")
+        projectId = entityManager.persistAndGetId(project) as Long
+        val user = User()
+            .setFcmToken(RadarUserControllerTest.FCM_TOKEN_1)
+            .setEnrolmentDate(Instant.now())
+            .setProject(project)
+            .setTimezone(RadarUserControllerTest.TIMEZONE)
+            .setLanguage("en")
+            .setSubjectId(FcmNotificationControllerTest.USER_ID)
+        userId = entityManager.persistAndGetId(user) as Long
+        entityManager.flush()
     }
 
     @Test
-    public void whenInsertWithTransientProject_thenThrowException() {
-        User user1 =
-                new User()
-                        .setFcmToken(FCM_TOKEN_1)
-                        .setEnrolmentDate(Instant.now())
-                        .setProject(new Project())
-                        .setTimezone(TIMEZONE)
-                        .setLanguage("en")
-                        .setSubjectId(USER_ID);
-
-        IllegalStateException ex =
-                assertThrows(
-                        IllegalStateException.class,
-                        () -> {
-                            entityManager.persist(user1);
-                            entityManager.flush();
-                        });
-
-        assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
+    fun whenInsertWithTransientProject_thenThrowException() {
+        val user1 = User()
+            .setFcmToken(RadarUserControllerTest.FCM_TOKEN_1)
+            .setEnrolmentDate(Instant.now())
+            .setProject(Project())
+            .setTimezone(RadarUserControllerTest.TIMEZONE)
+            .setLanguage("en")
+            .setSubjectId(FcmNotificationControllerTest.USER_ID)
+        val ex = Assertions.assertThrows(
+            IllegalStateException::class.java
+        ) {
+            entityManager.persist(user1)
+            entityManager.flush()
+        }
+        Assertions.assertTrue(ex.message!!.contains("Not-null property references a transient value"))
     }
 
     @Test
-    public void whenFindUserBySubjectId_thenReturnUser() {
-
-        assertEquals(
-                userRepository.findBySubjectId(USER_ID).get(), entityManager.find(User.class, this.userId));
+    fun whenFindUserBySubjectId_thenReturnUser() {
+        Assertions.assertEquals(
+            userRepository.findBySubjectId(FcmNotificationControllerTest.USER_ID)!!.get(),
+            entityManager.find(
+                User::class.java, userId
+            )
+        )
     }
 
     @Test
-    public void whenFindByProjectId_thenReturnUsers() {
-        assertEquals(
-                userRepository.findByProjectId(this.projectId).get(0),
-                entityManager.find(User.class, this.userId));
+    fun whenFindByProjectId_thenReturnUsers() {
+        Assertions.assertEquals(
+            userRepository.findByProjectId(projectId)!![0],
+            entityManager.find(User::class.java, userId)
+        )
     }
 
     @Test
-    public void whenFindBySubjectIdAndProjectId_thenReturnUser() {
-        assertEquals(
-                userRepository.findBySubjectIdAndProjectId(USER_ID, this.projectId).get(),
-                entityManager.find(User.class, this.userId));
+    fun whenFindBySubjectIdAndProjectId_thenReturnUser() {
+        Assertions.assertEquals(
+            userRepository.findBySubjectIdAndProjectId(
+                FcmNotificationControllerTest.USER_ID,
+                projectId
+            )!!.get(),
+            entityManager.find(User::class.java, userId)
+        )
     }
 
     @Test
-    public void whenFindByFcmToken_thenReturnUser() {
-        assertEquals(
-                userRepository.findByFcmToken(FCM_TOKEN_1).get(),
-                entityManager.find(User.class, this.userId));
+    fun whenFindByFcmToken_thenReturnUser() {
+        Assertions.assertEquals(
+            userRepository.findByFcmToken(RadarUserControllerTest.FCM_TOKEN_1)!!.get(),
+            entityManager.find(User::class.java, userId)
+        )
     }
 
     @Test
-    public void whenInsertWithExistingFcmToken_thenThrowException() {
-        User user1 =
-                new User()
-                        .setFcmToken(FCM_TOKEN_1)
-                        .setEnrolmentDate(Instant.now())
-                        .setProject(this.project)
-                        .setTimezone(TIMEZONE)
-                        .setLanguage("en")
-                        .setSubjectId(USER_ID + "-2");
-
-        PersistenceException ex =
-                assertThrows(
-                        PersistenceException.class,
-                        () -> {
-                            entityManager.persistAndGetId(user1, Long.class);
-                            entityManager.flush();
-                        });
-
-        assertEquals(ConstraintViolationException.class, ex.getCause().getClass());
+    fun whenInsertWithExistingFcmToken_thenThrowException() {
+        val user1 = User()
+            .setFcmToken(RadarUserControllerTest.FCM_TOKEN_1)
+            .setEnrolmentDate(Instant.now())
+            .setProject(project)
+            .setTimezone(RadarUserControllerTest.TIMEZONE)
+            .setLanguage("en")
+            .setSubjectId(FcmNotificationControllerTest.USER_ID + "-2")
+        val ex = Assertions.assertThrows(
+            PersistenceException::class.java
+        ) {
+            entityManager.persistAndGetId(user1) as Long
+            entityManager.flush()
+        }
+        Assertions.assertEquals(ConstraintViolationException::class.java, ex.cause!!.javaClass)
     }
 }

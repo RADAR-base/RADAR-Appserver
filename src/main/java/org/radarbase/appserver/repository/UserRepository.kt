@@ -18,29 +18,23 @@
  *  *
  *
  */
+package org.radarbase.appserver.repository
 
-package org.radarbase.appserver.repository;
+import org.radarbase.appserver.entity.User
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.rest.core.annotation.RepositoryRestResource
+import org.springframework.stereotype.Repository
+import java.util.*
+import javax.validation.constraints.NotNull
 
-import java.util.List;
-import java.util.Optional;
-import javax.validation.constraints.NotNull;
-import org.radarbase.appserver.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.stereotype.Repository;
-
-/** @author yatharthranjan */
+/** @author yatharthranjan
+ */
 @Repository
 @RepositoryRestResource(exported = false)
-public interface UserRepository extends JpaRepository<User, Long> {
-
-  Optional<User> findBySubjectId(String subjectId);
-
-  List<User> findByProjectId(Long projectId);
-
-  Optional<User> findBySubjectIdAndProjectId(String subjectId, Long projectId);
-
-  Optional<User> findByFcmToken(String fcmToken);
-
-  void deleteById(@NotNull Long id);
+interface UserRepository : JpaRepository<User?, Long?> {
+    fun findBySubjectId(subjectId: String?): Optional<User?>?
+    fun findByProjectId(projectId: Long?): List<User?>?
+    fun findBySubjectIdAndProjectId(subjectId: String?, projectId: Long?): Optional<User?>?
+    fun findByFcmToken(fcmToken: String?): Optional<User?>?
+    override fun deleteById(id: @NotNull Long?)
 }

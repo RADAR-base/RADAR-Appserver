@@ -18,21 +18,16 @@
  *  *
  *
  */
+package org.radarbase.appserver.repository
 
-package org.radarbase.appserver.repository;
-
-import java.util.List;
-import org.radarbase.appserver.entity.DataMessageStateEvent;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.stereotype.Repository;
+import org.radarbase.appserver.entity.DataMessageStateEvent
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.rest.core.annotation.RepositoryRestResource
+import org.springframework.stereotype.Repository
 
 @Repository
 @RepositoryRestResource(exported = false)
-public interface DataMessageStateEventRepository extends
-        JpaRepository<DataMessageStateEvent, Long> {
-
-    List<DataMessageStateEvent> findByDataMessageId(long dataMessageId);
-
-    long countByDataMessageId(long dataMessageId);
+interface DataMessageStateEventRepository : JpaRepository<DataMessageStateEvent?, Long?> {
+    fun findByDataMessageId(dataMessageId: Long): List<DataMessageStateEvent?>?
+    fun countByDataMessageId(dataMessageId: Long): Long
 }

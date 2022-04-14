@@ -18,20 +18,20 @@
  *  *
  *
  */
+package org.radarbase.appserver.config
 
-package org.radarbase.appserver.config;
-
-import org.radarbase.fcm.config.FcmServerConfig;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.radarbase.fcm.config.FcmServerConfig
+import org.springframework.context.annotation.Configuration
+import org.springframework.transaction.annotation.EnableTransactionManagement
+import org.springframework.scheduling.annotation.EnableAsync
 
 @Configuration
 @EnableJpaAuditing
-@EnableConfigurationProperties({FcmServerConfig.class})
+@EnableConfigurationProperties(
+    FcmServerConfig::class
+)
 @EnableTransactionManagement
 @EnableAsync
-public class ApplicationConfig {
-}
+class ApplicationConfig 

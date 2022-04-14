@@ -77,6 +77,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class NotificationSchedulerServiceTest {
 
     private static final String JOB_DETAIL_ID = "message-jobdetail-test-subject-1";
+    private static final String NOTIFICATION_TITLE = "Testing";
     private static Notification notification;
     @Autowired
     private transient NotificationSchedulerService notificationSchedulerService;
@@ -104,8 +105,8 @@ class NotificationSchedulerServiceTest {
         notification.setTtlSeconds(900);
         notification.setFcmMessageId("xxxx");
         notification.setAppPackage("aRMT");
-        notification.setTitle("Testing");
-        notification.setBody("Testing");
+        notification.setTitle(NOTIFICATION_TITLE);
+        notification.setBody(NOTIFICATION_TITLE);
         notification.setType("ESM");
     }
 
@@ -145,8 +146,8 @@ class NotificationSchedulerServiceTest {
         notification2.setScheduledTime(Instant.now().plus(Duration.ofSeconds(3)));
         notification2.setTtlSeconds(900);
         notification2.setFcmMessageId("yyyy");
-        notification2.setTitle("Testing");
-        notification2.setBody("Testing");
+        notification2.setTitle(NOTIFICATION_TITLE);
+        notification2.setBody(NOTIFICATION_TITLE);
 
         // when
         notificationSchedulerService.updateScheduled(notification2);

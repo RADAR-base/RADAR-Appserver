@@ -53,7 +53,7 @@ abstract class Message : AuditModel(), Serializable, Scheduled {
     var ttlSeconds: Int = 0
 
     @Column(name = "fcm_message_id", unique = true)
-    var fcmMessageId: String? = null
+    lateinit var fcmMessageId: String
 
     // for use with the FCM admin SDK
     @Column(name = "fcm_topic")

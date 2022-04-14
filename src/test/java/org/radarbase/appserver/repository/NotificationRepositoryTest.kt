@@ -18,205 +18,200 @@
  *  *
  *
  */
+package org.radarbase.appserver.repository
 
-package org.radarbase.appserver.repository;
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.radarbase.appserver.controller.RadarUserControllerTest
+import org.radarbase.appserver.entity.Notification
+import org.radarbase.appserver.entity.Project
+import org.radarbase.appserver.entity.User
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Duration
+import java.time.Instant
+import javax.persistence.PersistenceException
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
-
-import java.time.Duration;
-import java.time.Instant;
-import javax.persistence.PersistenceException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.entity.Project;
-import org.radarbase.appserver.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-@ExtendWith(SpringExtension.class)
+@ExtendWith(SpringExtension::class)
 @DataJpaTest
 @EnableJpaAuditing
-public class NotificationRepositoryTest {
-    public static final String NOTIFICATION_BODY = "Test notif";
-    public static final String NOTIFICATION_TITLE = "Testing";
-    public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
-    public static final String NOTIFICATION_SOURCE_ID = "test";
+@EnableJpaRepositories("org.radarbase.appserver.repository")
+class NotificationRepositoryTest {
     @Autowired
-    private transient TestEntityManager entityManager;
+    @Transient
+    lateinit var entityManager: TestEntityManager
+
     @Autowired
-    private transient NotificationRepository notificationRepository;
-    private transient Long id;
-    private transient User user;
-    private transient Instant scheduledTime;
+    @Transient
+    lateinit var notificationRepository: NotificationRepository
+
+    @Transient
+    private var id: Long? = null
+
+    @Transient
+    private lateinit var user: User
+
+    @Transient
+    private lateinit var scheduledTime: Instant
 
     /**
      * Insert a Notification Before each test.
      */
     @BeforeEach
-    public void initNotification() {
+    fun initNotification() {
         // given
-        Project project = new Project().setProjectId("test-project");
-        entityManager.persist(project);
-
-        this.user =
-                new User()
-                        .setFcmToken("xxxx")
-                        .setEnrolmentDate(Instant.now())
-                        .setProject(project)
-                        .setTimezone(TIMEZONE)
-                        .setLanguage("en")
-                        .setSubjectId("test-user");
-        entityManager.persist(this.user);
-
-        this.scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
-
-        Notification notification = new Notification();
-        notification.setBody(NOTIFICATION_BODY);
-        notification.setTitle(NOTIFICATION_TITLE);
-        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
-        notification.setSourceId(NOTIFICATION_SOURCE_ID);
-        notification.setScheduledTime(this.scheduledTime);
-        notification.setUser(this.user);
-        notification.setTtlSeconds(86400);
-        notification.setDelivered(false);
-
-        this.id = (Long) entityManager.persistAndGetId(notification);
-        entityManager.flush();
+        val project = Project().setProjectId("test-project")
+        entityManager.persist(project)
+        user = User()
+            .setFcmToken("xxxx")
+            .setEnrolmentDate(Instant.now())
+            .setProject(project)
+            .setTimezone(RadarUserControllerTest.TIMEZONE)
+            .setLanguage("en")
+            .setSubjectId("test-user")
+        entityManager.persist(user)
+        scheduledTime = Instant.now().plus(Duration.ofSeconds(100))
+        val notification = Notification()
+        notification.body = NOTIFICATION_BODY
+        notification.title = NOTIFICATION_TITLE
+        notification.fcmMessageId = NOTIFICATION_FCM_MESSAGE_ID
+        notification.sourceId = NOTIFICATION_SOURCE_ID
+        notification.scheduledTime = scheduledTime
+        notification.user = user
+        notification.ttlSeconds = 86400
+        notification.delivered = false
+        id = entityManager.persistAndGetId(notification) as Long
+        entityManager.flush()
     }
 
     @Test
-    public void whenInsertWithTransientUser_thenThrowException() {
+    fun whenInsertWithTransientUser_thenThrowException() {
         // given
-        Notification notification = new Notification();
-        notification.setBody(NOTIFICATION_BODY);
-        notification.setTitle(NOTIFICATION_TITLE);
-        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
-        notification.setSourceId(NOTIFICATION_SOURCE_ID);
-        notification.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
-        notification.setUser(new User());
-        notification.setTtlSeconds(86400);
-        notification.setDelivered(false);
-
-
-
-        IllegalStateException ex =
-                assertThrows(
-                        IllegalStateException.class,
-                        () -> {
-                            entityManager.persist(notification);
-                            entityManager.flush();
-                        });
-
-        assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
+        val notification = Notification()
+        notification.body = NOTIFICATION_BODY
+        notification.title = NOTIFICATION_TITLE
+        notification.fcmMessageId = NOTIFICATION_FCM_MESSAGE_ID
+        notification.sourceId = NOTIFICATION_SOURCE_ID
+        notification.scheduledTime = Instant.now().plus(Duration.ofSeconds(100))
+        notification.user = User()
+        notification.ttlSeconds = 86400
+        notification.delivered = false
+        val ex = Assertions.assertThrows(
+            IllegalStateException::class.java
+        ) {
+            entityManager.persist(notification)
+            entityManager.flush()
+        }
+        Assertions.assertTrue(ex.message!!.contains("Not-null property references a transient value"))
     }
 
     @Test
-    public void whenInsertWithoutUser_thenThrowException() {
+    fun whenInsertWithoutUser_thenThrowException() {
         // given
-        Notification notification = new Notification();
-        notification.setBody(NOTIFICATION_BODY);
-        notification.setTitle(NOTIFICATION_TITLE);
-        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
-        notification.setSourceId(NOTIFICATION_SOURCE_ID);
-        notification.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
-        notification.setTtlSeconds(86400);
-        notification.setDelivered(false);
-
-        assertThrows(
-                PersistenceException.class,
-                () -> {
-                    entityManager.persist(notification);
-                    entityManager.flush();
-                });
+        val notification = Notification()
+        notification.body = NOTIFICATION_BODY
+        notification.title = NOTIFICATION_TITLE
+        notification.fcmMessageId = NOTIFICATION_FCM_MESSAGE_ID
+        notification.sourceId = NOTIFICATION_SOURCE_ID
+        notification.scheduledTime = Instant.now().plus(Duration.ofSeconds(100))
+        notification.ttlSeconds = 86400
+        notification.delivered = false
+        Assertions.assertThrows(
+            PersistenceException::class.java
+        ) {
+            entityManager.persist(notification)
+            entityManager.flush()
+        }
     }
 
     @Test
-    public void whenInsertWithUserButTransientProject_thenThrowException() {
+    fun whenInsertWithUserButTransientProject_thenThrowException() {
         // given
-        User user =
-                new User()
-                        .setFcmToken("xxxx")
-                        .setEnrolmentDate(Instant.now())
-                        .setProject(new Project())
-                        .setTimezone(TIMEZONE)
-                        .setLanguage("en")
-                        .setSubjectId("test-user");
-
-        IllegalStateException ex =
-                assertThrows(
-                        IllegalStateException.class,
-                        () -> {
-                            entityManager.persist(user);
-                            entityManager.flush();
-                        });
-
-        assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
-
-        Notification notification = new Notification();
-        notification.setBody(NOTIFICATION_BODY);
-        notification.setTitle(NOTIFICATION_TITLE);
-        notification.setFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID);
-        notification.setSourceId(NOTIFICATION_SOURCE_ID);
-        notification.setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)));
-        notification.setUser(user);
-        notification.setTtlSeconds(86400);
-        notification.setDelivered(false);
-
-        ex =
-                assertThrows(
-                        IllegalStateException.class,
-                        () -> {
-                            entityManager.persist(notification);
-                            entityManager.flush();
-                        });
-
-        assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
+        val user = User()
+            .setFcmToken("xxxx")
+            .setEnrolmentDate(Instant.now())
+            .setProject(Project())
+            .setTimezone(RadarUserControllerTest.TIMEZONE)
+            .setLanguage("en")
+            .setSubjectId("test-user")
+        var ex = Assertions.assertThrows(
+            IllegalStateException::class.java
+        ) {
+            entityManager.persist(user)
+            entityManager.flush()
+        }
+        Assertions.assertTrue(ex.message!!.contains("Not-null property references a transient value"))
+        val notification = Notification()
+        notification.body = NOTIFICATION_BODY
+        notification.title = NOTIFICATION_TITLE
+        notification.fcmMessageId = NOTIFICATION_FCM_MESSAGE_ID
+        notification.sourceId = NOTIFICATION_SOURCE_ID
+        notification.scheduledTime = Instant.now().plus(Duration.ofSeconds(100))
+        notification.user = user
+        notification.ttlSeconds = 86400
+        notification.delivered = false
+        ex = Assertions.assertThrows(
+            IllegalStateException::class.java
+        ) {
+            entityManager.persist(notification)
+            entityManager.flush()
+        }
+        Assertions.assertTrue(ex.message!!.contains("Not-null property references a transient value"))
     }
 
     @Test
-    public void whenExists_thenReturnTrue() {
+    fun whenExists_thenReturnTrue() {
         // when
-        boolean exists =
-                notificationRepository
-                        .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                                this.user.getId(),
-                                NOTIFICATION_SOURCE_ID,
-                                this.scheduledTime,
-                                NOTIFICATION_TITLE,
-                                NOTIFICATION_BODY,
-                                null,
-                                86400);
+        val exists = notificationRepository
+            .existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                user.id,
+                NOTIFICATION_SOURCE_ID,
+                scheduledTime,
+                NOTIFICATION_TITLE,
+                NOTIFICATION_BODY,
+                null,
+                86400
+            )
 
         // then
-        assertTrue(exists);
-        assertTrue(notificationRepository.existsById(this.id));
+        Assertions.assertTrue(exists)
+        Assertions.assertTrue(notificationRepository.existsById(id))
     }
 
     @Test
-    public void whenDeleteNotificationById_thenExistsFalse() {
+    fun whenDeleteNotificationById_thenExistsFalse() {
         // when
-        notificationRepository.deleteById(this.id);
+        notificationRepository.deleteById(id)
 
         // then
-        Notification notification = entityManager.find(Notification.class, this.id);
-        assertNull(notification);
+        val notification = entityManager.find(
+            Notification::class.java, id
+        )
+        Assertions.assertNull(notification)
     }
 
     @Test
-    public void whenDeleteNotificationByUserId_thenExistsFalse() {
+    fun whenDeleteNotificationByUserId_thenExistsFalse() {
         // when
-        notificationRepository.deleteByUserId(this.user.getId());
+        notificationRepository.deleteByUserId(user.id)
 
         // then
-        Notification notification = entityManager.find(Notification.class, this.id);
-        assertNull(notification);
+        val notification = entityManager.find(
+            Notification::class.java, id
+        )
+        Assertions.assertNull(notification)
+    }
+
+    companion object {
+        const val NOTIFICATION_BODY = "Test notif"
+        const val NOTIFICATION_TITLE = "Testing"
+        const val NOTIFICATION_FCM_MESSAGE_ID = "12345"
+        const val NOTIFICATION_SOURCE_ID = "test"
     }
 }

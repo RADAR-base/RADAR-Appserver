@@ -192,7 +192,7 @@ public class UserService {
       User updatedUser =
           user.get()
               .setFcmToken(userDto.getFcmToken())
-              .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
+              .setUsermetrics(UserConverter.getValidUserMetrics(userDto))
               .setEnrolmentDate(userDto.getEnrolmentDate())
               .setTimezone(userDto.getTimezone());
       // maintain a bi-directional relationship

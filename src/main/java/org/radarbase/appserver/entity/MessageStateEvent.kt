@@ -18,51 +18,31 @@
  *  *
  *
  */
+package org.radarbase.appserver.entity
 
-package org.radarbase.appserver.entity;
-
-import java.io.Serializable;
-import java.time.Instant;
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.radarbase.appserver.event.state.MessageState;
+import org.radarbase.appserver.event.state.MessageState
+import java.io.Serializable
+import java.time.Instant
+import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 @MappedSuperclass
-@Getter
-@NoArgsConstructor
-public abstract class MessageStateEvent implements Serializable {
-    private static final long serialVersionUID = 876253616328519L;
-
+abstract class MessageStateEvent : Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    var id: Long? = null
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MessageState state;
+    @field:Column(nullable = false)
+    @field:Enumerated(EnumType.STRING)
+    lateinit var state: MessageState
 
-    @NotNull
-    @Column(nullable = false)
-    private Instant time;
+    @field:Column(nullable = false)
+    lateinit var time: @NotNull Instant
 
-    @Column(name = "associated_info", length = 1250)
-    private String associatedInfo;
+    @field:Column(name = "associated_info", length = 1250)
+    var associatedInfo: String? = null
 
-    public MessageStateEvent(
-            @NotNull MessageState state,
-            @NotNull Instant time,
-            String associatedInfo) {
-        this.state = state;
-        this.time = time;
-        this.associatedInfo = associatedInfo;
+    companion object {
+        private const val serialVersionUID = 876253616328519L
     }
 }

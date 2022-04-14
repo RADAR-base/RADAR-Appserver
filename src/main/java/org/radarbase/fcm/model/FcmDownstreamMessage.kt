@@ -40,7 +40,7 @@ interface FcmDownstreamMessage : FcmMessage {
     val timeToLive: Int
     val deliveryReceiptRequested: Boolean
     val dryRun: Boolean
-    val data: Map<String, String>?
+    val data: Map<String, String?>?
 
     fun getAndroidConfig(): AndroidConfig
     fun getApnsConfig(): ApnsConfig

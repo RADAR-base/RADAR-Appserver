@@ -18,41 +18,33 @@
  *  *
  *
  */
+package org.radarbase.appserver.repository
 
-package org.radarbase.appserver.repository;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import org.radarbase.appserver.entity.DataMessage;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.stereotype.Repository;
+import org.radarbase.appserver.entity.DataMessage
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.rest.core.annotation.RepositoryRestResource
+import org.springframework.stereotype.Repository
+import java.time.Instant
+import java.util.*
 
 /**
  * @author yatharthranjan
  */
 @Repository
 @RepositoryRestResource(exported = false)
-public interface DataMessageRepository extends JpaRepository<DataMessage, Long> {
+interface DataMessageRepository : JpaRepository<DataMessage?, Long?> {
+    fun findByUserId(userId: Long?): List<DataMessage?>?
+    fun deleteByUserId(userId: Long?)
+    fun existsByUserIdAndSourceIdAndScheduledTimeAndTtlSeconds(
+        userId: Long?,
+        sourceId: String?,
+        scheduledTime: Instant?,
+        ttlSeconds: Int
+    ): Boolean
 
-    List<DataMessage> findByUserId(Long userId);
-
-    void deleteByUserId(Long userId);
-
-    boolean existsByUserIdAndSourceIdAndScheduledTimeAndTtlSeconds(
-            Long userId,
-            String sourceId,
-            Instant scheduledTime,
-            int ttlSeconds);
-
-    boolean existsByIdAndUserId(Long id, Long userId);
-
-    void deleteByFcmMessageId(String fcmMessageId);
-
-    void deleteByIdAndUserId(Long id, Long userId);
-
-    Optional<DataMessage> findByFcmMessageId(String fcmMessageId);
-
-    Optional<DataMessage> findByIdAndUserId(long id, long userId);
+    fun existsByIdAndUserId(id: Long?, userId: Long?): Boolean
+    fun deleteByFcmMessageId(fcmMessageId: String?)
+    fun deleteByIdAndUserId(id: Long?, userId: Long?)
+    fun findByFcmMessageId(fcmMessageId: String?): Optional<DataMessage?>?
+    fun findByIdAndUserId(id: Long, userId: Long): Optional<DataMessage?>?
 }

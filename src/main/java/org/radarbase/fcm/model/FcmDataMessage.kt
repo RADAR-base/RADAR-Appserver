@@ -66,17 +66,17 @@ class FcmDataMessage(
     override val dryRun: Boolean = false,
 
     @JsonProperty
-    override val data: Map<String, String>? = null,
+    override val data: Map<String, String?>? = null,
 ) : FcmDownstreamMessage {
 
     private val ttl = timeToLive * 1000L
 
-    override fun getAndroidConfig(): AndroidConfig = AndroidConfig.builder()
-        .setCollapseKey(collapseKey)
-        .setPriority(AndroidConfig.Priority.valueOf(priority ?: "HIGH"))
-        .setTtl(ttl)
-        .putAllData(data)
-        .build()
+    override fun getAndroidConfig(): AndroidConfig = AndroidConfig.builder().apply {
+        collapseKey?.let { setCollapseKey(collapseKey) }
+        setPriority(AndroidConfig.Priority.valueOf(priority ?: "HIGH"))
+        setTtl(ttl)
+        data?.let { putAllData(data) }
+    }.build()
 
     override fun getApnsConfig(): ApnsConfig {
         val config = ApnsConfig.builder()
@@ -86,17 +86,19 @@ class FcmDataMessage(
 
         // The date at which the notification is no longer valid. This value is a UNIX epoch
         // expressed in seconds (UTC).
-        return config.putHeader(
-            "apns-expiration", (
-                    Instant.now()
-                        .plus(Duration.ofSeconds(timeToLive.toLong()))
-                        .toEpochMilli() / 1000).toString()
-        )
-            .putAllCustomData(data)
-            .setAps(Aps.builder().setContentAvailable(true).setSound("default").build())
-            .putHeader("apns-push-type", "background") // No alert is shown
-            .putHeader("apns-priority", "5") // 5 required in case of background type
-            .build()
+        return config.apply {
+
+            putHeader(
+                "apns-expiration", (
+                        Instant.now()
+                            .plus(Duration.ofSeconds(timeToLive.toLong()))
+                            .toEpochMilli() / 1000).toString()
+            )
+            data?.let { putAllCustomData(data) }
+            setAps(Aps.builder().setContentAvailable(true).setSound("default").build())
+            putHeader("apns-push-type", "background") // No alert is shown
+            putHeader("apns-priority", "5") // 5 required in case of background type
+        }.build()
     }
 
     override fun getWebPushConfig(): WebpushConfig {

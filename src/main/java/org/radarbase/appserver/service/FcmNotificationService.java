@@ -217,13 +217,12 @@ public class FcmNotificationService implements NotificationService {
                         notificationDto.getTtlSeconds());
 
         if (notification.isEmpty()) {
-            Notification notificationSaved =
-                    this.notificationRepository.saveAndFlush(
-                            notificationConverter.dtoToEntity(notificationDto)
-                                    .copy(null, user)
-                    );
+            Notification notif = notificationConverter.dtoToEntity(notificationDto);
+            notif.setUser(user);
+            Notification notificationSaved = this.notificationRepository.saveAndFlush(notif);
             user.getUsermetrics().setLastOpened(Instant.now());
             this.userRepository.save(user);
+
             addNotificationStateEvent(
                     notificationSaved, MessageState.ADDED, notificationSaved.getCreatedAt().toInstant());
             this.schedulerService.schedule(notificationSaved);

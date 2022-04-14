@@ -43,7 +43,7 @@ import javax.persistence.*
 class Notification : Message() {
 
     @Column(nullable = false)
-    var title: String? = null
+    lateinit var title: String
     var body: String? = null
 
     // Type of notification. In terms of aRMT - PHQ8, RSES, ESM, etc.
@@ -121,11 +121,11 @@ class Notification : Message() {
         sourceId: String? = this.sourceId,
         sourceType: String? = this.sourceType,
         ttlSeconds: Int = this.ttlSeconds,
-        fcmMessageId: String? = this.fcmMessageId,
+        fcmMessageId: String = this.fcmMessageId,
         fcmTopic: String? = this.fcmTopic,
         fcmCondition: String? = this.fcmCondition,
         appPackage: String? = this.appPackage,
-        title: String? = this.title,
+        title: String = this.title,
         body: String? = this.body,
         type: String? = this.type,
         sound: String? = this.sound,
@@ -146,8 +146,6 @@ class Notification : Message() {
         validated: Boolean = this.validated,
         priority: String? = this.priority,
         mutableContent: Boolean = this.mutableContent,
-        createdAt: Date = this.createdAt,
-        updatedAt: Date = this.updatedAt,
     ): Notification {
         return Notification().apply {
             this.id = id
@@ -181,8 +179,6 @@ class Notification : Message() {
             this.validated = validated
             this.priority = priority
             this.mutableContent = mutableContent
-            this.createdAt = createdAt
-            this.updatedAt = updatedAt
         }
     }
 

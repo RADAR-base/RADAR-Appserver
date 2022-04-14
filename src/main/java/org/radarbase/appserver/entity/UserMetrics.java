@@ -44,7 +44,6 @@ import org.springframework.lang.Nullable;
  */
 @Table(name = "user_metrics")
 @Entity
-@Getter
 @ToString
 public class UserMetrics extends AuditModel implements Serializable {
 
@@ -52,7 +51,6 @@ public class UserMetrics extends AuditModel implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Setter
   private Long id;
 
   // The most recent time when the app was opened
@@ -87,5 +85,28 @@ public class UserMetrics extends AuditModel implements Serializable {
   public UserMetrics setUser(User user) {
     this.user = user;
     return this;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  @Nullable
+  public Instant getLastOpened() {
+    return lastOpened;
+  }
+
+  @Nullable
+  public Instant getLastDelivered() {
+    return lastDelivered;
+  }
+
+  @NonNull
+  public User getUser() {
+    return user;
   }
 }

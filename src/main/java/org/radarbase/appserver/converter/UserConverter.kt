@@ -41,7 +41,7 @@ class UserConverter : Converter<User, FcmUserDto> {
         return User()
             .setFcmToken(fcmUserDto.fcmToken)
             .setSubjectId(fcmUserDto.subjectId)
-            .setUserMetrics(getValidUserMetrics(fcmUserDto))
+            .setUsermetrics(getValidUserMetrics(fcmUserDto))
             .setEnrolmentDate(fcmUserDto.enrolmentDate)
             .setTimezone(fcmUserDto.timezone)
             .setLanguage(fcmUserDto.language)

@@ -18,21 +18,16 @@
  *  *
  *
  */
+package org.radarbase.appserver.repository
 
-package org.radarbase.appserver.repository;
-
-import java.util.List;
-import org.radarbase.appserver.entity.NotificationStateEvent;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.stereotype.Repository;
+import org.radarbase.appserver.entity.NotificationStateEvent
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.rest.core.annotation.RepositoryRestResource
+import org.springframework.stereotype.Repository
 
 @Repository
 @RepositoryRestResource(exported = false)
-public interface NotificationStateEventRepository extends
-    JpaRepository<NotificationStateEvent, Long> {
-
-  List<NotificationStateEvent> findByNotificationId(long notificationId);
-
-  long countByNotificationId(long notificationId);
+interface NotificationStateEventRepository : JpaRepository<NotificationStateEvent?, Long?> {
+    fun findByNotificationId(notificationId: Long): List<NotificationStateEvent?>?
+    fun countByNotificationId(notificationId: Long): Long
 }
