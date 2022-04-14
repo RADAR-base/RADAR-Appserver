@@ -26,6 +26,7 @@ repositories {
 
 bootJar {
     mainClass = 'org.radarbase.appserver.AppserverApplication'
+    duplicatesStrategy = 'include'
 }
 
 //apply from: 'gradle/liquibase.gradle'
@@ -193,10 +194,6 @@ task integrationTest(type: Test) {
 }
 
 rootProject.tasks.named("processIntegrationTestResources") {
-    duplicatesStrategy = 'include'
-}
-
-tasks.withType(Copy).configureEach {
     duplicatesStrategy = 'include'
 }
 
