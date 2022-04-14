@@ -196,6 +196,10 @@ rootProject.tasks.named("processIntegrationTestResources") {
     duplicatesStrategy = 'include'
 }
 
+tasks.withType(Copy).configureEach {
+    duplicatesStrategy = 'include'
+}
+
 check.dependsOn integrationTest
 
 integrationTest {
