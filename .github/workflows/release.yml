@@ -18,19 +18,6 @@ jobs:
         with:
           java-version: 11
 
-      - name: Cache
-        uses: actions/cache@v2.0.0
-        with:
-          # A list of files, directories, and wildcard patterns to cache and restore
-          path: |
-            ~/.gradle/caches/jars-3
-            ~/.gradle/caches/modules-2/files-2.1/
-            ~/.gradle/caches/modules-2/metadata-2.96/
-            ~/.gradle/native
-            ~/.gradle/wrapper
-          # An explicit key for restoring and saving the cache
-          key: ${{ runner.os }}-gradle
-
       # Compile code
       - name: Compile code
         run: ./gradlew assemble
