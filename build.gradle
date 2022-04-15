@@ -29,6 +29,11 @@ bootJar {
     duplicatesStrategy = 'include'
 }
 
+jar {
+    duplicatesStrategy = 'include'
+}
+
+
 //apply from: 'gradle/liquibase.gradle'
 
 ext {
