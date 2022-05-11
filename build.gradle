@@ -76,7 +76,7 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-    annotationProcessor 'org.springframework:spring-context-indexer:5.3.18'
+    annotationProcessor 'org.springframework:spring-context-indexer:5.3.20'
 
     compileOnly 'net.jcip:jcip-annotations:1.0'
 
