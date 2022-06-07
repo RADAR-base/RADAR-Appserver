@@ -24,7 +24,7 @@ package org.radarbase.appserver.dto.protocol;
 import lombok.Data;
 
 /**
- * Data Transfer object (DTO) for Assessment. A project may represent a Protcol for scheduling
+ * Data Transfer object (DTO) for Assessment. A project may represent a Protocol for scheduling
  * questionnaires.
  *
  * @author yatharthranjan

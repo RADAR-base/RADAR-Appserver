@@ -23,6 +23,9 @@ package org.radarbase.appserver.controller.exception;
 
 import java.util.Map;
 import org.hibernate.exception.ConstraintViolationException;
+import org.radarbase.appserver.exception.NotificationAlreadyExistsException;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
+import org.springframework.boot.web.error.ErrorAttributeOptions.Include;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -37,13 +42,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final DefaultErrorAttributes DEFAULT_ERROR_ATTRIBUTES =
-      new DefaultErrorAttributes(true);
+      new DefaultErrorAttributes();
 
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<Object> handleConstraintViolationException(
       RuntimeException ex, WebRequest request) {
 
-    Map<String, Object> body = DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(request, true);
+    Map<String, Object> body =
+        DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(
+            request, ErrorAttributeOptions.of(Include.STACK_TRACE));
     body.put("message", "A Constraint was violated while Persisting. " + body.get("message"));
     body.put("status", HttpStatus.CONFLICT.value());
     return handleExceptionInternal(ex, body, new HttpHeaders(), HttpStatus.CONFLICT, request);
@@ -51,12 +58,21 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
   @Override
   public ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex,
+       MethodArgumentNotValidException ex,
       HttpHeaders headers,
       HttpStatus status,
       WebRequest request) {
-    Map<String, Object> body = DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(request, true);
+    Map<String, Object> body =
+        DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(
+            request, ErrorAttributeOptions.of(Include.STACK_TRACE));
     body.put("status", status);
     return handleExceptionInternal(ex, body, headers, status, request);
+  }
+
+  @ExceptionHandler(NotificationAlreadyExistsException.class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  public @ResponseBody NotificationAlreadyExistsException handleException(
+      NotificationAlreadyExistsException e) {
+    return e;
   }
 }

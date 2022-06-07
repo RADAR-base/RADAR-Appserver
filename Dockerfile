@@ -1,4 +1,4 @@
-FROM openjdk:11.0.1-jdk-slim AS builder
+FROM openjdk:11-jdk-slim AS builder
 
 RUN mkdir /code
 WORKDIR /code
@@ -14,7 +14,7 @@ COPY ./src /code/src
 
 RUN ./gradlew unpack
 
-FROM openjdk:11.0.1-jre-slim
+FROM openjdk:11-jre-slim
 
 LABEL maintainer="Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>"
 
@@ -25,6 +25,11 @@ ENV SPRING_PROFILES_ACTIVE prod
 
 VOLUME /tmp
 ARG DEPENDENCY=/code/build/dependency
+
+RUN apt-get update && apt-get install -y \
+        curl \
+        wget \
+        && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF

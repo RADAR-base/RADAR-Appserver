@@ -1,0 +1,10 @@
+version: '2.4'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: radar
+      POSTGRES_PASSWORD: radar
+    ports:
+      - 5432:5432

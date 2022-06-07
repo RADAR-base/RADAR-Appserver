@@ -116,10 +116,15 @@ public abstract class MessageSchedulerService<T extends Message> {
         JobDetail jobDetail = getJobDetailForMessage(message, getMessageType(message)).getObject();
 
         if (jobDetail != null) {
-            log.debug("Job Detail = {}", jobDetail);
-            Trigger trigger = getTriggerForMessage(message, jobDetail).getObject();
-
-            schedulerService.scheduleJob(jobDetail, trigger);
+            boolean jobExistAlready = schedulerService.checkJobExists(jobDetail.getKey());
+            if (jobExistAlready) {
+                log.info("Job has been scheduled already.");
+                }
+            else {
+                log.debug("Job Detail = {}", jobDetail);
+                Trigger trigger = getTriggerForMessage(message, jobDetail).getObject();
+                schedulerService.scheduleJob(jobDetail, trigger);
+            }
         }
     }
 
@@ -129,14 +134,18 @@ public abstract class MessageSchedulerService<T extends Message> {
                 (T m) -> {
                     log.debug("Message = {}", m);
                     JobDetail jobDetail = getJobDetailForMessage(m, getMessageType(m)).getObject();
-
+                    boolean jobExistAlready = schedulerService.checkJobExists(jobDetail.getKey());
+                    if (jobExistAlready) {
+                        // To avoid rescheduling the jobs which are scheduled already
+                        return;
+                    }
                     log.debug("Job Detail = {}", jobDetail);
                     Set<Trigger> triggerSet = new HashSet<>();
                     triggerSet.add(getTriggerForMessage(m, jobDetail).getObject());
 
                     jobDetailSetMap.putIfAbsent(jobDetail, triggerSet);
                 });
-        log.info("Scheduling {} messages", messages.size());
+        log.info("Scheduling {} messages", jobDetailSetMap.size());
         schedulerService.scheduleJobs(jobDetailSetMap);
     }
 

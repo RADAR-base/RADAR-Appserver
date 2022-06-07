@@ -34,7 +34,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.auth.common.MPOAuthHelper;
 import org.radarbase.appserver.auth.common.OAuthHelper;
 import org.radarbase.appserver.dto.ProjectDto;
@@ -49,9 +49,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -60,7 +60,7 @@ public class NotificationEndpointAuthTest {
   private static final String NOTIFICATION_PATH = "/messaging/notifications";
   private static final String DEFAULT_USER = "/sub-1";
   private static HttpHeaders AUTH_HEADER;
-  private static TestRestTemplate restTemplate = new TestRestTemplate();
+  private static final TestRestTemplate restTemplate = new TestRestTemplate();
   private final transient FcmNotificationDto fcmNotificationDto =
       new FcmNotificationDto()
           .setScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
@@ -99,7 +99,8 @@ public class NotificationEndpointAuthTest {
             .setLanguage("en")
             .setEnrolmentDate(Instant.now())
             .setFcmToken("xxx")
-            .setSubjectId("sub-1");
+            .setSubjectId("sub-1")
+            .setTimezone("Europe/London");
 
     HttpEntity<FcmUserDto> userDtoHttpEntity = new HttpEntity<>(userDto, AUTH_HEADER);
 

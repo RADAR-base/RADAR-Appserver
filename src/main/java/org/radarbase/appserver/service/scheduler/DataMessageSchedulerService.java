@@ -69,5 +69,4 @@ public class DataMessageSchedulerService extends MessageSchedulerService<DataMes
     public void send(DataMessage dataMessage) throws Exception {
         fcmSender.send(createMessageFromDataMessage(dataMessage));
     }
-
 }

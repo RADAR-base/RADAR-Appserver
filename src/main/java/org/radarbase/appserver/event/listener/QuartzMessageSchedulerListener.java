@@ -34,12 +34,14 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.event.state.DataMessageStateEvent;
 import org.radarbase.appserver.event.state.MessageState;
-import org.radarbase.appserver.event.state.NotificationStateEvent;
+import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.service.MessageType;
+import org.radarbase.appserver.service.scheduler.quartz.QuartzNamingStrategy;
+import org.radarbase.appserver.service.scheduler.quartz.SimpleQuartzNamingStrategy;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +50,7 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class QuartzMessageSchedulerListener implements SchedulerListener {
 
+    protected static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
     private final transient ApplicationEventPublisher messageStateEventPublisher;
     private final transient NotificationRepository notificationRepository;
     private final transient DataMessageRepository dataMessageRepository;
@@ -90,8 +93,8 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
                     log.warn("The notification does not exist in database and yet was scheduled.");
                     return;
                 }
-                NotificationStateEvent notificationStateEvent =
-                        new NotificationStateEvent(
+                NotificationStateEventDto notificationStateEvent =
+                        new NotificationStateEventDto(
                                 this, notification.get(), MessageState.SCHEDULED, null, Instant.now());
                 messageStateEventPublisher.publishEvent(notificationStateEvent);
                 break;
@@ -102,8 +105,8 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
                     log.warn("The data message does not exist in database and yet was scheduled.");
                     return;
                 }
-                DataMessageStateEvent dataMessageStateEvent =
-                        new DataMessageStateEvent(
+                DataMessageStateEventDto dataMessageStateEvent =
+                        new DataMessageStateEventDto(
                                 this, dataMessage.get(), MessageState.SCHEDULED, null, Instant.now());
                 messageStateEventPublisher.publishEvent(dataMessageStateEvent);
                 break;
@@ -120,23 +123,22 @@ public class QuartzMessageSchedulerListener implements SchedulerListener {
      */
     @Override
     public void jobUnscheduled(TriggerKey triggerKey) {
-        JobDetail jobDetail;
+        long notificationId;
         try {
-            jobDetail = scheduler.getJobDetail(scheduler.getTrigger(triggerKey).getJobKey());
-        } catch (SchedulerException exc) {
-            log.warn("Encountered error while getting job information from Trigger: ", exc);
+            notificationId = Long.parseLong(NAMING_STRATEGY.getMessageId(triggerKey.getName()));
+        } catch (NumberFormatException ex) {
+            log.warn("The message id could not be established from unscheduled trigger.");
             return;
         }
-
         Optional<Notification> notification =
-                notificationRepository.findById(jobDetail.getJobDataMap().getLongValue("notificationId"));
+                notificationRepository.findById(notificationId);
 
         if (notification.isEmpty()) {
             log.warn("The notification does not exist in database and yet was unscheduled.");
             return;
         }
-        NotificationStateEvent notificationStateEvent =
-                new NotificationStateEvent(
+        NotificationStateEventDto notificationStateEvent =
+                new NotificationStateEventDto(
                         this, notification.get(), MessageState.CANCELLED, null, Instant.now());
         messageStateEventPublisher.publishEvent(notificationStateEvent);
     }

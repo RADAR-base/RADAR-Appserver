@@ -23,7 +23,6 @@ package org.radarbase.fcm.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -31,9 +30,8 @@ import lombok.experimental.SuperBuilder;
 /** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
-@SuppressFBWarnings("URF_UNREAD_FIELD")
 @Getter
-public class FcmDownstreamMessage implements FcmMessage {
+public abstract class FcmDownstreamMessage implements FcmMessage {
 
   @JsonProperty @NotEmpty private String to;
 

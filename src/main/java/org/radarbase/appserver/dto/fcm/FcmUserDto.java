@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.dto.fcm;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
 import javax.validation.constraints.NotEmpty;
@@ -37,6 +38,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @EqualsAndHashCode
 @ToString
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FcmUserDto implements Serializable {
 
   private static final long serialVersionUID = 1L;

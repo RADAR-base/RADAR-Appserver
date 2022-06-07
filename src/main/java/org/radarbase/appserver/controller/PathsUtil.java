@@ -38,4 +38,9 @@ public class PathsUtil {
     public static final String NOTIFICATION_ID_CONSTANT = "{notificationId}";
     public static final String NOTIFICATION_STATE_EVENTS_PATH = "state_events";
     public static final String QUESTIONNAIRE_SCHEDULE_PATH = "questionnaire/schedule";
+    public static final String ALL_KEYWORD = "all";
+    public static final String GITHUB_PATH = "github";
+    public static final String GITHUB_CONTENT_PATH = "content";
+
+
 }

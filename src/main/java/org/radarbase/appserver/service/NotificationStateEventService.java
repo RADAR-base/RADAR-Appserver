@@ -23,14 +23,12 @@ package org.radarbase.appserver.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.naming.SizeLimitExceededException;
-
 import org.radarbase.appserver.dto.NotificationStateEventDto;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.NotificationStateEvent;
@@ -140,8 +138,8 @@ public class NotificationStateEventService {
             }
         }
 
-        org.radarbase.appserver.event.state.NotificationStateEvent stateEvent =
-                new org.radarbase.appserver.event.state.NotificationStateEvent(
+        org.radarbase.appserver.event.state.dto.NotificationStateEventDto stateEvent =
+                new org.radarbase.appserver.event.state.dto.NotificationStateEventDto(
                         this,
                         notification,
                         notificationStateEventDto.getState(),

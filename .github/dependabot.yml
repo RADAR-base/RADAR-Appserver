@@ -1,0 +1,51 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  target-branch: dev
+  reviewers:
+  - yatharthranjan
+  ignore:
+  - dependency-name: org.springframework.boot:spring-boot-gradle-plugin
+    versions:
+    - 2.4.2
+    - 2.4.3
+    - 2.4.4
+  - dependency-name: org.springframework:spring-aop
+    versions:
+    - 5.3.3
+    - 5.3.4
+    - 5.3.5
+  - dependency-name: org.springframework:spring-context-indexer
+    versions:
+    - 5.3.3
+    - 5.3.4
+    - 5.3.5
+  - dependency-name: com.google.firebase:firebase-admin
+    versions:
+    - 7.1.0
+    - 7.1.1
+  - dependency-name: com.github.spotbugs
+    versions:
+    - 4.6.0
+    - 4.6.2
+    - 4.7.0
+  - dependency-name: org.postgresql:postgresql
+    versions:
+    - 42.2.18
+    - 42.2.19
+  - dependency-name: org.junit.platform:junit-platform-launcher
+    versions:
+    - 1.7.0
+  - dependency-name: org.junit.platform:junit-platform-commons
+    versions:
+    - 1.7.0
+  - dependency-name: org.junit.platform:junit-platform-engine
+    versions:
+    - 1.7.0
+  - dependency-name: io.gatling.highcharts:gatling-charts-highcharts
+    versions:
+    - 3.5.0

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.auth.common.MPOAuthHelper;
 import org.radarbase.appserver.auth.common.OAuthHelper;
 import org.radarbase.appserver.dto.ProjectDto;
@@ -45,9 +45,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -192,13 +192,14 @@ public class UserEndpointAuthTest {
 
   @Test
   @Order(5)
-  public void forbiddenViewAllUsers() {
+  public void viewAllUsers() {
     HttpEntity<FcmUsers> userDtoHttpEntity = new HttpEntity<>(null, AUTH_HEADER);
 
     ResponseEntity<FcmUsers> responseEntity =
         restTemplate.exchange(
             createURLWithPort(port, USER_PATH), HttpMethod.GET, userDtoHttpEntity, FcmUsers.class);
 
-    assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+    // This should return a filtered list of users for which the token has access.
+    assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
 }

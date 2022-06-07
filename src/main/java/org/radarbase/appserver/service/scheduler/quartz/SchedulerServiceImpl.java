@@ -21,13 +21,10 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
-import static com.pivovarit.function.ThrowingPredicate.unchecked;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
@@ -84,6 +81,12 @@ public class SchedulerServiceImpl implements SchedulerService {
     scheduler.scheduleJob(jobDetail, trigger);
   }
 
+  @SneakyThrows
+  @Override
+  public boolean checkJobExists(JobKey jobKey) {
+    return scheduler.checkExists(jobKey);
+  }
+
   @Async
   @SneakyThrows
   @Override
@@ -125,9 +128,8 @@ public class SchedulerServiceImpl implements SchedulerService {
   @SneakyThrows
   @Override
   public void deleteScheduledJobs(List<JobKey> jobKeys) {
-    List<JobKey> jobKeysExist =
-        jobKeys.stream().filter(unchecked(scheduler::checkExists)).collect(Collectors.toList());
-    scheduler.deleteJobs(jobKeysExist);
+    // The scheduler.deleteJobs method does not unschedule jobs so using a deleteJob.
+    jobKeys.forEach(this::deleteScheduledJob);
   }
 
   @Async

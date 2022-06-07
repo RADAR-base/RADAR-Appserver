@@ -36,3 +36,13 @@
 
 # logs
 /logs
+
+# vscode
+/.vscode
+bin/
+
+*.DS_Store
+
+docker/prod
+
+*__pycache__

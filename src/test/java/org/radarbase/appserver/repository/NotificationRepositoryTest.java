@@ -24,14 +24,15 @@ package org.radarbase.appserver.repository;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
 import java.time.Duration;
 import java.time.Instant;
-import javax.validation.ConstraintViolationException;
+import javax.persistence.PersistenceException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
@@ -39,15 +40,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
 @EnableJpaAuditing
 public class NotificationRepositoryTest {
     public static final String NOTIFICATION_BODY = "Test notif";
     public static final String NOTIFICATION_TITLE = "Testing";
-    public static final Long NOTIFICATION_ID = 12345L;
     public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
     public static final String NOTIFICATION_SOURCE_ID = "test";
     private static final String TIMEZONE = "Europe/London";
@@ -62,7 +62,7 @@ public class NotificationRepositoryTest {
     /**
      * Insert a Notification Before each test.
      */
-    @Before
+    @BeforeEach
     public void initNotification() {
         // given
         Project project = new Project().setProjectId("test-project");
@@ -82,7 +82,6 @@ public class NotificationRepositoryTest {
 
         Notification notification =
                 new Notification.NotificationBuilder()
-                        .id(NOTIFICATION_ID)
                         .user(user)
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
@@ -102,7 +101,6 @@ public class NotificationRepositoryTest {
         // given
         Notification notification =
                 new Notification.NotificationBuilder()
-                        .id(NOTIFICATION_ID)
                         .user(new User())
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
@@ -129,7 +127,6 @@ public class NotificationRepositoryTest {
         // given
         Notification notification =
                 new Notification.NotificationBuilder()
-                        .id(NOTIFICATION_ID)
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
                         .fcmMessageId(NOTIFICATION_FCM_MESSAGE_ID)
@@ -140,7 +137,7 @@ public class NotificationRepositoryTest {
                         .build();
 
         assertThrows(
-                ConstraintViolationException.class,
+                PersistenceException.class,
                 () -> {
                     entityManager.persist(notification);
                     entityManager.flush();
@@ -171,7 +168,6 @@ public class NotificationRepositoryTest {
 
         Notification notification =
                 new Notification.NotificationBuilder()
-                        .id(NOTIFICATION_ID)
                         .user(user)
                         .body(NOTIFICATION_BODY)
                         .title(NOTIFICATION_TITLE)
@@ -215,7 +211,7 @@ public class NotificationRepositoryTest {
     @Test
     public void whenDeleteNotificationById_thenExistsFalse() {
         // when
-        notificationRepository.deleteById(NOTIFICATION_ID);
+        notificationRepository.deleteById(this.id);
 
         // then
         Notification notification = entityManager.find(Notification.class, this.id);

@@ -25,14 +25,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
 import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
 import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
@@ -47,9 +49,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.junit4.SpringRunner;
-
-@RunWith(SpringRunner.class)
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
 class UserServiceTest {
 
@@ -63,7 +64,7 @@ class UserServiceTest {
     private transient ProjectRepository projectRepository;
 
     private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
-    private static final String TIMEZONE = "Europe/London";
+    private static final String TIMEZONE = "Europe/Bucharest";
 
     @BeforeEach
     void setUp() {
@@ -189,14 +190,14 @@ class UserServiceTest {
                         .setLanguage("es")
                         .setLastDelivered(enrolmentDate)
                         .setLastOpened(enrolmentDate)
-                        .setTimezone(TIMEZONE);
+                        .setTimezone("Europe/Bucharest");
 
         FcmUserDto userDto = userService.updateUser(userDtoNew);
 
         assertEquals(USER_ID, userDto.getSubjectId());
         assertEquals("es", userDto.getLanguage());
         assertEquals(PROJECT_ID, userDto.getProjectId());
-        assertEquals("Europe/London", userDto.getTimezone());
+        assertEquals("Europe/Bucharest", userDto.getTimezone());
         assertEquals("xxxxyyy", userDto.getFcmToken());
         assertEquals(Long.valueOf(1L), userDto.getId());
     }

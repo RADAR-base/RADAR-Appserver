@@ -49,7 +49,6 @@ import org.springframework.lang.Nullable;
  * @author yatharthranjan
  * @see Scheduled
  * @see org.radarbase.appserver.service.scheduler.DataMessageSchedulerService
- * @see org.radarbase.appserver.service.fcm.FcmMessageReceiverService
  */
 @Entity
 @Table(
