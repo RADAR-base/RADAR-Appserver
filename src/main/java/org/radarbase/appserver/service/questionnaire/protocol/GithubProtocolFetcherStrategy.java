@@ -193,8 +193,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
 
     @SneakyThrows
     private ArrayNode getArrayNode(String json) {
-
-        JsonParser parserProtocol = objectMapper.getFactory().createParser(json);
-        return objectMapper.readTree(parserProtocol);
+        try (JsonParser parserProtocol = objectMapper.getFactory().createParser(json)) {
+            return objectMapper.readTree(parserProtocol);
+          }
     }
 }
