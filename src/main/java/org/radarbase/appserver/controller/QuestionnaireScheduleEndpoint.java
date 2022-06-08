@@ -50,6 +50,10 @@ public class QuestionnaireScheduleEndpoint {
 
     @PostMapping(
             "/"
+                    + PathsUtil.PROJECT_PATH
+                    + "/"
+                    + PathsUtil.PROJECT_ID_CONSTANT
+                    + "/"
                     + PathsUtil.USER_PATH
                     + "/"
                     + PathsUtil.SUBJECT_ID_CONSTANT
@@ -66,6 +70,10 @@ public class QuestionnaireScheduleEndpoint {
 
     @GetMapping(
             "/"
+                    + PathsUtil.PROJECT_PATH
+                    + "/"
+                    + PathsUtil.PROJECT_ID_CONSTANT
+                    + "/"
                     + PathsUtil.USER_PATH
                     + "/"
                     + PathsUtil.SUBJECT_ID_CONSTANT
@@ -79,6 +87,10 @@ public class QuestionnaireScheduleEndpoint {
 
     @DeleteMapping(
             "/"
+                    + PathsUtil.PROJECT_PATH
+                    + "/"
+                    + PathsUtil.PROJECT_ID_CONSTANT
+                    + "/"
                     + PathsUtil.USER_PATH
                     + "/"
                     + PathsUtil.SUBJECT_ID_CONSTANT
