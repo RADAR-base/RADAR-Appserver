@@ -64,6 +64,9 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private final transient CachedMap<String, URI> projectProtocolUriMap;
     private final transient HttpClient client;
 
+    @Value("${security.github.client.token}")
+    private transient String githubToken;
+
     @SneakyThrows
     @Autowired
     public GithubProtocolFetcherStrategy(
@@ -184,11 +187,16 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     }
 
     private HttpRequest getRequest(URI uri) {
-        return HttpRequest.newBuilder(uri)
+        HttpRequest.Builder request = HttpRequest.newBuilder(uri)
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
                 .GET()
-                .timeout(Duration.ofSeconds(10))
-                .build();
+                .timeout(Duration.ofSeconds(10));
+
+        if (githubToken != null && !githubToken.isEmpty()) {
+            request.header("Authorization", "Bearer " + githubToken);
+        }
+
+        return request.build();
     }
 
     @SneakyThrows
