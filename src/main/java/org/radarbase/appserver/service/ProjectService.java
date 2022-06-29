@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service;
 
+import java.io.IOException;
 import java.util.Optional;
 import org.radarbase.appserver.converter.ProjectConverter;
 import org.radarbase.appserver.dto.ProjectDto;
@@ -29,7 +30,9 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.exception.InvalidProjectDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +47,14 @@ public class ProjectService {
 
   private final transient ProjectRepository projectRepository;
   private final transient ProjectConverter projectConverter;
+  private transient ProtocolGenerator protocolGenerator;
 
   @Autowired
-  public ProjectService(ProjectRepository projectRepository, ProjectConverter projectConverter) {
+  public ProjectService(ProjectRepository projectRepository, ProjectConverter projectConverter, ProtocolGenerator protocolGenerator) {
     this.projectRepository = projectRepository;
     this.projectConverter = projectConverter;
+    this.protocolGenerator = protocolGenerator;
+    protocolGenerator.init();
   }
 
   @Transactional(readOnly = true)
@@ -80,7 +86,7 @@ public class ProjectService {
   }
 
   @Transactional
-  public ProjectDto addProject(ProjectDto projectDto) {
+  public ProjectDto addProject(ProjectDto projectDto) throws IOException {
     if (projectDto.getId() != null) {
       throw new InvalidProjectDetailsException(
           projectDto,
@@ -100,8 +106,12 @@ public class ProjectService {
               projectDto.getProjectId()));
     }
 
+    try {
+      getProtocolForProject(projectDto.getProjectId());
+    } catch (Error e) {}
+
     return projectConverter.entityToDto(
-        this.projectRepository.save(projectConverter.dtoToEntity(projectDto)));
+            this.projectRepository.save(projectConverter.dtoToEntity(projectDto)));
   }
 
   @Transactional
@@ -122,5 +132,9 @@ public class ProjectService {
 
     Project savedProject = this.projectRepository.save(resultProject);
     return projectConverter.entityToDto(savedProject);
+  }
+
+  public void getProtocolForProject(String projectId) throws IOException {
+    protocolGenerator.getProtocol(projectId);
   }
 }
