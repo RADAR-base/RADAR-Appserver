@@ -31,6 +31,7 @@ import org.radarbase.appserver.service.TaskService;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
@@ -58,15 +59,17 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
             Instant referenceTimestamp = referenceTimestampsIter.next();
             TimePeriod timePeriod = new TimePeriod();
             timePeriod.setUnit(repeatQuestionnaire.getUnit());
-            Iterator<Integer> unitsFromZeroIter = unitsFromZero.iterator();
-            while (unitsFromZeroIter.hasNext()) {
-                timePeriod.setAmount(unitsFromZeroIter.next());
-                Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
-                Task task = taskGeneratorService.buildTask(assessment, taskTime);
-                task.setUser(user);
-                task = this.taskService.addTask(task);
-                tasks.add(task);
-            }
+
+            List<Task> currentTasks = unitsFromZero.parallelStream()
+                            .map(unitFromZero -> {
+                                timePeriod.setAmount(unitFromZero);
+                                Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
+                                Task task = taskGeneratorService.buildTask(assessment, taskTime);
+                                task.setUser(user);
+                                task = this.taskService.addTask(task);
+                                return task;
+                            }).collect(Collectors.toList());
+            tasks.addAll(currentTasks);
         }
         return tasks;
     }

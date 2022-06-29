@@ -9,6 +9,8 @@ import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public interface ScheduleGeneratorService {
@@ -25,12 +27,14 @@ public interface ScheduleGeneratorService {
     default Schedule generateScheduleForUser(User user, ProtocolGenerator protocolGenerator) {
         Protocol protocol = protocolGenerator.getProtocol(user.getProject().getProjectId());
         Schedule schedule = new Schedule(user);
-        Iterator<Assessment> assessmentProtocolIterator = protocol.getProtocols().iterator();
-        while (assessmentProtocolIterator.hasNext()) {
-            Assessment assessment = assessmentProtocolIterator.next();
+        List<Assessment> assessments = protocol.getProtocols();
+
+        List<AssessmentSchedule> assessmentSchedules = assessments.parallelStream().map(assessment -> {
             AssessmentSchedule assessmentSchedule = this.generateSingleAssessmentSchedule(assessment, user);
-            schedule.addAssessmentSchedule(assessmentSchedule);
-        }
+            return assessmentSchedule;
+        }).collect(Collectors.toList());
+
+        schedule.addAssessmentSchedules(assessmentSchedules);
         return schedule;
     }
 
