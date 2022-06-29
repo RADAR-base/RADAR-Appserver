@@ -46,4 +46,9 @@ public class Schedule {
         return this;
     }
 
+    public Schedule addAssessmentSchedules(List<AssessmentSchedule> assessmentSchedules) {
+        this.assessmentSchedules.addAll(assessmentSchedules);
+        return this;
+    }
+
 }
