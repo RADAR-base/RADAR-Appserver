@@ -21,6 +21,9 @@
 
 package org.radarbase.appserver.service;
 
+import org.radarbase.appserver.dto.protocol.Assessment;
+import org.radarbase.appserver.dto.protocol.AssessmentType;
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
@@ -58,7 +61,8 @@ public class QuestionnaireScheduleService {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
-        protocolGenerator.init();
+        this.protocolGenerator.init();
+        this.protocolGenerator.getAllProtocols();
         subjectScheduleMap =
                 new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
         this.scheduleGeneratorService = scheduleGeneratorService;
@@ -71,18 +75,24 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public List<Task> getScheduleUsingSubjectId(String subjectId) {
+    public List<Task> getTasksUsingSubjectId(String subjectId) {
         Optional<User> user = this.userRepository.findBySubjectId(subjectId);
         if (user.isPresent())
             return this.getScheduleForUser(user.get());
+        return null;
+    }
 
+    @Transactional
+    public List<Task> getTasksByTypeUsingSubjectId(String subjectId, AssessmentType type) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if (user.isPresent())
+            return this.taskRepository.findByUserIdAndType(user.get().getId(), type);
         return null;
     }
 
     @Transactional
     public List<Task> getScheduleForUser(User user) {
         return this.taskRepository.findByUserId(user.getId());
-
     }
 
     @Transactional
@@ -94,6 +104,19 @@ public class QuestionnaireScheduleService {
         }
         return null;
     }
+
+    @Transactional
+    public Schedule generateScheduleUsingSubjectIdAndAssessment(String subjectId, Assessment assessment) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if (user.isPresent()) {
+            Schedule schedule = new Schedule(user.get());
+            AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user.get());
+            schedule.addAssessmentSchedule(a);
+            return schedule;
+        }
+        return null;
+    }
+
 
     public Map<String, Schedule> getAllSchedules() {
         // Check if protocol hash has changed. only then update the map

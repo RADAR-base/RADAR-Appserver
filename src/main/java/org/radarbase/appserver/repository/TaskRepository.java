@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.repository;
 
+import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -36,6 +37,8 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByUserId(Long userId);
+
+    List<Task> findByUserIdAndType(Long userId, AssessmentType type);
 
     void deleteByUserId(Long userId);
 

@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service;
 
+import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.AlreadyExistsException;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * {@link Service} for interacting with the {@link Task} {@link javax.persistence.Entity} using
@@ -81,6 +83,16 @@ public class TaskService {
         return tasks;
     }
 
+    @Transactional(readOnly = true)
+    public List<Task> getTasksBySubjectIdAndType(String subjectId, AssessmentType type) {
+        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
+        if (user.isEmpty()) {
+            throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
+        }
+        List<Task> tasks = taskRepository.findByUserIdAndType(user.get().getId(), type);
+        return tasks;
+    }
+
 
     @Transactional
     public Task addTask(Task task) {
@@ -92,5 +104,16 @@ public class TaskService {
             return saved;
         } else throw new AlreadyExistsException(
                 "The Task Already exists. Please Use update endpoint", task);
+    }
+
+    @Transactional
+    public List<Task> addTasks(List<Task> tasks, User user) {
+        List<Task> newTasks = tasks.stream()
+                .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
+                .collect(Collectors.toList());
+
+        List<Task> saved = this.taskRepository.saveAll(newTasks);
+        this.taskRepository.flush();
+        return saved;
     }
 }

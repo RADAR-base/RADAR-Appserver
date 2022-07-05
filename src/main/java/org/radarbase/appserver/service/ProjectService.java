@@ -47,14 +47,11 @@ public class ProjectService {
 
   private final transient ProjectRepository projectRepository;
   private final transient ProjectConverter projectConverter;
-  private transient ProtocolGenerator protocolGenerator;
 
   @Autowired
-  public ProjectService(ProjectRepository projectRepository, ProjectConverter projectConverter, ProtocolGenerator protocolGenerator) {
+  public ProjectService(ProjectRepository projectRepository, ProjectConverter projectConverter) {
     this.projectRepository = projectRepository;
     this.projectConverter = projectConverter;
-    this.protocolGenerator = protocolGenerator;
-    protocolGenerator.init();
   }
 
   @Transactional(readOnly = true)
@@ -106,10 +103,6 @@ public class ProjectService {
               projectDto.getProjectId()));
     }
 
-    try {
-      getProtocolForProject(projectDto.getProjectId());
-    } catch (Error e) {}
-
     return projectConverter.entityToDto(
             this.projectRepository.save(projectConverter.dtoToEntity(projectDto)));
   }
@@ -132,9 +125,5 @@ public class ProjectService {
 
     Project savedProject = this.projectRepository.save(resultProject);
     return projectConverter.entityToDto(savedProject);
-  }
-
-  public void getProtocolForProject(String projectId) throws IOException {
-    protocolGenerator.getProtocol(projectId);
   }
 }

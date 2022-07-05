@@ -36,7 +36,7 @@ public class TimeCalculatorService {
     transient int YEAR_TO_DAYS = 365;
 
     public Instant advanceRepeat(Instant referenceTime, TimePeriod offset, TimeZone timezone) {
-        ZonedDateTime time = ZonedDateTime.ofInstant(referenceTime, timezone.toZoneId());
+        ZonedDateTime time = ZonedDateTime.ofInstant(referenceTime, timezone.toZoneId()).truncatedTo(ChronoUnit.MILLIS);
         switch (offset.getUnit()) {
             case "min":
                 return time.plus(offset.getAmount(), ChronoUnit.MINUTES).toInstant();

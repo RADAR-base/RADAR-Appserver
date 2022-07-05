@@ -22,33 +22,32 @@
 package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
+import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.entity.Task;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class TaskGeneratorService {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
-    private transient Long DefaultTaskCompletionWindow = 86400000L;
 
-    public Task buildTask(Assessment assessment, Instant timestamp) {
+    public Task buildTask(Assessment assessment, Instant timestamp, Long completionWindow) {
+        boolean isClinical = assessment.getType() == AssessmentType.CLINICAL;
         Task task = new Task.TaskBuilder()
                 .name(assessment.getName())
+                .type(assessment.getType())
                 .estimatedCompletionTime(assessment.getEstimatedCompletionTime())
-                .completionWindow(this.calculateCompletionWindow(assessment.getProtocol().getCompletionWindow()))
+                .completionWindow(completionWindow)
                 .order(assessment.getOrder())
-                .timestamp(timestamp)
+                .timestamp(timestamp.truncatedTo(ChronoUnit.MILLIS))
                 .showInCalendar(assessment.getShowInCalendar())
                 .isDemo(assessment.getIsDemo())
                 .nQuestions(assessment.getNQuestions())
+                .isClinical(isClinical)
                 .build();
         return task;
     }
 
-    private Long calculateCompletionWindow(TimePeriod completionWindow) {
-        if (completionWindow == null)
-            return DefaultTaskCompletionWindow;
-        return timeCalculatorService.timePeriodToMillis(completionWindow);
-    }
 }
