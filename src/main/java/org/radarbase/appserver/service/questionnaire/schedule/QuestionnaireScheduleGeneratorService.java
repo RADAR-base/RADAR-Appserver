@@ -77,6 +77,8 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
 
     @Override
     public ProtocolHandler getNotificationHandler(Assessment assessment) {
+        if (assessment.getType() == AssessmentType.CLINICAL) return null;
+
         return NotificationHandlerFactory.getNotificationHandler(NotificationHandlerType.SIMPLE, notificationService);
     }
 
