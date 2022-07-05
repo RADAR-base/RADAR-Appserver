@@ -79,8 +79,9 @@ public class QuestionnaireScheduleEndpoint {
     public List<Task> getScheduleUsingProjectIdAndSubjectId(
             @Valid @PathVariable String projectId,
             @Valid @PathVariable String subjectId,
-            @RequestParam(required = false, defaultValue = "all") AssessmentType type) {
-        return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, type);
+            @RequestParam(required = false, defaultValue = "all") AssessmentType type,
+            @RequestParam(required = false, defaultValue = "") String search) {
+        return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, type, search);
     }
 
     @DeleteMapping(
@@ -97,8 +98,9 @@ public class QuestionnaireScheduleEndpoint {
     public ResponseEntity deleteScheduleForUser(
             @PathVariable String projectId,
             @PathVariable String subjectId,
-            @RequestParam(required = false, defaultValue = "all") AssessmentType type) {
-        this.scheduleService.removeScheduleForUserUsingSubjectIdAndType(projectId, subjectId, type);
+            @RequestParam(required = false, defaultValue = "all") AssessmentType type,
+            @RequestParam(required = false, defaultValue = "") String search) {
+        this.scheduleService.removeScheduleForUserUsingSubjectIdAndType(projectId, subjectId, type, search);
         return ResponseEntity.ok().build();
     }
 

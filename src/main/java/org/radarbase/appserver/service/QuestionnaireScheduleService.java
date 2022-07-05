@@ -32,10 +32,12 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.appserver.search.TaskSpecificationsBuilder;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,9 +47,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class QuestionnaireScheduleService {
+
+    private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
     private transient ProtocolGenerator protocolGenerator;
 
     private transient CachedMap<String, Schedule> subjectScheduleMap;
@@ -86,13 +92,20 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public List<Task> getTasksByTypeUsingProjectIdAndSubjectId(String projectId, String subjectId, AssessmentType type) {
-        if (type != AssessmentType.ALL) {
-            return getTasksUsingProjectIdAndSubjectId(projectId, subjectId);
-        } else {
-            User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-            return this.taskRepository.findByUserIdAndType(user.getId(), type);
-        }
+    public List<Task> getTasksByTypeUsingProjectIdAndSubjectId(String projectId,
+                                                               String subjectId,
+                                                               AssessmentType type,
+                                                               String search) {
+
+        Specification<Task> spec = getSearchBuilder(projectId, subjectId, type, search).build();
+        return taskRepository.findAll(spec);
+
+//        if (type != AssessmentType.ALL) {
+//            return getTasksUsingProjectIdAndSubjectId(projectId, subjectId);
+//        } else {
+//            User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+//            return this.taskRepository.findByUserIdAndType(user.getId(), type);
+//        }
     }
 
     @Transactional
@@ -124,13 +137,22 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public void removeScheduleForUserUsingSubjectIdAndType(String projectId, String subjectId, AssessmentType type) {
-        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        if(type == AssessmentType.ALL) {
-            this.removeScheduleForUser(user);
-        } else {
-            this.taskRepository.deleteByUserIdAndType(user.getId(), type);
-        }
+    public void removeScheduleForUserUsingSubjectIdAndType(String projectId,
+                                                           String subjectId,
+                                                           AssessmentType type,
+                                                           String search) {
+        Specification<Task> spec = getSearchBuilder(projectId, subjectId, type, search).build();
+
+        // TODO: DeleteAll with Specifications will soon be released in JPA (v 3.0.0), so update this to not fetch all entities.
+        List<Task> tasks = taskRepository.findAll(spec);
+        taskRepository.deleteAll(tasks);
+
+//        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+//        if (type == AssessmentType.ALL) {
+//            this.removeScheduleForUser(user);
+//        } else {
+//            this.taskRepository.deleteByUserIdAndType(user.getId(), type);
+//        }
     }
 
     @Transactional
@@ -152,6 +174,28 @@ public class QuestionnaireScheduleService {
         }
 
         return user.get();
+    }
+
+    private TaskSpecificationsBuilder getSearchBuilder(String projectId,
+                                                       String subjectId,
+                                                       AssessmentType type,
+                                                       String search) {
+
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+
+        TaskSpecificationsBuilder builder = new TaskSpecificationsBuilder();
+        builder.with("userId", ":", user.getId());
+
+        if (type != AssessmentType.ALL && type != null) {
+            builder.with("type", ":", type);
+        }
+
+        Pattern pattern = Pattern.compile(TASK_SEARCH_PATTERN);
+        Matcher matcher = pattern.matcher(search + ",");
+        while (matcher.find()) {
+            builder.with(matcher.group(1), matcher.group(2), matcher.group(3));
+        }
+        return builder;
     }
 
 }

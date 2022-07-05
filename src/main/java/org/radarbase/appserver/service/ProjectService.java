@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service;
 
-import java.io.IOException;
 import java.util.Optional;
 import org.radarbase.appserver.converter.ProjectConverter;
 import org.radarbase.appserver.dto.ProjectDto;
@@ -30,9 +29,7 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.exception.InvalidProjectDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
-import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,7 +80,7 @@ public class ProjectService {
   }
 
   @Transactional
-  public ProjectDto addProject(ProjectDto projectDto) throws IOException {
+  public ProjectDto addProject(ProjectDto projectDto) {
     if (projectDto.getId() != null) {
       throw new InvalidProjectDetailsException(
           projectDto,
