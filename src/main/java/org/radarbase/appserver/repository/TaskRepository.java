@@ -42,6 +42,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     void deleteByUserId(Long userId);
 
+    void deleteByUserIdAndType(Long userId, AssessmentType type);
+
     boolean existsByIdAndUserId(Long id, Long userId);
 
     boolean existsById(Long id);

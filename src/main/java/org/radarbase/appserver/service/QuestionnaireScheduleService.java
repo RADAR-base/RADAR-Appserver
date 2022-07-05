@@ -25,8 +25,11 @@ import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.exception.NotFoundException;
+import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
@@ -55,10 +58,12 @@ public class QuestionnaireScheduleService {
 
     private transient QuestionnaireScheduleGeneratorService scheduleGeneratorService;
 
-    @Autowired
+    private final transient ProjectRepository projectRepository;
 
-    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskRepository taskRepository) {
+    @Autowired
+    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, ProjectRepository projectRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskRepository taskRepository) {
         this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
         this.protocolGenerator.init();
@@ -75,19 +80,19 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public List<Task> getTasksUsingSubjectId(String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isPresent())
-            return this.getScheduleForUser(user.get());
-        return null;
+    public List<Task> getTasksUsingProjectIdAndSubjectId(String projectId, String subjectId) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        return this.getScheduleForUser(user);
     }
 
     @Transactional
-    public List<Task> getTasksByTypeUsingSubjectId(String subjectId, AssessmentType type) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isPresent())
-            return this.taskRepository.findByUserIdAndType(user.get().getId(), type);
-        return null;
+    public List<Task> getTasksByTypeUsingProjectIdAndSubjectId(String projectId, String subjectId, AssessmentType type) {
+        if (type != AssessmentType.ALL) {
+            return getTasksUsingProjectIdAndSubjectId(projectId, subjectId);
+        } else {
+            User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+            return this.taskRepository.findByUserIdAndType(user.getId(), type);
+        }
     }
 
     @Transactional
@@ -96,25 +101,20 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public Schedule generateScheduleUsingSubjectId(String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isPresent()) {
-            Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user.get(), this.protocolGenerator);
-            return schedule;
-        }
-        return null;
+    public Schedule generateScheduleUsingProjectIdAndSubjectId(String projectId, String subjectId) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        return this.scheduleGeneratorService.generateScheduleForUser(user, this.protocolGenerator);
     }
 
     @Transactional
-    public Schedule generateScheduleUsingSubjectIdAndAssessment(String subjectId, Assessment assessment) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isPresent()) {
-            Schedule schedule = new Schedule(user.get());
-            AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user.get());
-            schedule.addAssessmentSchedule(a);
-            return schedule;
-        }
-        return null;
+    public Schedule generateScheduleUsingProjectIdAndSubjectIdAndAssessment(String projectId,
+                                                                            String subjectId,
+                                                                            Assessment assessment) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        Schedule schedule = new Schedule(user);
+        AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user);
+        schedule.addAssessmentSchedule(a);
+        return schedule;
     }
 
 
@@ -124,15 +124,34 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public void removeScheduleForUserUsingSubjectId(String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isPresent())
-            this.removeScheduleForUser(user.get());
+    public void removeScheduleForUserUsingSubjectIdAndType(String projectId, String subjectId, AssessmentType type) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        if(type == AssessmentType.ALL) {
+            this.removeScheduleForUser(user);
+        } else {
+            this.taskRepository.deleteByUserIdAndType(user.getId(), type);
+        }
     }
 
     @Transactional
     public void removeScheduleForUser(User user) {
         this.taskRepository.deleteByUserId(user.getId());
+    }
+
+    public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {
+        Optional<Project> project = this.projectRepository.findByProjectId(projectId);
+        if (project.isEmpty()) {
+            throw new NotFoundException(
+                    "Project Id does not exist. Please create a project with the ID first");
+        }
+
+        Optional<User> user =
+                this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
+        if (user.isEmpty()) {
+            throw new NotFoundException("Subject Id does not exist. Please create a user with the ID first");
+        }
+
+        return user.get();
     }
 
 }

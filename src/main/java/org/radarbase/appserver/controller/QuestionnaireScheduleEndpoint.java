@@ -56,10 +56,11 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.SUBJECT_ID_CONSTANT
                     + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
-    public ResponseEntity generateScheduleUsingSubjectId(
-            @PathVariable String subjectId)
+    public ResponseEntity generateScheduleUsingProjectIdAndSubjectId(
+            @Valid @PathVariable String projectId,
+            @Valid @PathVariable String subjectId)
             throws URISyntaxException {
-        Schedule schedule = this.scheduleService.generateScheduleUsingSubjectId(subjectId);
+        Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, subjectId);
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
     }
@@ -75,14 +76,11 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.SUBJECT_ID_CONSTANT
                     + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
-    public List<Task> getScheduleUsingSubjectId(
+    public List<Task> getScheduleUsingProjectIdAndSubjectId(
+            @Valid @PathVariable String projectId,
             @Valid @PathVariable String subjectId,
             @RequestParam(required = false, defaultValue = "all") AssessmentType type) {
-        if (type != AssessmentType.ALL) {
-            return this.scheduleService.getTasksByTypeUsingSubjectId(subjectId, type);
-        }
-        return this.scheduleService.getTasksUsingSubjectId(subjectId);
-
+        return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, type);
     }
 
     @DeleteMapping(
@@ -97,8 +95,10 @@ public class QuestionnaireScheduleEndpoint {
                     + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
     public ResponseEntity deleteScheduleForUser(
-            @PathVariable String subjectId) {
-        this.scheduleService.removeScheduleForUserUsingSubjectId(subjectId);
+            @PathVariable String projectId,
+            @PathVariable String subjectId,
+            @RequestParam(required = false, defaultValue = "all") AssessmentType type) {
+        this.scheduleService.removeScheduleForUserUsingSubjectIdAndType(projectId, subjectId, type);
         return ResponseEntity.ok().build();
     }
 
