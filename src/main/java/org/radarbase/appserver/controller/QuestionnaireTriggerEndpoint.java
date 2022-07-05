@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
+import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
@@ -35,13 +36,13 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
-public class QuestionnaireScheduleEndpoint {
+public class QuestionnaireTriggerEndpoint {
 
     @Autowired
     private transient QuestionnaireScheduleService scheduleService;
 
     @Autowired
-    public QuestionnaireScheduleEndpoint(QuestionnaireScheduleService scheduleService) {
+    public QuestionnaireTriggerEndpoint(QuestionnaireScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
 
@@ -55,51 +56,14 @@ public class QuestionnaireScheduleEndpoint {
                     + "/"
                     + PathsUtil.SUBJECT_ID_CONSTANT
                     + "/"
-                    + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
-    public ResponseEntity generateScheduleUsingSubjectId(
-            @PathVariable String subjectId)
+                    + PathsUtil.QUESTIONNAIRE_TRIGGER_PATH)
+    public ResponseEntity generateScheduleUsingProtocol(
+            @PathVariable String subjectId,
+            @Valid @RequestBody Assessment assessment)
             throws URISyntaxException {
-        Schedule schedule = this.scheduleService.generateScheduleUsingSubjectId(subjectId);
+        Schedule schedule = this.scheduleService.generateScheduleUsingSubjectIdAndAssessment(subjectId, assessment);
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
-    }
-
-    @GetMapping(
-            "/"
-                    + PathsUtil.PROJECT_PATH
-                    + "/"
-                    + PathsUtil.PROJECT_ID_CONSTANT
-                    + "/"
-                    + PathsUtil.USER_PATH
-                    + "/"
-                    + PathsUtil.SUBJECT_ID_CONSTANT
-                    + "/"
-                    + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
-    public List<Task> getScheduleUsingSubjectId(
-            @Valid @PathVariable String subjectId,
-            @RequestParam(required = false, defaultValue = "all") AssessmentType type) {
-        if (type != AssessmentType.ALL) {
-            return this.scheduleService.getTasksByTypeUsingSubjectId(subjectId, type);
-        }
-        return this.scheduleService.getTasksUsingSubjectId(subjectId);
-
-    }
-
-    @DeleteMapping(
-            "/"
-                    + PathsUtil.PROJECT_PATH
-                    + "/"
-                    + PathsUtil.PROJECT_ID_CONSTANT
-                    + "/"
-                    + PathsUtil.USER_PATH
-                    + "/"
-                    + PathsUtil.SUBJECT_ID_CONSTANT
-                    + "/"
-                    + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
-    public ResponseEntity deleteScheduleForUser(
-            @PathVariable String subjectId) {
-        this.scheduleService.removeScheduleForUserUsingSubjectId(subjectId);
-        return ResponseEntity.ok().build();
     }
 
 }
