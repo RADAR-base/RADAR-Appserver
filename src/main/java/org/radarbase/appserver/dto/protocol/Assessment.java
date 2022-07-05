@@ -21,7 +21,11 @@
 
 package org.radarbase.appserver.dto.protocol;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.apache.commons.codec.language.bm.Lang;
+
+import javax.persistence.Column;
 
 /**
  * Data Transfer object (DTO) for Assessment. A project may represent a Protocol for scheduling
@@ -35,6 +39,8 @@ import lombok.Data;
 public class Assessment {
 
     private String name;
+
+    private AssessmentType type;
 
     private String showIntroduction;
 
@@ -50,6 +56,7 @@ public class Assessment {
 
     private AssessmentProtocol protocol;
 
+    @Column(name="\"order\"")
     private Integer order = 0;
 
     private int nQuestions = 0;
@@ -57,4 +64,12 @@ public class Assessment {
     private Boolean showInCalendar = false;
 
     private Boolean isDemo = false;
+
+    public AssessmentType getType() {
+        if (type != null) return type;
+        else if (protocol.getClinicalProtocol() != null) return AssessmentType.CLINICAL;
+
+        return AssessmentType.SCHEDULED;
+    }
+
 }

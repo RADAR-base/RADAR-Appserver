@@ -28,15 +28,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.radarbase.appserver.dto.protocol.AssessmentType;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.ManyToOne;
-import javax.persistence.JoinColumn;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.GenerationType;
-import javax.persistence.GeneratedValue;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
@@ -54,7 +48,7 @@ public class Task extends AuditModel implements Serializable {
     private static final long serialVersionUID = 90L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -65,6 +59,9 @@ public class Task extends AuditModel implements Serializable {
 
     @NotNull
     private String name;
+
+    @NotNull
+    private AssessmentType type;
 
     private int estimatedCompletionTime;
 
@@ -84,6 +81,7 @@ public class Task extends AuditModel implements Serializable {
     private Boolean isDemo;
 
     @NotNull
+    @Column(name="\"order\"")
     private int order;
 
     @NotNull
@@ -102,6 +100,7 @@ public class Task extends AuditModel implements Serializable {
         transient Boolean completed = false;
         transient Instant timestamp;
         transient String name;
+        transient AssessmentType type;
         transient int estimatedCompletionTime;
         transient Long completionWindow;
         transient String warning;
@@ -118,6 +117,7 @@ public class Task extends AuditModel implements Serializable {
             this.completed = task.getCompleted();
             this.timestamp = task.getTimestamp();
             this.name = task.getName();
+            this.type = task.getType();
             this.estimatedCompletionTime = task.getEstimatedCompletionTime();
             this.completionWindow = task.getCompletionWindow();
             this.warning = task.getWarning();
@@ -147,6 +147,11 @@ public class Task extends AuditModel implements Serializable {
 
         public TaskBuilder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public TaskBuilder type(AssessmentType type) {
+            this.type = type;
             return this;
         }
 
@@ -206,6 +211,7 @@ public class Task extends AuditModel implements Serializable {
             task.setCompleted(this.completed);
             task.setTimestamp(this.timestamp);
             task.setName(this.name);
+            task.setType(this.type);
             task.setEstimatedCompletionTime(this.estimatedCompletionTime);
             task.setCompletionWindow(this.completionWindow);
             task.setWarning(this.warning);

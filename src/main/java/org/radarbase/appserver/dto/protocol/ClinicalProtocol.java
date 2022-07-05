@@ -21,26 +21,16 @@
 
 package org.radarbase.appserver.dto.protocol;
 
-import java.time.Instant;
-
 import lombok.Data;
 
 /**
  * @author yatharthranjan
  */
 @Data
-public class AssessmentProtocol {
+public class ClinicalProtocol {
 
-    private RepeatProtocol repeatProtocol;
+    private boolean requiresInClinicCompletion;
 
-    private TimePeriod reminders;
-
-    private TimePeriod completionWindow;
-
-    private RepeatQuestionnaire repeatQuestionnaire;
-
-    private Instant referenceTimestamp;
-
-    private ClinicalProtocol clinicalProtocol;
+    private RepeatQuestionnaire repeatAfterClinicVisit;
 
 }
