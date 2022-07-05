@@ -194,7 +194,8 @@ public class UserService {
               .setFcmToken(userDto.getFcmToken())
               .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
               .setEnrolmentDate(userDto.getEnrolmentDate())
-              .setTimezone(userDto.getTimezone());
+              .setTimezone(userDto.getTimezone())
+              .setAttributes(userDto.getAttributes());
       // maintain a bi-directional relationship
       updatedUser.getUsermetrics().setUser(updatedUser);
       return userConverter.entityToDto(this.userRepository.save(updatedUser));
