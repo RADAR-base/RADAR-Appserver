@@ -21,6 +21,6 @@ public class ProtocolHandlerRunner {
     }
 
     public void addProtocolHandler(ProtocolHandler protocolHandler) {
-        this.protocolHandlers.add(protocolHandler);
+        if (protocolHandler != null) this.protocolHandlers.add(protocolHandler);
     }
 }

@@ -45,11 +45,16 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
 
     @Override
     public ProtocolHandler getProtocolHandler(Assessment assessment) {
-        return ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE);
+        if (assessment.getType() == AssessmentType.CLINICAL)
+            return ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.CLINICAL);
+        else
+            return ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE);
     }
 
     @Override
     public ProtocolHandler getRepeatProtocolHandler(Assessment assessment) {
+        if (assessment.getType() == AssessmentType.CLINICAL) return null;
+
         RepeatProtocolHandlerType type = RepeatProtocolHandlerType.SIMPLE;
         RepeatProtocol repeatProtocol = assessment.getProtocol().getRepeatProtocol();
         if (repeatProtocol.getDayOfWeek() != null)
@@ -59,6 +64,8 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
 
     @Override
     public ProtocolHandler getRepeatQuestionnaireHandler(Assessment assessment) {
+        if (assessment.getType() == AssessmentType.CLINICAL) return null;
+
         RepeatQuestionnaireHandlerType type = RepeatQuestionnaireHandlerType.SIMPLE;
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         if (repeatQuestionnaire.getDayOfWeekMap() != null)
@@ -72,8 +79,6 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
     public ProtocolHandler getNotificationHandler(Assessment assessment) {
         return NotificationHandlerFactory.getNotificationHandler(NotificationHandlerType.SIMPLE, notificationService);
     }
-
-    //TODO: Add clinical protocol handler
 
 
 }

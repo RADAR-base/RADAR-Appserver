@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
+    private transient Long DefaultTaskCompletionWindow = 86400000L;
+
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
     private transient TaskService taskService;
@@ -53,26 +55,31 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer> unitsFromZero = repeatQuestionnaire.getUnitsFromZero();
-        Iterator<Instant> referenceTimestampsIter = referenceTimestamps.iterator();
-        List<Task> tasks = new ArrayList<>();
-        while (referenceTimestampsIter.hasNext()) {
-            Instant referenceTimestamp = referenceTimestampsIter.next();
-            TimePeriod timePeriod = new TimePeriod();
-            timePeriod.setUnit(repeatQuestionnaire.getUnit());
+        Long completionWindow = this.calculateCompletionWindow(assessment.getProtocol().getCompletionWindow());
 
-            List<Task> currentTasks = unitsFromZero.parallelStream()
+        List<Task> tasks = referenceTimestamps.parallelStream()
+                .flatMap(referenceTimestamp -> {
+                    TimePeriod timePeriod = new TimePeriod();
+                    timePeriod.setUnit(repeatQuestionnaire.getUnit());
+                    List<Task> t = unitsFromZero.parallelStream()
                             .map(unitFromZero -> {
                                 timePeriod.setAmount(unitFromZero);
                                 Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
-                                Task task = taskGeneratorService.buildTask(assessment, taskTime);
+                                Task task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow);
                                 task.setUser(user);
-                                task = this.taskService.addTask(task);
                                 return task;
                             }).collect(Collectors.toList());
-            tasks.addAll(currentTasks);
-        }
-        return tasks;
+                    return t.stream();
+                }).collect(Collectors.toList());
+
+        List<Task> savedTasks = this.taskService.addTasks(tasks, user);
+        return savedTasks;
     }
 
+    private Long calculateCompletionWindow(TimePeriod completionWindow) {
+        if (completionWindow == null)
+            return DefaultTaskCompletionWindow;
+        return timeCalculatorService.timePeriodToMillis(completionWindow);
+    }
 
 }

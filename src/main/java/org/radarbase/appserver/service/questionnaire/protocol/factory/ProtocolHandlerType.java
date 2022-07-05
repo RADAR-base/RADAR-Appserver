@@ -23,5 +23,6 @@ package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
 public enum ProtocolHandlerType {
     SIMPLE,
+    CLINICAL,
     OTHER
 }

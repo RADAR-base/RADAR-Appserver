@@ -37,6 +37,8 @@ import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
+    private transient Long DefaultTaskCompletionWindow = 86400000L;
+
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
     private transient TaskService taskService;
@@ -56,6 +58,7 @@ public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer[]> randomUnitsFromZeroBetween = repeatQuestionnaire.getRandomUnitsFromZeroBetween();
         Iterator<Instant> referenceTimestampsIter = referenceTimestamps.iterator();
+        Long completionWindow = this.calculateCompletionWindow(assessment.getProtocol().getCompletionWindow());
         List<Task> tasks = new ArrayList<>();
         while (referenceTimestampsIter.hasNext()) {
             Instant referenceTimestamp = referenceTimestampsIter.next();
@@ -66,7 +69,7 @@ public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
                 Integer[] range = rangeIter.next();
                 timePeriod.setAmount(this.getRandomAmountInRange(range));
                 Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
-                Task task = taskGeneratorService.buildTask(assessment, taskTime);
+                Task task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow);
                 task.setUser(user);
                 task = this.taskService.addTask(task);
                 tasks.add(task);
@@ -81,5 +84,10 @@ public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
         return (int) (Math.random() * (upperLimit - lowerLimit + 1)) + lowerLimit;
     }
 
+    private Long calculateCompletionWindow(TimePeriod completionWindow) {
+        if (completionWindow == null)
+            return DefaultTaskCompletionWindow;
+        return timeCalculatorService.timePeriodToMillis(completionWindow);
+    }
 
 }
