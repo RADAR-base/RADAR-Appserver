@@ -183,7 +183,7 @@ public class QuestionnaireScheduleService {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
         TaskSpecificationsBuilder builder = new TaskSpecificationsBuilder();
-        builder.with("userId", ":", user.getId());
+        builder.with("user", ":", user);
 
         if (type != AssessmentType.ALL && type != null) {
             builder.with("type", ":", type);
