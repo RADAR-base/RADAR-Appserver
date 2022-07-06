@@ -105,6 +105,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         this.objectMapper = objectMapper;
         client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
     }
 
     private static boolean isSuccessfulResponse(HttpResponse response) {
