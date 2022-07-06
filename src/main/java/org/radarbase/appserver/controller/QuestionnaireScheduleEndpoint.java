@@ -83,9 +83,9 @@ public class QuestionnaireScheduleEndpoint {
             @RequestParam(required = false, defaultValue = "") String search) {
         AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
         if (assessmentType != AssessmentType.ALL) {
-            return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, type, search);
+            return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, assessmentType, search);
         }
-        return this.scheduleService.getTasksUsingProjectIdAndSubjectId(subjectId);
+        return this.scheduleService.getTasksUsingProjectIdAndSubjectId(projectId, subjectId);
     }
 
     @DeleteMapping(
