@@ -132,25 +132,27 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
 
         Set<String> protocolPaths = protocolUriMap.keySet();
         subjectProtocolMap = users.parallelStream()
-                .map(u -> {
-                    String projectId = u.getProject().getProjectId();
-                    Map<String, String> attributes = u.getAttributes();
-                    Map<String, String> pathMap = protocolPaths.stream().filter(k -> k.contains(projectId))
-                            .map(p -> {
-                                Map<String, String> path = this.convertPathToAttributeMap(p, projectId);
-                                return Maps.difference(attributes, path).entriesInCommon();
-                            }).max(Comparator.comparingInt(Map::size)).get();
-                    try {
-                        URI uri = projectProtocolUriMap.get(this.convertAttributeMapToPath(pathMap, projectId));
-                        Protocol protocol = getProtocolFromUrl(uri);
-                        return new ProtocolCacheEntry(u.getSubjectId(), protocol);
-                    } catch (IOException | InterruptedException | ResponseStatusException e) {
-                        return new ProtocolCacheEntry(u.getSubjectId(), null);
-                    }
-                }).collect(Collectors.toMap(p -> p.getId(), p -> p.getProtocol()));
+                .map(u -> this.fetchProtocolForSingleUser(u, u.getProject().getProjectId(), protocolPaths))
+                .collect(Collectors.toMap(p -> p.getId(), p -> p.getProtocol()));
 
         log.info("Refreshed Protocols from Github");
         return subjectProtocolMap;
+    }
+
+    private ProtocolCacheEntry fetchProtocolForSingleUser(User u, String projectId, Set<String> protocolPaths) {
+        Map<String, String> attributes = u.getAttributes();
+        Map<String, String> pathMap = protocolPaths.stream().filter(k -> k.contains(projectId))
+                .map(p -> {
+                    Map<String, String> path = this.convertPathToAttributeMap(p, projectId);
+                    return Maps.difference(attributes, path).entriesInCommon();
+                }).max(Comparator.comparingInt(Map::size)).get();
+        try {
+            URI uri = projectProtocolUriMap.get(this.convertAttributeMapToPath(pathMap, projectId));
+            Protocol protocol = getProtocolFromUrl(uri);
+            return new ProtocolCacheEntry(u.getSubjectId(), protocol);
+        } catch (IOException | InterruptedException | ResponseStatusException e) {
+            return new ProtocolCacheEntry(u.getSubjectId(), null);
+        }
     }
 
     @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
