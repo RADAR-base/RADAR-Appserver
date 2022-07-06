@@ -29,4 +29,6 @@ import org.radarbase.appserver.dto.protocol.Protocol;
 public interface ProtocolFetcherStrategy {
 
     Map<String, Protocol> fetchProtocols() throws IOException;
+
+    Map<String, Protocol> fetchProtocolsPerProject() throws IOException;
 }

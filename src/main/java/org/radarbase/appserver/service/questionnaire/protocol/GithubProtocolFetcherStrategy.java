@@ -47,7 +47,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.GithubContent;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.protocol.ProtocolCacheEntry;
+import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private final transient UserRepository userRepository;
+    private final transient ProjectRepository projectRepository;
 
     private static final String GITHUB_API_URI = "https://api.github.com/repos/";
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
@@ -85,7 +88,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
             @Value("${radar.questionnaire.protocol.github.file.name}") String protocolFileName,
             @Value("${radar.questionnaire.protocol.github.branch}") String protocolBranch,
             ObjectMapper objectMapper,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ProjectRepository projectRepository) {
         if (protocolRepo == null
                 || protocolRepo.isEmpty()
                 || protocolFileName == null
@@ -142,10 +146,46 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
                     } catch (IOException | InterruptedException | ResponseStatusException e) {
                         return new ProtocolCacheEntry(u.getSubjectId(), null);
                     }
-                }).collect(Collectors.toMap(p -> p.getSubjectId(), p -> p.getProtocol()));
+                }).collect(Collectors.toMap(p -> p.getId(), p -> p.getProtocol()));
 
         log.info("Refreshed Protocols from Github");
         return subjectProtocolMap;
+    }
+
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+    @Override
+    public synchronized Map<String, Protocol> fetchProtocolsPerProject() throws IOException {
+        Map<String, Protocol> projectProtocolMap = new HashMap<>();
+        List<Project> projects = this.projectRepository.findAll();
+
+        Map<String, URI> protocolUriMap;
+        try {
+            protocolUriMap = projectProtocolUriMap.get();
+        } catch (IOException e) {
+            // Failed to get the Uri Map. try using the cached value
+            protocolUriMap = projectProtocolUriMap.getCache();
+        }
+
+        if (protocolUriMap == null) {
+            return projectProtocolMap;
+        }
+
+        Set<String> protocolPaths = protocolUriMap.keySet();
+        projectProtocolMap = projects.parallelStream()
+                .map(project -> {
+                    String projectId = project.getProjectId();
+                    String path = protocolPaths.stream().filter(k -> k.contains(projectId)).findFirst().get();
+                    try {
+                        URI uri = projectProtocolUriMap.get(path);
+                        Protocol protocol = getProtocolFromUrl(uri);
+                        return new ProtocolCacheEntry(projectId, protocol);
+                    } catch (IOException | InterruptedException | ResponseStatusException e) {
+                        return new ProtocolCacheEntry(projectId, null);
+                    }
+                }).collect(Collectors.toMap(p -> p.getId(), p -> p.getProtocol()));
+
+        log.info("Refreshed Protocols from Github");
+        return projectProtocolMap;
     }
 
     public Map<String, String> convertPathToAttributeMap(String path, String projectId) {

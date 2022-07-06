@@ -31,12 +31,12 @@ import java.time.Instant;
 @Data
 public class ProtocolCacheEntry {
 
-    private String subjectId;
+    private String id;
 
     private Protocol protocol;
 
-    public ProtocolCacheEntry(String subjectId, Protocol protocol) {
-        this.subjectId = subjectId;
+    public ProtocolCacheEntry(String id, Protocol protocol) {
+        this.id = id;
         this.protocol = protocol;
     }
 }

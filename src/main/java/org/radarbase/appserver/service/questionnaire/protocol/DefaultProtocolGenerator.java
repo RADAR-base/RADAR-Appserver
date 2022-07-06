@@ -47,6 +47,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
 
     // Keeps a cache of Protocol for each project
     private transient CachedMap<String, Protocol> cachedProtocolMap;
+    private transient CachedMap<String, Protocol> cachedProjectProtocolMap;
 
     private static final Duration CACHE_INVALIDATE_DEFAULT = Duration.ofHours(1);
     private static final Duration CACHE_RETRY_DEFAULT = Duration.ofHours(2);
@@ -64,7 +65,10 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
         cachedProtocolMap =
                 new CachedMap<>(
                         protocolFetcherStrategy::fetchProtocols, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
-                        log.debug("initialized Github Protocol generator");
+        cachedProjectProtocolMap =
+                new CachedMap<>(
+                        protocolFetcherStrategy::fetchProtocolsPerProject, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
+        log.debug("initialized Github Protocol generator");
     }
 
     @Override
@@ -81,11 +85,11 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
     public Protocol getProtocol(String projectId) {
 
         try {
-            return cachedProtocolMap.get(projectId);
+            return cachedProjectProtocolMap.get(projectId);
         } catch (IOException ex) {
             log.warn(
                     "Cannot retrieve Protocols for project {} : {}, Using cached values.", projectId, ex);
-            return cachedProtocolMap.getCache().get(projectId);
+            return cachedProjectProtocolMap.getCache().get(projectId);
         }
     }
 
