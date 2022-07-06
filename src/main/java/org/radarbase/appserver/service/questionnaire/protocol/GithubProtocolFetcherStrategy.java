@@ -33,19 +33,29 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+import io.swagger.v3.core.util.Json;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.dto.protocol.GithubContent;
 import org.radarbase.appserver.dto.protocol.Protocol;
+import org.radarbase.appserver.dto.protocol.ProtocolCacheEntry;
+import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -53,6 +63,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
+    private final transient UserRepository userRepository;
 
     private static final String GITHUB_API_URI = "https://api.github.com/repos/";
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
@@ -73,8 +84,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
             @Value("${radar.questionnaire.protocol.github.repo.path}") String protocolRepo,
             @Value("${radar.questionnaire.protocol.github.file.name}") String protocolFileName,
             @Value("${radar.questionnaire.protocol.github.branch}") String protocolBranch,
-            ObjectMapper objectMapper) {
-
+            ObjectMapper objectMapper,
+            UserRepository userRepository) {
         if (protocolRepo == null
                 || protocolRepo.isEmpty()
                 || protocolFileName == null
@@ -89,6 +100,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
                 new CachedMap<>(this::getProtocolDirectories, Duration.ofHours(3), Duration.ofHours(4));
         this.objectMapper = objectMapper;
         client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        this.userRepository = userRepository;
     }
 
     private static boolean isSuccessfulResponse(HttpResponse response) {
@@ -98,7 +110,9 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     @Override
     public synchronized Map<String, Protocol> fetchProtocols() throws IOException {
-        final Map<String, Protocol> projectProtocolMap = new HashMap<>();
+        Map<String, Protocol> subjectProtocolMap = new HashMap<>();
+        List<User> users = this.userRepository.findAll();
+
         Map<String, URI> protocolUriMap;
         try {
             protocolUriMap = projectProtocolUriMap.get();
@@ -108,34 +122,58 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         }
 
         if (protocolUriMap == null) {
-            return projectProtocolMap;
+            return subjectProtocolMap;
         }
-        try {
-            for (Map.Entry<String, URI> entry : protocolUriMap.entrySet()) {
-                HttpResponse responsep =
-                        client.send(getRequest(entry.getValue()), HttpResponse.BodyHandlers.ofString());
-                if (isSuccessfulResponse(responsep)) {
-                    for (JsonNode jsonNode : getArrayNode(responsep.body().toString())) {
-                        if (jsonNode.get("name").asText().equals(this.protocolFileName)) {
-                            projectProtocolMap.put(
-                                    entry.getKey(), getProtocolFromUrl(jsonNode.get("download_url").asText()));
-                        }
+
+        Set<String> protocolPaths = protocolUriMap.keySet();
+        subjectProtocolMap = users.parallelStream()
+                .map(u -> {
+                    String projectId = u.getProject().getProjectId();
+                    Map<String, String> attributes = u.getAttributes();
+                    Map<String, String> pathMap = protocolPaths.stream().filter(k -> k.contains(projectId))
+                            .map(p -> {
+                                Map<String, String> path = this.convertPathToAttributeMap(p, projectId);
+                                return Maps.difference(attributes, path).entriesInCommon();
+                            }).max(Comparator.comparingInt(Map::size)).get();
+                    try {
+                        URI uri = projectProtocolUriMap.get(this.convertAttributeMapToPath(pathMap, projectId));
+                        Protocol protocol = getProtocolFromUrl(uri);
+                        return new ProtocolCacheEntry(u.getSubjectId(), protocol);
+                    } catch (IOException | InterruptedException | ResponseStatusException e) {
+                        return new ProtocolCacheEntry(u.getSubjectId(), null);
                     }
-                } else {
-                    log.warn("Failed to retrieve protocols from github.");
-                    throw new ResponseStatusException(
-                            HttpStatus.valueOf(responsep.statusCode()),
-                            "Failed to retrieve protocols from github.");
-                }
-            }
-        } catch (InterruptedException | ResponseStatusException e) {
-            throw new IOException("Failed to get Protocols from Github", e);
-        }
+                }).collect(Collectors.toMap(p -> p.getSubjectId(), p -> p.getProtocol()));
 
         log.info("Refreshed Protocols from Github");
-
-        return projectProtocolMap;
+        return subjectProtocolMap;
     }
+
+    public Map<String, String> convertPathToAttributeMap(String path, String projectId) {
+        String[] parts = path.split("/");
+        String key = "";
+        Map<String, String> pathMap = new HashMap<>();
+
+        for (String t : parts) {
+            if (t.equals(projectId) || t.equals(this.protocolFileName)) continue;
+            if (key.isEmpty()) key = t;
+            else {
+                pathMap.put(key, t);
+                key = "";
+            }
+        }
+        return pathMap;
+    }
+
+    public String convertAttributeMapToPath(Map<String, String> pathMap, String projectId) {
+        StringBuilder path = new StringBuilder().append(projectId).append("/");
+        for (String key : pathMap.keySet()) {
+            String value = pathMap.get(key);
+            path.append(key).append("/").append(value).append("/");
+        }
+        path.append(this.protocolFileName);
+        return path.toString();
+    }
+
 
     @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     @Synchronized
@@ -147,19 +185,27 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
             HttpResponse response =
                     client.send(
                             getRequest(
-                                    URI.create(GITHUB_API_URI + protocolRepo + "/contents?ref=" + protocolBranch)),
+                                    URI.create(GITHUB_API_URI + protocolRepo + "/branches/" + protocolBranch)),
                             HttpResponse.BodyHandlers.ofString());
-
             if (isSuccessfulResponse(response)) {
-                for (JsonNode jsonNode : getArrayNode(response.body().toString())) {
-                    String type = jsonNode.get("type").asText();
-                    if ("dir".equals(type)) {
-                        protocolUriMap.put(
-                                jsonNode.get("name").asText(),
-                                URI.create(jsonNode.get("_links").get("self").asText()));
-                    }
-                }
-            } else {
+                ObjectNode result = getArrayNode(response.body().toString());
+                String treeSha = result.findValue("tree").findValue("sha").asText();
+                URI treeUri = URI.create(GITHUB_API_URI + protocolRepo + "/git/trees/" + treeSha + "?recursive=true");
+                HttpResponse treeResponse = client.send(getRequest(treeUri), HttpResponse.BodyHandlers.ofString());
+
+               if (isSuccessfulResponse(treeResponse)) {
+                   JsonNode tree = getArrayNode(treeResponse.body().toString()).get("tree");
+                   for (JsonNode jsonNode : tree) {
+                      String path = jsonNode.get("path").asText();
+                      if (path.contains(this.protocolFileName)) {
+                          protocolUriMap.put(
+                                  path,
+                                  URI.create(jsonNode.get("url").asText()));
+                   }
+                   }
+               }
+            }
+          else {
                 log.warn("Failed to retrieve protocols URIs from github: {}.", response);
                 throw new ResponseStatusException(
                         HttpStatus.valueOf(response.statusCode()),
@@ -172,15 +218,15 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         return protocolUriMap;
     }
 
-    private Protocol getProtocolFromUrl(String url) throws IOException, InterruptedException {
-        URI uri = URI.create(url);
+    private Protocol getProtocolFromUrl(URI uri) throws IOException, InterruptedException {
         HttpResponse response = client.send(getRequest(uri), HttpResponse.BodyHandlers.ofString());
         if (isSuccessfulResponse(response)) {
             final ObjectMapper mapper =
                     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return mapper.readValue(uri.toURL(), Protocol.class);
+            GithubContent content = mapper.readValue(uri.toURL(), GithubContent.class);
+            return mapper.readValue(content.getContent(), Protocol.class);
         } else {
-            log.error("Error getting Protocol from URL {} : {}", url, response);
+            log.error("Error getting Protocol from URL {} : {}", uri.toString(), response);
             throw new ResponseStatusException(
                     HttpStatus.valueOf(response.statusCode()), "Protocol could not be retrieved");
         }
@@ -189,18 +235,15 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private HttpRequest getRequest(URI uri) {
         HttpRequest.Builder request = HttpRequest.newBuilder(uri)
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
+                .header("Authorization", "Bearer " + this.githubToken)
                 .GET()
                 .timeout(Duration.ofSeconds(10));
-
-        if (githubToken != null && !githubToken.isEmpty()) {
-            request.header("Authorization", "Bearer " + githubToken);
-        }
 
         return request.build();
     }
 
     @SneakyThrows
-    private ArrayNode getArrayNode(String json) {
+    private ObjectNode getArrayNode(String json) {
         try (JsonParser parserProtocol = objectMapper.getFactory().createParser(json)) {
             return objectMapper.readTree(parserProtocol);
           }

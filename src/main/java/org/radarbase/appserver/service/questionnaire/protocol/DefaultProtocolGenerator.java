@@ -23,13 +23,17 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Protocol;
+import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,6 +42,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class DefaultProtocolGenerator implements ProtocolGenerator {
 
     // Keeps a cache of Protocol for each project
@@ -51,6 +56,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
     @Autowired
     public DefaultProtocolGenerator(ProtocolFetcherStrategy protocolFetcherStrategy) {
         this.protocolFetcherStrategy = protocolFetcherStrategy;
+        this.init();
     }
 
     @Override
@@ -58,7 +64,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
         cachedProtocolMap =
                 new CachedMap<>(
                         protocolFetcherStrategy::fetchProtocols, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
-        log.debug("initialized Github Protocol generator");
+                        log.debug("initialized Github Protocol generator");
     }
 
     @Override
@@ -80,6 +86,17 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
             log.warn(
                     "Cannot retrieve Protocols for project {} : {}, Using cached values.", projectId, ex);
             return cachedProtocolMap.getCache().get(projectId);
+        }
+    }
+
+    @Override
+    public Protocol getProtocolForSubject(String subjectId) {
+        try {
+            return cachedProtocolMap.get(subjectId);
+        } catch (IOException ex) {
+            log.warn(
+                    "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex);
+            return cachedProtocolMap.getCache().get(subjectId);
         }
     }
 }

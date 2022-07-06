@@ -19,23 +19,24 @@
  *
  */
 
-package org.radarbase.appserver.service.questionnaire.protocol;
+package org.radarbase.appserver.dto.protocol;
 
-import java.util.List;
-import java.util.Map;
+import lombok.Data;
 
-import org.radarbase.appserver.dto.protocol.Protocol;
-import org.radarbase.appserver.entity.User;
-import org.springframework.stereotype.Service;
+import java.time.Instant;
 
-@Service
-public interface ProtocolGenerator {
+/**
+ * @author yatharthranjan
+ */
+@Data
+public class ProtocolCacheEntry {
 
-    void init();
+    private String subjectId;
 
-    Map<String, Protocol> getAllProtocols();
+    private Protocol protocol;
 
-    Protocol getProtocol(String projectId);
-
-    Protocol getProtocolForSubject(String subjectId);
+    public ProtocolCacheEntry(String subjectId, Protocol protocol) {
+        this.subjectId = subjectId;
+        this.protocol = protocol;
+    }
 }

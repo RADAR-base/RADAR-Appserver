@@ -19,23 +19,34 @@
  *
  */
 
-package org.radarbase.appserver.service.questionnaire.protocol;
+package org.radarbase.appserver.dto.protocol;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.Data;
+import org.radarbase.appserver.util.Base64Deserializer;
 
 import java.util.List;
-import java.util.Map;
 
-import org.radarbase.appserver.dto.protocol.Protocol;
-import org.radarbase.appserver.entity.User;
-import org.springframework.stereotype.Service;
+/**
+ * Data Transfer object (DTO) for Protocol. A project may represent a Protcol for scheduling
+ * questionnaires.
+ *
+ * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
+ * @author yatharthranjan
+ */
+@Data
+public class GithubContent {
 
-@Service
-public interface ProtocolGenerator {
+  @JsonDeserialize(using = Base64Deserializer.class)
+  private String content;
 
-    void init();
+  private String sha;
 
-    Map<String, Protocol> getAllProtocols();
+  private String size;
 
-    Protocol getProtocol(String projectId);
+  private String url;
 
-    Protocol getProtocolForSubject(String subjectId);
+  private String node_id;
+
+  private String encoding;
 }
