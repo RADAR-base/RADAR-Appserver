@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1554740802022-05
+      author: pauline
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: attributesMapPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: key
+                  type: VARCHAR(255)
+              - column:
+                  name: value
+                  type: VARCHAR(12500)
+              - column:
+                  name: user_id
+                  type: BIGINT
+            tableName: attributes_map
+  - changeSet:
+      id: 154351162183-06
+      author: pauline
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: attributes_map
+            constraintName: FK65c9nnjs3q8237gfs03mvcd
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true

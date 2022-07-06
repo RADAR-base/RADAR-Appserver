@@ -25,7 +25,7 @@ public interface ScheduleGeneratorService {
 
 
     default Schedule generateScheduleForUser(User user, ProtocolGenerator protocolGenerator) {
-        Protocol protocol = protocolGenerator.getProtocol(user.getProject().getProjectId());
+        Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
         Schedule schedule = new Schedule(user);
         List<Assessment> assessments = protocol.getProtocols();
 

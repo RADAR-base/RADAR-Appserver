@@ -72,7 +72,6 @@ public class QuestionnaireScheduleService {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
-        this.protocolGenerator.init();
         this.protocolGenerator.getAllProtocols();
         subjectScheduleMap =
                 new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));

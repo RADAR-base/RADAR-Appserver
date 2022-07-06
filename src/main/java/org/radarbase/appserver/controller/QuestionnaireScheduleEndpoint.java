@@ -79,9 +79,13 @@ public class QuestionnaireScheduleEndpoint {
     public List<Task> getScheduleUsingProjectIdAndSubjectId(
             @Valid @PathVariable String projectId,
             @Valid @PathVariable String subjectId,
-            @RequestParam(required = false, defaultValue = "all") AssessmentType type,
+            @RequestParam(required = false, defaultValue = "all") String type,
             @RequestParam(required = false, defaultValue = "") String search) {
-        return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, type, search);
+        AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
+        if (assessmentType != AssessmentType.ALL) {
+            return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, type, search);
+        }
+        return this.scheduleService.getTasksUsingProjectIdAndSubjectId(subjectId);
     }
 
     @DeleteMapping(
