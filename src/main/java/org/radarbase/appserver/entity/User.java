@@ -41,7 +41,6 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -59,7 +58,6 @@ import org.radarbase.appserver.dto.fcm.FcmUserDto;
                 @UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})
         })
 @Entity
-@Getter
 @ToString
 public class User extends AuditModel implements Serializable {
 
@@ -100,6 +98,38 @@ public class User extends AuditModel implements Serializable {
     @Column(name = "language")
     private String language;
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getSubjectId() {
+        return subjectId;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public Instant getEnrolmentDate() {
+        return enrolmentDate;
+    }
+
+    public UserMetrics getUsermetrics() {
+        return usermetrics;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
     public User setSubjectId(String subjectId) {
         this.subjectId = subjectId;
         return this;
@@ -120,7 +150,7 @@ public class User extends AuditModel implements Serializable {
         return this;
     }
 
-    public User setUserMetrics(UserMetrics userMetrics) {
+    public User setUsermetrics(UserMetrics userMetrics) {
         this.usermetrics = userMetrics;
         return this;
     }

@@ -37,7 +37,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 /** @author yatharthranjan */
-@Getter
 @ToString
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -117,12 +116,132 @@ public class FcmNotificationDto implements Serializable {
   @DateTimeFormat(iso = ISO.DATE_TIME)
   private Instant updatedAt;
 
+  public Long getId() {
+    return id;
+  }
+
+  public Instant getScheduledTime() {
+    return scheduledTime;
+  }
+
+  public boolean isDelivered() {
+    return delivered;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public String getBody() {
+    return body;
+  }
+
+  public int getTtlSeconds() {
+    return ttlSeconds;
+  }
+
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  public String getFcmMessageId() {
+    return fcmMessageId;
+  }
+
+  public String getFcmTopic() {
+    return fcmTopic;
+  }
+
+  public String getFcmCondition() {
+    return fcmCondition;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public String getAppPackage() {
+    return appPackage;
+  }
+
+  public String getSourceType() {
+    return sourceType;
+  }
+
+  public Map<String, String> getAdditionalData() {
+    return additionalData;
+  }
+
+  public String getPriority() {
+    return priority;
+  }
+
+  public String getSound() {
+    return sound;
+  }
+
+  public String getBadge() {
+    return badge;
+  }
+
+  public String getSubtitle() {
+    return subtitle;
+  }
+
+  public String getIcon() {
+    return icon;
+  }
+
+  public String getColor() {
+    return color;
+  }
+
+  public String getBodyLocKey() {
+    return bodyLocKey;
+  }
+
+  public String getBodyLocArgs() {
+    return bodyLocArgs;
+  }
+
+  public String getTitleLocKey() {
+    return titleLocKey;
+  }
+
+  public String getTitleLocArgs() {
+    return titleLocArgs;
+  }
+
+  public String getAndroidChannelId() {
+    return androidChannelId;
+  }
+
+  public String getTag() {
+    return tag;
+  }
+
+  public String getClickAction() {
+    return clickAction;
+  }
+
+  public boolean isMutableContent() {
+    return mutableContent;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
   public FcmNotificationDto(Notification notificationEntity) {
     this.id = notificationEntity.getId();
     this.scheduledTime = notificationEntity.getScheduledTime();
     this.title = notificationEntity.getTitle();
     this.body = notificationEntity.getBody();
-    this.delivered = notificationEntity.isDelivered();
+    this.delivered = notificationEntity.getDelivered();
     this.fcmMessageId = notificationEntity.getFcmMessageId();
     this.sourceId = notificationEntity.getSourceId();
     this.type = notificationEntity.getType();
@@ -152,7 +271,7 @@ public class FcmNotificationDto implements Serializable {
     this.androidChannelId = notificationEntity.getAndroidChannelId();
     this.tag = notificationEntity.getTag();
     this.clickAction = notificationEntity.getClickAction();
-    this.mutableContent = notificationEntity.isMutableContent();
+    this.mutableContent = notificationEntity.getMutableContent();
   }
 
   public FcmNotificationDto setCreatedAt(Instant createdAt) {

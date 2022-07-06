@@ -63,7 +63,7 @@ class UserServiceTest {
     @MockBean
     private transient ProjectRepository projectRepository;
 
-    private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
+    private final transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
     @BeforeEach
     void setUp() {
@@ -113,7 +113,7 @@ class UserServiceTest {
                         .setEnrolmentDate(enrolmentDate)
                         .setLanguage("es")
                         .setTimezone("Europe/Bucharest")
-                        .setUserMetrics(
+                        .setUsermetrics(
                                 new UserMetrics().setLastDelivered(enrolmentDate).setLastOpened(enrolmentDate));
 
         Mockito.when(userRepository.save(userUpdated)).thenReturn(userUpdated.setId(1L));

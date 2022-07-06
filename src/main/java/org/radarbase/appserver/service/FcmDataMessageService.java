@@ -97,7 +97,9 @@ public class FcmDataMessageService implements DataMessageService {
     @Transactional(readOnly = true)
     public FcmDataMessageDto getDataMessageById(long id) {
         Optional<DataMessage> dataMessage = dataMessageRepository.findById(id);
-        return dataMessageConverter.entityToDto(dataMessage.orElseGet(DataMessage::new));
+        return dataMessageConverter.entityToDto(dataMessage.orElseThrow(() -> {
+            throw new NotFoundException("Data Message with id " + id + "not found");
+        }));
     }
 
     @Transactional(readOnly = true)
@@ -143,7 +145,8 @@ public class FcmDataMessageService implements DataMessageService {
         if (user.isEmpty()) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        DataMessage dataMessage = new DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user.get()).build();
+        DataMessage dataMessage = dataMessageConverter.dtoToEntity(dataMessageDto);
+        dataMessage.setUser(user.get());
 
         List<DataMessage> dataMessages = this.dataMessageRepository.findByUserId(user.get().getId());
         return dataMessages.contains(dataMessage);
@@ -173,9 +176,10 @@ public class FcmDataMessageService implements DataMessageService {
                         dataMessageDto.getScheduledTime(),
                         dataMessageDto.getTtlSeconds())) {
 
-            DataMessage dataMessageSaved =
-                    this.dataMessageRepository.saveAndFlush(
-                            new DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build());
+            DataMessage dataMessage = dataMessageConverter.dtoToEntity(dataMessageDto);
+            dataMessage.setUser(user);
+
+            DataMessage dataMessageSaved = this.dataMessageRepository.saveAndFlush(dataMessage);
             user.getUsermetrics().setLastOpened(Instant.now());
             this.userRepository.save(user);
             addDataMessageStateEvent(
@@ -190,7 +194,7 @@ public class FcmDataMessageService implements DataMessageService {
 
     private void addDataMessageStateEvent(
             DataMessage dataMessage, MessageState state, Instant time) {
-        if (dataMessageStateEventPublisher != null) {
+        if (dataMessageStateEventPublisher!=null) {
             DataMessageStateEventDto dataMessageStateEvent =
                     new DataMessageStateEventDto(this, dataMessage, state, null, time);
             dataMessageStateEventPublisher.publishEvent(dataMessageStateEvent);
@@ -201,7 +205,7 @@ public class FcmDataMessageService implements DataMessageService {
     public FcmDataMessageDto updateDataMessage(
             FcmDataMessageDto dataMessageDto, String subjectId, String projectId) {
 
-        if (dataMessageDto.getId() == null) {
+        if (dataMessageDto.getId()==null) {
             throw new InvalidNotificationDetailsException(
                     "ID must be supplied for updating the data message");
         }
@@ -215,17 +219,16 @@ public class FcmDataMessageService implements DataMessageService {
             throw new NotFoundException("Data message does not exist. Please create first");
         }
 
-        DataMessage newDataMessage = new DataMessage.DataMessageBuilder(dataMessage.get())
-                .scheduledTime(dataMessageDto.getScheduledTime())
-                .sourceId(dataMessageDto.getSourceId())
-                .ttlSeconds(dataMessageDto.getTtlSeconds())
-                .user(user)
-                .fcmMessageId(String.valueOf(dataMessageDto.hashCode()))
-                .build();
+        DataMessage newDataMessage = dataMessage.get().copy(dataMessage.get().getId(), user);
+        newDataMessage.setSourceId(dataMessageDto.getSourceId());
+        newDataMessage.setScheduledTime(dataMessageDto.getScheduledTime());
+        newDataMessage.setTtlSeconds(dataMessageDto.getTtlSeconds());
+        newDataMessage.setFcmMessageId(String.valueOf(dataMessageDto.hashCode()));
+
         DataMessage dataMessageSaved = this.dataMessageRepository.saveAndFlush(newDataMessage);
         addDataMessageStateEvent(
                 dataMessageSaved, MessageState.UPDATED, dataMessageSaved.getUpdatedAt().toInstant());
-        if (!dataMessage.get().isDelivered()) {
+        if (!dataMessage.get().getDelivered()) {
             this.schedulerService.updateScheduled(dataMessageSaved);
         }
         return dataMessageConverter.entityToDto(dataMessageSaved);
@@ -249,7 +252,8 @@ public class FcmDataMessageService implements DataMessageService {
         dataMessage.ifPresentOrElse(
                 (DataMessage d) -> {
 
-                    DataMessage newDataMessage = new DataMessage.DataMessageBuilder(d).delivered(isDelivered).build();
+                    DataMessage newDataMessage = d.copy();
+                    newDataMessage.setDelivered(isDelivered);
                     this.dataMessageRepository.save(newDataMessage);
                 },
                 () -> {
@@ -294,8 +298,8 @@ public class FcmDataMessageService implements DataMessageService {
         List<DataMessage> newDataMessages =
                 dataMessageDtos.getDataMessages().stream()
                         .map(dataMessageConverter::dtoToEntity)
-                        .map(d -> new DataMessage.DataMessageBuilder(d).user(user).build())
-                        .filter(dataMessage -> !dataMessages.contains(dataMessage))
+                        .map(d -> d.copy(d.getId(), user))
+                        .filter((DataMessage dataMessage) -> !dataMessages.contains(dataMessage))
                         .collect(Collectors.toList());
 
         List<DataMessage> savedDataMessages = this.dataMessageRepository.saveAll(newDataMessages);

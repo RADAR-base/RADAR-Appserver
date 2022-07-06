@@ -31,16 +31,15 @@ public class SimpleQuartzNamingStrategy implements QuartzNamingStrategy {
 
   @Override
   public String getTriggerName(String userName, String messageId) {
-    return new StringBuilder(TRIGGER_PREFIX)
-        .append(userName)
-        .append('-')
-        .append(messageId)
-        .toString();
+    return TRIGGER_PREFIX +
+            userName +
+            '-' +
+            messageId;
   }
 
   @Override
   public String getJobKeyName(String userName, String messageId) {
-    return new StringBuilder(JOB_PREFIX).append(userName).append('-').append(messageId).toString();
+    return JOB_PREFIX + userName + '-' + messageId;
   }
 
   @Override
