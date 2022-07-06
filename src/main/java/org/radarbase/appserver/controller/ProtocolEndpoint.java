@@ -39,7 +39,6 @@ public class ProtocolEndpoint {
   @Autowired
   public ProtocolEndpoint(ProtocolGenerator protocolGenerator) {
     this.protocolGenerator = protocolGenerator;
-    this.protocolGenerator.init();
   }
 
   @GetMapping("/" + PathsUtil.PROTOCOL_PATH)

@@ -56,12 +56,10 @@ public class QuestionnaireScheduleService {
     private transient QuestionnaireScheduleGeneratorService scheduleGeneratorService;
 
     @Autowired
-
     public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskRepository taskRepository) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
-        this.protocolGenerator.init();
         this.protocolGenerator.getAllProtocols();
         subjectScheduleMap =
                 new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));

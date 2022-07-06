@@ -77,9 +77,10 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
     public List<Task> getScheduleUsingSubjectId(
             @Valid @PathVariable String subjectId,
-            @RequestParam(required = false, defaultValue = "all") AssessmentType type) {
-        if (type != AssessmentType.ALL) {
-            return this.scheduleService.getTasksByTypeUsingSubjectId(subjectId, type);
+            @RequestParam(required = false, defaultValue = "all") String type) {
+        AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
+        if (assessmentType != AssessmentType.ALL) {
+            return this.scheduleService.getTasksByTypeUsingSubjectId(subjectId, assessmentType);
         }
         return this.scheduleService.getTasksUsingSubjectId(subjectId);
 
