@@ -24,6 +24,7 @@ package org.radarbase.appserver.repository;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -34,13 +35,15 @@ import java.util.Optional;
  * @author yatharthranjan
  */
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
 
     List<Task> findByUserId(Long userId);
 
     List<Task> findByUserIdAndType(Long userId, AssessmentType type);
 
     void deleteByUserId(Long userId);
+
+    void deleteByUserIdAndType(Long userId, AssessmentType type);
 
     boolean existsByIdAndUserId(Long id, Long userId);
 
