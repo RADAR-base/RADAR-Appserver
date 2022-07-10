@@ -61,7 +61,6 @@ public class QuestionnaireScheduleEndpoint {
             @Valid @PathVariable String subjectId)
             throws URISyntaxException {
         Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, subjectId);
-        this.scheduleService.saveSchedule(schedule, schedule.getUser());
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
     }

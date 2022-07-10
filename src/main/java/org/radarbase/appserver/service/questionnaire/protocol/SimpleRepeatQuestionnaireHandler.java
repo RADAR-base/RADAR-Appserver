@@ -72,7 +72,7 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
                     return t.stream();
                 }).collect(Collectors.toList());
 
-//        List<Task> savedTasks = this.taskService.addTasks(tasks, user);
+        List<Task> savedTasks = this.taskService.addTasks(tasks, user);
 
         return tasks;
     }

@@ -143,25 +143,12 @@ public class QuestionnaireScheduleService {
         scheduleMap = users.parallelStream()
                 .map(u -> {
                     Schedule schedule = this.generateScheduleForUser(u);
-                    this.saveSchedule(schedule, u);
                     List<Task> tasks = this.getScheduleForUser(u);
                     return new ScheduleCacheEntry(u.getSubjectId(), tasks);
                 }).collect(Collectors.toMap(p -> p.getId(), p-> p.getTasks()));
 
         // Check if protocol hash has changed. only then update the map
         return scheduleMap;
-    }
-
-    public List<Task> saveSchedule(Schedule schedule, User user) {
-        List<Task> tasks = schedule.getAssessmentSchedules().parallelStream().flatMap(t->
-               t.hasTasks() ? t.getTasks().stream() :  Stream.empty())
-                .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
-                .collect(Collectors.toList());
-
-        List<Task> saved = this.taskRepository.saveAll(tasks);
-        this.taskRepository.flush();
-
-        return saved;
     }
 
     public @NonNull Map<String, List<Task>> getAllSchedules() {

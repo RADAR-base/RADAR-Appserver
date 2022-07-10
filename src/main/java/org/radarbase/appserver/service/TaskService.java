@@ -135,10 +135,4 @@ public class TaskService {
         return saved;
     }
 
-    public List<Task> saveSchedule(Schedule schedule) {
-        List<Task> tasks = schedule.getAssessmentSchedules().stream().map(s-> s.getTasks()).flatMap(Collection::stream).collect(Collectors.toList());
-
-        this.addTasks(tasks, schedule.getUser());
-        return tasks;
-    }
 }
