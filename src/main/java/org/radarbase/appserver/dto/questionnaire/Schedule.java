@@ -41,6 +41,13 @@ public class Schedule {
 
     }
 
+    public Schedule(User user, List<AssessmentSchedule> assessmentSchedules) {
+        String timezone = "Europe/London";
+        this.user = user;
+        this.user.setTimezone(timezone);
+        this.assessmentSchedules = assessmentSchedules;
+    }
+
     public Schedule addAssessmentSchedule(AssessmentSchedule assessmentSchedule) {
         this.assessmentSchedules.add(assessmentSchedule);
         return this;

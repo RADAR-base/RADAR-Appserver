@@ -47,10 +47,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.GithubContent;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.protocol.ProtocolCacheEntry;
+import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,7 +134,10 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
 
         Set<String> protocolPaths = protocolUriMap.keySet();
         subjectProtocolMap = users.parallelStream()
-                .map(u -> this.fetchProtocolForSingleUser(u, u.getProject().getProjectId(), protocolPaths))
+                .map(u -> {
+                    ProtocolCacheEntry entry = this.fetchProtocolForSingleUser(u, u.getProject().getProjectId(), protocolPaths);
+                    return entry;
+                })
                 .collect(Collectors.toMap(p -> p.getId(), p -> p.getProtocol()));
 
         log.info("Refreshed Protocols from Github");

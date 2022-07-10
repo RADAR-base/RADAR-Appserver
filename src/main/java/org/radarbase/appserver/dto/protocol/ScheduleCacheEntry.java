@@ -19,26 +19,26 @@
  *
  */
 
-package org.radarbase.appserver.dto.questionnaire;
+package org.radarbase.appserver.dto.protocol;
 
 import lombok.Data;
-import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 
-import java.time.Instant;
 import java.util.List;
 
+/**
+ * @author yatharthranjan
+ */
 @Data
-public class AssessmentSchedule {
-    private String name;
+public class ScheduleCacheEntry {
 
-    private Instant referenceTimestamp;
-
-    private List<Instant> referenceTimestamps;
+    private String id;
 
     private List<Task> tasks;
 
-    public boolean hasTasks() {
-        return tasks != null && !tasks.isEmpty();
+    public ScheduleCacheEntry(String id, List<Task> tasks) {
+        this.id = id;
+        this.tasks = tasks;
     }
 }

@@ -22,6 +22,7 @@
 package org.radarbase.appserver.service;
 
 import org.radarbase.appserver.dto.protocol.AssessmentType;
+import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.AlreadyExistsException;
@@ -29,10 +30,12 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,6 +96,20 @@ public class TaskService {
         return tasks;
     }
 
+    public List<Task> getTasksByUser(User user) {
+        return taskRepository.findByUserId(user.getId());
+    }
+
+    @Transactional
+    public List<Task> getTasksBySpecification(Specification<Task> spec) {
+        return taskRepository.findAll(spec);
+    }
+
+    @Transactional
+    public void deleteTasksBySpecification(Specification<Task> spec) {
+        List<Task> tasks = taskRepository.findAll(spec);
+        taskRepository.deleteAll(tasks);
+    }
 
     @Transactional
     public Task addTask(Task task) {
@@ -114,6 +131,14 @@ public class TaskService {
 
         List<Task> saved = this.taskRepository.saveAll(newTasks);
         this.taskRepository.flush();
+
         return saved;
+    }
+
+    public List<Task> saveSchedule(Schedule schedule) {
+        List<Task> tasks = schedule.getAssessmentSchedules().stream().map(s-> s.getTasks()).flatMap(Collection::stream).collect(Collectors.toList());
+
+        this.addTasks(tasks, schedule.getUser());
+        return tasks;
     }
 }

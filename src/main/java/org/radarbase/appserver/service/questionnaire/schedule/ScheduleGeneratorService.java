@@ -26,16 +26,12 @@ public interface ScheduleGeneratorService {
 
     default Schedule generateScheduleForUser(User user, ProtocolGenerator protocolGenerator) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
-        Schedule schedule = new Schedule(user);
         List<Assessment> assessments = protocol.getProtocols();
 
-        List<AssessmentSchedule> assessmentSchedules = assessments.parallelStream().map(assessment -> {
-            AssessmentSchedule assessmentSchedule = this.generateSingleAssessmentSchedule(assessment, user);
-            return assessmentSchedule;
-        }).collect(Collectors.toList());
+        List<AssessmentSchedule> assessmentSchedules = assessments.parallelStream().map(assessment -> 
+            this.generateSingleAssessmentSchedule(assessment, user)).collect(Collectors.toList());
 
-        schedule.addAssessmentSchedules(assessmentSchedules);
-        return schedule;
+        return new Schedule(user, assessmentSchedules);
     }
 
     default AssessmentSchedule generateSingleAssessmentSchedule(Assessment assessment, User user) {

@@ -48,7 +48,7 @@ public class Task extends AuditModel implements Serializable {
     private static final long serialVersionUID = 90L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotNull
@@ -61,6 +61,7 @@ public class Task extends AuditModel implements Serializable {
     private String name;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private AssessmentType type;
 
     private int estimatedCompletionTime;

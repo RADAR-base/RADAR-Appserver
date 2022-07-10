@@ -21,8 +21,10 @@
 
 package org.radarbase.appserver.service;
 
+import lombok.NonNull;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
+import org.radarbase.appserver.dto.protocol.ScheduleCacheEntry;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Project;
@@ -43,12 +45,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class QuestionnaireScheduleService {
@@ -56,7 +57,7 @@ public class QuestionnaireScheduleService {
     private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
     private transient ProtocolGenerator protocolGenerator;
 
-    private transient CachedMap<String, Schedule> subjectScheduleMap;
+    private transient CachedMap<String, List<Task>> subjectScheduleMap;
 
     private final transient UserRepository userRepository;
 
@@ -73,15 +74,14 @@ public class QuestionnaireScheduleService {
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
         this.protocolGenerator.getAllProtocols();
-        subjectScheduleMap =
-                new CachedMap<>(this::getAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
         this.scheduleGeneratorService = scheduleGeneratorService;
+        this.init();
+        this.getAllSchedules();
     }
 
-    // Use cached map of schedule of user
-    public void getProtocolForProject(String projectId) throws IOException {
-        protocolGenerator.getAllProtocols();
-        subjectScheduleMap.get();
+    public void init() {
+        subjectScheduleMap =
+                new CachedMap<>(this::generateAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
     }
 
     @Transactional
@@ -97,7 +97,7 @@ public class QuestionnaireScheduleService {
                                                                String search) {
 
         Specification<Task> spec = getSearchBuilder(projectId, subjectId, type, search).build();
-        return taskRepository.findAll(spec);
+        return this.taskRepository.findAll(spec);
 
 //        if (type != AssessmentType.ALL) {
 //            return getTasksUsingProjectIdAndSubjectId(projectId, subjectId);
@@ -119,6 +119,13 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
+    public Schedule generateScheduleForUser(User user) {
+        Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user, this.protocolGenerator);
+
+        return schedule;
+    }
+
+    @Transactional
     public Schedule generateScheduleUsingProjectIdAndSubjectIdAndAssessment(String projectId,
                                                                             String subjectId,
                                                                             Assessment assessment) {
@@ -129,10 +136,40 @@ public class QuestionnaireScheduleService {
         return schedule;
     }
 
+    public Map<String, List<Task>> generateAllSchedules() {
+        List<User> users = this.userRepository.findAll();
+        Map<String, List<Task>> scheduleMap = new HashMap<>();
 
-    public Map<String, Schedule> getAllSchedules() {
+        scheduleMap = users.parallelStream()
+                .map(u -> {
+                    Schedule schedule = this.generateScheduleForUser(u);
+                    this.saveSchedule(schedule, u);
+                    List<Task> tasks = this.getScheduleForUser(u);
+                    return new ScheduleCacheEntry(u.getSubjectId(), tasks);
+                }).collect(Collectors.toMap(p -> p.getId(), p-> p.getTasks()));
+
         // Check if protocol hash has changed. only then update the map
-        return Collections.emptyMap();
+        return scheduleMap;
+    }
+
+    public List<Task> saveSchedule(Schedule schedule, User user) {
+        List<Task> tasks = schedule.getAssessmentSchedules().parallelStream().flatMap(t->
+               t.hasTasks() ? t.getTasks().stream() :  Stream.empty())
+                .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
+                .collect(Collectors.toList());
+
+        List<Task> saved = this.taskRepository.saveAll(tasks);
+        this.taskRepository.flush();
+
+        return saved;
+    }
+
+    public @NonNull Map<String, List<Task>> getAllSchedules() {
+        try {
+            return subjectScheduleMap.get();
+        } catch (IOException ex) {
+            return subjectScheduleMap.getCache();
+        }
     }
 
     @Transactional
@@ -152,11 +189,6 @@ public class QuestionnaireScheduleService {
 //        } else {
 //            this.taskRepository.deleteByUserIdAndType(user.getId(), type);
 //        }
-    }
-
-    @Transactional
-    public void removeScheduleForUser(User user) {
-        this.taskRepository.deleteByUserId(user.getId());
     }
 
     public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {

@@ -41,7 +41,7 @@ public class TaskGeneratorService {
                 .estimatedCompletionTime(assessment.getEstimatedCompletionTime())
                 .completionWindow(completionWindow)
                 .order(assessment.getOrder())
-                .timestamp(timestamp.truncatedTo(ChronoUnit.MILLIS))
+                .timestamp(timestamp)
                 .showInCalendar(assessment.getShowInCalendar())
                 .isDemo(assessment.getIsDemo())
                 .nQuestions(assessment.getNQuestions())
