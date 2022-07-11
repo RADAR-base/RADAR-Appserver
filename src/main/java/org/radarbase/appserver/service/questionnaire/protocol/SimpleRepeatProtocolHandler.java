@@ -53,7 +53,7 @@ public class SimpleRepeatProtocolHandler implements ProtocolHandler {
         TimePeriod simpleRepeatProtocol = new TimePeriod(repeatProtocol.getUnit(), repeatProtocol.getAmount());
         Instant referenceTime = startTime;
         while (referenceTime.isBefore(defaultEndTime)) {
-            referenceTimestamps.add(timeCalculatorService.setDateTimeToMidnight(referenceTime, timezone));
+            referenceTimestamps.add(referenceTime);
             referenceTime = timeCalculatorService.advanceRepeat(referenceTime, simpleRepeatProtocol, timezone);
         }
         return referenceTimestamps;

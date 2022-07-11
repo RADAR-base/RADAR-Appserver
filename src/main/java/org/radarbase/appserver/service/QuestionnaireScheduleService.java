@@ -22,6 +22,7 @@
 package org.radarbase.appserver.service;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.protocol.ScheduleCacheEntry;
@@ -51,13 +52,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class QuestionnaireScheduleService {
 
     private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
     private transient ProtocolGenerator protocolGenerator;
 
-    private transient CachedMap<String, List<Task>> subjectScheduleMap;
+    private transient CachedMap<String, Schedule> subjectScheduleMap;
 
     private final transient UserRepository userRepository;
 
@@ -87,7 +89,7 @@ public class QuestionnaireScheduleService {
     @Transactional
     public List<Task> getTasksUsingProjectIdAndSubjectId(String projectId, String subjectId) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        return this.getScheduleForUser(user);
+        return this.getTasksForUser(user);
     }
 
     @Transactional
@@ -108,7 +110,7 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public List<Task> getScheduleForUser(User user) {
+    public List<Task> getTasksForUser(User user) {
         return this.taskRepository.findByUserId(user.getId());
     }
 
@@ -130,32 +132,55 @@ public class QuestionnaireScheduleService {
                                                                             String subjectId,
                                                                             Assessment assessment) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        Schedule schedule = new Schedule(user);
+
+        Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
         AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user);
         schedule.addAssessmentSchedule(a);
         return schedule;
     }
 
-    public Map<String, List<Task>> generateAllSchedules() {
+    public Map<String, Schedule> generateAllSchedules() {
         List<User> users = this.userRepository.findAll();
-        Map<String, List<Task>> scheduleMap = new HashMap<>();
+        Map<String, Schedule> scheduleMap = new HashMap<>();
 
         scheduleMap = users.parallelStream()
                 .map(u -> {
                     Schedule schedule = this.generateScheduleForUser(u);
-                    List<Task> tasks = this.getScheduleForUser(u);
-                    return new ScheduleCacheEntry(u.getSubjectId(), tasks);
-                }).collect(Collectors.toMap(p -> p.getId(), p-> p.getTasks()));
+                    return new ScheduleCacheEntry(u.getSubjectId(), schedule);
+                }).collect(Collectors.toMap(p -> p.getId(), p-> p.getSchedule()));
 
         // Check if protocol hash has changed. only then update the map
         return scheduleMap;
     }
 
-    public @NonNull Map<String, List<Task>> getAllSchedules() {
+    public @NonNull Map<String, Schedule> getAllSchedules() {
         try {
             return subjectScheduleMap.get();
         } catch (IOException ex) {
             return subjectScheduleMap.getCache();
+        }
+    }
+
+    public Schedule getScheduleForSubject(String subjectId) {
+        try {
+            return subjectScheduleMap.get(subjectId);
+        } catch (IOException ex) {
+            log.warn(
+                    "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex);
+            return subjectScheduleMap.getCache().get(subjectId);
+        } catch(NoSuchElementException ex) {
+            log.warn("Subject does not exist in map. Fetching..");
+            return forceGetScheduleForSubject(subjectId);
+        }
+    }
+
+    private @NonNull Schedule forceGetScheduleForSubject(String subjectId) {
+        try {
+            subjectScheduleMap.get(true);
+            return subjectScheduleMap.get(subjectId);
+        } catch (IOException ex) {
+            log.warn("Cannot retrieve Protocols, using cached values if available.", ex);
+            return subjectScheduleMap.getCache().get(subjectId);
         }
     }
 
