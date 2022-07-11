@@ -23,12 +23,15 @@ package org.radarbase.appserver.dto.protocol;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 /**
  * @author yatharthranjan
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AssessmentProtocol {
 
     private RepeatProtocol repeatProtocol;
@@ -43,8 +46,9 @@ public class AssessmentProtocol {
 
     private ClinicalProtocol clinicalProtocol;
 
-    public AssessmentProtocol setReferenceTimestamp(String referenceTimestamp) {
-        this.referenceTimestamp = new ReferenceTimestamp(referenceTimestamp, ReferenceTimestampType.DATETIMEUTC);
-        return this;
+    @JsonDeserialize(using = ReferenceTimestampDeserializer.class)
+    public void setReferenceTimestamp(Object responseObject) {
+        if(responseObject instanceof ReferenceTimestamp)
+            this.referenceTimestamp = (ReferenceTimestamp) responseObject;
     }
 }

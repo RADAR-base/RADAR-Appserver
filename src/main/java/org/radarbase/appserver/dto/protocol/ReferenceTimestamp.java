@@ -21,18 +21,23 @@
 
 package org.radarbase.appserver.dto.protocol;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yatharthranjan
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReferenceTimestamp {
 
+    @JsonProperty("timestamp")
     private String timestamp;
 
+    @JsonProperty("format")
     private ReferenceTimestampType format;
 
 }

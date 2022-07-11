@@ -35,10 +35,10 @@ public class ScheduleCacheEntry {
 
     private String id;
 
-    private List<Task> tasks;
+    private Schedule schedule = new Schedule();
 
-    public ScheduleCacheEntry(String id, List<Task> tasks) {
+    public ScheduleCacheEntry(String id, Schedule schedule) {
         this.id = id;
-        this.tasks = tasks;
+        this.schedule = schedule;
     }
 }

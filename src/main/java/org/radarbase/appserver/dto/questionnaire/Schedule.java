@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.radarbase.appserver.entity.User;
 
 @Data
+@NoArgsConstructor
 public class Schedule {
     private List<AssessmentSchedule> assessmentSchedules;
 

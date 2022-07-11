@@ -21,10 +21,12 @@
 
 package org.radarbase.appserver.controller;
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,9 +64,14 @@ public class QuestionnaireTriggerEndpoint {
             @PathVariable String subjectId,
             @Valid @RequestBody Assessment assessment)
             throws URISyntaxException {
-        Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectIdAndAssessment(projectId, subjectId, assessment);
-        return ResponseEntity.created(
-                new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
+        try {
+            Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectIdAndAssessment(projectId, subjectId, assessment);
+            return ResponseEntity.created(
+                    new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
+
+        } catch (URISyntaxException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
 }
