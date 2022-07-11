@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -93,6 +94,16 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
         }
     }
 
+    private @NonNull Protocol forceGetProtocolForSubject(String subjectId) {
+        try {
+            cachedProtocolMap.get(true);
+            return cachedProtocolMap.get(subjectId);
+        } catch (IOException ex) {
+            log.warn("Cannot retrieve Protocols, using cached values if available.", ex);
+            return cachedProtocolMap.getCache().get(subjectId);
+        }
+    }
+
     @Override
     public Protocol getProtocolForSubject(String subjectId) {
         try {
@@ -101,6 +112,9 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
             log.warn(
                     "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex);
             return cachedProtocolMap.getCache().get(subjectId);
+        } catch(NoSuchElementException ex) {
+            log.warn("Subject does not exist in map. Fetching..");
+            return forceGetProtocolForSubject(subjectId);
         }
     }
 }
