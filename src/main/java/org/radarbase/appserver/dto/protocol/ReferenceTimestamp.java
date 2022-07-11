@@ -21,30 +21,18 @@
 
 package org.radarbase.appserver.dto.protocol;
 
-import java.time.Instant;
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * @author yatharthranjan
  */
 @Data
-public class AssessmentProtocol {
+@AllArgsConstructor
+public class ReferenceTimestamp {
 
-    private RepeatProtocol repeatProtocol;
+    private String timestamp;
 
-    private TimePeriod reminders;
+    private ReferenceTimestampType format;
 
-    private TimePeriod completionWindow;
-
-    private RepeatQuestionnaire repeatQuestionnaire;
-
-    private ReferenceTimestamp referenceTimestamp;
-
-    private ClinicalProtocol clinicalProtocol;
-
-    public AssessmentProtocol setReferenceTimestamp(String referenceTimestamp) {
-        this.referenceTimestamp = new ReferenceTimestamp(referenceTimestamp, ReferenceTimestampType.DATETIMEUTC);
-        return this;
-    }
 }

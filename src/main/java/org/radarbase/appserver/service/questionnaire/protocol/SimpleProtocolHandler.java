@@ -22,22 +22,39 @@
 package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
-import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
+import org.radarbase.appserver.dto.protocol.ReferenceTimestamp;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.User;
 
 import java.time.Instant;
+import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class SimpleProtocolHandler implements ProtocolHandler {
+    private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
 
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
-        AssessmentProtocol assessmentProtocol = assessment.getProtocol();
-        Instant referenceTimestamp = user.getEnrolmentDate();
-        if (assessmentProtocol.getReferenceTimestamp() != null)
-            referenceTimestamp = assessmentProtocol.getReferenceTimestamp();
-        assessmentSchedule.setReferenceTimestamp(referenceTimestamp);
+        ReferenceTimestamp referenceTimestamp = assessment.getProtocol().getReferenceTimestamp();
+        TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
+        if (referenceTimestamp != null) {
+            switch (referenceTimestamp.getFormat()) {
+                case DATE:
+                case DATETIME:
+                case DATETIMEUTC:
+                    assessmentSchedule.setReferenceTimestamp(Instant.parse(referenceTimestamp.getTimestamp()));
+                    break;
+                case NOW:
+                    assessmentSchedule.setReferenceTimestamp(Instant.now());
+                    break;
+                case TODAY:
+                    assessmentSchedule.setReferenceTimestamp(timeCalculatorService.setDateTimeToMidnight(Instant.now(), timezone));
+                    break;
+            }
+        }
+        else {
+            assessmentSchedule.setReferenceTimestamp(user.getEnrolmentDate());
+        }
         assessmentSchedule.setName(assessment.getName());
         return assessmentSchedule;
     }
