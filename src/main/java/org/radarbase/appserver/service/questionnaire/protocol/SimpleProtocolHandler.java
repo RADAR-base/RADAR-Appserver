@@ -53,7 +53,7 @@ public class SimpleProtocolHandler implements ProtocolHandler {
             }
         }
         else {
-            assessmentSchedule.setReferenceTimestamp(user.getEnrolmentDate());
+            assessmentSchedule.setReferenceTimestamp(timeCalculatorService.setDateTimeToMidnight(user.getEnrolmentDate(), timezone));
         }
         assessmentSchedule.setName(assessment.getName());
         return assessmentSchedule;

@@ -3,6 +3,7 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.dto.protocol.Assessment;
+import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
@@ -13,6 +14,7 @@ import org.radarbase.appserver.service.questionnaire.notification.NotificationTy
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SimpleNotificationHandler implements ProtocolHandler {
     private transient NotificationGeneratorService notificationGeneratorService = new NotificationGeneratorService();
@@ -30,15 +32,13 @@ public class SimpleNotificationHandler implements ProtocolHandler {
     }
 
     public FcmNotifications generateNotifications(List<Task> tasks) {
-        Iterator<Task> tasksIter = tasks.iterator();
-        FcmNotifications notifications = new FcmNotifications();
-        while (tasksIter.hasNext()) {
-            Task task = tasksIter.next();
-            FcmNotificationDto defaultNotification = this.notificationGeneratorService.createNotification(task, NotificationType.NOW, task.getTimestamp());
-            if (Instant.now().isBefore(defaultNotification.getScheduledTime()))
-                notifications.addNotification(defaultNotification);
-        }
-        return notifications;
+        List<FcmNotificationDto> notifications = tasks.parallelStream()
+                .map(task ->
+                   this.notificationGeneratorService.createNotification(task, NotificationType.NOW, task.getTimestamp())
+                ).filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
+
+
+        return new FcmNotifications(notifications);
     }
 
 }
