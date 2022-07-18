@@ -37,6 +37,7 @@ import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.search.TaskSpecificationsBuilder;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
+import org.radarbase.appserver.service.questionnaire.protocol.TimeCalculatorService;
 import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +60,8 @@ import java.util.stream.Stream;
 public class QuestionnaireScheduleService {
 
     private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
+    private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
+
     private transient ProtocolGenerator protocolGenerator;
 
     private transient CachedMap<String, Schedule> subjectScheduleMap;
@@ -107,6 +112,17 @@ public class QuestionnaireScheduleService {
 //            User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 //            return this.taskRepository.findByUserIdAndType(user.getId(), type);
 //        }
+    }
+
+    @Transactional
+    public List<Task> getTasksForDateUsingProjectIdAndSubjectId(String projectId, String subjectId, Instant date) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
+        List<Task> tasks = this.getTasksForUser(user);
+        Instant startTime = timeCalculatorService.setDateTimeToMidnight(date, timezone);
+        Instant endTime = startTime.plus(Period.ofDays(1));
+        tasks.removeIf(t-> t.getTimestamp().plusMillis(t.getCompletionWindow()).isBefore(startTime) || t.getTimestamp().isAfter(endTime));
+        return tasks;
     }
 
     @Transactional

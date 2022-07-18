@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -65,6 +66,7 @@ public class QuestionnaireScheduleEndpoint {
                 new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
     }
 
+
     @GetMapping(
             "/"
                     + PathsUtil.PROJECT_PATH
@@ -80,8 +82,12 @@ public class QuestionnaireScheduleEndpoint {
             @Valid @PathVariable String projectId,
             @Valid @PathVariable String subjectId,
             @RequestParam(required = false, defaultValue = "all") String type,
-            @RequestParam(required = false, defaultValue = "") String search) {
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(required = false ) Instant date) {
         AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
+        if (date != null) {
+            return this.scheduleService.getTasksForDateUsingProjectIdAndSubjectId(projectId, subjectId, date);
+        }
         if (assessmentType != AssessmentType.ALL) {
             return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, assessmentType, search);
         }
