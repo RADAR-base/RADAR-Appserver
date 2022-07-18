@@ -36,17 +36,13 @@ public class Schedule {
     private User user;
 
     public Schedule(User user) {
-        String timezone = "Europe/London";
         this.user = user;
-        this.user.setTimezone(timezone);
         this.assessmentSchedules = new ArrayList<>();
 
     }
 
     public Schedule(User user, List<AssessmentSchedule> assessmentSchedules) {
-        String timezone = "Europe/London";
         this.user = user;
-        this.user.setTimezone(timezone);
         this.assessmentSchedules = assessmentSchedules;
     }
 
