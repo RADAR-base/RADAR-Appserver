@@ -34,6 +34,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class QuestionnaireScheduleEndpoint {
@@ -83,10 +84,10 @@ public class QuestionnaireScheduleEndpoint {
             @Valid @PathVariable String subjectId,
             @RequestParam(required = false, defaultValue = "all") String type,
             @RequestParam(required = false, defaultValue = "") String search,
-            @RequestParam(required = false ) Instant date) {
+            @RequestParam(required = false ) Optional<Instant> date) {
         AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
-        if (date != null) {
-            return this.scheduleService.getTasksForDateUsingProjectIdAndSubjectId(projectId, subjectId, date);
+        if (date.isPresent()) {
+            return this.scheduleService.getTasksForDateUsingProjectIdAndSubjectId(projectId, subjectId, date.get());
         }
         if (assessmentType != AssessmentType.ALL) {
             return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, assessmentType, search);
