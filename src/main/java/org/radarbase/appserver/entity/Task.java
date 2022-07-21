@@ -21,7 +21,10 @@
 
 package org.radarbase.appserver.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -55,6 +58,8 @@ public class Task extends AuditModel implements Serializable {
     private Boolean completed;
 
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+    @JsonSerialize(using = InstantSerializer.class)
     private Instant timestamp;
 
     @NotNull
@@ -82,8 +87,7 @@ public class Task extends AuditModel implements Serializable {
     private Boolean isDemo;
 
     @NotNull
-    @Column(name="\"order\"")
-    private int order;
+    private int priority;
 
     @NotNull
     private int nQuestions;
@@ -109,7 +113,7 @@ public class Task extends AuditModel implements Serializable {
         transient Instant timeCompleted;
         transient Boolean showInCalendar = true;
         transient Boolean isDemo = false;
-        transient int order = 0;
+        transient int priority = 0;
         transient int nQuestions;
         transient User user;
 
@@ -126,7 +130,7 @@ public class Task extends AuditModel implements Serializable {
             this.timeCompleted = task.getTimeCompleted();
             this.showInCalendar = task.getShowInCalendar();
             this.isDemo = task.getIsDemo();
-            this.order = task.getOrder();
+            this.priority = task.getPriority();
             this.nQuestions = task.getNQuestions();
             this.user = task.getUser();
         }
@@ -191,8 +195,8 @@ public class Task extends AuditModel implements Serializable {
             return this;
         }
 
-        public TaskBuilder order(int order) {
-            this.order = order;
+        public TaskBuilder priority(int priority) {
+            this.priority = priority;
             return this;
         }
 
@@ -220,7 +224,7 @@ public class Task extends AuditModel implements Serializable {
             task.setTimeCompleted(this.timeCompleted);
             task.setShowInCalendar(this.showInCalendar);
             task.setIsDemo(this.isDemo);
-            task.setOrder(this.order);
+            task.setPriority(this.priority);
             task.setNQuestions(this.nQuestions);
             task.setUser(this.user);
 

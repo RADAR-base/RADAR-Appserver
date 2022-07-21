@@ -82,7 +82,7 @@ databaseChangeLog:
                   name: is_demo
                   type: boolean
               - column:
-                  name: order
+                  name: priority
                   type: int
               - column:
                   name: n_questions

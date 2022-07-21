@@ -40,7 +40,7 @@ public class TaskGeneratorService {
                 .type(assessment.getType())
                 .estimatedCompletionTime(assessment.getEstimatedCompletionTime())
                 .completionWindow(completionWindow)
-                .order(assessment.getOrder())
+                .priority(assessment.getOrder())
                 .timestamp(timestamp)
                 .showInCalendar(assessment.getShowInCalendar())
                 .isDemo(assessment.getIsDemo())
