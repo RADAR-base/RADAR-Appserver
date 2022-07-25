@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -126,11 +127,11 @@ public class TaskService {
     @Transactional
     public List<Task> addTasks(List<Task> tasks, User user) {
         List<Task> newTasks = tasks.stream()
-                .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
-                .collect(Collectors.toList());
+       .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
+        .collect(Collectors.toList());
 
         List<Task> saved = this.taskRepository.saveAll(newTasks);
-        this.taskRepository.flush();
+//        this.taskRepository.flush();
 
         return saved;
     }

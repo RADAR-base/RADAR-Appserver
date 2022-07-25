@@ -38,6 +38,8 @@ public class SimpleRepeatProtocolHandler implements ProtocolHandler {
     // Test timeperiod
     private transient TimePeriod defaultTimePeriod = new TimePeriod("week", 1);
 
+    private final int MAX_YEAR = 2030;
+
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         List<Instant> referenceTimestamps = generateReferenceTimestamps(assessment, assessmentSchedule.getReferenceTimestamp(), user.getTimezone());
@@ -52,7 +54,7 @@ public class SimpleRepeatProtocolHandler implements ProtocolHandler {
         RepeatProtocol repeatProtocol = assessment.getProtocol().getRepeatProtocol();
         TimePeriod simpleRepeatProtocol = new TimePeriod(repeatProtocol.getUnit(), repeatProtocol.getAmount());
         Instant referenceTime = startTime;
-        while (referenceTime.isBefore(defaultEndTime)) {
+        while (referenceTime.isBefore(defaultEndTime) && referenceTime.atZone(timezone.toZoneId()).getYear() < MAX_YEAR) {
             referenceTimestamps.add(referenceTime);
             referenceTime = timeCalculatorService.advanceRepeat(referenceTime, simpleRepeatProtocol, timezone);
         }

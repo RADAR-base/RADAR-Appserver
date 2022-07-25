@@ -23,10 +23,7 @@ package org.radarbase.appserver.service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.radarbase.appserver.converter.NotificationConverter;
@@ -399,7 +396,7 @@ public class FcmNotificationService implements NotificationService {
                         .collect(Collectors.toList());
 
         List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
-        this.notificationRepository.flush();
+        // this.notificationRepository.flush();
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
         this.schedulerService.scheduleMultiple(savedNotifications);

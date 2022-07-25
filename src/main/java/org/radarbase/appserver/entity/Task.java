@@ -36,7 +36,9 @@ import org.radarbase.appserver.dto.protocol.AssessmentType;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoField;
 
 @Entity
 @Table(
@@ -59,8 +61,7 @@ public class Task extends AuditModel implements Serializable {
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
-    @JsonSerialize(using = InstantSerializer.class)
-    private Instant timestamp;
+    private Timestamp timestamp;
 
     @NotNull
     private String name;
@@ -103,7 +104,7 @@ public class Task extends AuditModel implements Serializable {
     public static class TaskBuilder {
         transient Long id;
         transient Boolean completed = false;
-        transient Instant timestamp;
+        transient @NotNull Timestamp timestamp;
         transient String name;
         transient AssessmentType type;
         transient int estimatedCompletionTime;
@@ -145,8 +146,14 @@ public class Task extends AuditModel implements Serializable {
             return this;
         }
 
-        public TaskBuilder timestamp(Instant timestamp) {
+        public TaskBuilder timestamp(Timestamp timestamp) {
             this.timestamp = timestamp;
+            return this;
+        }
+
+        public TaskBuilder timestamp(Instant timestamp) {
+            if (timestamp.isAfter(Instant.now())) this.timestamp = Timestamp.from(Instant.now());
+            else this.timestamp = Timestamp.from(timestamp.with(ChronoField.NANO_OF_SECOND, 0));
             return this;
         }
 
