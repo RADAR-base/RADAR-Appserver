@@ -34,7 +34,7 @@ public class SimpleNotificationHandler implements ProtocolHandler {
     public FcmNotifications generateNotifications(List<Task> tasks) {
         List<FcmNotificationDto> notifications = tasks.parallelStream()
                 .map(task ->
-                   this.notificationGeneratorService.createNotification(task, NotificationType.NOW, task.getTimestamp())
+                this.notificationGeneratorService.createNotification(task, NotificationType.NOW, task.getTimestamp().toInstant())
                 ).filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
 
 

@@ -36,7 +36,8 @@ import java.util.TimeZone;
 public class SimpleRepeatProtocolHandler implements ProtocolHandler {
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     // Test timeperiod
-    private transient TimePeriod defaultTimePeriod = new TimePeriod("week", 1);
+    private transient TimePeriod PLUS_ONE_WEEK = new TimePeriod("week", 1);
+    private transient TimePeriod MINUS_ONE_WEEK = new TimePeriod("week", -1);
 
     private final int MAX_YEAR = 2030;
 
@@ -49,15 +50,28 @@ public class SimpleRepeatProtocolHandler implements ProtocolHandler {
 
     private List<Instant> generateReferenceTimestamps(Assessment assessment, Instant startTime, String timezoneId) {
         TimeZone timezone = TimeZone.getTimeZone(timezoneId);
-        Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), defaultTimePeriod, timezone);
-        List<Instant> referenceTimestamps = new ArrayList<>();
         RepeatProtocol repeatProtocol = assessment.getProtocol().getRepeatProtocol();
         TimePeriod simpleRepeatProtocol = new TimePeriod(repeatProtocol.getUnit(), repeatProtocol.getAmount());
-        Instant referenceTime = startTime;
-        while (referenceTime.isBefore(defaultEndTime) && referenceTime.atZone(timezone.toZoneId()).getYear() < MAX_YEAR) {
+        Instant referenceTime = calculateValidStartTime(startTime, timezone, simpleRepeatProtocol);
+        List<Instant> referenceTimestamps = new ArrayList<>();
+        while (isValidReferenceTimestamp(referenceTime, timezone)) {
             referenceTimestamps.add(referenceTime);
             referenceTime = timeCalculatorService.advanceRepeat(referenceTime, simpleRepeatProtocol, timezone);
         }
         return referenceTimestamps;
+    }
+
+    private boolean isValidReferenceTimestamp(Instant referenceTime, TimeZone timezone) {
+        Instant defaultEndTime = timeCalculatorService.advanceRepeat(Instant.now(), PLUS_ONE_WEEK, timezone);
+        return referenceTime.isBefore(defaultEndTime) &&
+                referenceTime.atZone(timezone.toZoneId()).getYear() < MAX_YEAR;
+    }
+
+    private Instant calculateValidStartTime(Instant referenceTime, TimeZone timezone, TimePeriod simpleRepeatProtocol) {
+        Instant defaultStartTime = timeCalculatorService.advanceRepeat(Instant.now(), MINUS_ONE_WEEK, timezone);
+        while (referenceTime.isBefore(defaultStartTime)) {
+            referenceTime = timeCalculatorService.advanceRepeat(referenceTime, simpleRepeatProtocol, timezone);
+        }
+        return referenceTime;
     }
 }

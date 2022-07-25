@@ -152,8 +152,7 @@ public class Task extends AuditModel implements Serializable {
         }
 
         public TaskBuilder timestamp(Instant timestamp) {
-            if (timestamp.isAfter(Instant.now())) this.timestamp = Timestamp.from(Instant.now());
-            else this.timestamp = Timestamp.from(timestamp.with(ChronoField.NANO_OF_SECOND, 0));
+            this.timestamp = Timestamp.from(timestamp);
             return this;
         }
 

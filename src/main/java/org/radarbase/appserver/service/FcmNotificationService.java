@@ -392,11 +392,21 @@ public class FcmNotificationService implements NotificationService {
                 notificationDtos.getNotifications().stream()
                         .map(notificationConverter::dtoToEntity)
                         .map(n -> new Notification.NotificationBuilder(n).user(user).build())
-                        .filter(notification -> !notifications.contains(notification))
+                        .filter(notification ->
+                            notificationRepository
+                                    .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                                            user.getId(),
+                                            notification.getSourceId(),
+                                            notification.getScheduledTime(),
+                                            notification.getTitle(),
+                                            notification.getBody(),
+                                            notification.getType(),
+                                            notification.getTtlSeconds()).isPresent()
+                        )
                         .collect(Collectors.toList());
 
         List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
-        // this.notificationRepository.flush();
+        this.notificationRepository.flush();
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
         this.schedulerService.scheduleMultiple(savedNotifications);

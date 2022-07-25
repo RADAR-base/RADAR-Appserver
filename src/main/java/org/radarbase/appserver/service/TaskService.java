@@ -131,7 +131,7 @@ public class TaskService {
         .collect(Collectors.toList());
 
         List<Task> saved = this.taskRepository.saveAll(newTasks);
-//        this.taskRepository.flush();
+        this.taskRepository.flush();
 
         return saved;
     }

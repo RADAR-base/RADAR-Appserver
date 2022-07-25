@@ -35,6 +35,8 @@ public class Schedule {
 
     private User user;
 
+    private String version;
+
     public Schedule(User user) {
         this.user = user;
         this.assessmentSchedules = new ArrayList<>();
