@@ -82,5 +82,13 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
         return NotificationHandlerFactory.getNotificationHandler(NotificationHandlerType.SIMPLE, notificationService);
     }
 
+    @Override
+    public ProtocolHandler getReminderHandler(Assessment assessment) {
+        if (assessment.getType() == AssessmentType.CLINICAL) return null;
+
+        return ReminderHandlerFactory.getReminderHandler(ReminderHandlerType.SIMPLE, notificationService);
+    }
+
+
 
 }

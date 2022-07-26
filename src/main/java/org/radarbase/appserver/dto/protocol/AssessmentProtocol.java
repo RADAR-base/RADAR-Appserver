@@ -36,7 +36,7 @@ public class AssessmentProtocol {
 
     private RepeatProtocol repeatProtocol;
 
-    private TimePeriod reminders;
+    private ReminderTimePeriod reminders;
 
     private TimePeriod completionWindow;
 

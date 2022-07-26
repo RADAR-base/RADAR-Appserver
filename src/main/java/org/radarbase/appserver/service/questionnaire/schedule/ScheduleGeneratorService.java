@@ -23,6 +23,7 @@ public interface ScheduleGeneratorService {
 
     ProtocolHandler getNotificationHandler(Assessment assessment);
 
+    ProtocolHandler getReminderHandler(Assessment assessment);
 
     default Schedule generateScheduleForUser(User user, ProtocolGenerator protocolGenerator) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
@@ -41,6 +42,7 @@ public interface ScheduleGeneratorService {
         protocolHandlerRunner.addProtocolHandler(this.getRepeatProtocolHandler(assessment));
         protocolHandlerRunner.addProtocolHandler(this.getRepeatQuestionnaireHandler(assessment));
         protocolHandlerRunner.addProtocolHandler(this.getNotificationHandler(assessment));
+        protocolHandlerRunner.addProtocolHandler(this.getReminderHandler(assessment));
         return protocolHandlerRunner.runProtocolHandlers(assessment, user);
     }
 

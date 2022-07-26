@@ -18,6 +18,10 @@ public class NotificationGeneratorService {
         current.setAppPackage("org.phidatalab.radar-armt");
 
         switch (type) {
+            case REMINDER:
+                current.setTitle("Missed a questionnaire?");
+                current.setBody("It seems you haven't answered all of our questions. Could you please do that now?");
+                break;
             case NOW:
             default:
                 current.setTitle("Questionnaire time");
