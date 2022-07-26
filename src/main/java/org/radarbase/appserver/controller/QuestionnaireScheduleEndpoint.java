@@ -21,11 +21,13 @@
 
 package org.radarbase.appserver.controller;
 
+import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,6 +67,32 @@ public class QuestionnaireScheduleEndpoint {
         Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, subjectId);
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
+    }
+
+    @PutMapping(
+            "/"
+                    + PathsUtil.PROJECT_PATH
+                    + "/"
+                    + PathsUtil.PROJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.USER_PATH
+                    + "/"
+                    + PathsUtil.SUBJECT_ID_CONSTANT
+                    + "/"
+                    + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+    public ResponseEntity generateScheduleUsingProtocol(
+            @PathVariable String projectId,
+            @PathVariable String subjectId,
+            @Valid @RequestBody Assessment assessment)
+            throws URISyntaxException {
+        try {
+            Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectIdAndAssessment(projectId, subjectId, assessment);
+            return ResponseEntity.created(
+                    new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
+
+        } catch (URISyntaxException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
 
