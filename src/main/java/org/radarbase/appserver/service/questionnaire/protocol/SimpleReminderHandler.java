@@ -6,6 +6,7 @@ import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.ReminderTimePeriod;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
+import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -31,23 +32,25 @@ public class SimpleReminderHandler implements ProtocolHandler {
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
-        FcmNotifications notifications = generateReminders(assessmentSchedule.getTasks(), assessment, timezone);
-        this.notificationService.addNotifications(notifications, user.getSubjectId(), user.getProject().getProjectId());
+        List<Notification> notifications = generateReminders(assessmentSchedule.getTasks(), assessment, timezone, user);
+        this.notificationService.addNotifications(notifications, user);
         return assessmentSchedule;
     }
 
-    public FcmNotifications generateReminders(List<Task> tasks, Assessment assessment, TimeZone timezone) {
-        List<FcmNotificationDto> notifications = tasks.parallelStream()
+    public List<Notification> generateReminders(List<Task> tasks, Assessment assessment, TimeZone timezone, User user) {
+        List<Notification> notifications = tasks.parallelStream()
                 .flatMap(task -> {
                     ReminderTimePeriod reminders = assessment.getProtocol().getReminders();
                     return IntStream.range(0, reminders.getRepeat()).mapToObj(i -> {
                         Instant timestamp = timeCalculatorService.advanceRepeat(task.getTimestamp().toInstant(), reminders, timezone);
-                        return this.notificationGeneratorService.createNotification(task, NotificationType.REMINDER, timestamp);
+                        Notification notification = this.notificationGeneratorService.createNotification(task, NotificationType.REMINDER, timestamp);
+                        notification.setUser(user);
+                        return notification;
                     });
                         }
                 ).collect(Collectors.toList());
 
-        return new FcmNotifications(notifications);
+        return notifications;
     }
 
 }

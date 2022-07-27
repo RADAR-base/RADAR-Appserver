@@ -383,15 +383,9 @@ public class FcmNotificationService implements NotificationService {
     }
 
     @Transactional
-    public FcmNotifications addNotifications(
-            FcmNotifications notificationDtos, String subjectId, String projectId) {
-        final User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        List<Notification> notifications = notificationRepository.findByUserId(user.getId());
-
+    public List<Notification> addNotifications(List<Notification> notifications,User user) {
         List<Notification> newNotifications =
-                notificationDtos.getNotifications().stream()
-                        .map(notificationConverter::dtoToEntity)
-                        .map(n -> new Notification.NotificationBuilder(n).user(user).build())
+                notifications.stream()
                         .filter(notification ->
                             notificationRepository
                                     .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
@@ -402,6 +396,37 @@ public class FcmNotificationService implements NotificationService {
                                             notification.getBody(),
                                             notification.getType(),
                                             notification.getTtlSeconds()).isPresent()
+                        )
+                        .collect(Collectors.toList());
+
+        List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
+        this.notificationRepository.flush();
+        savedNotifications.forEach(
+                n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
+        this.schedulerService.scheduleMultiple(savedNotifications);
+        return savedNotifications;
+    }
+
+    @Transactional
+    public FcmNotifications addNotifications(
+            FcmNotifications notificationDtos, String subjectId, String projectId) {
+        final User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        List<Notification> notifications = notificationRepository.findByUserId(user.getId());
+
+        List<Notification> newNotifications =
+                notificationDtos.getNotifications().stream()
+                        .map(notificationConverter::dtoToEntity)
+                        .map(n -> new Notification.NotificationBuilder(n).user(user).build())
+                        .filter(notification ->
+                                notificationRepository
+                                        .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                                                user.getId(),
+                                                notification.getSourceId(),
+                                                notification.getScheduledTime(),
+                                                notification.getTitle(),
+                                                notification.getBody(),
+                                                notification.getType(),
+                                                notification.getTtlSeconds()).isPresent()
                         )
                         .collect(Collectors.toList());
 

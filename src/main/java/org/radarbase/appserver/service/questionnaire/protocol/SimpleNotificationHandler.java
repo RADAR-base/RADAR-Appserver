@@ -5,6 +5,7 @@ import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
+import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -26,19 +27,22 @@ public class SimpleNotificationHandler implements ProtocolHandler {
 
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
-        FcmNotifications notifications = generateNotifications(assessmentSchedule.getTasks());
-        this.notificationService.addNotifications(notifications, user.getSubjectId(), user.getProject().getProjectId());
+        List<Notification> notifications = generateNotifications(assessmentSchedule.getTasks(), user);
+        this.notificationService.addNotifications(notifications, user);
         return assessmentSchedule;
     }
 
-    public FcmNotifications generateNotifications(List<Task> tasks) {
-        List<FcmNotificationDto> notifications = tasks.parallelStream()
-                .map(task ->
-                this.notificationGeneratorService.createNotification(task, NotificationType.NOW, task.getTimestamp().toInstant())
-                ).filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
+    public List<Notification> generateNotifications(List<Task> tasks, User user) {
+        List<Notification> notifications = tasks.parallelStream()
+                .map(task ->{
+                        Notification notification = this.notificationGeneratorService
+                                .createNotification(task, NotificationType.NOW, task.getTimestamp().toInstant());
+                        notification.setUser(user);
+                        return notification;
+                })
+                .filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
 
-
-        return new FcmNotifications(notifications);
+        return notifications;
     }
 
 }
