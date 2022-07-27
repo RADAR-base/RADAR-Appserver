@@ -159,6 +159,7 @@ public class Notification extends Message {
         transient String tag;
         transient String clickAction;
         transient Map<String, String> additionalData;
+        transient Task task;
 
 
         public NotificationBuilder(Notification notification) {
@@ -193,6 +194,7 @@ public class Notification extends Message {
             this.tag = notification.getTag();
             this.clickAction = notification.getClickAction();
             this.additionalData = notification.getAdditionalData();
+            this.task = notification.getTask();
         }
 
         public NotificationBuilder id(Long id) {
@@ -346,6 +348,11 @@ public class Notification extends Message {
             return this;
         }
 
+        public NotificationBuilder task(Task task) {
+            this.task = task;
+            return this;
+        }
+
         public Notification build() {
             Notification notification = new Notification();
             notification.setId(this.id);
@@ -380,6 +387,7 @@ public class Notification extends Message {
             notification.setTag(this.tag);
             notification.setClickAction(this.clickAction);
             notification.setAdditionalData(this.additionalData);
+            notification.setTask(this.task);
 
             return notification;
         }
