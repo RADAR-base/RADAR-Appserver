@@ -29,6 +29,7 @@ import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.TaskService;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,9 +73,10 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
                     return t.stream();
                 }).collect(Collectors.toList());
 
-        List<Task> savedTasks = this.taskService.addTasks(tasks, user);
+        this.taskService.addTasks(tasks, user);
+        List<Task> allTasks = this.taskService.getTasksByUser(user);
 
-        return tasks;
+        return allTasks;
     }
 
     private Long calculateCompletionWindow(TimePeriod completionWindow) {

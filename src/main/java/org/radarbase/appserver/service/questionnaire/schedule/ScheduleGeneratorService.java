@@ -25,14 +25,13 @@ public interface ScheduleGeneratorService {
 
     ProtocolHandler getReminderHandler(Assessment assessment);
 
-    default Schedule generateScheduleForUser(User user, ProtocolGenerator protocolGenerator) {
-        Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
+    default Schedule generateScheduleForUser(User user, Protocol protocol) {
         List<Assessment> assessments = protocol.getProtocols();
 
         List<AssessmentSchedule> assessmentSchedules = assessments.parallelStream().map(assessment -> 
             this.generateSingleAssessmentSchedule(assessment, user)).collect(Collectors.toList());
 
-        return new Schedule(user, assessmentSchedules);
+        return new Schedule(assessmentSchedules, user, protocol.getVersion());
     }
 
     default AssessmentSchedule generateSingleAssessmentSchedule(Assessment assessment, User user) {

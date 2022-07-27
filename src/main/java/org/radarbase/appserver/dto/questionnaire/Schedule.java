@@ -24,12 +24,14 @@ package org.radarbase.appserver.dto.questionnaire;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.radarbase.appserver.entity.User;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Schedule {
     private List<AssessmentSchedule> assessmentSchedules;
 

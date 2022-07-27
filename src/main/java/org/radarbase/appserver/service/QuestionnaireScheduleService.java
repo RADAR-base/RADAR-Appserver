@@ -25,6 +25,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
+import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.protocol.ScheduleCacheEntry;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
@@ -136,13 +137,18 @@ public class QuestionnaireScheduleService {
     @Transactional
     public Schedule generateScheduleUsingProjectIdAndSubjectId(String projectId, String subjectId) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        return this.scheduleGeneratorService.generateScheduleForUser(user, this.protocolGenerator);
+        Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
+        return this.scheduleGeneratorService.generateScheduleForUser(user, protocol);
     }
 
     @Transactional
     public Schedule generateScheduleForUser(User user) {
-        Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user, this.protocolGenerator);
-
+        Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
+        Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
+        if (prevSchedule.getVersion() != protocol.getVersion()) {
+            this.removeScheduleForUser(user);
+        }
+        Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol);
         return schedule;
     }
 
@@ -168,7 +174,6 @@ public class QuestionnaireScheduleService {
                     return new ScheduleCacheEntry(u.getSubjectId(), schedule);
                 }).collect(Collectors.toMap(p -> p.getId(), p-> p.getSchedule()));
 
-        // Check if protocol hash has changed. only then update the map
         return scheduleMap;
     }
 
@@ -213,13 +218,11 @@ public class QuestionnaireScheduleService {
         // TODO: DeleteAll with Specifications will soon be released in JPA (v 3.0.0), so update this to not fetch all entities.
         List<Task> tasks = taskRepository.findAll(spec);
         taskRepository.deleteAll(tasks);
+    }
 
-//        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-//        if (type == AssessmentType.ALL) {
-//            this.removeScheduleForUser(user);
-//        } else {
-//            this.taskRepository.deleteByUserIdAndType(user.getId(), type);
-//        }
+    @Transactional
+    public void removeScheduleForUser(User user) {
+        this.taskRepository.deleteByUserId(user.getId());
     }
 
     public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {
