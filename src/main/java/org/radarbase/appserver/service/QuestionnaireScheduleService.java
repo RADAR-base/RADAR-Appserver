@@ -130,6 +130,14 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
+    public Task getTaskUsingProjectIdAndSubjectIdAndTaskId(String projectId, String subjectId, Long taskId) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+        return this.taskRepository.findByIdAndUserId(user.getId(), taskId)
+                .orElseThrow(() -> new NotFoundException("The task was not found"));
+    }
+
+
+    @Transactional
     public List<Task> getTasksForUser(User user) {
         return this.taskRepository.findByUserId(user.getId());
     }

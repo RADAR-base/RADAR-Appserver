@@ -22,9 +22,9 @@
 package org.radarbase.appserver.service;
 
 import org.radarbase.appserver.dto.protocol.AssessmentType;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
+import org.radarbase.appserver.event.state.TaskState;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.TaskRepository;
@@ -35,8 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -127,8 +125,8 @@ public class TaskService {
     @Transactional
     public List<Task> addTasks(List<Task> tasks, User user) {
         List<Task> newTasks = tasks.stream()
-       .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
-        .collect(Collectors.toList());
+                .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
+                .collect(Collectors.toList());
 
         List<Task> saved = this.taskRepository.saveAll(newTasks);
         this.taskRepository.flush();
@@ -136,4 +134,13 @@ public class TaskService {
         return saved;
     }
 
+    @Transactional
+    public Task updateTaskStatus(Task oldTask, TaskState state) {
+        User user = oldTask.getUser();
+        if (this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), oldTask.getName(), oldTask.getTimestamp())) {
+            oldTask.setStatus(state);
+            return this.taskRepository.saveAndFlush(oldTask);
+        } else throw new NotFoundException(
+                "The Task does not exists. Please Use add endpoint");
+    }
 }

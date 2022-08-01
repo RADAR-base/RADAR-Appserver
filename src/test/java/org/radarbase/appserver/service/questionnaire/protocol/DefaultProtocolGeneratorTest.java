@@ -31,12 +31,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.radarbase.appserver.dto.protocol.Assessment;
-import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
-import org.radarbase.appserver.dto.protocol.LanguageText;
-import org.radarbase.appserver.dto.protocol.Protocol;
-import org.radarbase.appserver.dto.protocol.RepeatProtocol;
-import org.radarbase.appserver.dto.protocol.TimePeriod;
+import org.radarbase.appserver.dto.protocol.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -66,9 +61,13 @@ class DefaultProtocolGeneratorTest {
         timePeriod.setAmount(1);
         timePeriod.setUnit("day");
 
+        ReminderTimePeriod reminderTimePeriod = new ReminderTimePeriod(0);
+        reminderTimePeriod.setAmount(1);
+        reminderTimePeriod.setUnit("day");
+
         AssessmentProtocol assessmentProtocol = new AssessmentProtocol();
         assessmentProtocol.setCompletionWindow(timePeriod);
-        assessmentProtocol.setReminders(timePeriod);
+        assessmentProtocol.setReminders(reminderTimePeriod);
         assessmentProtocol.setRepeatProtocol(repeatProtocol);
 
         Assessment assessment = new Assessment();
