@@ -61,9 +61,9 @@ import java.util.stream.Stream;
 public class QuestionnaireScheduleService {
 
     private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
-    private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
+    private final transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
 
-    private transient ProtocolGenerator protocolGenerator;
+    private final transient ProtocolGenerator protocolGenerator;
 
     private transient CachedMap<String, Schedule> subjectScheduleMap;
 
@@ -71,7 +71,7 @@ public class QuestionnaireScheduleService {
 
     private final transient TaskRepository taskRepository;
 
-    private transient QuestionnaireScheduleGeneratorService scheduleGeneratorService;
+    private final transient QuestionnaireScheduleGeneratorService scheduleGeneratorService;
 
     private final transient ProjectRepository projectRepository;
 
@@ -153,11 +153,10 @@ public class QuestionnaireScheduleService {
     public Schedule generateScheduleForUser(User user) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
         Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
-        if (prevSchedule.getVersion() != protocol.getVersion()) {
+        if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion())) {
             this.removeScheduleForUser(user);
         }
-        Schedule schedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol);
-        return schedule;
+        return this.scheduleGeneratorService.generateScheduleForUser(user, protocol);
     }
 
     @Transactional
@@ -174,15 +173,12 @@ public class QuestionnaireScheduleService {
 
     public Map<String, Schedule> generateAllSchedules() {
         List<User> users = this.userRepository.findAll();
-        Map<String, Schedule> scheduleMap = new HashMap<>();
 
-        scheduleMap = users.parallelStream()
+        return users.parallelStream()
                 .map(u -> {
                     Schedule schedule = this.generateScheduleForUser(u);
                     return new ScheduleCacheEntry(u.getSubjectId(), schedule);
-                }).collect(Collectors.toMap(p -> p.getId(), p-> p.getSchedule()));
-
-        return scheduleMap;
+                }).collect(Collectors.toMap(ScheduleCacheEntry::getId, ScheduleCacheEntry::getSchedule));
     }
 
     public @NonNull Map<String, Schedule> getAllSchedules() {
@@ -208,8 +204,7 @@ public class QuestionnaireScheduleService {
 
     private @NonNull Schedule forceGetScheduleForSubject(String subjectId) {
         try {
-            subjectScheduleMap.get(true);
-            return subjectScheduleMap.get(subjectId);
+            return subjectScheduleMap.get(true).get(subjectId);
         } catch (IOException ex) {
             log.warn("Cannot retrieve Protocols, using cached values if available.", ex);
             return subjectScheduleMap.getCache().get(subjectId);

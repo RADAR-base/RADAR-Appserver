@@ -25,11 +25,13 @@ import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.TaskState;
+import org.radarbase.appserver.event.state.dto.TaskStateEventDto;
 import org.radarbase.appserver.exception.AlreadyExistsException;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,10 +55,16 @@ public class TaskService {
     private final transient TaskRepository taskRepository;
     private final transient UserRepository userRepository;
 
+    private final transient ApplicationEventPublisher eventPublisher;
+
     @Autowired
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
+    public TaskService(TaskRepository taskRepository,
+                       UserRepository userRepository,
+                       ApplicationEventPublisher eventPublisher
+    ) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -81,8 +89,7 @@ public class TaskService {
         if (user.isEmpty()) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        List<Task> tasks = taskRepository.findByUserId(user.get().getId());
-        return tasks;
+        return taskRepository.findByUserId(user.get().getId());
     }
 
     @Transactional(readOnly = true)
@@ -91,8 +98,7 @@ public class TaskService {
         if (user.isEmpty()) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        List<Task> tasks = taskRepository.findByUserIdAndType(user.get().getId(), type);
-        return tasks;
+        return taskRepository.findByUserIdAndType(user.get().getId(), type);
     }
 
     public List<Task> getTasksByUser(User user) {
@@ -117,6 +123,7 @@ public class TaskService {
             Task saved = this.taskRepository.saveAndFlush(task);
             user.getUsermetrics().setLastOpened(Instant.now());
             this.userRepository.save(user);
+            addTaskStateEvent(saved, TaskState.ADDED, saved.getCreatedAt().toInstant());
             return saved;
         } else throw new AlreadyExistsException(
                 "The Task Already exists. Please Use update endpoint", task);
@@ -131,7 +138,16 @@ public class TaskService {
         List<Task> saved = this.taskRepository.saveAll(newTasks);
         this.taskRepository.flush();
 
+        saved.forEach(t -> addTaskStateEvent(t, TaskState.ADDED, t.getCreatedAt().toInstant()));
+
         return saved;
+    }
+
+    private void addTaskStateEvent(Task t, TaskState state, Instant time) {
+        if (eventPublisher != null) {
+            TaskStateEventDto taskStateEventDto = new TaskStateEventDto(this, t, state, null, time);
+            eventPublisher.publishEvent(taskStateEventDto);
+        }
     }
 
     @Transactional
