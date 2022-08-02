@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1659441385003-01
+      author: yatharth
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: status
+                  type: VARCHAR(255)
+                  defaultValue: UNKNOWN
+                  constraints:
+                    nullable: false
+            tableName: tasks

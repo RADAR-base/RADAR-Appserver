@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1659439750000-01
+      author: yatharth
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: taskStateEventPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: state
+                  type: VARCHAR(255)
+                  defaultValue: UNKNOWN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  constraints:
+                    nullable: false
+                  name: task_id
+                  type: BIGINT
+              - column:
+                  name: associated_info
+                  type: VARCHAR(1250)
+            tableName: task_state_events
+  - changeSet:
+      id: 1659439750000-02
+      author: yatharth
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: task_id
+            baseTableName: task_state_events
+            constraintName: FK65c9ajsldjasldj8237gfs04mvcv
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: tasks
+            validate: true
+            onDelete: CASCADE
+
