@@ -112,10 +112,12 @@ public class QuestionnaireScheduleEndpoint {
             @Valid @PathVariable String subjectId,
             @RequestParam(required = false, defaultValue = "all") String type,
             @RequestParam(required = false, defaultValue = "") String search,
-            @RequestParam(required = false ) Optional<Instant> date) {
+            @RequestParam(required = false ) Optional<Instant> startTime,
+            @RequestParam(required = false ) Optional<Instant> endTime) {
         AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
-        if (date.isPresent()) {
-            return this.scheduleService.getTasksForDateUsingProjectIdAndSubjectId(projectId, subjectId, date.get());
+        // TODO: Use search instead of startTime and endTime
+        if (startTime.isPresent() && endTime.isPresent()) {
+            return this.scheduleService.getTasksForDateUsingProjectIdAndSubjectId(projectId, subjectId, startTime.get(), endTime.get());
         }
         if (assessmentType != AssessmentType.ALL) {
             return this.scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(projectId, subjectId, assessmentType, search);
