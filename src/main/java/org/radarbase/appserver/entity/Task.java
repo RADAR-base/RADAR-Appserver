@@ -32,6 +32,7 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
+import org.radarbase.appserver.event.state.TaskState;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -100,6 +101,11 @@ public class Task extends AuditModel implements Serializable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private User user;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskState status = TaskState.UNKNOWN;
 
     @NoArgsConstructor
     public static class TaskBuilder {
