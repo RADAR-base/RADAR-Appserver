@@ -116,12 +116,9 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public List<Task> getTasksForDateUsingProjectIdAndSubjectId(String projectId, String subjectId, Instant date) {
+    public List<Task> getTasksForDateUsingProjectIdAndSubjectId(String projectId, String subjectId, Instant startTime, Instant endTime) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         List<Task> tasks = this.getTasksForUser(user);
-        Instant startTime = timeCalculatorService.setDateTimeToMidnight(date, timezone);
-        Instant endTime = startTime.plus(Period.ofDays(1));
         tasks.removeIf(t-> {
             Instant timestamp = t.getTimestamp().toInstant();
             return timestamp.plusMillis(t.getCompletionWindow()).isBefore(startTime) || timestamp.isAfter(endTime);

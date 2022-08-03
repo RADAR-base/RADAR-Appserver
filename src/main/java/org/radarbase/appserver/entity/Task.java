@@ -79,7 +79,8 @@ public class Task extends AuditModel implements Serializable {
 
     private Boolean isClinical;
 
-    private Instant timeCompleted;
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+    private Timestamp timeCompleted;
 
     @NotNull
     private Boolean showInCalendar;
@@ -111,7 +112,7 @@ public class Task extends AuditModel implements Serializable {
         transient Long completionWindow;
         transient String warning;
         transient Boolean isClinical = false;
-        transient Instant timeCompleted;
+        transient Timestamp timeCompleted;
         transient Boolean showInCalendar = true;
         transient Boolean isDemo = false;
         transient int priority = 0;
@@ -186,7 +187,7 @@ public class Task extends AuditModel implements Serializable {
             return this;
         }
 
-        public TaskBuilder timeCompleted(Instant timeCompleted) {
+        public TaskBuilder timeCompleted(Timestamp timeCompleted) {
             this.timeCompleted = timeCompleted;
             return this;
         }
