@@ -36,6 +36,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -154,6 +155,10 @@ public class TaskService {
     public Task updateTaskStatus(Task oldTask, TaskState state) {
         User user = oldTask.getUser();
         if (this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), oldTask.getName(), oldTask.getTimestamp())) {
+            if (state.equals(TaskState.COMPLETED)) {
+                oldTask.setCompleted(true);
+                oldTask.setTimeCompleted(Timestamp.from(Instant.now()));
+            }
             oldTask.setStatus(state);
             return this.taskRepository.saveAndFlush(oldTask);
         } else throw new NotFoundException(
