@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service;
 
+import groovy.lang.Singleton;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Assessment;
@@ -42,6 +43,8 @@ import org.radarbase.appserver.service.questionnaire.protocol.TimeCalculatorServ
 import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +61,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class QuestionnaireScheduleService {
 
     private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
@@ -142,8 +146,7 @@ public class QuestionnaireScheduleService {
     @Transactional
     public Schedule generateScheduleUsingProjectIdAndSubjectId(String projectId, String subjectId) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
-        return this.scheduleGeneratorService.generateScheduleForUser(user, protocol);
+        return this.generateScheduleForUser(user);
     }
 
     @Transactional
@@ -153,7 +156,9 @@ public class QuestionnaireScheduleService {
         if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion())) {
             this.removeScheduleForUser(user);
         }
-        return this.scheduleGeneratorService.generateScheduleForUser(user, protocol);
+        Schedule newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
+        subjectScheduleMap.add(user.getSubjectId(), newSchedule);
+        return newSchedule;
     }
 
     @Transactional
@@ -163,7 +168,7 @@ public class QuestionnaireScheduleService {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
         Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
-        AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user);
+        AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList());
         schedule.addAssessmentSchedule(a);
         return schedule;
     }
@@ -195,7 +200,7 @@ public class QuestionnaireScheduleService {
             return subjectScheduleMap.getCache().get(subjectId);
         } catch(NoSuchElementException ex) {
             log.warn("Subject does not exist in map. Fetching..");
-            return forceGetScheduleForSubject(subjectId);
+            return new Schedule();
         }
     }
 

@@ -22,7 +22,9 @@
 package org.radarbase.appserver.dto.questionnaire;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,21 +35,32 @@ import org.radarbase.appserver.entity.User;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Schedule {
-    private List<AssessmentSchedule> assessmentSchedules;
+    private List<AssessmentSchedule> assessmentSchedules = Collections.emptyList();
 
     private User user;
 
-    private String version;
+    private String version = "0.0.0";
+
+    private String timezone;
 
     public Schedule(User user) {
         this.user = user;
+        this.timezone = user.getTimezone();
         this.assessmentSchedules = new ArrayList<>();
 
     }
 
     public Schedule(User user, List<AssessmentSchedule> assessmentSchedules) {
         this.user = user;
+        this.timezone = user.getTimezone();
         this.assessmentSchedules = assessmentSchedules;
+    }
+
+    public Schedule(List<AssessmentSchedule> assessmentSchedules, User user, String version) {
+        this.user = user;
+        this.timezone = user.getTimezone();
+        this.assessmentSchedules = assessmentSchedules;
+        this.version = version;
     }
 
     public Schedule addAssessmentSchedule(AssessmentSchedule assessmentSchedule) {

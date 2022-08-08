@@ -23,12 +23,17 @@ package org.radarbase.appserver.service.questionnaire.schedule;
 
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.*;
+import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.service.FcmNotificationService;
+import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.radarbase.appserver.service.TaskService;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.factory.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -89,6 +94,11 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
         return ReminderHandlerFactory.getReminderHandler(ReminderHandlerType.SIMPLE, notificationService);
     }
 
+    @Override
+    public ProtocolHandler getCompletedQuestionnaireHandler(Assessment assessment, List<Task> prevTasks) {
+        if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
+        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(CompletedQuestionnaireHandlerType.SIMPLE, taskService, prevTasks);
+    }
 
 }
