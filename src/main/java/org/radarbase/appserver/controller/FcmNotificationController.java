@@ -295,4 +295,30 @@ public class FcmNotificationController {
         projectId, subjectId, id);
     return ResponseEntity.ok().build();
   }
+
+  @Authorized(
+          permission = AuthPermissions.UPDATE,
+          entity = AuthEntities.SUBJECT,
+          permissionOn = PermissionOn.SUBJECT)
+  @DeleteMapping(
+          "/"
+                  + PathsUtil.PROJECT_PATH
+                  + "/"
+                  + PathsUtil.PROJECT_ID_CONSTANT
+                  + "/"
+                  + PathsUtil.USER_PATH
+                  + "/"
+                  + PathsUtil.SUBJECT_ID_CONSTANT
+                  + "/"
+                  + PathsUtil.MESSAGING_NOTIFICATION_PATH
+                  + "/"
+                  + PathsUtil.TASK_PATH
+                  + "/{id}")
+  public ResponseEntity deleteNotificationUsingProjectIdAndSubjectIdAndTaskId(
+          @PathVariable String projectId, @PathVariable String subjectId, @PathVariable Long id) {
+
+    this.notificationService.removeNotificationsForUserUsingTaskId(
+            projectId, subjectId, id);
+    return ResponseEntity.ok().build();
+  }
 }

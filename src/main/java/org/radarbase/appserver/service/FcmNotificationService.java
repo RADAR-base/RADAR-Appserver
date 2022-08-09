@@ -343,6 +343,16 @@ public class FcmNotificationService implements NotificationService {
     }
 
     @Transactional
+    public void removeNotificationsForUserUsingTaskId(String projectId, String subjectId, Long taskId) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+
+        List<Notification> notifications = this.notificationRepository.findByUserIdAndTaskId(user.getId(), taskId);
+        this.schedulerService.deleteScheduledMultiple(notifications);
+
+        this.notificationRepository.deleteByUserIdAndTaskId(user.getId(), taskId);
+    }
+
+    @Transactional
     public void removeNotificationsForUserUsingFcmToken(String fcmToken) {
         Optional<User> user = this.userRepository.findByFcmToken(fcmToken);
 
