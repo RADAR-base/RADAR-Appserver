@@ -60,7 +60,7 @@ public class Schedule {
         this.user = user;
         this.timezone = user.getTimezone();
         this.assessmentSchedules = assessmentSchedules;
-        this.version = version;
+        this.version = version != null ? version : this.version;
     }
 
     public Schedule addAssessmentSchedule(AssessmentSchedule assessmentSchedule) {

@@ -95,10 +95,10 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
     }
 
     @Override
-    public ProtocolHandler getCompletedQuestionnaireHandler(Assessment assessment, List<Task> prevTasks) {
+    public ProtocolHandler getCompletedQuestionnaireHandler(Assessment assessment, List<Task> prevTasks, String prevTimezone) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
-        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(CompletedQuestionnaireHandlerType.SIMPLE, taskService, prevTasks);
+        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(CompletedQuestionnaireHandlerType.SIMPLE, taskService, prevTasks, prevTimezone);
     }
 
 }

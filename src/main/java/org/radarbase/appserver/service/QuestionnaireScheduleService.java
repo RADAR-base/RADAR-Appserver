@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service;
 
-import groovy.lang.Singleton;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Assessment;
@@ -39,7 +38,6 @@ import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.search.TaskSpecificationsBuilder;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
-import org.radarbase.appserver.service.questionnaire.protocol.TimeCalculatorService;
 import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +50,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -65,7 +61,6 @@ import java.util.stream.Stream;
 public class QuestionnaireScheduleService {
 
     private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
-    private final transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
 
     private final transient ProtocolGenerator protocolGenerator;
 
@@ -153,7 +148,8 @@ public class QuestionnaireScheduleService {
     public Schedule generateScheduleForUser(User user) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
         Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
-        if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion())) {
+        String prevTimezone = prevSchedule.getTimezone() != null ? prevSchedule.getTimezone() : user.getTimezone();
+        if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion()) || !prevTimezone.equals(user.getTimezone())) {
             this.removeScheduleForUser(user);
         }
         Schedule newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
@@ -168,7 +164,7 @@ public class QuestionnaireScheduleService {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
 
         Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
-        AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList());
+        AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList(), user.getTimezone());
         schedule.addAssessmentSchedule(a);
         return schedule;
     }

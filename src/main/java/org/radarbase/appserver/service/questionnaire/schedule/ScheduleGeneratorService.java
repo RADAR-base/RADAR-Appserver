@@ -9,6 +9,7 @@ import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -29,24 +30,25 @@ public interface ScheduleGeneratorService {
 
     ProtocolHandler getReminderHandler(Assessment assessment);
 
-    ProtocolHandler getCompletedQuestionnaireHandler(Assessment assessment, List<Task> prevTasks);
+    ProtocolHandler getCompletedQuestionnaireHandler(Assessment assessment, List<Task> prevTasks, String prevTimezone);
 
     default Schedule generateScheduleForUser(User user, Protocol protocol, Schedule prevSchedule) {
         List<Assessment> assessments = protocol.getProtocols();
         List<AssessmentSchedule> prevAssessmentSchedules = prevSchedule.getAssessmentSchedules();
+        String prevTimezone = prevSchedule.getTimezone() != null ? prevSchedule.getTimezone() : user.getTimezone();
 
         List<AssessmentSchedule> assessmentSchedules = assessments.parallelStream().map(
                 assessment -> {
                     Optional<AssessmentSchedule> prevAssessmentSchedule =
                             prevAssessmentSchedules.stream().filter(a -> a.getName() == assessment.getName()).findFirst();
-                    return this.generateSingleAssessmentSchedule(assessment, user, prevAssessmentSchedule.isPresent() ? prevAssessmentSchedule.get().getTasks() : Collections.emptyList());
+                    return this.generateSingleAssessmentSchedule(assessment, user, prevAssessmentSchedule.isPresent() ? prevAssessmentSchedule.get().getTasks() : Collections.emptyList(), prevTimezone);
                 }
         ).collect(Collectors.toList());
 
         return new Schedule(assessmentSchedules, user, protocol.getVersion());
     }
 
-    default AssessmentSchedule generateSingleAssessmentSchedule(Assessment assessment, User user, List<Task> previousTasks) {
+    default AssessmentSchedule generateSingleAssessmentSchedule(Assessment assessment, User user, List<Task> previousTasks, String prevTimezone) {
         ProtocolHandlerRunner protocolHandlerRunner =
                 new ProtocolHandlerRunner();
         protocolHandlerRunner.addProtocolHandler(this.getProtocolHandler(assessment));
@@ -54,7 +56,7 @@ public interface ScheduleGeneratorService {
         protocolHandlerRunner.addProtocolHandler(this.getRepeatQuestionnaireHandler(assessment));
         protocolHandlerRunner.addProtocolHandler(this.getNotificationHandler(assessment));
         protocolHandlerRunner.addProtocolHandler(this.getReminderHandler(assessment));
-        protocolHandlerRunner.addProtocolHandler(this.getCompletedQuestionnaireHandler(assessment, previousTasks));
+       protocolHandlerRunner.addProtocolHandler(this.getCompletedQuestionnaireHandler(assessment, previousTasks, prevTimezone));
         return protocolHandlerRunner.runProtocolHandlers(assessment, user);
     }
 
