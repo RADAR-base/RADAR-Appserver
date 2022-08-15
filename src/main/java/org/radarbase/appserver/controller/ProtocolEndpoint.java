@@ -46,8 +46,8 @@ public class ProtocolEndpoint {
     return this.protocolGenerator.getAllProtocols();
   }
 
-  @GetMapping("/" + PathsUtil.PROTOCOL_PATH + "/{projectId}")
-  public Protocol getProtocol(@Valid @PathVariable String projectId) {
-    return this.protocolGenerator.getProtocol(projectId);
+  @GetMapping("/" + PathsUtil.PROTOCOL_PATH + "/{subjectId}")
+  public Protocol getProtocol(@Valid @PathVariable String subjectId) {
+    return this.protocolGenerator.getProtocolForSubject(subjectId);
   }
 }

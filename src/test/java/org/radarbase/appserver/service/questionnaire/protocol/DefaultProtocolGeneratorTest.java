@@ -82,13 +82,13 @@ class DefaultProtocolGeneratorTest {
         protocol.setSchemaVersion("2.0");
         protocol.setProtocols(List.of(assessment));
 
-        when(protocolFetcherStrategy.fetchProtocols()).thenReturn(Map.of("test-project", protocol));
+        when(protocolFetcherStrategy.fetchProtocols()).thenReturn(Map.of("user1", protocol));
     }
 
     @Test
     void getAllProtocols() {
 
-        Protocol protocol = protocolGenerator.getAllProtocols().get("test-project");
+        Protocol protocol = protocolGenerator.getAllProtocols().get("user1");
         assertEquals("Test", protocol.getName());
         assertEquals("1.0", protocol.getVersion());
         assertEquals("PHQ8", protocol.getProtocols().get(0).getName());
@@ -97,7 +97,7 @@ class DefaultProtocolGeneratorTest {
     @Test
     void getProtocol() {
 
-        Protocol protocol = protocolGenerator.getProtocol("test-project");
+        Protocol protocol = protocolGenerator.getProtocolForSubject("user1");
         assertEquals("Test", protocol.getName());
         assertEquals("1.0", protocol.getVersion());
         assertEquals("PHQ8", protocol.getProtocols().get(0).getName());
