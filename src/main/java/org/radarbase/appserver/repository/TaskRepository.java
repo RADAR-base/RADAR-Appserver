@@ -26,6 +26,8 @@ import org.radarbase.appserver.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -42,6 +44,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
 
     List<Task> findByUserIdAndType(Long userId, AssessmentType type);
 
+    @Transactional(propagation=Propagation.REQUIRES_NEW)
     void deleteByUserId(Long userId);
 
     void deleteByUserIdAndType(Long userId, AssessmentType type);
