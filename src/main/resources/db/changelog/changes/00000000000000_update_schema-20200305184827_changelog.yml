@@ -49,12 +49,12 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: timestamp
-                  type: timestamp
+                  type: timestamp(6)
                   constraints:
                     nullable: false
               - column:
                   name: time_completed
-                  type: timestamp
+                  type: timestamp(6)
                   constraints:
                     nullable: true
               - column:
