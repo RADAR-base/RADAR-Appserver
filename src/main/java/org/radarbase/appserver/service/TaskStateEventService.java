@@ -28,6 +28,7 @@ import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.TaskStateEvent;
 import org.radarbase.appserver.event.state.TaskState;
 import org.radarbase.appserver.repository.TaskStateEventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +62,7 @@ public class TaskStateEventService {
     private final transient ApplicationEventPublisher taskApplicationEventPublisher;
     private final transient ObjectMapper objectMapper;
 
+    @Autowired
     public TaskStateEventService(
             TaskStateEventRepository taskStateEventRepository,
             TaskService taskService,
