@@ -40,6 +40,7 @@ import org.radarbase.appserver.search.TaskSpecificationsBuilder;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
 import org.radarbase.appserver.util.CachedMap;
+import org.radarbase.appserver.util.ExpiringMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -51,6 +52,9 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -89,6 +93,9 @@ public class QuestionnaireScheduleService {
     public void init() {
         subjectScheduleMap =
                 new CachedMap<>(this::generateAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleWithFixedDelay(
+                this::generateAllSchedules, 1, 1, TimeUnit.HOURS);
     }
 
     @Transactional
@@ -189,12 +196,12 @@ public class QuestionnaireScheduleService {
 
     public Schedule getScheduleForSubject(String subjectId) {
         try {
-            return subjectScheduleMap.get(subjectId);
-        } catch (IOException ex) {
-            log.warn(
-                    "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex);
-            return subjectScheduleMap.getCache().get(subjectId);
-        } catch(NoSuchElementException ex) {
+            Schedule schedule = subjectScheduleMap.getCache().get(subjectId);
+            if (schedule == null) {
+                throw new NoSuchElementException();
+            }
+            return schedule;
+        } catch (NoSuchElementException ex) {
             log.warn("Subject does not exist in map. Fetching..");
             return new Schedule();
         }
