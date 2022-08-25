@@ -54,7 +54,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeUnit; 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -87,7 +87,6 @@ public class QuestionnaireScheduleService {
         this.protocolGenerator.getAllProtocols();
         this.scheduleGeneratorService = scheduleGeneratorService;
         this.init();
-        this.getAllSchedules();
     }
 
     public void init() {
@@ -95,8 +94,8 @@ public class QuestionnaireScheduleService {
                 new CachedMap<>(this::generateAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleWithFixedDelay(
-                this::generateAllSchedules, 1, 1, TimeUnit.HOURS);
-    }
+            this::generateAllSchedules, 1, 1, TimeUnit.HOURS);
+        }
 
     @Transactional
     public List<Task> getTasksUsingProjectIdAndSubjectId(String projectId, String subjectId) {
@@ -197,12 +196,10 @@ public class QuestionnaireScheduleService {
     public Schedule getScheduleForSubject(String subjectId) {
         try {
             Schedule schedule = subjectScheduleMap.getCache().get(subjectId);
-            if (schedule == null) {
-                throw new NoSuchElementException();
-            }
-            return schedule;
+            return schedule != null ? schedule : new Schedule();
         } catch (NoSuchElementException ex) {
-            log.warn("Subject does not exist in map. Fetching..");
+            log.warn("Subject does not exist in map.");
+        } finally {
             return new Schedule();
         }
     }
