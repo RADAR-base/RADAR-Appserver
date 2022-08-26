@@ -61,7 +61,7 @@ public class Assessment {
 
     private int nQuestions = 0;
 
-    private Boolean showInCalendar = false;
+    private Boolean showInCalendar = true;
 
     private Boolean isDemo = false;
 
