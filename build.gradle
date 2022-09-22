@@ -2,7 +2,7 @@ plugins {
     id 'pmd'
     id "com.github.lkishalmi.gatling" version "3.3.4"
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'org.springframework.boot' version "2.6.6"
+    id 'org.springframework.boot' version "2.7.4"
 }
 
 apply plugin: 'checkstyle'
