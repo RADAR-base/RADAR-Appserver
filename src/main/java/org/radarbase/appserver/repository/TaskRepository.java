@@ -47,6 +47,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
     @Transactional(propagation=Propagation.REQUIRES_NEW)
     void deleteByUserId(Long userId);
 
+    @Transactional(propagation=Propagation.REQUIRES_NEW)
     void deleteByUserIdAndType(Long userId, AssessmentType type);
 
     boolean existsByIdAndUserId(Long id, Long userId);

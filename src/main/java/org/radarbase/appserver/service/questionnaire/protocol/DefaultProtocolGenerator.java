@@ -83,7 +83,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
     }
 
     @Override
-    public Protocol getProtocol(String projectId) {
+    public Protocol getProtocol(String projectId) throws IOException {
 
         try {
             return cachedProjectProtocolMap.get(projectId);

@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service.questionnaire.protocol;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public interface ProtocolGenerator {
 
     Map<String, Protocol> getAllProtocols();
 
-    Protocol getProtocol(String projectId);
+    Protocol getProtocol(String projectId) throws IOException;
 
     Protocol getProtocolForSubject(String subjectId);
 }
