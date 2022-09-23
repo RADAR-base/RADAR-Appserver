@@ -90,7 +90,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
         } catch (IOException ex) {
             log.warn(
                     "Cannot retrieve Protocols for project {} : {}, Using cached values.", projectId, ex);
-            return cachedProjectProtocolMap.getCache().get(projectId);
+            return cachedProjectProtocolMap.get(true).get(projectId);
         }
     }
 

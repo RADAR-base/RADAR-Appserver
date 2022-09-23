@@ -84,21 +84,21 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
     public ProtocolHandler getNotificationHandler(Assessment assessment) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
-        return NotificationHandlerFactory.getNotificationHandler(NotificationHandlerType.SIMPLE, notificationService);
+        return NotificationHandlerFactory.getNotificationHandler(notificationService);
     }
 
     @Override
     public ProtocolHandler getReminderHandler(Assessment assessment) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
-        return ReminderHandlerFactory.getReminderHandler(ReminderHandlerType.SIMPLE, notificationService);
+        return ReminderHandlerFactory.getReminderHandler(notificationService);
     }
 
     @Override
     public ProtocolHandler getCompletedQuestionnaireHandler(Assessment assessment, List<Task> prevTasks, String prevTimezone) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
-        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(CompletedQuestionnaireHandlerType.SIMPLE, taskService, prevTasks, prevTimezone);
+        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(taskService, prevTasks, prevTimezone);
     }
 
 }

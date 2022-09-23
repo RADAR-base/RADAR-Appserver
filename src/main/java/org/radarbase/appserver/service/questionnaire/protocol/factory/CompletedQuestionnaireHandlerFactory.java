@@ -22,7 +22,6 @@
 package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
 
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.service.TaskService;
 import org.radarbase.appserver.service.questionnaire.protocol.CompletedQuestionnaireHandler;
@@ -32,13 +31,8 @@ import java.util.List;
 
 public class CompletedQuestionnaireHandlerFactory {
 
-    public static ProtocolHandler getCompletedQuestionnaireHandler(CompletedQuestionnaireHandlerType name, TaskService taskService, List<Task> prevTasks, String prevTimezone) {
-        switch (name) {
-            case SIMPLE:
-                return new CompletedQuestionnaireHandler(taskService, prevTasks, prevTimezone);
-            default:
-                return new CompletedQuestionnaireHandler(taskService, prevTasks, prevTimezone);
-        }
+    public static ProtocolHandler getCompletedQuestionnaireHandler(TaskService taskService, List<Task> prevTasks, String prevTimezone) {
+        return new CompletedQuestionnaireHandler(taskService, prevTasks, prevTimezone);
     }
 
 }

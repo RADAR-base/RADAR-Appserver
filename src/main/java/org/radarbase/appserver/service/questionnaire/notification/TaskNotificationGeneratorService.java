@@ -6,7 +6,7 @@ import org.radarbase.appserver.entity.Task;
 
 import java.time.Instant;
 
-public class NotificationGeneratorService {
+public class TaskNotificationGeneratorService {
     private transient int SECONDS_TO_MILLIS = 1000;
 
     public Notification createNotification(Task task, NotificationType type, Instant notificationTimestamp) {

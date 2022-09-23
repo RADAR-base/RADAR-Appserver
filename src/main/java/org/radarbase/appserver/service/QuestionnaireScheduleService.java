@@ -21,12 +21,12 @@
 
 package org.radarbase.appserver.service;
 
+import javafx.util.Pair;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.protocol.Protocol;
-import org.radarbase.appserver.dto.protocol.ScheduleCacheEntry;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Project;
@@ -39,8 +39,6 @@ import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.search.TaskSpecificationsBuilder;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.radarbase.appserver.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService;
-import org.radarbase.appserver.util.CachedMap;
-import org.radarbase.appserver.util.ExpiringMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -49,7 +47,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -68,7 +65,7 @@ public class QuestionnaireScheduleService {
 
     private final transient ProtocolGenerator protocolGenerator;
 
-    private transient CachedMap<String, Schedule> subjectScheduleMap;
+    private transient HashMap<String, Schedule> subjectScheduleMap = new HashMap<String, Schedule>();
 
     private final transient UserRepository userRepository;
 
@@ -90,8 +87,6 @@ public class QuestionnaireScheduleService {
     }
 
     public void init() {
-        subjectScheduleMap =
-                new CachedMap<>(this::generateAllSchedules, Duration.ofHours(2), Duration.ofHours(1));
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleWithFixedDelay(
             this::generateAllSchedules, 1, 1, TimeUnit.HOURS);
@@ -159,7 +154,7 @@ public class QuestionnaireScheduleService {
             this.removeScheduleForUser(user);
         }
         Schedule newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
-        subjectScheduleMap.add(user.getSubjectId(), newSchedule);
+        subjectScheduleMap.put(user.getSubjectId(), newSchedule);
         return newSchedule;
     }
 
@@ -181,35 +176,18 @@ public class QuestionnaireScheduleService {
         return users.parallelStream()
                 .map(u -> {
                     Schedule schedule = this.generateScheduleForUser(u);
-                    return new ScheduleCacheEntry(u.getSubjectId(), schedule);
-                }).collect(Collectors.toMap(ScheduleCacheEntry::getId, ScheduleCacheEntry::getSchedule));
-    }
-
-    public @NonNull Map<String, Schedule> getAllSchedules() {
-        try {
-            return subjectScheduleMap.get();
-        } catch (IOException ex) {
-            return subjectScheduleMap.getCache();
-        }
+                    return new Pair<String, Schedule>(u.getSubjectId(), schedule);
+                }).collect(Collectors.toMap(Pair::getKey, Pair::getValue);
     }
 
     public Schedule getScheduleForSubject(String subjectId) {
         try {
-            Schedule schedule = subjectScheduleMap.getCache().get(subjectId);
+            Schedule schedule = subjectScheduleMap.get(subjectId);
             return schedule != null ? schedule : new Schedule();
         } catch (NoSuchElementException ex) {
             log.warn("Subject does not exist in map.");
         } finally {
             return new Schedule();
-        }
-    }
-
-    private @NonNull Schedule forceGetScheduleForSubject(String subjectId) {
-        try {
-            return subjectScheduleMap.get(true).get(subjectId);
-        } catch (IOException ex) {
-            log.warn("Cannot retrieve Protocols, using cached values if available.", ex);
-            return subjectScheduleMap.getCache().get(subjectId);
         }
     }
 

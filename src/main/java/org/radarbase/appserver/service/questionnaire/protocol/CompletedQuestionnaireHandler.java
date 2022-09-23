@@ -2,23 +2,14 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
-import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.TaskState;
-import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.radarbase.appserver.service.TaskService;
-import org.radarbase.appserver.service.questionnaire.notification.NotificationGeneratorService;
-import org.radarbase.appserver.service.questionnaire.notification.NotificationType;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CompletedQuestionnaireHandler implements ProtocolHandler {
     private transient TaskService taskService;

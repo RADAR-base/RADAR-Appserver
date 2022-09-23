@@ -104,12 +104,6 @@ public class CachedMap<S, T> {
     }
   }
 
-  public void add(S key, T value) {
-    synchronized (this) {
-      cache.put(key, value);
-    }
-  }
-
   /**
    * Get a key from the map. If the key is missing, it will check with {@link #mayRetry()} whether
    * the cache may be updated. If so, it will fetch the cache again and look the key up.

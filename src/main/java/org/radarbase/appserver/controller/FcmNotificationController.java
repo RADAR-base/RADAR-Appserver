@@ -287,12 +287,13 @@ public class FcmNotificationController {
           + PathsUtil.SUBJECT_ID_CONSTANT
           + "/"
           + PathsUtil.MESSAGING_NOTIFICATION_PATH
-          + "/{id}")
+          + "/"
+          + PathsUtil.NOTIFICATION_ID_CONSTANT)
   public ResponseEntity deleteNotificationUsingProjectIdAndSubjectIdAndNotificationId(
-      @PathVariable String projectId, @PathVariable String subjectId, @PathVariable Long id) {
+      @PathVariable String projectId, @PathVariable String subjectId, @PathVariable Long notificationId) {
 
     this.notificationService.deleteNotificationByProjectIdAndSubjectIdAndNotificationId(
-        projectId, subjectId, id);
+        projectId, subjectId, notificationId);
     return ResponseEntity.ok().build();
   }
 

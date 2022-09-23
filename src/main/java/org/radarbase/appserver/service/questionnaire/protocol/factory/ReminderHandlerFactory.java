@@ -28,13 +28,8 @@ import org.radarbase.appserver.service.questionnaire.protocol.SimpleReminderHand
 
 public class ReminderHandlerFactory {
 
-    public static ProtocolHandler getReminderHandler(ReminderHandlerType name, FcmNotificationService notificationService) {
-        switch (name) {
-            case SIMPLE:
-                return new SimpleReminderHandler(notificationService);
-            default:
-                return new SimpleReminderHandler(notificationService);
-        }
+    public static ProtocolHandler getReminderHandler(FcmNotificationService notificationService) {
+        return new SimpleReminderHandler(notificationService);
     }
 
 }
