@@ -177,7 +177,7 @@ public class QuestionnaireScheduleService {
                 .map(u -> {
                     Schedule schedule = this.generateScheduleForUser(u);
                     return new Pair<String, Schedule>(u.getSubjectId(), schedule);
-                }).collect(Collectors.toMap(Pair::getKey, Pair::getValue);
+                }).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
     public Schedule getScheduleForSubject(String subjectId) {
