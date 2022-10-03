@@ -150,9 +150,11 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
                 .map(p -> {
                     Map<String, String> path = this.convertPathToAttributeMap(p, projectId);
                     return Maps.difference(attributes, path).entriesInCommon();
-                }).max(Comparator.comparingInt(Map::size)).get();
+                }).max(Comparator.comparingInt(Map::size)).orElse(Collections.emptyMap());
         try {
             URI uri = projectProtocolUriMap.get(this.convertAttributeMapToPath(pathMap, projectId));
+            if (uri == null) return new ProtocolCacheEntry(u.getSubjectId(), new Protocol());
+
             Protocol protocol = getProtocolFromUrl(uri);
             return new ProtocolCacheEntry(u.getSubjectId(), protocol);
         } catch (IOException | InterruptedException | ResponseStatusException e) {

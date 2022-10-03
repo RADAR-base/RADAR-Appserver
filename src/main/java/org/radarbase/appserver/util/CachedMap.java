@@ -120,7 +120,7 @@ public class CachedMap<S, T> {
         value = get(true).get(key);
       }
       if (value == null) {
-        throw new NoSuchElementException("Cannot find element for key " + key);
+        return null;
       }
     }
     return value;
