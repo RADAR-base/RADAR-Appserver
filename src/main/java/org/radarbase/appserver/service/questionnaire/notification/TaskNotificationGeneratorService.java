@@ -35,7 +35,7 @@ public class TaskNotificationGeneratorService {
     }
 
     private int calculateTtlSeconds(Task task, Instant notificationTimestamp) {
-        Long endTime = task.getTimestamp().getTime() + 1000000 / SECONDS_TO_MILLIS;
+        Long endTime = task.getTimestamp().getTime() + task.getCompletionWindow();
         Long timeUntilEnd = endTime - notificationTimestamp.getEpochSecond();
         return timeUntilEnd.intValue();
     }

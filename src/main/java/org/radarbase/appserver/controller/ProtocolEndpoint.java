@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
+import java.io.IOException;
 import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
@@ -46,8 +47,32 @@ public class ProtocolEndpoint {
     return this.protocolGenerator.getAllProtocols();
   }
 
-  @GetMapping("/" + PathsUtil.PROTOCOL_PATH + "/{subjectId}")
-  public Protocol getProtocol(@Valid @PathVariable String subjectId) {
+  @GetMapping(
+          value =
+                  "/"
+                          + PathsUtil.PROJECT_PATH
+                          + "/"
+                          + PathsUtil.PROJECT_ID_CONSTANT
+                          + "/"
+                          + PathsUtil.USER_PATH
+                          + "/"
+                          + PathsUtil.SUBJECT_ID_CONSTANT
+                          + "/"
+                          + PathsUtil.PROTOCOL_PATH)
+  public Protocol getProtocolUsingProjectIdAndSubjectId(
+          @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
     return this.protocolGenerator.getProtocolForSubject(subjectId);
+  }
+
+  @GetMapping(
+          "/"
+                  + PathsUtil.PROJECT_PATH
+                  + "/"
+                  + PathsUtil.PROJECT_ID_CONSTANT
+                  + "/"
+                  + PathsUtil.PROTOCOL_PATH)
+  public Protocol getProtocolUsingProjectId(
+          @Valid @PathVariable String projectId) throws IOException {
+    return this.protocolGenerator.getProtocol(projectId);
   }
 }
