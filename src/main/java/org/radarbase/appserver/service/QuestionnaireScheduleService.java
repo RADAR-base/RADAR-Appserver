@@ -162,8 +162,13 @@ public class QuestionnaireScheduleService {
                                                                             String subjectId,
                                                                             Assessment assessment) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-
         Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
+        Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
+
+        if (!protocol.hasAssessment(assessment.getName())) {
+            throw new NotFoundException("Assessment not found in protocol. Add assessment to protocol first.");
+        }
+
         AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList(), user.getTimezone());
         schedule.addAssessmentSchedule(a);
         return schedule;
