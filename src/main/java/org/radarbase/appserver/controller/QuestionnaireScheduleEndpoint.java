@@ -26,10 +26,13 @@ import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.service.QuestionnaireScheduleService;
+import org.radarbase.appserver.config.AuthConfig.AuthEntities;
+import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import radar.spring.auth.common.Authorized;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -60,6 +63,7 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.SUBJECT_ID_CONSTANT
                     + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+    @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)               
     public ResponseEntity generateScheduleUsingProjectIdAndSubjectId(
             @Valid @PathVariable String projectId,
             @Valid @PathVariable String subjectId)
@@ -80,6 +84,7 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.SUBJECT_ID_CONSTANT
                     + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+    @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT) 
     public ResponseEntity generateScheduleUsingProtocol(
             @PathVariable String projectId,
             @PathVariable String subjectId,
@@ -107,6 +112,7 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.SUBJECT_ID_CONSTANT
                     + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+    @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
     public List<Task> getScheduleUsingProjectIdAndSubjectId(
             @Valid @PathVariable String projectId,
             @Valid @PathVariable String subjectId,
@@ -136,6 +142,7 @@ public class QuestionnaireScheduleEndpoint {
                     + PathsUtil.SUBJECT_ID_CONSTANT
                     + "/"
                     + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+    @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)                 
     public ResponseEntity deleteScheduleForUser(
             @PathVariable String projectId,
             @PathVariable String subjectId,
