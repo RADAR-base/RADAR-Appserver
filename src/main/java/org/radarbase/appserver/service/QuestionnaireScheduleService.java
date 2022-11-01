@@ -81,7 +81,6 @@ public class QuestionnaireScheduleService {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
-        this.protocolGenerator.getAllProtocols();
         this.scheduleGeneratorService = scheduleGeneratorService;
         this.init();
     }

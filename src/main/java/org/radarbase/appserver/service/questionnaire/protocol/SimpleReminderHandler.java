@@ -45,7 +45,8 @@ public class SimpleReminderHandler implements ProtocolHandler {
                         return notification;
                     });
                         }
-                ).collect(Collectors.toList());
+                )
+                .filter(notification -> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
 
         return notifications;
     }

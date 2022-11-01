@@ -119,9 +119,6 @@ public class CachedMap<S, T> {
       if (mayRetry()) {
         value = get(true).get(key);
       }
-      if (value == null) {
-        return null;
-      }
     }
     return value;
   }

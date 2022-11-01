@@ -11,10 +11,7 @@ import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -41,7 +38,7 @@ public interface ScheduleGeneratorService {
                 assessment -> {
                     Optional<AssessmentSchedule> prevAssessmentSchedule =
                             prevAssessmentSchedules.stream().filter(a -> a.getName() == assessment.getName()).findFirst();
-                    return this.generateSingleAssessmentSchedule(assessment, user, prevAssessmentSchedule.isPresent() ? prevAssessmentSchedule.get().getTasks() : Collections.emptyList(), prevTimezone);
+                    return this.generateSingleAssessmentSchedule(assessment, user, prevAssessmentSchedule.isPresent() ? prevAssessmentSchedule.get().getTasks() : new ArrayList<>(), prevTimezone);
                 }
         ).collect(Collectors.toList());
 

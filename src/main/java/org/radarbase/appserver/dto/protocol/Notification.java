@@ -21,36 +21,25 @@
 
 package org.radarbase.appserver.dto.protocol;
 
-import java.time.Instant;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yatharthranjan
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AssessmentProtocol {
+public class Notification {
 
-    private RepeatProtocol repeatProtocol;
+    @JsonProperty("title")
+    private LanguageText title;
 
-    private ReminderTimePeriod reminders;
+    @JsonProperty("text")
+    private LanguageText body;
 
-    private TimePeriod completionWindow;
-
-    private RepeatQuestionnaire repeatQuestionnaire;
-
-    private ReferenceTimestamp referenceTimestamp;
-
-    private ClinicalProtocol clinicalProtocol;
-
-    private Notification notification;
-
-    @JsonDeserialize(using = ReferenceTimestampDeserializer.class)
-    public void setReferenceTimestamp(Object responseObject) {
-        if(responseObject instanceof ReferenceTimestamp)
-            this.referenceTimestamp = (ReferenceTimestamp) responseObject;
-    }
 }

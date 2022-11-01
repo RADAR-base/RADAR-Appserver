@@ -35,7 +35,7 @@ import org.radarbase.appserver.entity.User;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Schedule {
-    private List<AssessmentSchedule> assessmentSchedules = Collections.emptyList();
+    private List<AssessmentSchedule> assessmentSchedules = new ArrayList<>();
 
     private User user;
 
