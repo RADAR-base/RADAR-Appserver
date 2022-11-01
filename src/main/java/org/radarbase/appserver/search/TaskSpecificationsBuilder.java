@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class TaskSpecificationsBuilder {
 
-    private final List<SearchCriteria> params;
+    private final transient List<SearchCriteria> params;
 
     public TaskSpecificationsBuilder() {
         params = new ArrayList<>();

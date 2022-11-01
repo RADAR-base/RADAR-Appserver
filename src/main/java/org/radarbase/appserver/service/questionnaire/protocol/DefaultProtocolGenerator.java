@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+@SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
 public class DefaultProtocolGenerator implements ProtocolGenerator {
 
     // Keeps a cache of Protocol for each project

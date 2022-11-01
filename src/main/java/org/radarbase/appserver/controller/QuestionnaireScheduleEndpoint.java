@@ -39,9 +39,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @RestController
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class QuestionnaireScheduleEndpoint {
 
     @Autowired
@@ -68,7 +70,7 @@ public class QuestionnaireScheduleEndpoint {
             @Valid @PathVariable String projectId,
             @Valid @PathVariable String subjectId)
             throws URISyntaxException {
-        Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, subjectId);
+        this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, subjectId);
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
     }
@@ -91,7 +93,7 @@ public class QuestionnaireScheduleEndpoint {
             @Valid @RequestBody Assessment assessment)
             throws URISyntaxException {
         try {
-            Schedule schedule = this.scheduleService.generateScheduleUsingProjectIdAndSubjectIdAndAssessment(projectId, subjectId, assessment);
+            this.scheduleService.generateScheduleUsingProjectIdAndSubjectIdAndAssessment(projectId, subjectId, assessment);
             return ResponseEntity.created(
                     new URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")).build();
 
@@ -120,7 +122,7 @@ public class QuestionnaireScheduleEndpoint {
             @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(required = false ) Optional<Instant> startTime,
             @RequestParam(required = false ) Optional<Instant> endTime) {
-        AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
+        AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase(Locale.getDefault()));
         // TODO: Use search instead of startTime and endTime
         if (startTime.isPresent() && endTime.isPresent()) {
             return this.scheduleService.getTasksForDateUsingProjectIdAndSubjectId(projectId, subjectId, startTime.get(), endTime.get());
@@ -148,7 +150,7 @@ public class QuestionnaireScheduleEndpoint {
             @PathVariable String subjectId,
             @RequestParam(required = false, defaultValue = "all") String type,
             @RequestParam(required = false, defaultValue = "") String search) {
-        AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase());
+        AssessmentType assessmentType = AssessmentType.valueOf(type.toUpperCase(Locale.getDefault()));
         this.scheduleService.removeScheduleForUserUsingSubjectIdAndType(projectId, subjectId, assessmentType, search);
         return ResponseEntity.ok().build();
     }

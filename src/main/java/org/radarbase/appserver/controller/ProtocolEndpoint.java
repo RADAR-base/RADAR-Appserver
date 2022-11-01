@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import radar.spring.auth.common.Authorized;
-import radar.spring.auth.common.PermissionOn;;
+import radar.spring.auth.common.PermissionOn;
 
 @RestController
 public class ProtocolEndpoint {

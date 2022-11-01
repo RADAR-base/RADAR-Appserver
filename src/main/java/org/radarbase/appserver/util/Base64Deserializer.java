@@ -33,7 +33,7 @@ import java.util.Base64;
 
 public class Base64Deserializer extends JsonDeserializer<Object> implements ContextualDeserializer {
 
-  private Class<?> resultClass;
+  private transient Class<?> resultClass;
 
   @Override
   public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty property) throws JsonMappingException {
@@ -47,7 +47,6 @@ public class Base64Deserializer extends JsonDeserializer<Object> implements Cont
     Base64.Decoder decoder = Base64.getDecoder();
 
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
       byte[] decodedValue = decoder.decode(value);
 
       return new String(decodedValue);

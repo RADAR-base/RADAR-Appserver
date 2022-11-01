@@ -25,7 +25,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,38 +33,33 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import io.swagger.v3.core.util.Json;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.GithubContent;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.protocol.ProtocolCacheEntry;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
-import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private final transient UserRepository userRepository;
     private final transient ProjectRepository projectRepository;
@@ -114,7 +108,6 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         return response.statusCode() >= 200 && response.statusCode() < 300;
     }
 
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     @Override
     public synchronized Map<String, Protocol> fetchProtocols() throws IOException {
         Map<String, Protocol> subjectProtocolMap = new HashMap<>();
@@ -162,7 +155,6 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         }
     }
 
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     @Override
     public synchronized Map<String, Protocol> fetchProtocolsPerProject() throws IOException {
         Map<String, Protocol> projectProtocolMap = new HashMap<>();
@@ -224,8 +216,6 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         return path.toString();
     }
 
-
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     @Synchronized
     private Map<String, URI> getProtocolDirectories() throws IOException {
 

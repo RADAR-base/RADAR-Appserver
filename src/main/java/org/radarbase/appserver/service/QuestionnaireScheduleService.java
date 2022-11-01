@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+@SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
 public class QuestionnaireScheduleService {
 
     private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
@@ -162,13 +163,12 @@ public class QuestionnaireScheduleService {
                                                                             String subjectId,
                                                                             Assessment assessment) {
         User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
-
         if (!protocol.hasAssessment(assessment.getName())) {
             throw new NotFoundException("Assessment not found in protocol. Add assessment to protocol first.");
         }
 
+        Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
         AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList(), user.getTimezone());
         schedule.addAssessmentSchedule(a);
         return schedule;
@@ -190,9 +190,8 @@ public class QuestionnaireScheduleService {
             return schedule != null ? schedule : new Schedule();
         } catch (NoSuchElementException ex) {
             log.warn("Subject does not exist in map.");
-        } finally {
-            return new Schedule();
         }
+        return new Schedule();
     }
 
     @Transactional

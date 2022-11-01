@@ -39,7 +39,7 @@ public class SimpleRepeatProtocolHandler implements ProtocolHandler {
     private transient TimePeriod PLUS_ONE_WEEK = new TimePeriod("week", 1);
     private transient TimePeriod MINUS_ONE_WEEK = new TimePeriod("week", -1);
 
-    private final int MAX_YEAR = 2030;
+    private final transient int MAX_YEAR = 2030;
 
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {

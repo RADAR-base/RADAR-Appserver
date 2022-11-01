@@ -35,7 +35,7 @@ public class SimpleReminderHandler implements ProtocolHandler {
     }
 
     public List<Notification> generateReminders(List<Task> tasks, Assessment assessment, TimeZone timezone, User user) {
-        List<Notification> notifications = tasks.parallelStream()
+        return tasks.parallelStream()
                 .flatMap(task -> {
                     ReminderTimePeriod reminders = assessment.getProtocol().getReminders();
                     return IntStream.range(0, reminders.getRepeat()).mapToObj(i -> {
@@ -47,8 +47,6 @@ public class SimpleReminderHandler implements ProtocolHandler {
                         }
                 )
                 .filter(notification -> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
-
-        return notifications;
     }
 
 }

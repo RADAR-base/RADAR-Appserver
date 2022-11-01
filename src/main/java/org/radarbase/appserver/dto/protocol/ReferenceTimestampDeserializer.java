@@ -43,7 +43,7 @@ public class ReferenceTimestampDeserializer extends JsonDeserializer<Object> {
 
     @Override
     public ReferenceTimestamp deserialize(JsonParser parser, DeserializationContext context) throws IOException, JsonProcessingException {
-        ReferenceTimestamp response = new ReferenceTimestamp();
+        ReferenceTimestamp response;
 
         if (JsonToken.START_OBJECT.equals(parser.getCurrentToken())) {
             ObjectMapper mapper = new ObjectMapper();

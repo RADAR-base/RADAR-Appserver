@@ -25,15 +25,16 @@ public class CompletedQuestionnaireHandler implements ProtocolHandler {
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         String currentTimezone = user.getTimezone();
-        List<Task> tasks = markTasksAsCompleted(assessmentSchedule.getTasks(), prevTasks, currentTimezone, prevTimezone);
+        this.markTasksAsCompleted(assessmentSchedule.getTasks(), prevTasks, currentTimezone, prevTimezone);
         return assessmentSchedule;
     }
 
 
     @Transactional
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     public List<Task> markTasksAsCompleted(List<Task> currentTasks, List<Task> previousTasks, String currentTimezone, String prevTimezone) {
         currentTasks.parallelStream().forEach( newTask -> {
-            Optional<Task> matching = Optional.empty();
+            Optional<Task> matching;
             if (!currentTimezone.equals(prevTimezone)) {
                 Timestamp prevTimestamp = getPreviousTimezoneEquivalent(newTask.getTimestamp(), currentTimezone, prevTimezone);
                 matching = previousTasks.parallelStream().filter( u -> areMatchingTasks(newTask, u, prevTimestamp)).findFirst();

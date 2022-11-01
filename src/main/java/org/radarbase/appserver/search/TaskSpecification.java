@@ -12,6 +12,8 @@ import javax.persistence.criteria.Root;
 
 @AllArgsConstructor
 public class TaskSpecification implements Specification<Task> {
+    private static final long serialVersionUID = 327842183571958L;
+
     private SearchCriteria criteria;
 
     @Override

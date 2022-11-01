@@ -29,7 +29,7 @@ public class SimpleNotificationHandler implements ProtocolHandler {
     }
 
     public List<Notification> generateNotifications(List<Task> tasks, User user) {
-        List<Notification> notifications = tasks.parallelStream()
+        return tasks.parallelStream()
                 .map(task ->{
                         Notification notification = this.taskNotificationGeneratorService
                                 .createNotification(task, NotificationType.NOW, task.getTimestamp().toInstant());
@@ -37,8 +37,6 @@ public class SimpleNotificationHandler implements ProtocolHandler {
                         return notification;
                 })
                 .filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
-
-        return notifications;
     }
 
 }

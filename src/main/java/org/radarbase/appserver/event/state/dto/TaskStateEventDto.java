@@ -13,6 +13,7 @@ import java.util.Map;
 @Getter
 @ToString
 public class TaskStateEventDto extends ApplicationEvent {
+    private static final long serialVersionUID = 327842183571948L;
 
     private final Task task;
     private final TaskState state;
