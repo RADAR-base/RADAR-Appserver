@@ -27,6 +27,9 @@ import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.User;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -37,10 +40,16 @@ public class SimpleProtocolHandler implements ProtocolHandler {
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         ReferenceTimestamp referenceTimestamp = assessment.getProtocol().getReferenceTimestamp();
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
+        ZoneId timezoneId = timezone.toZoneId();
         if (referenceTimestamp != null) {
+            String timestamp = referenceTimestamp.getTimestamp();
             switch (referenceTimestamp.getFormat()) {
                 case DATE:
+                    assessmentSchedule.setReferenceTimestamp(LocalDate.parse(timestamp).atStartOfDay(timezoneId).toInstant());
+                    break;
                 case DATETIME:
+                    assessmentSchedule.setReferenceTimestamp(LocalDateTime.parse(timestamp).atZone(timezoneId).toInstant());
+                    break;
                 case DATETIMEUTC:
                     assessmentSchedule.setReferenceTimestamp(Instant.parse(referenceTimestamp.getTimestamp()));
                     break;
