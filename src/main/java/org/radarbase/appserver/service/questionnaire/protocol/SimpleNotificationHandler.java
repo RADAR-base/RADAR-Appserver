@@ -10,6 +10,7 @@ import org.radarbase.appserver.service.questionnaire.notification.TaskNotificati
 import org.radarbase.appserver.service.questionnaire.notification.NotificationType;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,13 +31,14 @@ public class SimpleNotificationHandler implements ProtocolHandler {
 
     public List<Notification> generateNotifications(List<Task> tasks, User user) {
         return tasks.parallelStream()
-                .map(task ->{
+                .map(task -> {
                         Notification notification = this.taskNotificationGeneratorService
                                 .createNotification(task, NotificationType.NOW, task.getTimestamp().toInstant());
                         notification.setUser(user);
                         return notification;
                 })
-                .filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
+                .filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()
+                        .plus(notification.getTtlSeconds(), ChronoUnit.SECONDS)))).collect(Collectors.toList());
     }
 
 }
