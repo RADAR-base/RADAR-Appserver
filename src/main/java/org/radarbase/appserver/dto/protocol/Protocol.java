@@ -43,4 +43,8 @@ public class Protocol {
   private List<String> healthIssues;
 
   private List<Assessment> protocols;
+
+  public boolean hasAssessment(String assessment) {
+    return this.protocols.stream().anyMatch(a -> a.getName().equals(assessment));
+  }
 }

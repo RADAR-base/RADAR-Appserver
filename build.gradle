@@ -3,6 +3,7 @@ plugins {
     id "com.github.lkishalmi.gatling" version "3.3.4"
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'org.springframework.boot' version "2.6.6"
+    id 'org.openjfx.javafxplugin' version '0.0.13'
 }
 
 apply plugin: 'checkstyle'
@@ -105,6 +106,11 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
     gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+}
+
+javafx {
+    version = "19"
+    modules = [ 'javafx.controls' ]
 }
 
 checkstyle {

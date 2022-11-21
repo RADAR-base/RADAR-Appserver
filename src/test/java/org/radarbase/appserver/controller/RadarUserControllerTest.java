@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
+import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -49,6 +50,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.radarbase.appserver.exception.InvalidUserDetailsException;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(RadarUserController.class)
@@ -102,6 +104,18 @@ public class RadarUserControllerTest {
 
         given(userService.saveUserInProject(userDtoNew)).willReturn(userDtoNew.setId(2L));
 
+        FcmUserDto userDtoSameToken =
+                new FcmUserDto()
+                        .setSubjectId(USER_ID + "-new-user")
+                        .setFcmToken(FCM_TOKEN_2)
+                        .setProjectId(PROJECT_ID)
+                        .setEnrolmentDate(enrolmentDate)
+                        .setLanguage("en")
+                        .setTimezone(TIMEZONE)
+                        .setId(5L);
+
+        given(userService.saveUserInProject(userDtoSameToken)).willThrow(new InvalidUserDetailsException("User already exists"));
+
         FcmUserDto userUpdated =
                 new FcmUserDto()
                         .setSubjectId(USER_ID + "-updated")
@@ -136,18 +150,6 @@ public class RadarUserControllerTest {
                 .andExpect(jsonPath(LANGUAGE_JSON_PATH, is("en")))
                 .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH, is(enrolmentDate.toString())))
                 .andExpect(jsonPath(ID_JSON_PATH, is(2)));
-    }
-
-    @Test
-    void addUserToProjectWhenFcmTokenExists() throws Exception {
-        FcmUserDto userDtoNew =
-                new FcmUserDto()
-                        .setSubjectId(USER_ID + "-new")
-                        .setFcmToken(FCM_TOKEN_2)
-                        .setEnrolmentDate(enrolmentDate)
-                        .setLanguage("en")
-                        .setTimezone(TIMEZONE)
-                        .setId(2L);
 
         FcmUserDto userDtoSameToken =
                 new FcmUserDto()
@@ -156,25 +158,15 @@ public class RadarUserControllerTest {
                         .setEnrolmentDate(enrolmentDate)
                         .setLanguage("en")
                         .setTimezone(TIMEZONE)
-                        .setId(1L);
+                        .setId(5L);
+
         mockMvc
                 .perform(
                         MockMvcRequestBuilders.post(new URI("/projects/test-project/users"))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userDtoNew)))
-                .andDo(result ->
-                        mockMvc.perform(MockMvcRequestBuilders.post(new URI("/projects/test-project/users"))
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userDtoSameToken)))
-                .andExpect(status().isConflict()));
+                .andExpect(status().isExpectationFailed());
 
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.post(new URI("/projects/test-project/users?forceFcmToken=true"))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userDtoSameToken)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath(FCM_TOKEN_JSON_PATH, is(FCM_TOKEN_3)));
     }
 
     @Test

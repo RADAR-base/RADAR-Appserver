@@ -23,10 +23,7 @@ package org.radarbase.appserver.service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.radarbase.appserver.converter.NotificationConverter;
@@ -346,6 +343,16 @@ public class FcmNotificationService implements NotificationService {
     }
 
     @Transactional
+    public void removeNotificationsForUserUsingTaskId(String projectId, String subjectId, Long taskId) {
+        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
+
+        List<Notification> notifications = this.notificationRepository.findByUserIdAndTaskId(user.getId(), taskId);
+        this.schedulerService.deleteScheduledMultiple(notifications);
+
+        this.notificationRepository.deleteByUserIdAndTaskId(user.getId(), taskId);
+    }
+
+    @Transactional
     public void removeNotificationsForUserUsingFcmToken(String fcmToken) {
         Optional<User> user = this.userRepository.findByFcmToken(fcmToken);
 
@@ -383,6 +390,31 @@ public class FcmNotificationService implements NotificationService {
         }
         return new FcmNotifications()
                 .setNotifications(notificationConverter.entitiesToDtos(savedNotifications));
+    }
+
+    @Transactional
+    public List<Notification> addNotifications(List<Notification> notifications,User user) {
+        List<Notification> newNotifications =
+                notifications.stream()
+                        .filter(notification ->
+                            notificationRepository
+                                    .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+                                            user.getId(),
+                                            notification.getSourceId(),
+                                            notification.getScheduledTime(),
+                                            notification.getTitle(),
+                                            notification.getBody(),
+                                            notification.getType(),
+                                            notification.getTtlSeconds()).isPresent()
+                        )
+                        .collect(Collectors.toList());
+
+        List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
+        this.notificationRepository.flush();
+        savedNotifications.forEach(
+                n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
+        this.schedulerService.scheduleMultiple(savedNotifications);
+        return savedNotifications;
     }
 
     @Transactional

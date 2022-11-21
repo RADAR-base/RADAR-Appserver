@@ -101,7 +101,7 @@ public class ProjectService {
     }
 
     return projectConverter.entityToDto(
-        this.projectRepository.save(projectConverter.dtoToEntity(projectDto)));
+            this.projectRepository.save(projectConverter.dtoToEntity(projectDto)));
   }
 
   @Transactional

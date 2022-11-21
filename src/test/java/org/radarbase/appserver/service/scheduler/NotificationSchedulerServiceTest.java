@@ -76,6 +76,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         })
 class NotificationSchedulerServiceTest {
 
+    private static final String TIMEZONE = "Europe/London";
     private static final String JOB_DETAIL_ID = "message-jobdetail-test-subject-1";
     private static Notification notification;
     @Autowired
