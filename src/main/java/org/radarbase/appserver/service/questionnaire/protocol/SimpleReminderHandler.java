@@ -11,6 +11,7 @@ import org.radarbase.appserver.service.questionnaire.notification.TaskNotificati
 import org.radarbase.appserver.service.questionnaire.notification.NotificationType;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -46,7 +47,8 @@ public class SimpleReminderHandler implements ProtocolHandler {
                     });
                         }
                 )
-                .filter(notification -> (Instant.now().isBefore(notification.getScheduledTime()))).collect(Collectors.toList());
+                .filter(notification-> (Instant.now().isBefore(notification.getScheduledTime()
+                        .plus(notification.getTtlSeconds(), ChronoUnit.SECONDS)))).collect(Collectors.toList());
     }
 
 }
