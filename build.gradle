@@ -85,7 +85,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-admin:8.1.0'
 
     // AOP
-    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.3.18'
+    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '6.0.1'
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion) {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
