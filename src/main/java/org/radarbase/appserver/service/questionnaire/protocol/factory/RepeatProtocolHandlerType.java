@@ -19,13 +19,10 @@
  *
  */
 
-package org.radarbase.appserver.service.protocol;
+package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
-import java.io.IOException;
-import java.util.Map;
-import org.radarbase.appserver.dto.protocol.Protocol;
-
-public interface ProtocolFetcherStrategy {
-
-  Map<String, Protocol> fetchProtocols() throws IOException;
+public enum RepeatProtocolHandlerType {
+    SIMPLE,
+    DAYOFWEEK,
+    OTHER
 }

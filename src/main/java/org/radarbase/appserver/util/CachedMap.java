@@ -119,9 +119,6 @@ public class CachedMap<S, T> {
       if (mayRetry()) {
         value = get(true).get(key);
       }
-      if (value == null) {
-        throw new NoSuchElementException("Cannot find element for key " + key);
-      }
     }
     return value;
   }

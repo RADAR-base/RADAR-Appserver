@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -83,7 +84,7 @@ public class RadarProjectController {
       consumes = {MediaType.APPLICATION_JSON_VALUE})
   public ResponseEntity<ProjectDto> addProject(
       HttpServletRequest request, @Valid @RequestBody ProjectDto projectDto)
-      throws URISyntaxException {
+          throws URISyntaxException, IOException {
 
     if (authorization != null) {
       RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);

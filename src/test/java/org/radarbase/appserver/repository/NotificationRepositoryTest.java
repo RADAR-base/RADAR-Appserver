@@ -50,6 +50,7 @@ public class NotificationRepositoryTest {
     public static final String NOTIFICATION_TITLE = "Testing";
     public static final String NOTIFICATION_FCM_MESSAGE_ID = "12345";
     public static final String NOTIFICATION_SOURCE_ID = "test";
+    private static final String TIMEZONE = "Europe/London";
     @Autowired
     private transient TestEntityManager entityManager;
     @Autowired

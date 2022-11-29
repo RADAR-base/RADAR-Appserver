@@ -25,19 +25,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -46,6 +37,7 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
+import org.springframework.lang.Nullable;
 
 /**
  * {@link Entity} for persisting users. The corresponding DTO is {@link FcmUserDto}. A {@link
@@ -100,6 +92,13 @@ public class User extends AuditModel implements Serializable {
     @Column(name = "language")
     private String language;
 
+    @Nullable
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "attributes_map")
+    @MapKeyColumn(name = "key", nullable = true)
+    @Column(name = "value")
+    private Map<String, String> attributes = new HashMap<String, String>();
+
     public User setSubjectId(String subjectId) {
         this.subjectId = subjectId;
         return this;
@@ -132,6 +131,11 @@ public class User extends AuditModel implements Serializable {
 
     public User setLanguage(String language) {
         this.language = language;
+        return this;
+    }
+
+    public User setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
         return this;
     }
 

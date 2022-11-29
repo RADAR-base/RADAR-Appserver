@@ -64,6 +64,7 @@ class UserServiceTest {
     private transient ProjectRepository projectRepository;
 
     private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
+    private static final String TIMEZONE = "Europe/Bucharest";
 
     @BeforeEach
     void setUp() {
@@ -112,7 +113,7 @@ class UserServiceTest {
                         .setProject(project)
                         .setEnrolmentDate(enrolmentDate)
                         .setLanguage("es")
-                        .setTimezone("Europe/Bucharest")
+                        .setTimezone(TIMEZONE)
                         .setUserMetrics(
                                 new UserMetrics().setLastDelivered(enrolmentDate).setLastOpened(enrolmentDate));
 

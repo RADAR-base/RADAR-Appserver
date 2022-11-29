@@ -21,32 +21,55 @@
 
 package org.radarbase.appserver.dto.protocol;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.apache.commons.codec.language.bm.Lang;
+
+import javax.persistence.Column;
 
 /**
  * Data Transfer object (DTO) for Assessment. A project may represent a Protocol for scheduling
  * questionnaires.
  *
+ * @author yatharthranjan
  * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
  * @see Protocol
- * @author yatharthranjan
  */
 @Data
 public class Assessment {
 
-  private String name;
+    private String name;
 
-  private String showIntroduction;
+    private AssessmentType type;
 
-  private DefinitionInfo questionnaire;
+    private String showIntroduction;
 
-  private LanguageText startText;
+    private DefinitionInfo questionnaire;
 
-  private LanguageText endText;
+    private LanguageText startText;
 
-  private LanguageText warn;
+    private LanguageText endText;
 
-  private Integer estimatedCompletionTime;
+    private LanguageText warn;
 
-  private AssessmentProtocol protocol;
+    private Integer estimatedCompletionTime;
+
+    private AssessmentProtocol protocol;
+
+    @Column(name="\"order\"")
+    private Integer order = 0;
+
+    private int nQuestions = 0;
+
+    private Boolean showInCalendar = true;
+
+    private Boolean isDemo = false;
+
+    public AssessmentType getType() {
+        if (type != null) return type;
+        else if (protocol.getClinicalProtocol() != null) return AssessmentType.CLINICAL;
+
+        return AssessmentType.SCHEDULED;
+    }
+
 }

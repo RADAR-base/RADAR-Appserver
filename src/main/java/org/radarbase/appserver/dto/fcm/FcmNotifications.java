@@ -24,6 +24,8 @@ package org.radarbase.appserver.dto.fcm;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.Size;
+
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 @Getter
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
 public class FcmNotifications {
 
   private static final Logger logger = LoggerFactory.getLogger(FcmNotifications.class);

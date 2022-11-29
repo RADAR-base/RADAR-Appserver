@@ -24,8 +24,11 @@ package org.radarbase.appserver.dto.fcm;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -77,6 +80,9 @@ public class FcmUserDto implements Serializable {
 
   private String language;
 
+  @Size(max = 100)
+  private Map<String, String> attributes;
+
   public FcmUserDto(User user) {
     this.id = user.getId();
     this.projectId = user.getProject().getProjectId();
@@ -95,6 +101,7 @@ public class FcmUserDto implements Serializable {
     if (user.getUpdatedAt() != null) {
       this.updatedAt = user.getUpdatedAt().toInstant();
     }
+    this.attributes = user.getAttributes();
   }
 
   public FcmUserDto setId(Long id) {
@@ -149,6 +156,11 @@ public class FcmUserDto implements Serializable {
 
   public FcmUserDto setLanguage(String language) {
     this.language = language;
+    return this;
+  }
+
+  public FcmUserDto setAttributes(Map<String, String> attributes) {
+    this.attributes = attributes;
     return this;
   }
 }

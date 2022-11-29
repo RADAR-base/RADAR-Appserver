@@ -49,6 +49,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class DataMessageRepositoryTest {
     public static final String DATA_MESSAGE_FCM_MESSAGE_ID = "12345";
     public static final String DATA_MESSAGE_SOURCE_ID = "test";
+    private static final String TIMEZONE = "Europe/London";
     @Autowired
     private transient TestEntityManager entityManager;
     @Autowired
