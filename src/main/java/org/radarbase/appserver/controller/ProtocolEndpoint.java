@@ -47,10 +47,7 @@ public class ProtocolEndpoint {
   }
 
   @GetMapping("/" + PathsUtil.PROTOCOL_PATH)
-  @Authorized(
-      permission = AuthPermissions.READ,
-      entity = AuthEntities.SUBJECT,
-      permissionOn = PermissionOn.PROJECT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   public @Size(max = 100) Map<String, Protocol> getProtocols() {
     return this.protocolGenerator.getAllProtocols();
   }
@@ -83,10 +80,7 @@ public class ProtocolEndpoint {
                   + PathsUtil.PROJECT_ID_CONSTANT
                   + "/"
                   + PathsUtil.PROTOCOL_PATH)
-  @Authorized(
-    permission = AuthPermissions.READ,
-    entity = AuthEntities.SUBJECT,
-    permissionOn = PermissionOn.PROJECT)  
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   public Protocol getProtocolUsingProjectId(
           @Valid @PathVariable String projectId) throws IOException {
     return this.protocolGenerator.getProtocol(projectId);
