@@ -33,8 +33,10 @@ import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
+import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.radarbase.appserver.service.UserService;
 import org.radarbase.auth.token.RadarToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import radar.spring.auth.common.AuthAspect;
@@ -57,9 +59,13 @@ public class RadarUserController {
   private final transient UserService userService;
   private final transient Authorization<RadarToken> authorization;
 
+  @Autowired
+  private transient QuestionnaireScheduleService scheduleService;
+
   public RadarUserController(
-      UserService userService, Optional<Authorization<RadarToken>> authorization) {
+      UserService userService, QuestionnaireScheduleService scheduleService, Optional<Authorization<RadarToken>> authorization) {
     this.userService = userService;
+    this.scheduleService = scheduleService;
     this.authorization = authorization.orElse(null);
   }
 
@@ -91,6 +97,11 @@ public class RadarUserController {
           null)) {
         if (forceFcmToken) this.userService.checkFcmTokenExistsAndReplace(userDto);
         FcmUserDto user = this.userService.saveUserInProject(userDto);
+        if (user != null) {
+          // Generate schedule for user upon saving
+          this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, user.getSubjectId());
+        }
+
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
             .body(user);

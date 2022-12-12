@@ -151,7 +151,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
             Protocol protocol = getProtocolFromUrl(uri);
             return new ProtocolCacheEntry(u.getSubjectId(), protocol);
         } catch (IOException | InterruptedException | ResponseStatusException e) {
-            return new ProtocolCacheEntry(u.getSubjectId(), null);
+            return new ProtocolCacheEntry(u.getSubjectId(), new Protocol());
         }
     }
 
