@@ -42,6 +42,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
+import org.radarbase.appserver.service.QuestionnaireScheduleService;
 import org.radarbase.appserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -69,6 +70,8 @@ public class RadarUserControllerTest {
     private transient ObjectMapper objectMapper;
     @MockBean
     private transient UserService userService;
+    @MockBean
+    private transient QuestionnaireScheduleService scheduleService;
     private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
 
     @BeforeEach

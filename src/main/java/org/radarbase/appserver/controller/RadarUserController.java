@@ -58,8 +58,6 @@ public class RadarUserController {
 
   private final transient UserService userService;
   private final transient Authorization<RadarToken> authorization;
-
-  @Autowired
   private transient QuestionnaireScheduleService scheduleService;
 
   public RadarUserController(
