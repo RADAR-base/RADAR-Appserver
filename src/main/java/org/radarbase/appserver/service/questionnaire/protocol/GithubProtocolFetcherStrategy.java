@@ -131,6 +131,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
                     ProtocolCacheEntry entry = this.fetchProtocolForSingleUser(u, u.getProject().getProjectId(), protocolPaths);
                     return entry;
                 })
+                .filter(c -> c.getProtocol() != null)
                 .collect(Collectors.toMap(p -> p.getId(), p -> p.getProtocol()));
 
         log.info("Refreshed Protocols from Github");
@@ -146,12 +147,12 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
                 }).max(Comparator.comparingInt(Map::size)).orElse(Collections.emptyMap());
         try {
             URI uri = projectProtocolUriMap.get(this.convertAttributeMapToPath(pathMap, projectId));
-            if (uri == null) return new ProtocolCacheEntry(u.getSubjectId(), new Protocol());
+            if (uri == null) return new ProtocolCacheEntry(u.getSubjectId(), null);
 
             Protocol protocol = getProtocolFromUrl(uri);
             return new ProtocolCacheEntry(u.getSubjectId(), protocol);
         } catch (IOException | InterruptedException | ResponseStatusException e) {
-            return new ProtocolCacheEntry(u.getSubjectId(), new Protocol());
+            return new ProtocolCacheEntry(u.getSubjectId(), null);
         }
     }
 
