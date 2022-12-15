@@ -47,6 +47,7 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.appserver.service.GithubClient;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,6 +75,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private final transient CachedMap<String, URI> projectProtocolUriMap;
     private final transient HttpClient client;
 
+    private final transient GithubClient githubClient;
+
     @Value("${security.github.client.token}")
     private transient String githubToken;
 
@@ -85,7 +88,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
             @Value("${radar.questionnaire.protocol.github.branch}") String protocolBranch,
             ObjectMapper objectMapper,
             UserRepository userRepository,
-            ProjectRepository projectRepository) {
+            ProjectRepository projectRepository,
+            GithubClient githubClient) {
         if (protocolRepo == null
                 || protocolRepo.isEmpty()
                 || protocolFileName == null
@@ -102,6 +106,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
+        this.githubClient = githubClient;
     }
 
     private static boolean isSuccessfulResponse(HttpResponse response) {
@@ -261,17 +266,11 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     }
 
     private Protocol getProtocolFromUrl(URI uri) throws IOException, InterruptedException {
-        HttpResponse response = client.send(getRequest(uri), HttpResponse.BodyHandlers.ofString());
-        if (isSuccessfulResponse(response)) {
-            final ObjectMapper mapper =
-                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            GithubContent content = mapper.readValue(uri.toURL(), GithubContent.class);
-            return mapper.readValue(content.getContent(), Protocol.class);
-        } else {
-            log.error("Error getting Protocol from URL {} : {}", uri.toString(), response);
-            throw new ResponseStatusException(
-                    HttpStatus.valueOf(response.statusCode()), "Protocol could not be retrieved");
-        }
+        String contentString = this.githubClient.getGithubContent(uri.toString());
+        final ObjectMapper mapper =
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        GithubContent content = mapper.readValue(contentString, GithubContent.class);
+        return mapper.readValue(content.getContent(), Protocol.class);
     }
 
     private HttpRequest getRequest(URI uri) {
