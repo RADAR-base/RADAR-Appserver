@@ -171,7 +171,7 @@ public class UserService {
       newUser.getUsermetrics().setUser(newUser);
       User savedUser = this.userRepository.save(newUser);
       // Generate schedule for user
-      this.scheduleService.generateScheduleForUser(savedUser);
+      this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(savedUser.getProject().getProjectId(), savedUser.getSubjectId());
       return userConverter.entityToDto(savedUser);
     }
   }
