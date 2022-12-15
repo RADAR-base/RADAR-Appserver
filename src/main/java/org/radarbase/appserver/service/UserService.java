@@ -149,52 +149,44 @@ public class UserService {
               + " already exists in project ID "
               + userDto.getProjectId()
               + ". Please use Update endpoint if need to update the user");
-    } else {
-      User newUser = userConverter.dtoToEntity(userDto).setProject(project);
-      // maintain a bi-directional relationship
-      newUser.getUsermetrics().setUser(newUser);
-      User savedUser = this.userRepository.save(newUser);
-      // Generate schedule for user
-      this.scheduleService.generateScheduleForUser(savedUser);
-      return userConverter.entityToDto(savedUser);
     }
+
+    User newUser = userConverter.dtoToEntity(userDto).setProject(project);
+    // maintain a bi-directional relationship
+    newUser.getUsermetrics().setUser(newUser);
+    User savedUser = this.userRepository.save(newUser);
+    // Generate schedule for user
+    this.scheduleService.generateScheduleForUser(savedUser);
+    return userConverter.entityToDto(savedUser);
   }
 
   // TODO update to use Id instead of subjectId
   @Transactional
   public FcmUserDto updateUser(FcmUserDto userDto) {
-    Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
-    if (project.isEmpty()) {
-      throw new NotFoundException(
-          "Project Id does not exist. Please create a project with the ID first");
-    }
+    Project project = this.projectRepository.findByProjectId(userDto.getProjectId())
+            .orElseThrow(() -> new NotFoundException(
+                    "Project Id does not exist. Please create a project with the ID first"));
 
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(
-            userDto.getSubjectId(), project.get().getId());
+    User user = this.userRepository.findBySubjectIdAndProjectId(
+            userDto.getSubjectId(), project.getId())
+            .orElseThrow(() -> new InvalidUserDetailsException(
+                    "The user with specified subject ID "
+                            + userDto.getSubjectId()
+                            + " does not exist in project ID "
+                            + userDto.getProjectId()
+                            + ". Please use CreateUser endpoint to create the user."))
+            .setFcmToken(userDto.getFcmToken())
+            .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
+            .setEnrolmentDate(userDto.getEnrolmentDate())
+            .setTimezone(userDto.getTimezone())
+            .setAttributes(userDto.getAttributes());
 
-    if (user.isEmpty()) {
-      throw new InvalidUserDetailsException(
-          "The user with specified subject ID "
-              + userDto.getSubjectId()
-              + " does not exist in project ID "
-              + userDto.getProjectId()
-              + ". Please use CreateUser endpoint to create the user.");
-    } else {
-      User updatedUser =
-          user.get()
-              .setFcmToken(userDto.getFcmToken())
-              .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
-              .setEnrolmentDate(userDto.getEnrolmentDate())
-              .setTimezone(userDto.getTimezone())
-              .setAttributes(userDto.getAttributes());
-      // maintain a bi-directional relationship
-      updatedUser.getUsermetrics().setUser(updatedUser);
-      User savedUser = this.userRepository.save(updatedUser);
-      // Generate schedule for user
-      this.scheduleService.generateScheduleForUser(savedUser);
-      return userConverter.entityToDto(savedUser);
-    }
+    // maintain a bi-directional relationship
+    user.getUsermetrics().setUser(user);
+    User savedUser = this.userRepository.save(user);
+    // Generate schedule for user
+    this.scheduleService.generateScheduleForUser(savedUser);
+    return userConverter.entityToDto(savedUser);
   }
 
   @Transactional
