@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import static org.radarbase.appserver.service.scheduler.NotificationSchedulerService.DEFAULT_TIME_TO_LIVE;
+
 /**
  * {@link Service} for scheduling Data Messages to be sent through FCM at the {@link
  * org.radarbase.appserver.entity.Scheduled} time. It also provided functions for updating/ deleting
@@ -61,7 +63,7 @@ public class DataMessageSchedulerService extends MessageSchedulerService<DataMes
                 .mutableContent(dataMessage.isMutableContent())
                 .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
                 .messageId(String.valueOf(dataMessage.getFcmMessageId()))
-                .timeToLive(Objects.requireNonNullElse(dataMessage.getTtlSeconds(), 2_419_200))
+                .timeToLive(Objects.requireNonNullElse(dataMessage.getTtlSeconds(), DEFAULT_TIME_TO_LIVE))
                 .data(dataMessage.getDataMap())
                 .build();
     }

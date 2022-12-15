@@ -72,67 +72,54 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public FcmUserDto getUserById(Long id) {
-    Optional<User> user = userRepository.findById(id);
+    User user = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(
+                    "No User was found with the ID - " + id));
 
-    if (user.isPresent()) {
-      return userConverter.entityToDto(user.get());
-    } else {
-      throw new NotFoundException("No User was found with the ID - " + id);
-    }
+    return userConverter.entityToDto(user);
   }
 
   @Transactional(readOnly = true)
   public FcmUserDto getUserBySubjectId(String subjectId) {
-    Optional<User> user = userRepository.findBySubjectId(subjectId);
+    User user = userRepository.findBySubjectId(subjectId)
+            .orElseThrow(() -> new NotFoundException(
+                    "No User was found with the subject ID - " + subjectId));
 
-    if (user.isPresent()) {
-      return userConverter.entityToDto(user.get());
-    } else {
-      throw new NotFoundException("No User was found with the subject ID - " + subjectId);
-    }
+    return userConverter.entityToDto(user);
   }
 
   @Transactional(readOnly = true)
   public FcmUsers getUsersByProjectId(String projectId) {
-    Optional<Project> project = projectRepository.findByProjectId(projectId);
+    Project project = projectRepository.findByProjectId(projectId)
+            .orElseThrow(() -> new NotFoundException(
+                    "Project not found with projectId " + projectId));
 
-    if (project.isEmpty()) {
-      throw new NotFoundException("Project not found with projectId " + projectId);
-    }
-
-    List<User> users = this.userRepository.findByProjectId(project.get().getId());
+    List<User> users = this.userRepository.findByProjectId(project.getId());
 
     return new FcmUsers().setUsers(userConverter.entitiesToDtos(users));
   }
 
   @Transactional(readOnly = true)
   public FcmUserDto getUsersByProjectIdAndSubjectId(String projectId, String subjectId) {
-    Optional<Project> project = projectRepository.findByProjectId(projectId);
+    Project project = projectRepository.findByProjectId(projectId)
+            .orElseThrow(() -> new NotFoundException(
+                    "Project not found with projectId " + projectId));
 
-    if (project.isEmpty()) {
-      throw new NotFoundException("Project not found with projectId " + projectId);
-    }
+    User user = this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId())
+            .orElseThrow(() -> new NotFoundException(
+                    "No User was found with the subject ID - " + subjectId));
 
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
-
-    if (user.isPresent()) {
-      return userConverter.entityToDto(user.get());
-    } else {
-      throw new NotFoundException("No User was found with the subject ID - " + subjectId);
-    }
+    return userConverter.entityToDto(user);
   }
 
   @Transactional
   public void checkFcmTokenExistsAndReplace(FcmUserDto userDto) {
-      Optional<User> user = this.userRepository.findByFcmToken(userDto.getFcmToken());
-      if (user.isPresent()) {
-          User existingUser = user.get();
-          if (!existingUser.getSubjectId().equals(userDto.getSubjectId())) {
-              existingUser.setFcmToken(FCM_TOKEN_PREFIX + Instant.now().toString());
-              this.userRepository.save(existingUser);
-          }
-      }
+      this.userRepository.findByFcmToken(userDto.getFcmToken())
+              .filter(user -> !user.getSubjectId().equals(userDto.getSubjectId()))
+              .ifPresent(user -> {
+                user.setFcmToken(FCM_TOKEN_PREFIX + Instant.now().toString());
+                this.userRepository.save(user);
+              });
   }
 
   @Transactional
@@ -143,99 +130,77 @@ public class UserService {
     // TODO: Make the above pluggable so can use others or none.
 
     log.debug("User DTO:" + userDto);
-    Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
-    if (project.isEmpty()) {
-      throw new NotFoundException(
-          "Project Id does not exist. Please create a project with the ID first");
-    }
+    Project project = this.projectRepository.findByProjectId(userDto.getProjectId())
+            .orElseThrow(() -> new NotFoundException(
+                    "Project Id does not exist. Please create a project with the ID first"));
 
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(
-            userDto.getSubjectId(), project.get().getId());
+    Optional<User> existingUser = this.userRepository.findBySubjectIdAndProjectId(
+            userDto.getSubjectId(), project.getId());
 
-    if (user.isPresent()) {
+    if (existingUser.isPresent()) {
       throw new InvalidUserDetailsException(
           "The user with specified subject ID "
               + userDto.getSubjectId()
               + " already exists in project ID "
               + userDto.getProjectId()
               + ". Please use Update endpoint if need to update the user");
-    } else {
-      User newUser = userConverter.dtoToEntity(userDto).setProject(project.get());
-      // maintain a bi-directional relationship
-      newUser.getUsermetrics().setUser(newUser);
-      return userConverter.entityToDto(this.userRepository.save(newUser));
     }
+
+    User newUser = userConverter.dtoToEntity(userDto).setProject(project);
+    // maintain a bi-directional relationship
+    newUser.getUsermetrics().setUser(newUser);
+    return userConverter.entityToDto(this.userRepository.save(newUser));
   }
 
   // TODO update to use Id instead of subjectId
   @Transactional
   public FcmUserDto updateUser(FcmUserDto userDto) {
-    Optional<Project> project = this.projectRepository.findByProjectId(userDto.getProjectId());
-    if (project.isEmpty()) {
-      throw new NotFoundException(
-          "Project Id does not exist. Please create a project with the ID first");
-    }
+    Project project = this.projectRepository.findByProjectId(userDto.getProjectId())
+            .orElseThrow(() -> new NotFoundException(
+                    "Project Id does not exist. Please create a project with the ID first"));
 
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(
-            userDto.getSubjectId(), project.get().getId());
+    User user = this.userRepository.findBySubjectIdAndProjectId(
+            userDto.getSubjectId(), project.getId())
+            .orElseThrow(() -> new InvalidUserDetailsException(
+                    "The user with specified subject ID "
+                            + userDto.getSubjectId()
+                            + " does not exist in project ID "
+                            + userDto.getProjectId()
+                            + ". Please use CreateUser endpoint to create the user."))
+            .setFcmToken(userDto.getFcmToken())
+            .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
+            .setEnrolmentDate(userDto.getEnrolmentDate())
+            .setTimezone(userDto.getTimezone())
+            .setAttributes(userDto.getAttributes());
 
-    if (user.isEmpty()) {
-      throw new InvalidUserDetailsException(
-          "The user with specified subject ID "
-              + userDto.getSubjectId()
-              + " does not exist in project ID "
-              + userDto.getProjectId()
-              + ". Please use CreateUser endpoint to create the user.");
-    } else {
-      User updatedUser =
-          user.get()
-              .setFcmToken(userDto.getFcmToken())
-              .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
-              .setEnrolmentDate(userDto.getEnrolmentDate())
-              .setTimezone(userDto.getTimezone())
-              .setAttributes(userDto.getAttributes());
-      // maintain a bi-directional relationship
-      updatedUser.getUsermetrics().setUser(updatedUser);
-      return userConverter.entityToDto(this.userRepository.save(updatedUser));
-    }
+    // maintain a bi-directional relationship
+    user.getUsermetrics().setUser(user);
+    return userConverter.entityToDto(this.userRepository.save(user));
   }
 
   @Transactional
   public void updateLastDelivered(String fcmToken, Instant lastDelivered) {
-    Optional<User> user = userRepository.findByFcmToken(fcmToken);
+    User user = userRepository.findByFcmToken(fcmToken)
+            .orElseThrow(() -> new InvalidUserDetailsException(
+                    "The user with specified FCM Token " + fcmToken + " does not exist."));
 
-    if (user.isEmpty()) {
-      throw new InvalidUserDetailsException(
-          "The user with specified FCM Token " + fcmToken + " does not exist.");
-    } else {
-      User user1 = user.get();
-      user1.getUsermetrics().setLastDelivered(lastDelivered);
-      userRepository.save(user1);
-    }
+    user.getUsermetrics().setLastDelivered(lastDelivered);
+    userRepository.save(user);
   }
 
   public void deleteUserByProjectIdAndSubjectId(String projectId, String subjectId) {
+    Project project = this.projectRepository.findByProjectId(projectId)
+            .orElseThrow(() -> new NotFoundException(
+                    "Project Id does not exist. Cannot delete user without a valid project."));
 
-    Optional<Project> project = this.projectRepository.findByProjectId(projectId);
-    if (project.isEmpty()) {
-      throw new NotFoundException(
-          "Project Id does not exist. Cannot delete user without a valid project.");
-    }
+    User user = this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId())
+            .orElseThrow(() -> new InvalidUserDetailsException(
+                    "The user with specified subject ID "
+                            + subjectId
+                            + " does not exist in project ID "
+                            + projectId
+                            + ". Please specify a valid user for deleting."));
 
-    Optional<User> user =
-        this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
-
-    if (user.isEmpty()) {
-      throw new InvalidUserDetailsException(
-          "The user with specified subject ID "
-              + subjectId
-              + " does not exist in project ID "
-              + projectId
-              + ". Please specify a valid user for deleting.");
-    } else {
-      this.userRepository.deleteById(user.get().getId());
-    }
+    this.userRepository.deleteById(user.getId());
   }
 }

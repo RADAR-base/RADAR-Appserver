@@ -59,7 +59,7 @@ public class AdminSdkFcmSender implements FcmSender {
   public AdminSdkFcmSender() throws IOException {
     // TODO also take config from application properties
     FirebaseOptions options =
-        new FirebaseOptions.Builder()
+        FirebaseOptions.builder()
             .setCredentials(GoogleCredentials.getApplicationDefault())
             .build();
 
@@ -81,7 +81,7 @@ public class AdminSdkFcmSender implements FcmSender {
             .setFcmOptions(FcmOptions.builder().build())
             .setCondition(downstreamMessage.getCondition());
 
-    int ttl = downstreamMessage.getTimeToLive() * 1000; // Convert to milliseconds
+    Duration ttl = Duration.ofSeconds(downstreamMessage.getTimeToLive()); // Convert to milliseconds
 
     if (downstreamMessage instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) downstreamMessage;
@@ -91,7 +91,7 @@ public class AdminSdkFcmSender implements FcmSender {
               AndroidConfig.builder()
                   .setCollapseKey(downstreamMessage.getCollapseKey())
                   .setPriority(priority == null ? Priority.HIGH : Priority.valueOf(priority))
-                  .setTtl(ttl)
+                  .setTtl(ttl.toMillis())
                   .setNotification(getAndroidNotification(notificationMessage))
                   .putAllData(notificationMessage.getData())
                   .build())
@@ -120,7 +120,7 @@ public class AdminSdkFcmSender implements FcmSender {
               AndroidConfig.builder()
                   .setCollapseKey(downstreamMessage.getCollapseKey())
                   .setPriority(priority == null ? Priority.NORMAL : Priority.valueOf(priority))
-                  .setTtl(ttl)
+                  .setTtl(ttl.toMillis())
                   .putAllData(dataMessage.getData())
                   .build())
           .setApnsConfig(getApnsConfigBuilder(dataMessage, ttl).build())
@@ -177,7 +177,7 @@ public class AdminSdkFcmSender implements FcmSender {
    * and
    * https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
    */
-  private ApnsConfig.Builder getApnsConfigBuilder(FcmDownstreamMessage message, int ttl) {
+  private ApnsConfig.Builder getApnsConfigBuilder(FcmDownstreamMessage message, Duration ttl) {
     ApnsConfig.Builder config = ApnsConfig.builder();
 
     if (message.getCollapseKey() != null)
@@ -187,7 +187,7 @@ public class AdminSdkFcmSender implements FcmSender {
     // expressed in seconds (UTC).
     config.putHeader(
         "apns-expiration",
-        String.valueOf(Instant.now().plus(Duration.ofMillis(ttl)).toEpochMilli() / 1000));
+        String.valueOf(Instant.now().plus(ttl).getEpochSecond()));
 
     if (message instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) message;
