@@ -50,7 +50,7 @@ import radar.spring.auth.common.PermissionOn;
 @RestController
 public class FcmNotificationController {
 
-  private transient FcmNotificationService notificationService;
+  private final FcmNotificationService notificationService;
 
   public FcmNotificationController(FcmNotificationService notificationService) {
     this.notificationService = notificationService;
