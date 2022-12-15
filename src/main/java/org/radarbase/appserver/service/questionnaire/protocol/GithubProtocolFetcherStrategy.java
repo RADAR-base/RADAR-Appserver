@@ -71,6 +71,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private final transient String protocolFileName;
     private final transient String protocolBranch;
     private final transient ObjectMapper objectMapper;
+    private final transient ObjectMapper localMapper;
     // Keeps a cache of github URI's associated with protocol for each project
     private final transient CachedMap<String, URI> projectProtocolUriMap;
     private final transient HttpClient client;
@@ -103,6 +104,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         projectProtocolUriMap =
                 new CachedMap<>(this::getProtocolDirectories, Duration.ofHours(3), Duration.ofHours(4));
         this.objectMapper = objectMapper;
+        this.localMapper = this.objectMapper.copy();
+        this.localMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
@@ -267,10 +270,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
 
     private Protocol getProtocolFromUrl(URI uri) throws IOException, InterruptedException {
         String contentString = this.githubClient.getGithubContent(uri.toString());
-        final ObjectMapper mapper =
-                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        GithubContent content = mapper.readValue(contentString, GithubContent.class);
-        return mapper.readValue(content.getContent(), Protocol.class);
+        GithubContent content = localMapper.readValue(contentString, GithubContent.class);
+        return localMapper.readValue(content.getContent(), Protocol.class);
     }
 
     private HttpRequest getRequest(URI uri) {
