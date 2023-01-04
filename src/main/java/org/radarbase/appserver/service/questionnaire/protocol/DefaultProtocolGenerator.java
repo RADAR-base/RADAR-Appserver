@@ -108,7 +108,11 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
     @Override
     public Protocol getProtocolForSubject(String subjectId) {
         try {
-            return cachedProtocolMap.get(subjectId);
+            Protocol protocol = cachedProtocolMap.get(subjectId);
+            if (protocol == null) {
+                return forceGetProtocolForSubject(subjectId);
+            }
+            return protocol;
         } catch (IOException ex) {
             log.warn(
                     "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex);

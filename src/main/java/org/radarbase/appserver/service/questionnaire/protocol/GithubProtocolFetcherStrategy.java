@@ -47,6 +47,7 @@ import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
+import org.radarbase.appserver.service.GithubClient;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,9 +71,12 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private final transient String protocolFileName;
     private final transient String protocolBranch;
     private final transient ObjectMapper objectMapper;
+    private final transient ObjectMapper localMapper;
     // Keeps a cache of github URI's associated with protocol for each project
     private final transient CachedMap<String, URI> projectProtocolUriMap;
     private final transient HttpClient client;
+
+    private final transient GithubClient githubClient;
 
     @Value("${security.github.client.token}")
     private transient String githubToken;
@@ -85,7 +89,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
             @Value("${radar.questionnaire.protocol.github.branch}") String protocolBranch,
             ObjectMapper objectMapper,
             UserRepository userRepository,
-            ProjectRepository projectRepository) {
+            ProjectRepository projectRepository,
+            GithubClient githubClient) {
         if (protocolRepo == null
                 || protocolRepo.isEmpty()
                 || protocolFileName == null
@@ -99,9 +104,12 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         projectProtocolUriMap =
                 new CachedMap<>(this::getProtocolDirectories, Duration.ofHours(3), Duration.ofHours(4));
         this.objectMapper = objectMapper;
+        this.localMapper = this.objectMapper.copy();
+        this.localMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
+        this.githubClient = githubClient;
     }
 
     private static boolean isSuccessfulResponse(HttpResponse response) {
@@ -131,6 +139,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
                     ProtocolCacheEntry entry = this.fetchProtocolForSingleUser(u, u.getProject().getProjectId(), protocolPaths);
                     return entry;
                 })
+                .filter(c -> c.getProtocol() != null)
                 .collect(Collectors.toMap(p -> p.getId(), p -> p.getProtocol()));
 
         log.info("Refreshed Protocols from Github");
@@ -145,11 +154,12 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
                     return Maps.difference(attributes, path).entriesInCommon();
                 }).max(Comparator.comparingInt(Map::size)).orElse(Collections.emptyMap());
         try {
-            URI uri = projectProtocolUriMap.get(this.convertAttributeMapToPath(pathMap, projectId));
-            if (uri == null) return new ProtocolCacheEntry(u.getSubjectId(), new Protocol());
-
-            Protocol protocol = getProtocolFromUrl(uri);
-            return new ProtocolCacheEntry(u.getSubjectId(), protocol);
+            String attributePath = this.convertAttributeMapToPath(pathMap, projectId);
+            if (projectProtocolUriMap.get().containsKey(attributePath)) {
+                URI uri = projectProtocolUriMap.get(attributePath);
+                return new ProtocolCacheEntry(u.getSubjectId(), getProtocolFromUrl(uri));
+            }
+            return new ProtocolCacheEntry(u.getSubjectId(), null);
         } catch (IOException | InterruptedException | ResponseStatusException e) {
             return new ProtocolCacheEntry(u.getSubjectId(), null);
         }
@@ -259,17 +269,9 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     }
 
     private Protocol getProtocolFromUrl(URI uri) throws IOException, InterruptedException {
-        HttpResponse response = client.send(getRequest(uri), HttpResponse.BodyHandlers.ofString());
-        if (isSuccessfulResponse(response)) {
-            final ObjectMapper mapper =
-                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            GithubContent content = mapper.readValue(uri.toURL(), GithubContent.class);
-            return mapper.readValue(content.getContent(), Protocol.class);
-        } else {
-            log.error("Error getting Protocol from URL {} : {}", uri.toString(), response);
-            throw new ResponseStatusException(
-                    HttpStatus.valueOf(response.statusCode()), "Protocol could not be retrieved");
-        }
+        String contentString = this.githubClient.getGithubContent(uri.toString());
+        GithubContent content = localMapper.readValue(contentString, GithubContent.class);
+        return localMapper.readValue(content.getContent(), Protocol.class);
     }
 
     private HttpRequest getRequest(URI uri) {
