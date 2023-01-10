@@ -143,17 +143,17 @@ public class QuestionnaireScheduleService {
     @Transactional
     public Schedule generateScheduleForUser(User user) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
-        Schedule newSchedule = new Schedule();
         if (protocol == null) {
-            subjectScheduleMap.put(user.getSubjectId(), newSchedule);
-            return newSchedule;
+            Schedule emptySchedule = new Schedule();
+            subjectScheduleMap.put(user.getSubjectId(), emptySchedule);
+            return emptySchedule;
         }
         Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
         String prevTimezone = prevSchedule.getTimezone() != null ? prevSchedule.getTimezone() : user.getTimezone();
         if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion()) || !prevTimezone.equals(user.getTimezone())) {
             this.removeScheduleForUser(user);
         }
-        newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
+        Schedule newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
         subjectScheduleMap.put(user.getSubjectId(), newSchedule);
         return newSchedule;
     }
