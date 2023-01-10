@@ -73,6 +73,10 @@ public class NotificationStateEventService {
 
     @Transactional
     public void addNotificationStateEvent(NotificationStateEvent notificationStateEvent) {
+        if (notificationStateEvent.getState() == MessageState.CANCELLED) {
+            // the notification will be removed shortly
+            return;
+        }
         notificationStateEventRepository.save(notificationStateEvent);
     }
 

@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.converter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
@@ -40,20 +41,11 @@ import org.springframework.stereotype.Component;
 public class UserConverter implements Converter<User, FcmUserDto> {
 
   public static UserMetrics getValidUserMetrics(FcmUserDto fcmUserDto) {
-    UserMetrics userMetrics;
-    if (fcmUserDto.getLastOpened() == null && fcmUserDto.getLastDelivered() == null) {
-      userMetrics = new UserMetrics(LocalDateTime.now().toInstant(ZoneOffset.UTC), null);
-    } else if (fcmUserDto.getLastDelivered() == null) {
-      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), null);
-    } else if (fcmUserDto.getLastOpened() == null) {
-      userMetrics =
-          new UserMetrics(
-              LocalDateTime.now().toInstant(ZoneOffset.UTC), fcmUserDto.getLastDelivered());
-    } else {
-      userMetrics = new UserMetrics(fcmUserDto.getLastOpened(), fcmUserDto.getLastDelivered());
+    Instant lastOpened = fcmUserDto.getLastOpened();
+    if (lastOpened == null) {
+      lastOpened = Instant.now();
     }
-
-    return userMetrics;
+    return new UserMetrics(lastOpened, fcmUserDto.getLastDelivered());
   }
 
   @Override

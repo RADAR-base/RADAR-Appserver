@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,14 +84,8 @@ public class QuestionnaireScheduleService {
         this.taskRepository = taskRepository;
         this.protocolGenerator = protocolGenerator;
         this.scheduleGeneratorService = scheduleGeneratorService;
-        this.init();
     }
 
-    public void init() {
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        executorService.scheduleWithFixedDelay(
-            this::generateAllSchedules, 1, 1, TimeUnit.HOURS);
-        }
 
     @Transactional
     public List<Task> getTasksUsingProjectIdAndSubjectId(String projectId, String subjectId) {
@@ -148,6 +143,11 @@ public class QuestionnaireScheduleService {
     @Transactional
     public Schedule generateScheduleForUser(User user) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
+        if (protocol == null) {
+            Schedule emptySchedule = new Schedule();
+            subjectScheduleMap.put(user.getSubjectId(), emptySchedule);
+            return emptySchedule;
+        }
         Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
         String prevTimezone = prevSchedule.getTimezone() != null ? prevSchedule.getTimezone() : user.getTimezone();
         if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion()) || !prevTimezone.equals(user.getTimezone())) {
@@ -174,14 +174,15 @@ public class QuestionnaireScheduleService {
         return schedule;
     }
 
-    public Map<String, Schedule> generateAllSchedules() {
+    @Scheduled(fixedRate = 3_600_000)
+    public void generateAllSchedules() {
         List<User> users = this.userRepository.findAll();
 
-        return users.parallelStream()
+        users.parallelStream()
                 .map(u -> {
                     Schedule schedule = this.generateScheduleForUser(u);
                     return new Pair<String, Schedule>(u.getSubjectId(), schedule);
-                }).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+                });
     }
 
     public Schedule getScheduleForSubject(String subjectId) {

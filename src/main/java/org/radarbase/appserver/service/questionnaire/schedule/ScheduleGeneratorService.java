@@ -31,6 +31,9 @@ public interface ScheduleGeneratorService {
 
     default Schedule generateScheduleForUser(User user, Protocol protocol, Schedule prevSchedule) {
         List<Assessment> assessments = protocol.getProtocols();
+        if (assessments == null) {
+            return new Schedule();
+        }
         List<AssessmentSchedule> prevAssessmentSchedules = prevSchedule.getAssessmentSchedules();
         String prevTimezone = prevSchedule.getTimezone() != null ? prevSchedule.getTimezone() : user.getTimezone();
 
