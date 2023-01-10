@@ -81,7 +81,7 @@ public class AdminSdkFcmSender implements FcmSender {
             .setFcmOptions(FcmOptions.builder().build())
             .setCondition(downstreamMessage.getCondition());
 
-    Duration ttl = Duration.ofSeconds(downstreamMessage.getTimeToLive()); // Convert to milliseconds
+    Duration ttl = Duration.ofSeconds(downstreamMessage.getTimeToLive());
 
     if (downstreamMessage instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) downstreamMessage;

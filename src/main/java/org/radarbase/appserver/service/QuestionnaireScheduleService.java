@@ -144,8 +144,9 @@ public class QuestionnaireScheduleService {
     public Schedule generateScheduleForUser(User user) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
         if (protocol == null) {
-            subjectScheduleMap.put(user.getSubjectId(), new Schedule());
-            return new Schedule();
+            Schedule emptySchedule = new Schedule();
+            subjectScheduleMap.put(user.getSubjectId(), emptySchedule);
+            return emptySchedule;
         }
         Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
         String prevTimezone = prevSchedule.getTimezone() != null ? prevSchedule.getTimezone() : user.getTimezone();
