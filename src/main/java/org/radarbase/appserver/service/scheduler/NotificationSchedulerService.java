@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class NotificationSchedulerService extends MessageSchedulerService<Notification> {
-    static final int DEFAULT_TIME_TO_LIVE = 60*60*24*7*4; // 4 weeks
+    static final int DEFAULT_TIME_TO_LIVE = 2_419_200; // 4 weeks
 
     public NotificationSchedulerService(
             @Autowired @Qualifier("fcmSenderProps") FcmSender fcmSender,
