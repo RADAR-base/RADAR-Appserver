@@ -90,7 +90,7 @@ dependencies {
         exclude group: 'javax.servlet', module: 'servlet-api'
     }
 
-    testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.6.1'
+    testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 
     implementation('org.liquibase.ext:liquibase-hibernate5:4.9.0')
 
