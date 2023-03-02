@@ -29,6 +29,7 @@ import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZON
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,7 +109,6 @@ class UserServiceTest {
                         .setLanguage("es")
                         .setTimezone(TIMEZONE);
 
-        Mockito.when(userRepository.save(userNew)).thenReturn(userNew.setId(2L));
         Mockito.when(userRepository.saveAndFlush(userNew)).thenReturn(userNew.setId(2L));
 
         User userUpdated =
@@ -122,7 +122,6 @@ class UserServiceTest {
                         .setUserMetrics(
                                 new UserMetrics().setLastDelivered(enrolmentDate).setLastOpened(enrolmentDate));
 
-        Mockito.when(userRepository.save(userUpdated)).thenReturn(userUpdated.setId(1L));
         Mockito.when(userRepository.saveAndFlush(userUpdated)).thenReturn(userUpdated.setId(1L));
     }
 
@@ -196,6 +195,7 @@ class UserServiceTest {
                         .setLanguage("es")
                         .setLastDelivered(enrolmentDate)
                         .setLastOpened(enrolmentDate)
+                        .setAttributes(new HashMap<>())
                         .setTimezone("Europe/Bucharest");
 
         FcmUserDto userDto = userService.updateUser(userDtoNew);
