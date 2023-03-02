@@ -109,6 +109,7 @@ class UserServiceTest {
                         .setTimezone(TIMEZONE);
 
         Mockito.when(userRepository.save(userNew)).thenReturn(userNew.setId(2L));
+        Mockito.when(userRepository.saveAndFlush(userNew)).thenReturn(userNew.setId(2L));
 
         User userUpdated =
                 new User()
@@ -122,6 +123,7 @@ class UserServiceTest {
                                 new UserMetrics().setLastDelivered(enrolmentDate).setLastOpened(enrolmentDate));
 
         Mockito.when(userRepository.save(userUpdated)).thenReturn(userUpdated.setId(1L));
+        Mockito.when(userRepository.saveAndFlush(userUpdated)).thenReturn(userUpdated.setId(1L));
     }
 
     @Test
