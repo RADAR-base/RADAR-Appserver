@@ -181,8 +181,6 @@ public class QuestionnaireScheduleService {
 
         List<Schedule> schedules = users.stream()
                 .map(u -> {
-                    log.info(u.getSubjectId());
-                    log.info(u.getProject().getProjectId());
                     Schedule schedule = this.generateScheduleForUser(u);
                     return schedule;
                 }).collect(Collectors.toList());

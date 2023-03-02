@@ -188,6 +188,7 @@ public class UserService {
     // Generate schedule for user
     if (!user.getAttributes().equals(userDto.getAttributes())
             || !user.getTimezone().equals(userDto.getTimezone())
+            || !user.getEnrolmentDate().equals(userDto.getEnrolmentDate())
             || !user.getLanguage().equals(userDto.getLanguage()))
     {
       this.scheduleService.generateScheduleForUser(savedUser);
