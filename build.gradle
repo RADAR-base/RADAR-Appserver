@@ -33,7 +33,7 @@ ext {
     bootAdminVersion = '2.6.4'
     throwingFunctionVersion = '1.5.1'
     junit5Version = '5.8.2'
-    radarSpringAuthVersion = '1.1.4'
+    radarSpringAuthVersion = '1.1.5'
 }
 
 sourceSets {
