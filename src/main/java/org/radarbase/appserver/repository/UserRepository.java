@@ -28,8 +28,6 @@ import org.radarbase.appserver.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /** @author yatharthranjan */
 @Repository
@@ -46,6 +44,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
   void deleteById(@NotNull Long id);
 
-  @Transactional(propagation= Propagation.REQUIRES_NEW)
-  User save(User user);
 }
