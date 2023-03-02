@@ -175,6 +175,7 @@ public class QuestionnaireScheduleService {
     }
 
     @Scheduled(fixedRate = 3_600_000)
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     public void generateAllSchedules() {
         List<User> users = this.userRepository.findAll();
         log.info("Generating all schedules..");
