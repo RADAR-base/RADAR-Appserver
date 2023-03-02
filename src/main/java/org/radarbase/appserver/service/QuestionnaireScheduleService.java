@@ -177,12 +177,15 @@ public class QuestionnaireScheduleService {
     @Scheduled(fixedRate = 3_600_000)
     public void generateAllSchedules() {
         List<User> users = this.userRepository.findAll();
+        log.info("Generating all schedules..");
 
-        users.parallelStream()
+        List<Schedule> schedules = users.stream()
                 .map(u -> {
+                    log.info(u.getSubjectId());
+                    log.info(u.getProject().getProjectId());
                     Schedule schedule = this.generateScheduleForUser(u);
-                    return new Pair<String, Schedule>(u.getSubjectId(), schedule);
-                });
+                    return schedule;
+                }).collect(Collectors.toList());
     }
 
     public Schedule getScheduleForSubject(String subjectId) {
