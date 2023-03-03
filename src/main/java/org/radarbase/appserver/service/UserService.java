@@ -154,7 +154,7 @@ public class UserService {
     User newUser = userConverter.dtoToEntity(userDto).setProject(project);
     // maintain a bi-directional relationship
     newUser.getUsermetrics().setUser(newUser);
-    User savedUser = this.userRepository.save(newUser);
+    User savedUser = this.userRepository.saveAndFlush(newUser);
     // Generate schedule for user
     this.scheduleService.generateScheduleForUser(savedUser);
     return userConverter.entityToDto(savedUser);
@@ -179,13 +179,20 @@ public class UserService {
             .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
             .setEnrolmentDate(userDto.getEnrolmentDate())
             .setTimezone(userDto.getTimezone())
+            .setLanguage(userDto.getLanguage())
             .setAttributes(userDto.getAttributes());
 
     // maintain a bi-directional relationship
     user.getUsermetrics().setUser(user);
-    User savedUser = this.userRepository.save(user);
+    User savedUser = this.userRepository.saveAndFlush(user);
     // Generate schedule for user
-    this.scheduleService.generateScheduleForUser(savedUser);
+    if (!user.getAttributes().equals(userDto.getAttributes())
+            || !user.getTimezone().equals(userDto.getTimezone())
+            || !user.getEnrolmentDate().equals(userDto.getEnrolmentDate())
+            || !user.getLanguage().equals(userDto.getLanguage()))
+    {
+      this.scheduleService.generateScheduleForUser(savedUser);
+    }
     return userConverter.entityToDto(savedUser);
   }
 
