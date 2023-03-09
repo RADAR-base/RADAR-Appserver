@@ -7,7 +7,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.46.0"
 }
 
-//apply plugin: 'checkstyle'
+apply plugin: 'checkstyle'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'io.spring.dependency-management'
@@ -98,7 +98,6 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
     }
-    testImplementation group: "org.springframework.security", name: "spring-security-test", version: springSecurityVersion
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: junit5Version
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit5Version
@@ -114,13 +113,13 @@ javafx {
     version = "19"
     modules = [ 'javafx.controls' ]
 }
-//
-//checkstyle {
-//    configDirectory = file("config/checkstyle")
-//    toolVersion = "8.20"
-//    showViolations = false
-//    sourceSets = [it.sourceSets.main]
-//}
+
+checkstyle {
+    configDirectory = file("config/checkstyle")
+    toolVersion = "10.8.0"
+    showViolations = false
+    sourceSets = [it.sourceSets.main]
+}
 
 javadoc {
     options.addBooleanOption('html5', true)
