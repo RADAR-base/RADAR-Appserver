@@ -28,8 +28,9 @@ import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZON
 
 import java.time.Duration;
 import java.time.Instant;
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -137,7 +138,7 @@ public class NotificationRepositoryTest {
                         .build();
 
         assertThrows(
-                PersistenceException.class,
+                ConstraintViolationException.class,
                 () -> {
                     entityManager.persist(notification);
                     entityManager.flush();
@@ -186,7 +187,8 @@ public class NotificationRepositoryTest {
                             entityManager.flush();
                         });
 
-        assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
+        assertTrue(ex.getSuppressed().length > 0);
+        assertTrue(ex.getSuppressed()[0].getMessage().contains("Not-null property references a transient value"));
     }
 
     @Test

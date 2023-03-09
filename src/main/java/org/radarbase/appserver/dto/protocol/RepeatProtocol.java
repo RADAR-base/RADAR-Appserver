@@ -24,7 +24,7 @@ package org.radarbase.appserver.dto.protocol;
 import lombok.Data;
 import org.radarbase.appserver.validation.CheckExactlyOneNotNull;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Arrays;
 
 /**

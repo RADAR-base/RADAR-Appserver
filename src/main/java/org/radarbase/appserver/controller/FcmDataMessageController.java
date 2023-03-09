@@ -24,7 +24,7 @@ package org.radarbase.appserver.controller;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.radarbase.appserver.config.AuthConfig.AuthEntities;
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;

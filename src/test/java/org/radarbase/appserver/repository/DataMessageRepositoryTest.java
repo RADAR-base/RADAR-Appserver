@@ -28,8 +28,8 @@ import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZON
 
 import java.time.Duration;
 import java.time.Instant;
-import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolationException;
+import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolationException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +37,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -47,6 +49,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @DataJpaTest
 @EnableJpaAuditing
 public class DataMessageRepositoryTest {
+    private static final Logger logger = LoggerFactory.getLogger(DataMessageRepositoryTest.class);
+
     public static final String DATA_MESSAGE_FCM_MESSAGE_ID = "12345";
     public static final String DATA_MESSAGE_SOURCE_ID = "test";
     private static final String TIMEZONE = "Europe/London";
@@ -130,7 +134,7 @@ public class DataMessageRepositoryTest {
                         .build();
 
         assertThrows(
-                PersistenceException.class,
+                ConstraintViolationException.class,
                 () -> {
                     entityManager.persist(dataMessage);
                     entityManager.flush();
@@ -177,7 +181,9 @@ public class DataMessageRepositoryTest {
                             entityManager.flush();
                         });
 
-        assertTrue(ex.getMessage().contains("Not-null property references a transient value"));
+
+        assertTrue(ex.getSuppressed().length > 0);
+        assertTrue(ex.getSuppressed()[0].getMessage().contains("Not-null property references a transient value"));
     }
 
     @Test

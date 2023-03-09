@@ -43,7 +43,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * {@link Service} for interacting with the {@link Task} {@link javax.persistence.Entity} using
+ * {@link Service} for interacting with the {@link Task} {@link jakarta.persistence.Entity} using
  * the {@link TaskRepository}.
  *
  * @author yatharthranjan
