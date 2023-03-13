@@ -21,9 +21,6 @@
 
 package org.radarbase.appserver.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -41,11 +38,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Slf4j
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
-    private static final Logger logger = LoggerFactory.getLogger(MultiHttpSecurityConfig.class);
-
     @Value("${radar.admin.user}")
     private transient String adminUsername;
 
@@ -75,8 +69,6 @@ public class MultiHttpSecurityConfig {
     public static class AdminWebSecurityConfigurationAdapter {
         @Bean
         public SecurityFilterChain apiDocsFilterChain(HttpSecurity http) throws Exception {
-            logger.info("Using filter chain");
-
             http.securityMatcher("/v3/api-docs**")
                     .cors()
                     .and()
@@ -98,8 +90,6 @@ public class MultiHttpSecurityConfig {
     public static class WebSecurityConfig {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            logger.info("Using filter chain");
-
             // Allow all actuator endpoints.
             http.securityMatcher(EndpointRequest.toAnyEndpoint())
                     .cors()
