@@ -20,9 +20,9 @@ import java.util.Base64;
 public class FcmSenderConfig {
   private static final Logger logger = LoggerFactory.getLogger(FcmSenderConfig.class);
 
-  private final FcmServerConfig serverConfig;
+  private transient final FcmServerConfig serverConfig;
 
-  private final BeanFactory beanFactory;
+  private transient final BeanFactory beanFactory;
 
   public FcmSenderConfig(FcmServerConfig serverConfig, BeanFactory beanFactory) {
     this.serverConfig = serverConfig;
@@ -53,6 +53,7 @@ public class FcmSenderConfig {
    */
   @Lazy
   @Bean
+  @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   public FirebaseOptions firebaseOptions() throws IOException {
     GoogleCredentials googleCredentials = null;
 

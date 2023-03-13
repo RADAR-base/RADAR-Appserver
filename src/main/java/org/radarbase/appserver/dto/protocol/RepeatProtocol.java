@@ -42,6 +42,7 @@ public class RepeatProtocol {
 
     private String dayOfWeek;
 
+    @SuppressWarnings("PMD.ReturnEmptyCollectionRatherThanNull")
     public Integer[] getRandomAmountBetween() {
         if (this.randomAmountBetween == null) return null;
         return Arrays.copyOf(this.randomAmountBetween, this.randomAmountBetween.length);

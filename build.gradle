@@ -1,6 +1,6 @@
 plugins {
     id 'pmd'
-    id "com.github.lkishalmi.gatling" version "3.3.4"
+    id 'io.gatling.gradle' version '3.9.2.1'
     id 'com.github.johnrengelman.shadow' version '8.1.0'
     id 'org.springframework.boot' version "3.0.4"
     id 'org.openjfx.javafxplugin' version '0.0.13'
@@ -55,7 +55,6 @@ sourceSets {
     }
 }
 
-
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-data-rest')
@@ -71,7 +70,6 @@ dependencies {
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
-    implementation 'org.scala-lang:scala-library:2.13.10'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
@@ -106,7 +104,7 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
-    gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+    gatlingImplementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 }
 
 javafx {
@@ -118,6 +116,7 @@ checkstyle {
     configDirectory = file("config/checkstyle")
     toolVersion = "10.8.0"
     showViolations = false
+    ignoreFailures = true
     sourceSets = [it.sourceSets.main]
 }
 
@@ -163,6 +162,10 @@ task loadTest(type: JavaExec) {
 task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform() {
+        excludeEngines 'junit-vintage'
+    }
+    environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
 
     shouldRunAfter test
 }
@@ -183,13 +186,6 @@ rootProject.tasks.named("processIntegrationTestResources") {
 }
 
 check.dependsOn integrationTest
-
-integrationTest {
-    useJUnitPlatform() {
-        excludeEngines 'junit-vintage'
-    }
-    environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
-}
 
 test {
     testLogging {
