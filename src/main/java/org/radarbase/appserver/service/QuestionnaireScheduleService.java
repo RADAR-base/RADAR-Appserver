@@ -156,7 +156,7 @@ public class QuestionnaireScheduleService {
     private List<Task> getTasksListFromAssessmentSchedules(List<AssessmentSchedule> assessmentSchedules) {
         return assessmentSchedules.stream()
                 .filter(s -> s.hasTasks())
-                .flatMap(a -> a.getTasks().stream().filter(Objects::nonNull))
+                .flatMap(a -> a.getTasks().stream())
                 .collect(Collectors.toList());
     }
 
