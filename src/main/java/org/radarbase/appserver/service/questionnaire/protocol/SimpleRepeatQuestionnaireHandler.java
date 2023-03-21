@@ -73,10 +73,7 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
                     return t.stream();
                 }).collect(Collectors.toList());
 
-        this.taskService.addTasks(tasks, user);
-        List<Task> allTasks = this.taskService.getTasksByUser(user);
-
-        return allTasks;
+        return tasks;
     }
 
     private Long calculateCompletionWindow(TimePeriod completionWindow) {

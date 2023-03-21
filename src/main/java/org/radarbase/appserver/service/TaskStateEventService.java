@@ -58,7 +58,6 @@ public class TaskStateEventService {
     private final transient TaskStateEventRepository taskStateEventRepository;
     private final transient TaskService taskService;
 
-    private final transient QuestionnaireScheduleService scheduleService;
     private final transient ApplicationEventPublisher taskApplicationEventPublisher;
     private final transient ObjectMapper objectMapper;
 
@@ -66,12 +65,10 @@ public class TaskStateEventService {
     public TaskStateEventService(
             TaskStateEventRepository taskStateEventRepository,
             TaskService taskService,
-            QuestionnaireScheduleService scheduleService,
             ApplicationEventPublisher taskApplicationEventPublisher,
             ObjectMapper objectMapper) {
         this.taskStateEventRepository = taskStateEventRepository;
         this.taskService = taskService;
-        this.scheduleService = scheduleService;
         this.taskApplicationEventPublisher = taskApplicationEventPublisher;
         this.objectMapper = objectMapper;
     }
@@ -85,8 +82,7 @@ public class TaskStateEventService {
     @Transactional(readOnly = true)
     public List<TaskStateEventDto> getTaskStateEvents(
             String projectId, String subjectId, long taskId) {
-        Task task = scheduleService.getTaskUsingProjectIdAndSubjectIdAndTaskId(
-                projectId, subjectId, taskId);
+        Task task = taskService.getTaskById(taskId);
         List<TaskStateEvent> stateEvents =
                 taskStateEventRepository.findByTaskId(taskId);
         return stateEvents.stream()
@@ -127,7 +123,7 @@ public class TaskStateEventService {
             throws SizeLimitExceededException {
 
         checkState(taskId, taskStateEventDto.getState());
-        Task task = scheduleService.getTaskUsingProjectIdAndSubjectIdAndTaskId(projectId, subjectId, taskId);
+        Task task = this.taskService.getTaskById(taskId);
 
         Map<String, String> additionalInfo = null;
         if (!taskStateEventDto.getAssociatedInfo().isEmpty()) {
