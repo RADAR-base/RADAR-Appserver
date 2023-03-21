@@ -118,6 +118,11 @@ public class TaskService {
     }
 
     @Transactional
+    public void deleteTasksByUserId(Long userId) {
+        taskRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
     public Task addTask(Task task) {
         User user = task.getUser();
         if (!this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp())) {

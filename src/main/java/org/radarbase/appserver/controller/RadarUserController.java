@@ -91,8 +91,6 @@ public class RadarUserController {
           null)) {
         if (forceFcmToken) this.userService.checkFcmTokenExistsAndReplace(userDto);
         FcmUserDto user = this.userService.saveUserInProject(userDto);
-        // Generate schedule for user
-        this.userService.generateSchedule(user);
         return ResponseEntity.created(
                 new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
             .body(user);
@@ -103,8 +101,6 @@ public class RadarUserController {
     } else {
       if (forceFcmToken) this.userService.checkFcmTokenExistsAndReplace(userDto);
       FcmUserDto user = this.userService.saveUserInProject(userDto);
-      // Generate schedule for user
-      this.userService.generateSchedule(user);
       return ResponseEntity.created(new URI("/" + PathsUtil.USER_PATH + "/user?id=" + user.getId()))
           .body(user);
     }

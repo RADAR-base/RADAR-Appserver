@@ -156,11 +156,9 @@ public class UserService {
     // maintain a bi-directional relationship
     newUser.getUsermetrics().setUser(newUser);
     User savedUser = this.userRepository.saveAndFlush(newUser);
+    // Generate schedule for user
+    this.scheduleService.generateScheduleForUser(savedUser);
     return userConverter.entityToDto(savedUser);
-  }
-
-  public Schedule generateSchedule(FcmUserDto user) {
-    return this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(user.getProjectId(), user.getSubjectId());
   }
 
   // TODO update to use Id instead of subjectId
