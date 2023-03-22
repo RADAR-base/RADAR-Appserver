@@ -41,11 +41,8 @@ public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
 
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
-    private transient TaskService taskService;
 
-    public RandomRepeatQuestionnaireHandler(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    public RandomRepeatQuestionnaireHandler() { }
 
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
@@ -71,7 +68,6 @@ public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
                 Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
                 Task task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow);
                 task.setUser(user);
-                task = this.taskService.addTask(task);
                 tasks.add(task);
             }
         }

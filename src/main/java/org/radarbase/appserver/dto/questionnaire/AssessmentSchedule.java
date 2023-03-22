@@ -38,6 +38,10 @@ public class AssessmentSchedule {
 
     private List<Task> tasks;
 
+    private List<Notification> notifications;
+
+    private List<Notification> reminders;
+
     public boolean hasTasks() {
         return tasks != null && !tasks.isEmpty();
     }

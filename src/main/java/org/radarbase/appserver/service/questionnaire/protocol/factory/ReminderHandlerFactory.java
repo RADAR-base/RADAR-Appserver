@@ -22,14 +22,13 @@
 package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
 
-import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleReminderHandler;
 
 public class ReminderHandlerFactory {
 
-    public static ProtocolHandler getReminderHandler(FcmNotificationService notificationService) {
-        return new SimpleReminderHandler(notificationService);
+    public static ProtocolHandler getReminderHandler() {
+        return new SimpleReminderHandler();
     }
 
 }
