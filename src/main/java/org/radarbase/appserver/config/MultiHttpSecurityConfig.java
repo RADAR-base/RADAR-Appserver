@@ -112,8 +112,9 @@ public class MultiHttpSecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*")
-                        .allowedHeaders("*");            }
+                registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*");
+                // NOTE: allowedHeaders("*") is causing CORS issues so this has been removed (empty allows all headers by default)
+            }
         };
     }
 
