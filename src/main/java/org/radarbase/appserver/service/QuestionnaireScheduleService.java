@@ -28,6 +28,7 @@ import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
@@ -45,15 +46,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit; 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -77,12 +75,16 @@ public class QuestionnaireScheduleService {
     private final transient TaskService taskService;
 
     @Autowired
-    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, ProjectRepository projectRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskService taskService) {
+    private final transient FcmNotificationService notificationService;
+
+    @Autowired
+    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, ProjectRepository projectRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskService taskService, FcmNotificationService notificationService) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskService = taskService;
         this.protocolGenerator = protocolGenerator;
         this.scheduleGeneratorService = scheduleGeneratorService;
+        this.notificationService = notificationService;
     }
 
 
@@ -146,18 +148,21 @@ public class QuestionnaireScheduleService {
         }
         Schedule newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
 
-        List<Task> tasks = getTasksListFromAssessmentSchedules(newSchedule.getAssessmentSchedules());
-        this.taskService.addTasks(tasks, user);
-
         subjectScheduleMap.put(user.getSubjectId(), newSchedule);
+
+        this.saveTasksAndNotifications(newSchedule.getAssessmentSchedules(), user);
         return newSchedule;
     }
 
-    private List<Task> getTasksListFromAssessmentSchedules(List<AssessmentSchedule> assessmentSchedules) {
-        return assessmentSchedules.stream()
+    private void saveTasksAndNotifications(List<AssessmentSchedule> assessmentSchedules, User user) {
+        assessmentSchedules.stream()
+                .filter(Objects::nonNull)
                 .filter(s -> s.hasTasks())
-                .flatMap(a -> a.getTasks().stream())
-                .collect(Collectors.toList());
+                .forEach(a -> {
+                    this.taskService.addTasks(a.getTasks(), user);
+                    this.notificationService.addNotifications(a.getNotifications(), user);
+                    this.notificationService.addNotifications(a.getReminders(), user);
+                });
     }
 
     @Transactional
@@ -173,6 +178,8 @@ public class QuestionnaireScheduleService {
         Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
         AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList(), user.getTimezone());
         schedule.addAssessmentSchedule(a);
+
+        this.saveTasksAndNotifications(List.of(a), user);
         return schedule;
     }
 

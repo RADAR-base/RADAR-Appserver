@@ -1,6 +1,5 @@
 package org.radarbase.appserver.service.questionnaire.schedule;
 
-import liquibase.pro.packaged.L;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
@@ -8,8 +7,6 @@ import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;

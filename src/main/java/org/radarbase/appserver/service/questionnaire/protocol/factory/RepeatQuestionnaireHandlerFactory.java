@@ -28,14 +28,14 @@ import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatQuesti
 
 public class RepeatQuestionnaireHandlerFactory {
 
-    public static ProtocolHandler getRepeatQuestionnaireHandler(RepeatQuestionnaireHandlerType name, TaskService taskService) {
+    public static ProtocolHandler getRepeatQuestionnaireHandler(RepeatQuestionnaireHandlerType name) {
         switch (name) {
             case SIMPLE:
-                return new SimpleRepeatQuestionnaireHandler(taskService);
+                return new SimpleRepeatQuestionnaireHandler();
             case RANDOM:
-                return new RandomRepeatQuestionnaireHandler(taskService);
+                return new RandomRepeatQuestionnaireHandler();
             default:
-                return new SimpleRepeatQuestionnaireHandler(taskService);
+                return new SimpleRepeatQuestionnaireHandler();
         }
     }
 
