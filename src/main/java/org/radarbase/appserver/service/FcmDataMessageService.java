@@ -50,7 +50,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * {@link Service} for interacting with the {@link DataMessage} {@link javax.persistence.Entity}
+ * {@link Service} for interacting with the {@link DataMessage} {@link jakarta.persistence.Entity}
  * using the {@link DataMessageRepository}.
  *
  * @author yatharthranjan

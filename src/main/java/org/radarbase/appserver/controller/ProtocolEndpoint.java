@@ -23,8 +23,8 @@ package org.radarbase.appserver.controller;
 
 import java.io.IOException;
 import java.util.Map;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.radarbase.appserver.config.AuthConfig.AuthEntities;

@@ -34,7 +34,6 @@ import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTI
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_FCM_MESSAGE_ID;
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_SOURCE_ID;
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_TITLE;
-import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -61,6 +60,7 @@ import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;

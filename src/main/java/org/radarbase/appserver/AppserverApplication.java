@@ -23,12 +23,9 @@ package org.radarbase.appserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 
 /** @author yatharthranjan */
-@SpringBootApplication(
-    exclude = {SolrAutoConfiguration.class},
-    scanBasePackages = {"org.radarbase.appserver", "org.radarbase.fcm"})
+@SpringBootApplication(scanBasePackages = {"org.radarbase.appserver", "org.radarbase.fcm"})
 public class AppserverApplication {
 
   public static void main(String[] args) {
