@@ -37,6 +37,7 @@ import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -46,6 +47,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(RadarProjectController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class RadarProjectControllerTest {
 
   @Autowired private transient MockMvc mockMvc;
@@ -110,6 +112,7 @@ class RadarProjectControllerTest {
   void getAllProjects() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/projects")))
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.projects[0].projectId", is(PROJECT_ID)))
         .andExpect(jsonPath("$.projects[0].id", is(1)));
   }
@@ -118,6 +121,7 @@ class RadarProjectControllerTest {
   void getProjectsUsingId() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/projects/project?id=1")))
+        .andExpect(status().isOk())
         .andExpect(jsonPath(PROJECT_ID_JSON_PATH, is(PROJECT_ID)))
         .andExpect(jsonPath(ID_JSON_PATH, is(1)));
   }
@@ -126,6 +130,7 @@ class RadarProjectControllerTest {
   void getProjectsUsingProjectId() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get(new URI("/projects/test-project")))
+        .andExpect(status().isOk())
         .andExpect(jsonPath(PROJECT_ID_JSON_PATH, is(PROJECT_ID)))
         .andExpect(jsonPath(ID_JSON_PATH, is(1)));
   }

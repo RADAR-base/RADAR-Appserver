@@ -27,7 +27,7 @@ import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 

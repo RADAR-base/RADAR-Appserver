@@ -23,7 +23,7 @@ package org.radarbase.fcm.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

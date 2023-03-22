@@ -8,7 +8,10 @@ import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -37,7 +40,7 @@ public interface ScheduleGeneratorService {
         List<AssessmentSchedule> assessmentSchedules = assessments.parallelStream().map(
                 assessment -> {
                     Optional<AssessmentSchedule> prevAssessmentSchedule =
-                            prevAssessmentSchedules.stream().filter(a -> a.getName() == assessment.getName()).findFirst();
+                            prevAssessmentSchedules.stream().filter(a -> Objects.equals(a.getName(), assessment.getName())).findFirst();
                     return this.generateSingleAssessmentSchedule(assessment, user, prevAssessmentSchedule.isPresent() ? prevAssessmentSchedule.get().getTasks() : new ArrayList<>(), prevTimezone);
                 }
         ).collect(Collectors.toList());

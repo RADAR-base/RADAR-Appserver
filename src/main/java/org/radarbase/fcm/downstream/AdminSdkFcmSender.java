@@ -21,7 +21,6 @@
 
 package org.radarbase.fcm.downstream;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.AndroidConfig;
@@ -35,15 +34,16 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.fcm.model.FcmDataMessage;
 import org.radarbase.fcm.model.FcmDownstreamMessage;
 import org.radarbase.fcm.model.FcmNotificationMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * When authorizing via a service account, you have to set the GOOGLE_APPLICATION_CREDENTIALS
@@ -55,14 +55,8 @@ import org.radarbase.fcm.model.FcmNotificationMessage;
 @Slf4j
 @SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.AvoidDuplicateLiterals"})
 public class AdminSdkFcmSender implements FcmSender {
-
-  public AdminSdkFcmSender() throws IOException {
+  public AdminSdkFcmSender(FirebaseOptions options) {
     // TODO also take config from application properties
-    FirebaseOptions options =
-        FirebaseOptions.builder()
-            .setCredentials(GoogleCredentials.getApplicationDefault())
-            .build();
-
     try {
       FirebaseApp.initializeApp(options);
     } catch (IllegalStateException exc) {
