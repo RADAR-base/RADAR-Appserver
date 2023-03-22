@@ -21,21 +21,7 @@
 
 package org.radarbase.appserver.controller;
 
-import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
-import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
-import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
-import static org.radarbase.appserver.controller.RadarProjectControllerTest.ID_JSON_PATH;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.net.URI;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,16 +30,30 @@ import org.radarbase.appserver.dto.fcm.FcmUsers;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
 import org.radarbase.appserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.radarbase.appserver.exception.InvalidUserDetailsException;
+
+import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
+import static org.radarbase.appserver.controller.RadarProjectControllerTest.ID_JSON_PATH;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(RadarUserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class RadarUserControllerTest {
 
     public static final String FCM_TOKEN_1 = "xxxx";

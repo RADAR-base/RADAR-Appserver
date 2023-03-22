@@ -34,8 +34,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.event.state.TaskState;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;

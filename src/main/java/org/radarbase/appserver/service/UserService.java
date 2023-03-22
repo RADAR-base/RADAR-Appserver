@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * {@link Service} for interacting with the {@link User} {@link javax.persistence.Entity} using the
+ * {@link Service} for interacting with the {@link User} {@link jakarta.persistence.Entity} using the
  * {@link UserRepository}.
  *
  * @author yatharthranjan

@@ -29,6 +29,7 @@ import org.springframework.boot.web.error.ErrorAttributeOptions.Include;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -60,7 +61,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<Object> handleMethodArgumentNotValid(
        MethodArgumentNotValidException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     Map<String, Object> body =
         DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(

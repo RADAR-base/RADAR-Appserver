@@ -44,6 +44,7 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -53,6 +54,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(FcmNotificationController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class FcmNotificationControllerTest {
 
@@ -299,7 +301,6 @@ public class FcmNotificationControllerTest {
                             + USER_ID
                             + "/"
                             + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                            + "/"
                             + "?schedule=false"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(notificationDto2)))
@@ -438,7 +439,6 @@ public class FcmNotificationControllerTest {
                             + "/"
                             + PathsUtil.MESSAGING_NOTIFICATION_PATH
                             + "/batch"
-                            + "/"
                             + "?schedule=false"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(fcmNotifications)))

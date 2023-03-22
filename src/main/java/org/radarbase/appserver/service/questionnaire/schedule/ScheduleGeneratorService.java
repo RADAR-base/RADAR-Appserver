@@ -1,6 +1,5 @@
 package org.radarbase.appserver.service.questionnaire.schedule;
 
-import liquibase.pro.packaged.L;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
@@ -8,10 +7,11 @@ import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -40,7 +40,7 @@ public interface ScheduleGeneratorService {
         List<AssessmentSchedule> assessmentSchedules = assessments.parallelStream().map(
                 assessment -> {
                     Optional<AssessmentSchedule> prevAssessmentSchedule =
-                            prevAssessmentSchedules.stream().filter(a -> a.getName() == assessment.getName()).findFirst();
+                            prevAssessmentSchedules.stream().filter(a -> Objects.equals(a.getName(), assessment.getName())).findFirst();
                     return this.generateSingleAssessmentSchedule(assessment, user, prevAssessmentSchedule.isPresent() ? prevAssessmentSchedule.get().getTasks() : new ArrayList<>(), prevTimezone);
                 }
         ).collect(Collectors.toList());

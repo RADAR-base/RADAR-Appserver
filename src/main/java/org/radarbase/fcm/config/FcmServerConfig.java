@@ -21,7 +21,6 @@
 
 package org.radarbase.fcm.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -33,8 +32,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(value = "fcmserver")
 public class FcmServerConfig {
-
-  @JsonProperty("fcmsender")
   private String fcmsender;
-
+  private String credentials;
 }
