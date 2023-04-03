@@ -38,6 +38,7 @@ import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.auth.token.RadarToken;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,6 +59,7 @@ import radar.spring.auth.exception.AuthorizationFailedException;
  * @see <a href="https://github.com/RADAR-base/ManagementPortal">Management Portal</a>
  * @author yatharthranjan
  */
+@CrossOrigin
 @RestController
 @Slf4j
 public class RadarProjectController {

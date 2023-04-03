@@ -30,12 +30,14 @@ import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
 import org.radarbase.appserver.config.AuthConfig.AuthEntities;
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import radar.spring.auth.common.Authorized;
 import radar.spring.auth.common.PermissionOn;
 
+@CrossOrigin
 @RestController
 public class ProtocolEndpoint {
 
