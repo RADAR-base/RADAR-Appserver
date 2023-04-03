@@ -28,8 +28,8 @@ import org.radarbase.appserver.service.questionnaire.protocol.SimpleNotification
 
 public class NotificationHandlerFactory {
 
-    public static ProtocolHandler getNotificationHandler(FcmNotificationService notificationService) {
-        return new SimpleNotificationHandler(notificationService);
+    public static ProtocolHandler getNotificationHandler() {
+        return new SimpleNotificationHandler();
     }
 
 }

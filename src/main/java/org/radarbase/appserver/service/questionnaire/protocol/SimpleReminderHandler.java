@@ -6,7 +6,6 @@ import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.questionnaire.notification.TaskNotificationGeneratorService;
 import org.radarbase.appserver.service.questionnaire.notification.NotificationType;
 
@@ -21,17 +20,13 @@ public class SimpleReminderHandler implements ProtocolHandler {
     private transient TaskNotificationGeneratorService taskNotificationGeneratorService = new TaskNotificationGeneratorService();
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
 
-    private transient FcmNotificationService notificationService;
-
-    public SimpleReminderHandler(FcmNotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
+    public SimpleReminderHandler() { }
 
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         List<Notification> notifications = generateReminders(assessmentSchedule.getTasks(), assessment, timezone, user);
-        this.notificationService.addNotifications(notifications, user);
+        assessmentSchedule.setReminders(notifications);
         return assessmentSchedule;
     }
 

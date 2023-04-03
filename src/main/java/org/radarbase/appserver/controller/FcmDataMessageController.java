@@ -24,13 +24,14 @@ package org.radarbase.appserver.controller;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.radarbase.appserver.config.AuthConfig.AuthEntities;
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.radarbase.appserver.dto.fcm.FcmDataMessages;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +48,7 @@ import radar.spring.auth.common.PermissionOn;
  *
  * @author yatharthranjan
  */
+@CrossOrigin
 @RestController
 public class FcmDataMessageController {
 

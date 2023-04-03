@@ -24,7 +24,7 @@ package org.radarbase.appserver.repository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.radarbase.appserver.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;

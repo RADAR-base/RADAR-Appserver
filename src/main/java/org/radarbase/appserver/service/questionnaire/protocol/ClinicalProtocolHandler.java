@@ -33,6 +33,7 @@ public class ClinicalProtocolHandler implements ProtocolHandler {
 
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
+        assessmentSchedule.setName(assessment.getName());
         return assessmentSchedule;
     }
 

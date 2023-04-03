@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service;
 
-import javafx.util.Pair;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Assessment;
@@ -29,12 +28,12 @@ import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
+import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
-import org.radarbase.appserver.repository.TaskRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.search.TaskSpecificationsBuilder;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
@@ -47,15 +46,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit; 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -71,19 +67,24 @@ public class QuestionnaireScheduleService {
 
     private final transient UserRepository userRepository;
 
-    private final transient TaskRepository taskRepository;
-
     private final transient QuestionnaireScheduleGeneratorService scheduleGeneratorService;
 
     private final transient ProjectRepository projectRepository;
 
     @Autowired
-    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, ProjectRepository projectRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskRepository taskRepository) {
+    private final transient TaskService taskService;
+
+    @Autowired
+    private final transient FcmNotificationService notificationService;
+
+    @Autowired
+    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, ProjectRepository projectRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskService taskService, FcmNotificationService notificationService) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
-        this.taskRepository = taskRepository;
+        this.taskService = taskService;
         this.protocolGenerator = protocolGenerator;
         this.scheduleGeneratorService = scheduleGeneratorService;
+        this.notificationService = notificationService;
     }
 
 
@@ -100,7 +101,7 @@ public class QuestionnaireScheduleService {
                                                                String search) {
 
         Specification<Task> spec = getSearchBuilder(projectId, subjectId, type, search).build();
-        return this.taskRepository.findAll(spec);
+        return this.taskService.getTasksBySpecification(spec);
 
 //        if (type != AssessmentType.ALL) {
 //            return getTasksUsingProjectIdAndSubjectId(projectId, subjectId);
@@ -122,16 +123,8 @@ public class QuestionnaireScheduleService {
     }
 
     @Transactional
-    public Task getTaskUsingProjectIdAndSubjectIdAndTaskId(String projectId, String subjectId, Long taskId) {
-        User user = subjectAndProjectExistElseThrow(subjectId, projectId);
-        return this.taskRepository.findByIdAndUserId(taskId, user.getId())
-                .orElseThrow(() -> new NotFoundException("The task was not found"));
-    }
-
-
-    @Transactional
     public List<Task> getTasksForUser(User user) {
-        return this.taskRepository.findByUserId(user.getId());
+        return this.taskService.getTasksByUser(user);
     }
 
     @Transactional
@@ -154,8 +147,22 @@ public class QuestionnaireScheduleService {
             this.removeScheduleForUser(user);
         }
         Schedule newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
+
         subjectScheduleMap.put(user.getSubjectId(), newSchedule);
+
+        this.saveTasksAndNotifications(newSchedule.getAssessmentSchedules(), user);
         return newSchedule;
+    }
+
+    private void saveTasksAndNotifications(List<AssessmentSchedule> assessmentSchedules, User user) {
+        assessmentSchedules.stream()
+                .filter(Objects::nonNull)
+                .filter(s -> s.hasTasks())
+                .forEach(a -> {
+                    this.taskService.addTasks(a.getTasks(), user);
+                    this.notificationService.addNotifications(a.getNotifications(), user);
+                    this.notificationService.addNotifications(a.getReminders(), user);
+                });
     }
 
     @Transactional
@@ -171,18 +178,22 @@ public class QuestionnaireScheduleService {
         Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
         AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList(), user.getTimezone());
         schedule.addAssessmentSchedule(a);
+
+        this.saveTasksAndNotifications(List.of(a), user);
         return schedule;
     }
 
     @Scheduled(fixedRate = 3_600_000)
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     public void generateAllSchedules() {
         List<User> users = this.userRepository.findAll();
+        log.info("Generating all schedules..");
 
-        users.parallelStream()
+        List<Schedule> schedules = users.stream()
                 .map(u -> {
                     Schedule schedule = this.generateScheduleForUser(u);
-                    return new Pair<String, Schedule>(u.getSubjectId(), schedule);
-                });
+                    return schedule;
+                }).collect(Collectors.toList());
     }
 
     public Schedule getScheduleForSubject(String subjectId) {
@@ -203,13 +214,12 @@ public class QuestionnaireScheduleService {
         Specification<Task> spec = getSearchBuilder(projectId, subjectId, type, search).build();
 
         // TODO: DeleteAll with Specifications will soon be released in JPA (v 3.0.0), so update this to not fetch all entities.
-        List<Task> tasks = taskRepository.findAll(spec);
-        taskRepository.deleteAll(tasks);
+        this.taskService.deleteTasksBySpecification(spec);
     }
 
     @Transactional
     public void removeScheduleForUser(User user) {
-        this.taskRepository.deleteByUserId(user.getId());
+        this.taskService.deleteTasksByUserId(user.getId());
     }
 
     public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {

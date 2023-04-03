@@ -1,9 +1,10 @@
 plugins {
     id 'pmd'
-    id "com.github.lkishalmi.gatling" version "3.3.4"
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'org.springframework.boot' version "2.6.6"
+    id 'io.gatling.gradle' version '3.9.2.1'
+    id 'com.github.johnrengelman.shadow' version '8.1.0'
+    id 'org.springframework.boot' version "3.0.4"
     id 'org.openjfx.javafxplugin' version '0.0.13'
+    id("com.github.ben-manes.versions") version "0.46.0"
 }
 
 apply plugin: 'checkstyle'
@@ -13,28 +14,34 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '2.2.0'
-sourceCompatibility = 11
+version = '2.3.0'
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 bootJar {
     mainClass = 'org.radarbase.appserver.AppserverApplication'
 }
 
-//apply from: 'gradle/liquibase.gradle'
-
 ext {
     springBootVersion = '2.6.6'
+    springVersion = '6.0.6'
     springOauth2Version = "2.5.1.RELEASE"
-    springDocVersion = '1.6.6'
-    lombokVersion = '1.18.22'
-    bootAdminVersion = '2.6.4'
-    throwingFunctionVersion = '1.5.1'
-    junit5Version = '5.8.2'
-    radarSpringAuthVersion = '1.1.4'
+    springDocVersion = '1.6.14'
+    lombokVersion = '1.18.26'
+    junit5Version = '5.9.2'
+    radarSpringAuthVersion = '1.2.0'
+    springSecurityVersion = '6.0.2'
+    hibernateValidatorVersion = '8.0.0.Final'
 }
 
 sourceSets {
@@ -48,7 +55,6 @@ sourceSets {
     }
 }
 
-
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-data-rest')
@@ -56,43 +62,36 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-quartz')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation group: "org.springframework.security", name: "spring-security-config", version: springSecurityVersion
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springBootVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
-    implementation group: 'com.pivovarit', name: 'throwing-function', version: throwingFunctionVersion
-
-    implementation(group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: bootAdminVersion)
+    runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
 
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
 
-    implementation 'org.scala-lang:scala-library:2.13.8'
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
-    runtimeOnly('org.liquibase:liquibase-core')
-    runtimeOnly('com.h2database:h2:1.4.200')
-    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.3.3')
+    runtimeOnly('org.liquibase:liquibase-core:4.20.0')
+    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.5.4')
 
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-    annotationProcessor 'org.springframework:spring-context-indexer:5.3.18'
-
-    compileOnly 'net.jcip:jcip-annotations:1.0'
+    annotationProcessor "org.springframework:spring-context-indexer:$springVersion"
 
     // FCM Admin SDK
-    implementation 'com.google.firebase:firebase-admin:8.1.0'
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
 
     // AOP
-    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: '5.3.18'
-    implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion) {
-        exclude group: 'javax.servlet', module: 'servlet-api'
-    }
+    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
+    implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion)
 
-    testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.6.1'
+    testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 
-    implementation('org.liquibase.ext:liquibase-hibernate5:4.9.0')
+    implementation('org.liquibase.ext:liquibase-hibernate6:4.20.0')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
@@ -105,7 +104,7 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
-    gatling('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+    gatlingImplementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 }
 
 javafx {
@@ -115,8 +114,9 @@ javafx {
 
 checkstyle {
     configDirectory = file("config/checkstyle")
-    toolVersion = "8.20"
+    toolVersion = "10.8.0"
     showViolations = false
+    ignoreFailures = true
     sourceSets = [it.sourceSets.main]
 }
 
@@ -126,7 +126,7 @@ javadoc {
 }
 
 wrapper {
-    gradleVersion '7.4'
+    gradleVersion '8.0.2'
 }
 
 test {
@@ -162,8 +162,23 @@ task loadTest(type: JavaExec) {
 task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform() {
+        excludeEngines 'junit-vintage'
+    }
+    environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
 
     shouldRunAfter test
+}
+
+tasks.register('downloadDependencies') {
+    description = "Pre-downloads dependencies"
+    configurations.compileClasspath.files
+    configurations.runtimeClasspath.files
+}
+
+tasks.register('copyDependencies', Copy) {
+    from configurations.runtimeClasspath.files
+    into "$buildDir/third-party/"
 }
 
 rootProject.tasks.named("processIntegrationTestResources") {
@@ -171,13 +186,6 @@ rootProject.tasks.named("processIntegrationTestResources") {
 }
 
 check.dependsOn integrationTest
-
-integrationTest {
-    useJUnitPlatform() {
-        excludeEngines 'junit-vintage'
-    }
-    environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
-}
 
 test {
     testLogging {
@@ -187,5 +195,17 @@ test {
         error {
             exceptionFormat "full"
         }
+    }
+}
+
+def isNonStable = { String version ->
+    def stableKeyword = ["RELEASE", "FINAL", "GA"].any { version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+tasks.named("dependencyUpdates").configure {
+    rejectVersionIf {
+        isNonStable(it.candidate.version)
     }
 }

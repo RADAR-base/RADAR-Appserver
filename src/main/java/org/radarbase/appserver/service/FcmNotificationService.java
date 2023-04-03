@@ -48,7 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * {@link Service} for interacting with the {@link Notification} {@link javax.persistence.Entity}
+ * {@link Service} for interacting with the {@link Notification} {@link jakarta.persistence.Entity}
  * using the {@link NotificationRepository}.
  *
  * @author yatharthranjan

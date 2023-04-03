@@ -23,11 +23,13 @@ package org.radarbase.appserver.dto.protocol;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class ReminderTimePeriod extends TimePeriod {
 
     private Integer repeat;

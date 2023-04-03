@@ -31,8 +31,8 @@ import java.util.List;
 
 public class CompletedQuestionnaireHandlerFactory {
 
-    public static ProtocolHandler getCompletedQuestionnaireHandler(TaskService taskService, List<Task> prevTasks, String prevTimezone) {
-        return new CompletedQuestionnaireHandler(taskService, prevTasks, prevTimezone);
+    public static ProtocolHandler getCompletedQuestionnaireHandler(List<Task> prevTasks, String prevTimezone) {
+        return new CompletedQuestionnaireHandler(prevTasks, prevTimezone);
     }
 
 }

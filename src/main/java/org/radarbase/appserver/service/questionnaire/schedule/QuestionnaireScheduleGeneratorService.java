@@ -23,11 +23,7 @@ package org.radarbase.appserver.service.questionnaire.schedule;
 
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.*;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Task;
-import org.radarbase.appserver.service.FcmNotificationService;
-import org.radarbase.appserver.service.QuestionnaireScheduleService;
-import org.radarbase.appserver.service.TaskService;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.factory.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +35,9 @@ import java.util.List;
 @Service
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorService {
-    private transient FcmNotificationService notificationService;
-    private transient TaskService taskService;
 
     @Autowired
-    public QuestionnaireScheduleGeneratorService(FcmNotificationService notificationService, TaskService taskService) {
-        this.notificationService = notificationService;
-        this.taskService = taskService;
-    }
+    public QuestionnaireScheduleGeneratorService() { }
 
     @Override
     public ProtocolHandler getProtocolHandler(Assessment assessment) {
@@ -77,28 +68,28 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
             type = RepeatQuestionnaireHandlerType.DAYOFWEEKMAP;
         if (repeatQuestionnaire.getRandomUnitsFromZeroBetween() != null)
             type = RepeatQuestionnaireHandlerType.RANDOM;
-        return RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(type, taskService);
+        return RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(type);
     }
 
     @Override
     public ProtocolHandler getNotificationHandler(Assessment assessment) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
-        return NotificationHandlerFactory.getNotificationHandler(notificationService);
+        return NotificationHandlerFactory.getNotificationHandler();
     }
 
     @Override
     public ProtocolHandler getReminderHandler(Assessment assessment) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
-        return ReminderHandlerFactory.getReminderHandler(notificationService);
+        return ReminderHandlerFactory.getReminderHandler();
     }
 
     @Override
     public ProtocolHandler getCompletedQuestionnaireHandler(Assessment assessment, List<Task> prevTasks, String prevTimezone) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
 
-        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(taskService, prevTasks, prevTimezone);
+        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone);
     }
 
 }

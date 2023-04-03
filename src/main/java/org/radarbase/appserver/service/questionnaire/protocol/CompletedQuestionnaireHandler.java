@@ -9,15 +9,14 @@ import org.radarbase.appserver.service.TaskService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 
 public class CompletedQuestionnaireHandler implements ProtocolHandler {
-    private transient TaskService taskService;
     private transient List<Task> prevTasks;
     private transient String prevTimezone;
 
-    public CompletedQuestionnaireHandler(TaskService taskService, List<Task> prevTasks, String prevTimezone) {
-        this.taskService = taskService;
+    public CompletedQuestionnaireHandler(List<Task> prevTasks, String prevTimezone) {
         this.prevTasks = prevTasks;
         this.prevTimezone = prevTimezone;
     }
@@ -33,7 +32,7 @@ public class CompletedQuestionnaireHandler implements ProtocolHandler {
     @Transactional
     @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     public List<Task> markTasksAsCompleted(List<Task> currentTasks, List<Task> previousTasks, String currentTimezone, String prevTimezone) {
-        currentTasks.parallelStream().forEach( newTask -> {
+        currentTasks.parallelStream().forEach(newTask -> {
             Optional<Task> matching;
             if (!currentTimezone.equals(prevTimezone)) {
                 Timestamp prevTimestamp = getPreviousTimezoneEquivalent(newTask.getTimestamp(), currentTimezone, prevTimezone);
@@ -44,8 +43,11 @@ public class CompletedQuestionnaireHandler implements ProtocolHandler {
             }
             if (matching.isPresent()) {
                 Task matchingTask = matching.get();
-                if (matchingTask.getStatus().equals(TaskState.COMPLETED))
-                    taskService.updateTaskStatus(newTask, TaskState.COMPLETED);
+                if (matchingTask.getStatus().equals(TaskState.COMPLETED)) {
+                    newTask.setCompleted(true);
+                    newTask.setTimeCompleted(matchingTask.getTimeCompleted());
+                    newTask.setStatus(TaskState.COMPLETED);
+                }
             }
         });
         return currentTasks;

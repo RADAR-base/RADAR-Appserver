@@ -34,7 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import radar.spring.auth.common.Authorized;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+@CrossOrigin
 @RestController
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class QuestionnaireScheduleEndpoint {

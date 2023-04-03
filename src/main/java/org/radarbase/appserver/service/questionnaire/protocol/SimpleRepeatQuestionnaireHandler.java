@@ -27,9 +27,7 @@ import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.service.TaskService;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,11 +38,8 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
 
     private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
     private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
-    private transient TaskService taskService;
 
-    public SimpleRepeatQuestionnaireHandler(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    public SimpleRepeatQuestionnaireHandler() { }
 
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
@@ -73,10 +68,7 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
                     return t.stream();
                 }).collect(Collectors.toList());
 
-        this.taskService.addTasks(tasks, user);
-        List<Task> allTasks = this.taskService.getTasksByUser(user);
-
-        return allTasks;
+        return tasks;
     }
 
     private Long calculateCompletionWindow(TimePeriod completionWindow) {

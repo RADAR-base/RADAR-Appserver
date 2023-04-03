@@ -37,32 +37,9 @@
       "defaultValue": "org.radarbase.fcm.downstream.XmppFcmSender"
     },
     {
-      "name": "fcmserver.senderid",
+      "name": "fcmserver.credentials",
       "type": "java.lang.String",
-      "description": "Sender ID from FCM. Can be found in the FCM project settings."
-    },
-    {
-      "name": "fcmserver.serverkey",
-      "type": "java.lang.String",
-      "description": "Server Key from FCM. Can be found in the FCM project settings."
-    },
-    {
-      "name": "fcmserver.host",
-      "type": "java.lang.String",
-      "description": "FCM host.",
-      "defaultValue": "fcm-xmpp.googleapis.com"
-    },
-    {
-      "name": "fcmserver.port",
-      "type": "java.lang.Integer",
-      "description": "Server Key from FCM. Can be found in the FCM project settings.",
-      "defaultValue": 5235
-    },
-    {
-      "name": "fcmserver.xmpp.upstream.enable",
-      "type": "java.lang.Boolean",
-      "description": "Specifies whether to enable upstream/inbound XMPP. This is also required to be true if XmppFcmSender is to be used",
-      "default": true
+      "description": "Base 64 encoded contents of the Firebase service account credentials JSON file."
     },
     {
       "name": "managementportal.security.enabled",
@@ -76,8 +53,12 @@
       "name": "fcmserver.fcmsender",
       "values": [
         {
-          "value": "org.radarbase.fcm.downstream.XmppFcmSender",
-          "description": "Use XMPP protocol for Sending downstream messages. Supports delivery receipts."
+          "value": "rest",
+          "description": "Use FCM Admin SDK (Uses REST) for Sending downstream messages. Does not supports delivery receipts."
+        },
+        {
+          "value": "disabled",
+          "description": "Do not forward notifications to any server. Notifications will be silently discarded."
         },
         {
           "value": "org.radarbase.fcm.downstream.AdminSdkFcmSender",

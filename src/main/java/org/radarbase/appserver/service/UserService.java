@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
+import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -39,7 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * {@link Service} for interacting with the {@link User} {@link javax.persistence.Entity} using the
+ * {@link Service} for interacting with the {@link User} {@link jakarta.persistence.Entity} using the
  * {@link UserRepository}.
  *
  * @author yatharthranjan
@@ -154,7 +155,7 @@ public class UserService {
     User newUser = userConverter.dtoToEntity(userDto).setProject(project);
     // maintain a bi-directional relationship
     newUser.getUsermetrics().setUser(newUser);
-    User savedUser = this.userRepository.save(newUser);
+    User savedUser = this.userRepository.saveAndFlush(newUser);
     // Generate schedule for user
     this.scheduleService.generateScheduleForUser(savedUser);
     return userConverter.entityToDto(savedUser);
@@ -179,13 +180,20 @@ public class UserService {
             .setUserMetrics(UserConverter.getValidUserMetrics(userDto))
             .setEnrolmentDate(userDto.getEnrolmentDate())
             .setTimezone(userDto.getTimezone())
+            .setLanguage(userDto.getLanguage())
             .setAttributes(userDto.getAttributes());
 
     // maintain a bi-directional relationship
     user.getUsermetrics().setUser(user);
-    User savedUser = this.userRepository.save(user);
+    User savedUser = this.userRepository.saveAndFlush(user);
     // Generate schedule for user
-    this.scheduleService.generateScheduleForUser(savedUser);
+    if (!user.getAttributes().equals(userDto.getAttributes())
+            || !user.getTimezone().equals(userDto.getTimezone())
+            || !user.getEnrolmentDate().equals(userDto.getEnrolmentDate())
+            || !user.getLanguage().equals(userDto.getLanguage()))
+    {
+      this.scheduleService.generateScheduleForUser(savedUser);
+    }
     return userConverter.entityToDto(savedUser);
   }
 

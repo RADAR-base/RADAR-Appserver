@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.apache.commons.codec.language.bm.Lang;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 
 /**
  * Data Transfer object (DTO) for Assessment. A project may represent a Protocol for scheduling
