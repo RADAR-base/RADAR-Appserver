@@ -39,6 +39,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -48,8 +49,7 @@ public class GithubClient {
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
     private final transient HttpClient client;
 
-    @Value("${security.github.client.token}")
-    private transient String githubToken;
+    private final transient String githubToken;
 
     private transient final Duration httpTimeout;
 
@@ -59,7 +59,9 @@ public class GithubClient {
     @SneakyThrows
     @Autowired
     public GithubClient(
-            @Value("${security.github.client.timeout:10}") int httpTimeout) {
+            @Value("${security.github.client.timeout:10}") int httpTimeout,
+            @Value("${security.github.client.token:}") String githubToken) {
+        this.githubToken = githubToken != null && !githubToken.isBlank() ? githubToken.trim() : null;
         this.httpTimeout = Duration.ofSeconds(httpTimeout);
         client = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
@@ -128,7 +130,7 @@ public class GithubClient {
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
                 .GET()
                 .timeout(httpTimeout);
-        if (githubToken != null && !githubToken.isEmpty()) {
+        if (githubToken != null) {
             request.header("Authorization", "Bearer " + githubToken);
         }
         return request.build();
