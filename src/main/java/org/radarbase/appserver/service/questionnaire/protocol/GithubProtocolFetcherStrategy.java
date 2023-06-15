@@ -95,7 +95,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         this.protocolFileName = protocolFileName;
         this.protocolBranch = protocolBranch;
         projectProtocolUriMap =
-                new CachedMap<>(this::getProtocolDirectories, Duration.ofHours(3), Duration.ofHours(4));
+                new CachedMap<>(this::getProtocolDirectories, Duration.ofHours(3), Duration.ofMinutes(4));
         this.objectMapper = objectMapper;
         this.localMapper = this.objectMapper.copy();
         this.localMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

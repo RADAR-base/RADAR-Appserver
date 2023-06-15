@@ -1,5 +1,6 @@
 package org.radarbase.appserver.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.function.ThrowingFunction;
 
 import java.lang.ref.SoftReference;
@@ -9,7 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class FunctionCache<K, V> {
+public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
     private final Duration cacheTime;
 
     private final Duration retryTime;
@@ -19,7 +20,7 @@ public class FunctionCache<K, V> {
     private final Map<K, SoftReference<Result<V>>> cachedMap;
     private final ThrowingFunction<K, V> function;
 
-    public FunctionCache(ThrowingFunction<K, V> function,
+    public CachedFunction(ThrowingFunction<K, V> function,
             Duration cacheTime,
             Duration retryTime,
             int maxSize) {
@@ -30,13 +31,14 @@ public class FunctionCache<K, V> {
         this.function = function;
     }
 
-    public V getOrThrow(K input) throws Exception {
+    @NotNull
+    public V applyWithException(@NotNull K input) throws Exception {
         SoftReference<Result<V>> localRef;
         synchronized (cachedMap) {
             localRef = cachedMap.get(input);
         }
         Result<V> result = localRef != null ? localRef.get() : null;
-        if (result != null && result.isValid()) {
+        if (result != null && !result.isExpired()) {
             return result.getOrThrow();
         }
 
@@ -94,11 +96,11 @@ public class FunctionCache<K, V> {
         }
 
         boolean isBadResult() {
-            return exception != null || !isValid();
+            return exception != null || isExpired();
         }
 
-        boolean isValid() {
-            return Instant.now().isBefore(expiration);
+        boolean isExpired() {
+            return Instant.now().isAfter(expiration);
         }
     }
 }
