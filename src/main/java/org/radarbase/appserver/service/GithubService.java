@@ -18,13 +18,16 @@ public class GithubService {
     @Autowired
     public GithubService(
             GithubClient githubClient,
-            @Value("${security.github.cache.duration:PT1H}")
-            Duration cacheTime,
-            @Value("${security.github.cache.retryDuration:PT1M}")
-            Duration retryTime,
+            @Value("${security.github.cache.duration:3600}")
+            int cacheTime,
+            @Value("${security.github.cache.retryDuration:60}")
+            int retryTime,
             @Value("${security.github.cache.size:10000}")
             int maxSize) {
-        this.cachedGetContent = new CachedFunction<>(githubClient::getGithubContent, cacheTime, retryTime, maxSize);
+        this.cachedGetContent = new CachedFunction<>(githubClient::getGithubContent,
+                Duration.ofSeconds(cacheTime),
+                Duration.ofSeconds(retryTime),
+                maxSize);
     }
 
     public String getGithubContent(String url) throws Exception {

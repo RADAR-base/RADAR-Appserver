@@ -46,3 +46,4 @@ bin/
 docker/prod
 
 *__pycache__
+google-credentials.json

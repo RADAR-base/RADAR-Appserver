@@ -11,14 +11,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
-    private final Duration cacheTime;
+    private transient final Duration cacheTime;
 
-    private final Duration retryTime;
+    private transient final Duration retryTime;
 
-    private final int maxSize;
+    private transient final int maxSize;
 
-    private final Map<K, SoftReference<Result<V>>> cachedMap;
-    private final ThrowingFunction<K, V> function;
+    private transient final Map<K, SoftReference<Result<V>>> cachedMap;
+    private transient final ThrowingFunction<K, V> function;
 
     public CachedFunction(ThrowingFunction<K, V> function,
             Duration cacheTime,
@@ -60,6 +60,7 @@ public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
         }
     }
 
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     private void putCache(K input, Result<V> result) {
         synchronized (cachedMap) {
             cachedMap.put(input, new SoftReference<>(result));
@@ -69,17 +70,16 @@ public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
                 for (int i = 0; i < toRemove; i++) {
                     iter.next();
                     iter.remove();
-                    toRemove--;
                 }
             }
         }
     }
 
     private static class Result<T> {
-        private final Instant expiration;
-        private final T value;
+        private transient final Instant expiration;
+        private transient final T value;
 
-        private final Exception exception;
+        private transient final Exception exception;
 
         Result(Duration expiryDuration, T value, Exception exception) {
             expiration = Instant.now().plus(expiryDuration);

@@ -51,18 +51,19 @@ public class GithubClient {
     @Value("${security.github.client.token}")
     private transient String githubToken;
 
-    @Value("${security.github.client.timeout:PT10s}")
-    private transient Duration httpTimeout;
+    private transient final Duration httpTimeout;
 
     @Value("${security.github.client.maxContentLength:1000000}")
     private transient int maxContentLength;
 
     @SneakyThrows
     @Autowired
-    public GithubClient() {
+    public GithubClient(
+            @Value("${security.github.client.timeout:10}") int httpTimeout) {
+        this.httpTimeout = Duration.ofSeconds(httpTimeout);
         client = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(httpTimeout)
+                .connectTimeout(this.httpTimeout)
                 .build();
     }
 
@@ -71,13 +72,7 @@ public class GithubClient {
         if (!this.isValidGithubUri(uri)) {
             throw new MalformedURLException("Invalid Github url.");
         }
-        HttpResponse<InputStream> response;
-        try {
-            response = client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
-        } catch (IOException ex) {
-            log.error("Failed to retrieve data from github: {}", ex.toString());
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Github responded with an error.");
-        }
+        HttpResponse<InputStream> response = makeRequest(uri);
 
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             checkContentLengthHeader(response);
@@ -91,6 +86,15 @@ public class GithubClient {
             log.error("Error getting Github content from URL {} : {}", url, response);
             throw new ResponseStatusException(
                     HttpStatus.valueOf(response.statusCode()), "Github content could not be retrieved");
+        }
+    }
+
+    private HttpResponse<InputStream> makeRequest(URI uri) throws InterruptedException {
+        try {
+            return client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
+        } catch (IOException ex) {
+            log.error("Failed to retrieve data from github: {}", ex.toString());
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Github responded with an error.");
         }
     }
 
