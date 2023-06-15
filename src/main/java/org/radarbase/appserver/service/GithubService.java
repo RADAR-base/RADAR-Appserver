@@ -18,11 +18,11 @@ public class GithubService {
     @Autowired
     public GithubService(
             GithubClient githubClient,
-            @Value("${security.github.service.cacheDuration:PT1H}")
+            @Value("${security.github.cache.duration:PT1H}")
             Duration cacheTime,
-            @Value("${security.github.service.retryDuration:PT1M}")
+            @Value("${security.github.cache.retryDuration:PT1M}")
             Duration retryTime,
-            @Value("${security.github.service.cacheSize:10000}")
+            @Value("${security.github.cache.size:10000}")
             int maxSize) {
         this.cache = new FunctionCache<>(githubClient::getGithubContent, cacheTime, retryTime, maxSize);
     }
