@@ -21,21 +21,19 @@
 
 package org.radarbase.appserver.service.questionnaire.protocol;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Protocol;
-import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * @author yatharthranjan
@@ -90,7 +88,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
             return cachedProjectProtocolMap.get(projectId);
         } catch (IOException ex) {
             log.warn(
-                    "Cannot retrieve Protocols for project {} : {}, Using cached values.", projectId, ex);
+                    "Cannot retrieve Protocols for project {} : {}, Using cached values.", projectId, ex.toString());
             return cachedProjectProtocolMap.get(true).get(projectId);
         }
     }
@@ -115,7 +113,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
             return protocol;
         } catch (IOException ex) {
             log.warn(
-                    "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex);
+                    "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex.toString());
             return cachedProtocolMap.getCache().get(subjectId);
         } catch(NoSuchElementException ex) {
             log.warn("Subject does not exist in map. Fetching..");
