@@ -21,6 +21,7 @@
 
 package org.radarbase.appserver.service;
 
+import jakarta.annotation.Nonnull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -49,7 +49,8 @@ public class GithubClient {
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
     private final transient HttpClient client;
 
-    private final transient String githubToken;
+    @Nonnull
+    private final transient String authorizationHeader;
 
     private transient final Duration httpTimeout;
 
@@ -61,9 +62,9 @@ public class GithubClient {
     public GithubClient(
             @Value("${security.github.client.timeout:10}") int httpTimeout,
             @Value("${security.github.client.token:}") String githubToken) {
-        this.githubToken = githubToken != null && !githubToken.isBlank() ? githubToken.trim() : null;
+        this.authorizationHeader = githubToken != null ? "Bearer " + githubToken.trim() : "";
         this.httpTimeout = Duration.ofSeconds(httpTimeout);
-        client = HttpClient.newBuilder()
+        this.client = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .connectTimeout(this.httpTimeout)
                 .build();
@@ -130,8 +131,8 @@ public class GithubClient {
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
                 .GET()
                 .timeout(httpTimeout);
-        if (githubToken != null) {
-            request.header("Authorization", "Bearer " + githubToken);
+        if (!authorizationHeader.isEmpty()) {
+            request.header("Authorization", authorizationHeader);
         }
         return request.build();
     }
