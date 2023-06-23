@@ -113,11 +113,9 @@ public class MultiHttpSecurityConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                .allowCredentials(true)
-                .maxAge(3600);
-                // NOTE: allowedHeaders("*") is causing CORS issues so this has been removed (empty allows all headers by default)
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedOrigins("*")
+                        .allowedHeaders("*");
             }
         };
     }

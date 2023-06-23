@@ -26,6 +26,7 @@ import org.radarbase.appserver.service.GithubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,7 @@ import radar.spring.auth.common.Authorized;
 
 import java.net.MalformedURLException;
 
+@CrossOrigin
 @RestController
 public class GithubEndpoint {
 
