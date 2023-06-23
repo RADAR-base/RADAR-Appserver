@@ -21,7 +21,7 @@
 
 package org.radarbase.appserver.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nonnull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -44,25 +45,29 @@ import java.time.Duration;
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class GithubClient {
-
     private static final String GITHUB_API_URI = "api.github.com";
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
-    private static final String LOCATION_HEADER = "location";
-    private final transient ObjectMapper objectMapper;
     private final transient HttpClient client;
 
-    @Value("${security.github.client.token}")
-    private transient String githubToken;
+    @Nonnull
+    private final transient String authorizationHeader;
+
+    private transient final Duration httpTimeout;
+
+    @Value("${security.github.client.maxContentLength:1000000}")
+    private transient int maxContentLength;
 
     @SneakyThrows
     @Autowired
-    public GithubClient(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-        client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).connectTimeout(Duration.ofSeconds(10)).build();
-    }
-
-    private static boolean isSuccessfulResponse(HttpResponse response) {
-        return response.statusCode() >= 200 && response.statusCode() < 300;
+    public GithubClient(
+            @Value("${security.github.client.timeout:10}") int httpTimeout,
+            @Value("${security.github.client.token:}") String githubToken) {
+        this.authorizationHeader = githubToken != null ? "Bearer " + githubToken.trim() : "";
+        this.httpTimeout = Duration.ofSeconds(httpTimeout);
+        this.client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(this.httpTimeout)
+                .build();
     }
 
     public String getGithubContent(String url) throws IOException, InterruptedException {
@@ -70,9 +75,16 @@ public class GithubClient {
         if (!this.isValidGithubUri(uri)) {
             throw new MalformedURLException("Invalid Github url.");
         }
-        HttpResponse response = client.send(getRequest(uri), HttpResponse.BodyHandlers.ofString());
-        if (isSuccessfulResponse(response)) {
-            return response.body().toString();
+        HttpResponse<InputStream> response = makeRequest(uri);
+
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            checkContentLengthHeader(response);
+
+            try (InputStream inputStream = response.body()) {
+                byte[] bytes = inputStream.readNBytes(maxContentLength + 1);
+                checkContentLength(bytes.length);
+                return new String(bytes);
+            }
         } else {
             log.error("Error getting Github content from URL {} : {}", url, response);
             throw new ResponseStatusException(
@@ -80,17 +92,47 @@ public class GithubClient {
         }
     }
 
+    private HttpResponse<InputStream> makeRequest(URI uri) throws InterruptedException {
+        try {
+            return client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
+        } catch (IOException ex) {
+            log.error("Failed to retrieve data from github: {}", ex.toString());
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Github responded with an error.");
+        }
+    }
+
+    private void checkContentLengthHeader(HttpResponse<?> response) {
+        response.headers().firstValue("Content-Length")
+                .map((l) -> {
+                    try {
+                        return Integer.valueOf(l);
+                    } catch (NumberFormatException ex) {
+                        return null;
+                    }
+                })
+                .ifPresent(this::checkContentLength);
+    }
+
+    private void checkContentLength(int contentLength) {
+        if (contentLength > maxContentLength) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Github content is too large");
+        }
+    }
+
     public boolean isValidGithubUri(URI uri) {
-        return uri.getHost().contains(GITHUB_API_URI);
+        return uri.getHost().equalsIgnoreCase(GITHUB_API_URI)
+                && uri.getScheme().equalsIgnoreCase("https")
+                && (uri.getPort() == -1 || uri.getPort() == 443);
     }
 
     private HttpRequest getRequest(URI uri) {
         HttpRequest.Builder request = HttpRequest.newBuilder(uri)
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
                 .GET()
-                .timeout(Duration.ofSeconds(10));
-        if (githubToken != null && !githubToken.isEmpty()) {
-            request.header("Authorization", "Bearer " + githubToken);
+                .timeout(httpTimeout);
+        if (!authorizationHeader.isEmpty()) {
+            request.header("Authorization", authorizationHeader);
         }
         return request.build();
     }
