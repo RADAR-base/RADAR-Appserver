@@ -55,7 +55,7 @@ import org.radarbase.fcm.model.FcmNotificationMessage;
 @Slf4j
 @SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.AvoidDuplicateLiterals"})
 public class AdminSdkFcmSender implements FcmSender {
-  static final int DEFAULT_TIME_TO_LIVE = 2_419_200; // 28 days in seconds
+  static final int DEFAULT_TIME_TO_LIVE = 1_814_000; // 21 days in seconds
 
   public AdminSdkFcmSender() throws IOException {
     // TODO also take config from application properties
