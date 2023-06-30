@@ -55,6 +55,7 @@ import org.radarbase.fcm.model.FcmNotificationMessage;
 @Slf4j
 @SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.AvoidDuplicateLiterals"})
 public class AdminSdkFcmSender implements FcmSender {
+  static final int DEFAULT_TIME_TO_LIVE = 2_419_200; // 28 days in seconds
 
   public AdminSdkFcmSender() throws IOException {
     // TODO also take config from application properties
@@ -81,7 +82,7 @@ public class AdminSdkFcmSender implements FcmSender {
             .setFcmOptions(FcmOptions.builder().build())
             .setCondition(downstreamMessage.getCondition());
 
-    int ttl = downstreamMessage.getTimeToLive() * 1000; // Convert to milliseconds
+    int ttl = getValidTtlMillis(downstreamMessage.getTimeToLive());
 
     if (downstreamMessage instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) downstreamMessage;
@@ -260,4 +261,11 @@ public class AdminSdkFcmSender implements FcmSender {
   public boolean doesProvideDeliveryReceipt() {
     return false;
   }
+
+  public int getValidTtlMillis(int ttl) {
+    // Converts ttl from seconds to milliseconds and makes sure this is less than 28 days
+    int ttlSeconds = ttl >= 0 && ttl <= DEFAULT_TIME_TO_LIVE ? ttl : DEFAULT_TIME_TO_LIVE;
+    return ttlSeconds * 1000;
+  }
+
 }
