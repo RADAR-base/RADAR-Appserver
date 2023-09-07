@@ -24,10 +24,15 @@ package org.radarbase.appserver.event.state;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.event.state.dto.TaskStateEventDto;
 import org.radarbase.appserver.service.TaskStateEventService;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Map;
 
@@ -51,7 +56,9 @@ public class TaskStateEventListener {
      *
      * @param event the event to respond to
      */
-    @EventListener(value = TaskStateEventDto.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(classes = TaskStateEventDto.class)
+    @Async
     public void onTaskStateChange(TaskStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getTask().getId(), event.getState());
