@@ -37,7 +37,7 @@ The app server provides REST endpoints to interact with the entities and data. F
 6. The appserver uses the Admin SDK to communicate with the Firebase Cloud Messaging. To 
    configure this, please look at the [FCM section](#fcm).
 
-7. To run the build on mac or linux, run the below -
+7. To run the build, run the command below -
    ```bash
     ./gradlew bootRun
    ```
