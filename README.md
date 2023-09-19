@@ -30,7 +30,7 @@ The app server provides REST endpoints to interact with the entities and data. F
         
    3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.  Also, change the properties in `src/main/resources/application.properties` to dev or prod according to your requirements. 
 
-4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. 
+4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 17, please download and install it before building. 
 
 5. The build will need to create a logs directory. The default path is `/usr/local/var/lib/radar/appserver/logs`. Either create the directory there using `sudo mkdir -p /usr/local/var/lib/radar/appserver/logs` followed by `sudo chown $USER /usr/local/var/lib/radar/appserver/logs` or change logs file directory in `src/main/resources/logback-spring.xml` to local log directory like `<property name="LOGS" value="logs" />`
 
