@@ -97,7 +97,7 @@ public class GithubClient {
         try {
             return client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
         } catch (IOException ex) {
-            log.error("Failed to retrieve data from github: {}", ex.toString());
+            log.error("Failed to retrieve data from github {}: {}", uri, ex.toString());
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Github responded with an error.");
         }
     }
