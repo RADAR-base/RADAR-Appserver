@@ -36,7 +36,7 @@ public class AuthConfig {
   }
 
   /**
-   * First tries to load config from radar_is.yml config file. If any issues, then uses the default
+   * First tries to load config from radar-is.yml config file. If any issues, then uses the default
    * MP oauth token key endpoint.
    *
    * @param managementPortalAuthProperties

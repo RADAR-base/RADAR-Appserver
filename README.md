@@ -167,7 +167,7 @@ The same can be achieved by running as a docker-compose service. Just specify th
         ports:
           - 8080:8080
         volumes:
-          - ./radar_is.yml:/resources/radar_is.yml
+          - ./radar-is.yml:/resources/radar-is.yml
           - ./logs/:/var/log/radar/appserver/
           - ./etc/google-credentials.json:/etc/google-credentials.json
         environment:
@@ -176,7 +176,7 @@ The same can be achieved by running as a docker-compose service. Just specify th
           RADAR_ADMIN_USER: "radar"
           RADAR_ADMIN_PASSWORD: "radar"
           SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
-          RADAR_IS_CONFIG_LOCATION: "/resources/radar_is.yml"
+          RADAR_IS_CONFIG_LOCATION: "/resources/radar-is.yml"
           SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
 ```
 
@@ -378,7 +378,7 @@ security.radar.managementportal.url=<your management portal base url>
 This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
 All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
 
-You can provide the Management Portal specific config in [radar_is.yml](radar_is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
+You can provide the Management Portal specific config in [radar-is.yml](radar-is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
 
 ### Management Portal Clients
 If security is enabled, please also make sure that the correct resources and scope are set in the OAuth Client configurations in Management Portal.
