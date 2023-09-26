@@ -36,7 +36,7 @@ ext {
     springBootVersion = '2.6.6'
     springVersion = '6.0.6'
     springOauth2Version = "2.5.1.RELEASE"
-    springDocVersion = '1.6.14'
+    springDocVersion = '2.2.0'
     lombokVersion = '1.18.26'
     junit5Version = '5.9.2'
     radarSpringAuthVersion = '1.2.0'
@@ -68,7 +68,7 @@ dependencies {
     runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
 
     // Open API spec
-    implementation(group: 'org.springdoc', name: 'springdoc-openapi-ui', version: springDocVersion)
+    implementation(group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: springDocVersion)
 
 
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')

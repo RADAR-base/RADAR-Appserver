@@ -40,6 +40,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.concurrent.Executor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -47,12 +51,12 @@ import java.time.Duration;
 public class GithubClient {
     private static final String GITHUB_API_URI = "api.github.com";
     private static final String GITHUB_API_ACCEPT_HEADER = "application/vnd.github.v3+json";
-    private final transient HttpClient client;
 
     @Nonnull
     private final transient String authorizationHeader;
 
     private transient final Duration httpTimeout;
+    private transient final Executor executor;
 
     @Value("${security.github.client.maxContentLength:1000000}")
     private transient int maxContentLength;
@@ -64,11 +68,11 @@ public class GithubClient {
             @Value("${security.github.client.token:}") String githubToken) {
         this.authorizationHeader = githubToken != null ? "Bearer " + githubToken.trim() : "";
         this.httpTimeout = Duration.ofSeconds(httpTimeout);
-        this.client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(this.httpTimeout)
-                .build();
+        this.executor = new ThreadPoolExecutor(0,
+                8,
+                30,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>());
     }
 
     public String getGithubContent(String url) throws IOException, InterruptedException {
@@ -94,6 +98,12 @@ public class GithubClient {
     }
 
     private HttpResponse<InputStream> makeRequest(URI uri) throws InterruptedException {
+        HttpClient client = HttpClient.newBuilder()
+                .executor(executor)
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(this.httpTimeout)
+                .build();
         try {
             return client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
         } catch (IOException ex) {
