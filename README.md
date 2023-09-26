@@ -141,13 +141,12 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
 ## FCM
 
 ### AdminSDK
-To configure AdminSDK, follow the official Firebase [documentation](https://firebase.google.
-com/docs/admin/setup#initialize-sdk) till you setup the environment variable (`GOOGLE_APPLICATION_CREDENTIALS`). In the properties 
+To configure AdminSDK, follow the official Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize-sdk) till you setup the environment variable (`GOOGLE_APPLICATION_CREDENTIALS`). In the properties 
 file, you would need to set `fcmserver.fcmsender` to `org.radarbase.fcm.downstream.AdminSdkFcmSender`. 
 
 
 ## Docker/ Docker Compose
-The AppServer is also available as a docker container. It's [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
+The AppServer is also available as a docker container. Its [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
 
 ```shell
     docker run -v /logs/:/var/log/radar/appserver/ \
