@@ -77,9 +77,6 @@ public class GithubClient {
 
     public String getGithubContent(String url) throws IOException, InterruptedException {
         URI uri = URI.create(url);
-        if (!this.isValidGithubUri(uri)) {
-            throw new MalformedURLException("Invalid Github url.");
-        }
         HttpResponse<InputStream> response = makeRequest(uri);
 
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
@@ -138,13 +135,18 @@ public class GithubClient {
     }
 
     private HttpRequest getRequest(URI uri) {
-        HttpRequest.Builder request = HttpRequest.newBuilder(uri)
-                .header("Accept", GITHUB_API_ACCEPT_HEADER)
-                .GET()
-                .timeout(httpTimeout);
-        if (!authorizationHeader.isEmpty()) {
-            request.header("Authorization", authorizationHeader);
+        if (this.isValidGithubUri(uri)) {
+            HttpRequest.Builder request = HttpRequest.newBuilder(uri)
+                    .header("Accept", GITHUB_API_ACCEPT_HEADER)
+                    .GET()
+                    .timeout(httpTimeout);
+            if (!authorizationHeader.isEmpty()) {
+                request.header("Authorization", authorizationHeader);
+            }
+            return request.build();
         }
-        return request.build();
+        else {
+            throw new MalformedURLException("Invalid Github url.");
+        }
     }
 }
