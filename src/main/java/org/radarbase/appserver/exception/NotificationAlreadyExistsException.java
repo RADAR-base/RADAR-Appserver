@@ -23,7 +23,7 @@ package org.radarbase.appserver.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.NoArgsConstructor;
-import net.minidev.json.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 
 /**
