@@ -55,6 +55,8 @@ import java.util.Map;
 @Slf4j
 @SuppressWarnings({"PMD.DataflowAnomalyAnalysis", "PMD.AvoidDuplicateLiterals"})
 public class AdminSdkFcmSender implements FcmSender {
+  static final int DEFAULT_TIME_TO_LIVE = 2_419_200; // 4 weeks
+
   public AdminSdkFcmSender(FirebaseOptions options) {
     // TODO also take config from application properties
     try {
@@ -75,7 +77,7 @@ public class AdminSdkFcmSender implements FcmSender {
             .setFcmOptions(FcmOptions.builder().build())
             .setCondition(downstreamMessage.getCondition());
 
-    Duration ttl = Duration.ofSeconds(downstreamMessage.getTimeToLive());
+    Duration ttl = getValidTtlMillis(downstreamMessage.getTimeToLive());
 
     if (downstreamMessage instanceof FcmNotificationMessage) {
       FcmNotificationMessage notificationMessage = (FcmNotificationMessage) downstreamMessage;
@@ -253,5 +255,11 @@ public class AdminSdkFcmSender implements FcmSender {
   @Override
   public boolean doesProvideDeliveryReceipt() {
     return false;
+  }
+
+  public Duration getValidTtlMillis(int ttl) {
+    // Makes sure ttl is less than 28 days
+    int ttlSeconds = ttl >= 0 && ttl <= DEFAULT_TIME_TO_LIVE ? ttl : DEFAULT_TIME_TO_LIVE;
+    return Duration.ofSeconds(ttlSeconds);
   }
 }
