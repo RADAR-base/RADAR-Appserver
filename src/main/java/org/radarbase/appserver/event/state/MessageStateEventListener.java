@@ -23,14 +23,18 @@ package org.radarbase.appserver.event.state;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
 import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.DataMessageStateEventService;
 import org.radarbase.appserver.service.NotificationStateEventService;
-import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -55,7 +59,9 @@ public class MessageStateEventListener {
      *
      * @param event the event to respond to
      */
-    @EventListener(value = NotificationStateEventDto.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(classes = NotificationStateEventDto.class)
+    @Async
     public void onNotificationStateChange(NotificationStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());
@@ -65,7 +71,9 @@ public class MessageStateEventListener {
         notificationStateEventService.addNotificationStateEvent(eventEntity);
     }
 
-    @EventListener(value = DataMessageStateEventDto.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(value = DataMessageStateEventDto.class)
+    @Async
     public void onDataMessageStateChange(DataMessageStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getDataMessage().getId(), event.getState());

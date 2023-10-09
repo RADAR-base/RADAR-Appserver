@@ -159,14 +159,16 @@ public class TaskService {
     @Transactional
     public Task updateTaskStatus(Task oldTask, TaskState state) {
         User user = oldTask.getUser();
-        if (this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), oldTask.getName(), oldTask.getTimestamp())) {
-            if (state.equals(TaskState.COMPLETED)) {
-                oldTask.setCompleted(true);
-                oldTask.setTimeCompleted(Timestamp.from(Instant.now()));
-            }
-            oldTask.setStatus(state);
-            return this.taskRepository.saveAndFlush(oldTask);
-        } else throw new NotFoundException(
-                "The Task does not exists. Please Use add endpoint");
+
+        if (!this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), oldTask.getName(), oldTask.getTimestamp())) {
+            throw new NotFoundException("The Task " + oldTask.getId() + " does not exist to set to state " + state + ". Please Use add endpoint");
+        }
+
+        if (state.equals(TaskState.COMPLETED)) {
+            oldTask.setCompleted(true);
+            oldTask.setTimeCompleted(Timestamp.from(Instant.now()));
+        }
+        oldTask.setStatus(state);
+        return this.taskRepository.saveAndFlush(oldTask);
     }
 }
