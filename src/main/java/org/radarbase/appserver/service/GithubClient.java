@@ -134,7 +134,7 @@ public class GithubClient {
                 && (uri.getPort() == -1 || uri.getPort() == 443);
     }
 
-    private HttpRequest getRequest(URI uri) {
+    private HttpRequest getRequest(URI uri) throws IOException, InterruptedException {
         if (this.isValidGithubUri(uri)) {
             HttpRequest.Builder request = HttpRequest.newBuilder(uri)
                     .header("Accept", GITHUB_API_ACCEPT_HEADER)
