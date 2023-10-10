@@ -69,7 +69,6 @@ dependencies {
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: springDocVersion)
 
-
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core:4.20.0')
@@ -164,7 +163,7 @@ task integrationTest(type: Test) {
     useJUnitPlatform() {
         excludeEngines 'junit-vintage'
     }
-    environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar_is.yml"
+    environment "RADAR_IS_CONFIG_LOCATION", "src/integrationTest/resources/radar-is.yml"
 
     shouldRunAfter test
 }

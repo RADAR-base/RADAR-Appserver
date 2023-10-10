@@ -52,6 +52,14 @@ jobs:
       - name: Check
         run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/src/integrationTest/resources/google-credentials.json ./gradlew check
 
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          path: build/reports
+          if-no-files-found: ignore
+          retention-days: 5
+
   # Check that the docker image builds correctly
   docker:
     # The type of runner that the job will run on

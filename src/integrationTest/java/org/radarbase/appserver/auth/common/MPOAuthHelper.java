@@ -39,7 +39,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class MPOAuthHelper implements OAuthHelper {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final String ACCESS_TOKEN;
-  private static final String MP_URL = "http://localhost:8081";
+  private static final String MP_URL = "http://localhost:8081/managementportal/";
   private static final String MP_CLIENT = "ManagementPortalapp";
   private static final String REST_CLIENT = "pRMT";
   private static final String USER = "sub-1";

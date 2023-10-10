@@ -19,7 +19,7 @@ services:
       POSTGRES_DB: radar
       POSTGRES_PASSWORD: radar
     ports:
-      - 5432:5432
+      - "5432:5432"
 
   appserver:
     build: ../../../..
@@ -29,12 +29,12 @@ services:
       - default
       - admin
     ports:
-      - 8080:8080
+      - "8080:8080"
     depends_on:
       - postgres
       - spring-boot-admin
     volumes:
-      - ../radar_is.yml:/resources/radar_is.yml
+      - ../radar-is.yml:/resources/radar-is.yml
       - ../../../../logs/:/var/log/radar/appserver/
     environment:
       JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
@@ -43,7 +43,7 @@ services:
       RADAR_ADMIN_USER: "radar"
       RADAR_ADMIN_PASSWORD: "radar"
       SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
-      RADAR_IS_CONFIG_LOCATION: "/resources/radar_is.yml"
+      RADAR_IS_CONFIG_LOCATION: "/resources/radar-is.yml"
       SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
 
   spring-boot-admin:
@@ -53,7 +53,7 @@ services:
       - admin
       - default
     ports:
-      - 8888:1111
+      - "8888:1111"
     environment:
       SPRING_BOOT_ADMIN_USER_NAME: radar
       SPRING_BOOT_ADMIN_USER_PASSWORD: appserver
@@ -71,10 +71,11 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8081
       MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET: ""
-      MANAGEMENTPORTAL_COMMON_BASE_URL: http://localhost:8081/
-      MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL: http://localhost:8081/
+      MANAGEMENTPORTAL_COMMON_BASE_URL: http://localhost:8081/managementportal
+      MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL: http://localhost:8081/managementportal
       MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE: /mp-includes/config/oauth_client_details.csv
       MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT: 'false'
+      SERVER_SERVLET_CONTEXT_PATH: /managementportal
       JAVA_OPTS: -Xmx256m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
     volumes:
       - ./etc/:/mp-includes/
