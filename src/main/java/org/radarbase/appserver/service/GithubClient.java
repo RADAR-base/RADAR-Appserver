@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,25 +129,26 @@ public class GithubClient {
         }
     }
 
-    public boolean isValidGithubUri(URI uri) {
-        return uri.getHost().equalsIgnoreCase(GITHUB_API_URI)
+    public URI getValidGithubUri(URI uri) throws IOException {
+        if (uri.getHost().equalsIgnoreCase(GITHUB_API_URI)
                 && uri.getScheme().equalsIgnoreCase("https")
-                && (uri.getPort() == -1 || uri.getPort() == 443);
-    }
-
-    private HttpRequest getRequest(URI uri) throws IOException, InterruptedException {
-        if (this.isValidGithubUri(uri)) {
-            HttpRequest.Builder request = HttpRequest.newBuilder(uri)
-                    .header("Accept", GITHUB_API_ACCEPT_HEADER)
-                    .GET()
-                    .timeout(httpTimeout);
-            if (!authorizationHeader.isEmpty()) {
-                request.header("Authorization", authorizationHeader);
-            }
-            return request.build();
-        }
+                && (uri.getPort() == -1 || uri.getPort() == 443)) {
+                    return UriComponentsBuilder.newInstance().scheme("https").host(uri.getHost()).path(uri.getPath()).build().toUri();
+                }
         else {
             throw new MalformedURLException("Invalid Github url.");
         }
+    }
+
+    private HttpRequest getRequest(URI uri) throws IOException {
+        URI validUri = this.getValidGithubUri(uri);
+        HttpRequest.Builder request = HttpRequest.newBuilder(validUri)
+                .header("Accept", GITHUB_API_ACCEPT_HEADER)
+                .GET()
+                .timeout(httpTimeout);
+        if (!authorizationHeader.isEmpty()) {
+            request.header("Authorization", authorizationHeader);
+        }
+        return request.build();
     }
 }
