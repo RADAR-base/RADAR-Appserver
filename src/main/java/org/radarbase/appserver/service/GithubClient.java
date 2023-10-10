@@ -133,7 +133,8 @@ public class GithubClient {
         if (uri.getHost().equalsIgnoreCase(GITHUB_API_URI)
                 && uri.getScheme().equalsIgnoreCase("https")
                 && (uri.getPort() == -1 || uri.getPort() == 443)) {
-                    return UriComponentsBuilder.newInstance().scheme("https").host(uri.getHost()).path(uri.getPath()).build().toUri();
+                    return UriComponentsBuilder.newInstance()
+                        .scheme("https").host(uri.getHost()).path(uri.getPath()).query(uri.getQuery()).build().toUri();
                 }
         else {
             throw new MalformedURLException("Invalid Github url.");
