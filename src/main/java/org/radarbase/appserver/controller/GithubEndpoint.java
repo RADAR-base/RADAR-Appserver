@@ -22,7 +22,7 @@
 package org.radarbase.appserver.controller;
 
 import org.radarbase.appserver.config.AuthConfig;
-import org.radarbase.appserver.service.GithubClient;
+import org.radarbase.appserver.service.GithubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,18 +32,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import radar.spring.auth.common.Authorized;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 
 @CrossOrigin
 @RestController
 public class GithubEndpoint {
 
-    private transient GithubClient githubClient;
+    private final transient GithubService githubService;
 
     @Autowired
-    public GithubEndpoint(GithubClient githubClient) {
-        this.githubClient = githubClient;
+    public GithubEndpoint(GithubService githubService) {
+        this.githubService = githubService;
     }
 
     @Authorized(
@@ -53,13 +52,13 @@ public class GithubEndpoint {
             PathsUtil.GITHUB_PATH
             + "/" +
             PathsUtil.GITHUB_CONTENT_PATH)
-    public ResponseEntity getGithubContent(@RequestParam() String url
+    public ResponseEntity<String> getGithubContent(@RequestParam() String url
     ) {
         try {
-            return ResponseEntity.ok().body(this.githubClient.getGithubContent(url));
+            return ResponseEntity.ok().body(this.githubService.getGithubContent(url));
         } catch (MalformedURLException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Error getting content from Github.");
         }
     }

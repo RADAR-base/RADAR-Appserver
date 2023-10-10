@@ -64,7 +64,7 @@ services:
   # Management Portal                                                         #
   #---------------------------------------------------------------------------#
   managementportal:
-    image: radarbase/management-portal:0.5.6
+    image: radarbase/management-portal:2.0.0
     ports:
       - "8081:8081"
     environment:
