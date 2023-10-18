@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -81,7 +80,7 @@ public class CachedMap<S, T> {
     if (!forceRefresh) {
       Result<S, T> existingResult = cache.get();
       if (!existingResult.isStale(invalidateAfter)) {
-        return existingResult.result;
+        return existingResult.map;
       }
     }
     Map<S, T> result = retriever.get();
@@ -95,7 +94,7 @@ public class CachedMap<S, T> {
    * @return map of data
    */
   public Map<S, T> getCache() {
-    return cache.get().result;
+    return cache.get().map;
   }
 
   /**
@@ -108,7 +107,7 @@ public class CachedMap<S, T> {
    */
   public T get(S key) throws IOException {
     Result<S, T> result = cache.get();
-    T value = result.result.get(key);
+    T value = result.map.get(key);
     if (value == null && result.isStale(retryAfter)) {
       return get(true).get(key);
     } else {
@@ -127,15 +126,15 @@ public class CachedMap<S, T> {
   }
 
   private static class Result<S, T> {
-    final transient Map<S, T> result;
+    final transient Map<S, T> map;
     final transient Temporal fetchTime;
 
-    private Result(Map<S, T> result) {
-      this(result, Instant.now());
+    private Result(Map<S, T> map) {
+      this(map, Instant.now());
     }
 
-    private Result(Map<S, T> result, Temporal fetchTime) {
-      this.result = result;
+    private Result(Map<S, T> map, Temporal fetchTime) {
+      this.map = map;
       this.fetchTime = fetchTime;
     }
 

@@ -49,6 +49,7 @@ public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
         return lockedResult.getOrCompute();
     }
 
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     private void checkMaxSize() {
         int toRemove = cachedMap.size() - maxSize;
         if (toRemove > 0) {
