@@ -112,7 +112,7 @@ javafx {
 }
 
 checkstyle {
-    configDirectory = file("config/checkstyle")
+    configDirectory.set(file("config/checkstyle"))
     toolVersion = "10.8.0"
     showViolations = false
     ignoreFailures = true
@@ -134,14 +134,14 @@ test {
     }
 }
 
-task unpack(type: Copy) {
-    duplicatesStrategy = 'include'
+tasks.register('unpack', Copy) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     dependsOn bootJar
     from(zipTree(tasks.bootJar.outputs.files.singleFile))
     into("build/dependency")
 }
 
-task loadTest(type: JavaExec) {
+tasks.register('loadTest', JavaExec) {
     dependsOn testClasses
     description = "Load Test With Gatling"
     group = "Load Test"
@@ -158,7 +158,7 @@ task loadTest(type: JavaExec) {
     ]
 }
 
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     useJUnitPlatform() {

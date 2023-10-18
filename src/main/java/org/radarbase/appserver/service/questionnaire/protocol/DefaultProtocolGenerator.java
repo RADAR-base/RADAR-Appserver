@@ -66,8 +66,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
                 new CachedMap<>(
                         protocolFetcherStrategy::fetchProtocols, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
         cachedProjectProtocolMap =
-                new CachedMap<>(
-                        protocolFetcherStrategy::fetchProtocolsPerProject, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
+                new CachedMap<>(protocolFetcherStrategy::fetchProtocolsPerProject, CACHE_INVALIDATE_DEFAULT, CACHE_RETRY_DEFAULT);
         log.debug("initialized Github Protocol generator");
     }
 
@@ -87,16 +86,14 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
         try {
             return cachedProjectProtocolMap.get(projectId);
         } catch (IOException ex) {
-            log.warn(
-                    "Cannot retrieve Protocols for project {} : {}, Using cached values.", projectId, ex.toString());
-            return cachedProjectProtocolMap.get(true).get(projectId);
+            log.warn("Cannot retrieve Protocols for project {} : {}, Using cached values.", projectId, ex.toString());
+            return cachedProjectProtocolMap.getCache().get(projectId);
         }
     }
 
     private @NonNull Protocol forceGetProtocolForSubject(String subjectId) {
         try {
-            cachedProtocolMap.get(true);
-            return cachedProtocolMap.get(subjectId);
+            return cachedProtocolMap.get(true).get(subjectId);
         } catch (IOException ex) {
             log.warn("Cannot retrieve Protocols, using cached values if available.", ex);
             return cachedProtocolMap.getCache().get(subjectId);
@@ -112,8 +109,7 @@ public class DefaultProtocolGenerator implements ProtocolGenerator {
             }
             return protocol;
         } catch (IOException ex) {
-            log.warn(
-                    "Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex.toString());
+            log.warn("Cannot retrieve Protocols for subject {} : {}, Using cached values.", subjectId, ex.toString());
             return cachedProtocolMap.getCache().get(subjectId);
         } catch(NoSuchElementException ex) {
             log.warn("Subject does not exist in map. Fetching..");

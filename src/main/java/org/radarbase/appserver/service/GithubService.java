@@ -7,6 +7,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.Duration;
 
 @Component
@@ -14,6 +15,7 @@ import java.time.Duration;
 public class GithubService {
 
     private final transient CachedFunction<String, String> cachedGetContent;
+    private final transient GithubClient githubClient;
 
     @Autowired
     public GithubService(
@@ -24,13 +26,24 @@ public class GithubService {
             int retryTime,
             @Value("${security.github.cache.size:10000}")
             int maxSize) {
+        this.githubClient = githubClient;
         this.cachedGetContent = new CachedFunction<>(githubClient::getGithubContent,
                 Duration.ofSeconds(cacheTime),
                 Duration.ofSeconds(retryTime),
                 maxSize);
     }
 
-    public String getGithubContent(String url) throws Exception {
-        return this.cachedGetContent.applyWithException(url);
+    public String getGithubContent(String url) throws IOException, InterruptedException {
+        try {
+            return this.cachedGetContent.applyWithException(url);
+        } catch (IOException | InterruptedException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unknown exception " + ex, ex);
+        }
+    }
+
+    public String getGithubContentWithoutCache(String url) throws IOException, InterruptedException {
+        return githubClient.getGithubContent(url);
     }
 }

@@ -21,14 +21,12 @@
 
 package org.radarbase.appserver.service;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.dto.questionnaire.Schedule;
-import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
@@ -47,11 +45,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -59,11 +59,11 @@ import java.util.stream.Stream;
 @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
 public class QuestionnaireScheduleService {
 
-    private static final String TASK_SEARCH_PATTERN = "(\\w+?)(:|<|>)(\\w+?),";
+    private static final Pattern TASK_SEARCH_PATTERN = Pattern.compile("(\\w+?)([:<>])(\\w+?),");
 
     private final transient ProtocolGenerator protocolGenerator;
 
-    private transient HashMap<String, Schedule> subjectScheduleMap = new HashMap<String, Schedule>();
+    private final transient HashMap<String, Schedule> subjectScheduleMap = new HashMap<>();
 
     private final transient UserRepository userRepository;
 
@@ -136,28 +136,31 @@ public class QuestionnaireScheduleService {
     @Transactional
     public Schedule generateScheduleForUser(User user) {
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
+        Schedule newSchedule;
+
         if (protocol == null) {
-            Schedule emptySchedule = new Schedule();
-            subjectScheduleMap.put(user.getSubjectId(), emptySchedule);
-            return emptySchedule;
+            newSchedule = new Schedule();
+        } else {
+            Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
+            String prevTimezone = prevSchedule.getTimezone() != null
+                    ? prevSchedule.getTimezone()
+                    : user.getTimezone();
+            if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion()) || !prevTimezone.equals(user.getTimezone())) {
+                this.removeScheduleForUser(user);
+            }
+            newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
         }
-        Schedule prevSchedule = getScheduleForSubject(user.getSubjectId());
-        String prevTimezone = prevSchedule.getTimezone() != null ? prevSchedule.getTimezone() : user.getTimezone();
-        if (!Objects.equals(prevSchedule.getVersion(), protocol.getVersion()) || !prevTimezone.equals(user.getTimezone())) {
-            this.removeScheduleForUser(user);
-        }
-        Schedule newSchedule = this.scheduleGeneratorService.generateScheduleForUser(user, protocol, prevSchedule);
 
         subjectScheduleMap.put(user.getSubjectId(), newSchedule);
-
         this.saveTasksAndNotifications(newSchedule.getAssessmentSchedules(), user);
+
         return newSchedule;
     }
 
     private void saveTasksAndNotifications(List<AssessmentSchedule> assessmentSchedules, User user) {
         assessmentSchedules.stream()
                 .filter(Objects::nonNull)
-                .filter(s -> s.hasTasks())
+                .filter(AssessmentSchedule::hasTasks)
                 .forEach(a -> {
                     this.taskService.addTasks(a.getTasks(), user);
                     this.notificationService.addNotifications(a.getNotifications(), user);
@@ -175,8 +178,9 @@ public class QuestionnaireScheduleService {
             throw new NotFoundException("Assessment not found in protocol. Add assessment to protocol first.");
         }
 
-        Schedule schedule = this.getScheduleForSubject(user.getSubjectId());
-        AssessmentSchedule a = this.scheduleGeneratorService.generateSingleAssessmentSchedule(assessment, user, Collections.emptyList(), user.getTimezone());
+        Schedule schedule = getScheduleForSubject(user.getSubjectId());
+        AssessmentSchedule a = scheduleGeneratorService.generateSingleAssessmentSchedule(
+                assessment, user, Collections.emptyList(), user.getTimezone());
         schedule.addAssessmentSchedule(a);
 
         this.saveTasksAndNotifications(List.of(a), user);
@@ -184,26 +188,15 @@ public class QuestionnaireScheduleService {
     }
 
     @Scheduled(fixedRate = 3_600_000)
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
     public void generateAllSchedules() {
         List<User> users = this.userRepository.findAll();
         log.info("Generating all schedules..");
-
-        List<Schedule> schedules = users.stream()
-                .map(u -> {
-                    Schedule schedule = this.generateScheduleForUser(u);
-                    return schedule;
-                }).collect(Collectors.toList());
+        users.forEach(this::generateScheduleForUser);
     }
 
     public Schedule getScheduleForSubject(String subjectId) {
-        try {
-            Schedule schedule = subjectScheduleMap.get(subjectId);
-            return schedule != null ? schedule : new Schedule();
-        } catch (NoSuchElementException ex) {
-            log.warn("Subject does not exist in map.");
-        }
-        return new Schedule();
+        Schedule schedule = subjectScheduleMap.get(subjectId);
+        return schedule != null ? schedule : new Schedule();
     }
 
     @Transactional
@@ -252,8 +245,7 @@ public class QuestionnaireScheduleService {
             builder.with("type", ":", type);
         }
 
-        Pattern pattern = Pattern.compile(TASK_SEARCH_PATTERN);
-        Matcher matcher = pattern.matcher(search + ",");
+        Matcher matcher = TASK_SEARCH_PATTERN.matcher(search + ",");
         while (matcher.find()) {
             builder.with(matcher.group(1), matcher.group(2), matcher.group(3));
         }

@@ -24,10 +24,9 @@ package org.radarbase.appserver.event.state;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
+import org.radarbase.appserver.entity.TaskStateEvent;
 import org.radarbase.appserver.event.state.dto.TaskStateEventDto;
 import org.radarbase.appserver.service.TaskStateEventService;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -50,7 +49,6 @@ public class TaskStateEventListener {
         this.taskStateEventService = taskStateEventService;
     }
 
-
     /**
      * Handle an application event.
      *
@@ -62,22 +60,21 @@ public class TaskStateEventListener {
     public void onTaskStateChange(TaskStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getTask().getId(), event.getState());
-        org.radarbase.appserver.entity.TaskStateEvent eventEntity =
-                new org.radarbase.appserver.entity.TaskStateEvent(
+        TaskStateEvent eventEntity = new TaskStateEvent(
                         event.getTask(), event.getState(), event.getTime(), info);
         taskStateEventService.addTaskStateEvent(eventEntity);
     }
 
     public String convertMapToString(Map<String, String> additionalInfoMap) {
-        String info = null;
-        if (additionalInfoMap != null) {
-            try {
-                info = objectMapper.writeValueAsString(additionalInfoMap);
-            } catch (JsonProcessingException exc) {
-                log.warn("error processing event's additional info: {}", additionalInfoMap);
-            }
+        if (additionalInfoMap == null) {
+            return null;
         }
-        return info;
+        try {
+            return objectMapper.writeValueAsString(additionalInfoMap);
+        } catch (JsonProcessingException exc) {
+            log.warn("error processing event's additional info: {}", additionalInfoMap);
+            return null;
+        }
     }
     // we can add more event listeners by annotating with @EventListener
 }

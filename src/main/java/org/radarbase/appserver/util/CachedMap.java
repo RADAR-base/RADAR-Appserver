@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Map that caches the result of a list for a limited time.
@@ -38,8 +39,8 @@ public class CachedMap<S, T> {
   private final transient ThrowingSupplier<? extends Map<S, T>> retriever;
   private final transient Duration invalidateAfter;
   private final transient Duration retryAfter;
-  private transient Temporal lastFetch;
-  private transient Map<S, T> cache;
+
+  private final transient AtomicReference<Result<S, T>> cache;
 
   /**
    * Map that retrieves data from a supplier and converts that to a map with given key extractor.
@@ -56,7 +57,7 @@ public class CachedMap<S, T> {
     this.retriever = retriever;
     this.invalidateAfter = invalidateAfter;
     this.retryAfter = retryAfter;
-    this.lastFetch = Instant.MIN;
+    this.cache = new AtomicReference<>(new Result<>(Map.of(), Instant.MIN));
   }
 
   /**
@@ -78,19 +79,14 @@ public class CachedMap<S, T> {
    */
   public Map<S, T> get(boolean forceRefresh) throws IOException {
     if (!forceRefresh) {
-      synchronized (this) {
-        if (cache != null && !isThresholdPassed(lastFetch, invalidateAfter)) {
-          return cache;
-        }
+      Result<S, T> existingResult = cache.get();
+      if (!existingResult.isStale(invalidateAfter)) {
+        return existingResult.result;
       }
     }
     Map<S, T> result = retriever.get();
-
-    synchronized (this) {
-      cache = result;
-      lastFetch = Instant.now();
-      return cache;
-    }
+    cache.set(new Result<>(result));
+    return result;
   }
 
   /**
@@ -99,33 +95,25 @@ public class CachedMap<S, T> {
    * @return map of data
    */
   public Map<S, T> getCache() {
-    synchronized (this) {
-      return cache;
-    }
+    return cache.get().result;
   }
 
   /**
-   * Get a key from the map. If the key is missing, it will check with {@link #mayRetry()} whether
+   * Get a key from the map. If the key is missing, it will check whether
    * the cache may be updated. If so, it will fetch the cache again and look the key up.
    *
    * @param key key of the value to find.
-   * @return element
+   * @return element or null if it is not found
    * @throws IOException if the cache cannot be refreshed.
-   * @throws NoSuchElementException if the element is not found.
    */
-  public T get(S key) throws IOException, NoSuchElementException {
-    T value = get().get(key);
-    if (value == null) {
-      if (mayRetry()) {
-        value = get(true).get(key);
-      }
+  public T get(S key) throws IOException {
+    Result<S, T> result = cache.get();
+    T value = result.result.get(key);
+    if (value == null && result.isStale(retryAfter)) {
+      return get(true).get(key);
+    } else {
+      return value;
     }
-    return value;
-  }
-
-  /** Whether the cache may be refreshed. */
-  public synchronized boolean mayRetry() {
-    return isThresholdPassed(lastFetch, retryAfter);
   }
 
   /**
@@ -138,8 +126,21 @@ public class CachedMap<S, T> {
     T get() throws IOException;
   }
 
-  /** Whether a given temporal threshold is passed, compared to given time. */
-  public static boolean isThresholdPassed(Temporal time, Duration duration) {
-    return Duration.between(time, Instant.now()).compareTo(duration) > 0;
+  private static class Result<S, T> {
+    final transient Map<S, T> result;
+    final transient Temporal fetchTime;
+
+    private Result(Map<S, T> result) {
+      this(result, Instant.now());
+    }
+
+    private Result(Map<S, T> result, Temporal fetchTime) {
+      this.result = result;
+      this.fetchTime = fetchTime;
+    }
+
+    boolean isStale(Duration freshDuration) {
+      return Duration.between(this.fetchTime, Instant.now()).compareTo(freshDuration) > 0;
+    }
   }
 }
