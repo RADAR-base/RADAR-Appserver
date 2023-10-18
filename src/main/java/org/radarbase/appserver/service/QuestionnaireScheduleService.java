@@ -59,7 +59,8 @@ import java.util.regex.Pattern;
 @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
 public class QuestionnaireScheduleService {
 
-    private static final Pattern TASK_SEARCH_PATTERN = Pattern.compile("(\\w+?)([:<>])(\\w+?),");
+    private static final Pattern TASK_SEARCH_PATTERN = Pattern.compile("(\\w+)([:<>])(\\w+)");
+    private static final Pattern COMMA_PATTERN = Pattern.compile(",");
 
     private final transient ProtocolGenerator protocolGenerator;
 
@@ -245,11 +246,18 @@ public class QuestionnaireScheduleService {
             builder.with("type", ":", type);
         }
 
-        Matcher matcher = TASK_SEARCH_PATTERN.matcher(search + ",");
-        while (matcher.find()) {
-            builder.with(matcher.group(1), matcher.group(2), matcher.group(3));
+        if (search != null && !search.isBlank()) {
+            String[] searchTerms = COMMA_PATTERN.split(search);
+
+            for (String searchTerm : searchTerms) {
+                Matcher matcher = TASK_SEARCH_PATTERN.matcher(searchTerm.trim());
+                if (matcher.matches()) {
+                    builder.with(matcher.group(1), matcher.group(2), matcher.group(3));
+                }
+            }
         }
         return builder;
     }
+
 
 }
