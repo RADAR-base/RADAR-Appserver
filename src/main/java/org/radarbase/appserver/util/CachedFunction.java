@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 @Slf4j
 public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
@@ -20,10 +19,9 @@ public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
 
     private transient final int maxSize;
 
-    private transient final Map<K, SoftReference<Result<V>>> cachedMap;
-    private transient final ThrowingFunction<K, V> function;
+    private transient final Map<K, LockedResult> cachedMap;
 
-    private transient final Semaphore semaphore;
+    private transient final ThrowingFunction<K, V> function;
 
     public CachedFunction(ThrowingFunction<K, V> function,
             Duration cacheTime,
@@ -34,73 +32,56 @@ public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
         this.maxSize = maxSize;
         this.cachedMap = new LinkedHashMap<>(16, 0.75f, false);
         this.function = function;
-        this.semaphore = new Semaphore(2);
     }
 
     @NotNull
     public V applyWithException(@NotNull K input) throws Exception {
-        V result = tryGet(input);
-        if (result != null) {
-            return result;
+        LockedResult lockedResult;
+        synchronized (cachedMap) {
+            lockedResult = cachedMap.get(input);
+            if (lockedResult == null) {
+                lockedResult = new LockedResult(input);
+                cachedMap.put(input, lockedResult);
+                checkMaxSize();
+            }
         }
 
-        semaphore.acquire();
-        try {
-            result = tryGet(input);
-            if (result != null) {
-                return result;
+        return lockedResult.getOrCompute();
+    }
+
+    private void checkMaxSize() {
+        int toRemove = cachedMap.size() - maxSize;
+        if (toRemove > 0) {
+            Iterator<?> iter = cachedMap.entrySet().iterator();
+            for (int i = 0; i < toRemove; i++) {
+                iter.next();
+                iter.remove();
             }
-            log.debug("Recomputing {} in cache", input);
-            V content = function.applyWithException(input);
-            putCache(input, new Result<>(cacheTime, content, null));
-            return content;
-        } catch (Exception ex) {
-            synchronized (cachedMap) {
-                SoftReference<Result<V>> exRef = cachedMap.get(input);
-                Result<V> exResult = exRef != null ? exRef.get() : null;
-                if (exResult == null || exResult.isBadResult()) {
-                    putCache(input, new Result<>(retryTime, null, ex));
-                    throw ex;
-                } else {
-                    return exResult.getOrThrow();
-                }
-            }
-        } finally {
-            semaphore.release();
         }
     }
 
-    private V tryGet(@NotNull K input) throws Exception {
-        SoftReference<Result<V>> localRef;
-        synchronized (cachedMap) {
-            localRef = cachedMap.get(input);
-        }
-        Result<V> result = localRef != null ? localRef.get() : null;
-        if (result != null && !result.isExpired()) {
-            log.debug("Retrieved {} from cache", input);
-            return result.getOrThrow();
-        } else {
-            log.debug("Value for {} not in cache", input);
-            return null;
-        }
-    }
+    private class LockedResult {
+        private final transient K input;
+        private transient SoftReference<Result<V>> reference;
 
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-    private void putCache(K input, Result<V> result) {
-        synchronized (cachedMap) {
-            if (result.exception != null) {
-                log.debug("Put {} in cache with exception {}", input, result.exception.toString());
-            } else {
-                log.debug("Put {} in cache with value", input);
+        private LockedResult(K input) {
+            this.input = input;
+            reference = new SoftReference<>(null);
+        }
+
+        synchronized V getOrCompute() throws Exception {
+            Result<V> result = reference.get();
+            if (result != null && !result.isExpired()) {
+                return result.getOrThrow();
             }
-            cachedMap.put(input, new SoftReference<>(result));
-            int toRemove = cachedMap.size() - maxSize;
-            if (toRemove > 0) {
-                Iterator<?> iter = cachedMap.entrySet().iterator();
-                for (int i = 0; i < toRemove; i++) {
-                    iter.next();
-                    iter.remove();
-                }
+            try {
+                log.debug("Recomputing {} in cache", input);
+                V content = function.applyWithException(input);
+                reference = new SoftReference<>(new Result<>(cacheTime, content, null));
+                return content;
+            } catch (Exception ex) {
+                reference = new SoftReference<>(new Result<>(retryTime, null, ex));
+                throw ex;
             }
         }
     }
