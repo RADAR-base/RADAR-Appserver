@@ -21,34 +21,33 @@
 
 package org.radarbase.appserver.util;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import java.io.IOException;
 import java.util.Base64;
 
-public class Base64Deserializer extends JsonDeserializer<Object> implements ContextualDeserializer {
-
-  private transient Class<?> resultClass;
-
+public class Base64Deserializer extends JsonDeserializer<String> implements ContextualDeserializer {
   @Override
   public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty property) throws JsonMappingException {
-    this.resultClass = property.getType().getRawClass();
+    if (!String.class.isAssignableFrom(property.getType().getRawClass())) {
+      throw context.invalidTypeIdException(property.getType(), "String", "Base64 decoding is only applied to String fields.");
+    }
     return this;
   }
 
   @Override
-  public String deserialize(JsonParser parser, DeserializationContext context) throws IOException, JsonProcessingException {
+  public String deserialize(JsonParser parser, DeserializationContext context) throws IOException {
     String value = clean(parser.getValueAsString());
     Base64.Decoder decoder = Base64.getDecoder();
 
     try {
       byte[] decodedValue = decoder.decode(value);
-
       return new String(decodedValue);
     } catch (IllegalArgumentException e) {
       String fieldName = parser.getParsingContext().getCurrentName();
@@ -64,6 +63,6 @@ public class Base64Deserializer extends JsonDeserializer<Object> implements Cont
   }
 
   public String clean(String value) {
-    return value.replace("\n", "").replace("\r", "");
+    return value.replaceAll("[\n\r]", "");
   }
 }

@@ -24,6 +24,8 @@ package org.radarbase.appserver.event.state;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.radarbase.appserver.entity.DataMessageStateEvent;
+import org.radarbase.appserver.entity.NotificationStateEvent;
 import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto;
 import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
 import org.radarbase.appserver.service.DataMessageStateEventService;
@@ -65,9 +67,8 @@ public class MessageStateEventListener {
     public void onNotificationStateChange(NotificationStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getNotification().getId(), event.getState());
-        org.radarbase.appserver.entity.NotificationStateEvent eventEntity =
-                new org.radarbase.appserver.entity.NotificationStateEvent(
-                        event.getNotification(), event.getState(), event.getTime(), info);
+        NotificationStateEvent eventEntity = new NotificationStateEvent(
+                event.getNotification(), event.getState(), event.getTime(), info);
         notificationStateEventService.addNotificationStateEvent(eventEntity);
     }
 
@@ -77,22 +78,21 @@ public class MessageStateEventListener {
     public void onDataMessageStateChange(DataMessageStateEventDto event) {
         String info = convertMapToString(event.getAdditionalInfo());
         log.debug("ID: {}, STATE: {}", event.getDataMessage().getId(), event.getState());
-        org.radarbase.appserver.entity.DataMessageStateEvent eventEntity =
-                new org.radarbase.appserver.entity.DataMessageStateEvent(
-                        event.getDataMessage(), event.getState(), event.getTime(), info);
+        DataMessageStateEvent eventEntity = new DataMessageStateEvent(
+                event.getDataMessage(), event.getState(), event.getTime(), info);
         dataMessageStateEventService.addDataMessageStateEvent(eventEntity);
     }
 
     public String convertMapToString(Map<String, String> additionalInfoMap) {
-        String info = null;
-        if (additionalInfoMap != null) {
-            try {
-                info = objectMapper.writeValueAsString(additionalInfoMap);
-            } catch (JsonProcessingException exc) {
-                log.warn("error processing event's additional info: {}", additionalInfoMap);
-            }
+        if (additionalInfoMap == null) {
+            return null;
         }
-        return info;
+        try {
+            return objectMapper.writeValueAsString(additionalInfoMap);
+        } catch (JsonProcessingException exc) {
+            log.warn("error processing event's additional info: {}", additionalInfoMap);
+            return null;
+        }
     }
     // we can add more event listeners by annotating with @EventListener
 }

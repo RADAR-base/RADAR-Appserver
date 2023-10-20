@@ -1,5 +1,6 @@
 package org.radarbase.appserver.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.function.ThrowingFunction;
 
@@ -10,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
     private transient final Duration cacheTime;
 
@@ -17,7 +19,8 @@ public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
 
     private transient final int maxSize;
 
-    private transient final Map<K, SoftReference<Result<V>>> cachedMap;
+    private transient final Map<K, LockedResult> cachedMap;
+
     private transient final ThrowingFunction<K, V> function;
 
     public CachedFunction(ThrowingFunction<K, V> function,
@@ -33,44 +36,53 @@ public class CachedFunction<K, V> implements ThrowingFunction<K, V> {
 
     @NotNull
     public V applyWithException(@NotNull K input) throws Exception {
-        SoftReference<Result<V>> localRef;
+        LockedResult lockedResult;
         synchronized (cachedMap) {
-            localRef = cachedMap.get(input);
-        }
-        Result<V> result = localRef != null ? localRef.get() : null;
-        if (result != null && !result.isExpired()) {
-            return result.getOrThrow();
+            lockedResult = cachedMap.get(input);
+            if (lockedResult == null) {
+                lockedResult = new LockedResult(input);
+                cachedMap.put(input, lockedResult);
+                checkMaxSize();
+            }
         }
 
-        try {
-            V content = function.applyWithException(input);
-            putCache(input, new Result<>(cacheTime, content, null));
-            return content;
-        } catch (Exception ex) {
-            synchronized (cachedMap) {
-                SoftReference<Result<V>> exRef = cachedMap.get(input);
-                Result<V> exResult = exRef != null ? exRef.get() : null;
-                if (exResult == null || exResult.isBadResult()) {
-                    putCache(input, new Result<>(retryTime, null, ex));
-                    throw ex;
-                } else {
-                    return exResult.getOrThrow();
-                }
+        return lockedResult.getOrCompute();
+    }
+
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+    private void checkMaxSize() {
+        int toRemove = cachedMap.size() - maxSize;
+        if (toRemove > 0) {
+            Iterator<?> iter = cachedMap.entrySet().iterator();
+            for (int i = 0; i < toRemove; i++) {
+                iter.next();
+                iter.remove();
             }
         }
     }
 
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-    private void putCache(K input, Result<V> result) {
-        synchronized (cachedMap) {
-            cachedMap.put(input, new SoftReference<>(result));
-            int toRemove = cachedMap.size() - maxSize;
-            if (toRemove > 0) {
-                Iterator<?> iter = cachedMap.entrySet().iterator();
-                for (int i = 0; i < toRemove; i++) {
-                    iter.next();
-                    iter.remove();
-                }
+    private class LockedResult {
+        private final transient K input;
+        private transient SoftReference<Result<V>> reference;
+
+        private LockedResult(K input) {
+            this.input = input;
+            reference = new SoftReference<>(null);
+        }
+
+        synchronized V getOrCompute() throws Exception {
+            Result<V> result = reference.get();
+            if (result != null && !result.isExpired()) {
+                return result.getOrThrow();
+            }
+            try {
+                log.debug("Recomputing {} in cache", input);
+                V content = function.applyWithException(input);
+                reference = new SoftReference<>(new Result<>(cacheTime, content, null));
+                return content;
+            } catch (Exception ex) {
+                reference = new SoftReference<>(new Result<>(retryTime, null, ex));
+                throw ex;
             }
         }
     }

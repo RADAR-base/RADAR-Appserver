@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +57,7 @@ public class GithubClient {
     private final transient String authorizationHeader;
 
     private transient final Duration httpTimeout;
-    private transient final Executor executor;
+    private transient final HttpClient client;
 
     @Value("${security.github.client.maxContentLength:1000000}")
     private transient int maxContentLength;
@@ -68,18 +69,16 @@ public class GithubClient {
             @Value("${security.github.client.token:}") String githubToken) {
         this.authorizationHeader = githubToken != null ? "Bearer " + githubToken.trim() : "";
         this.httpTimeout = Duration.ofSeconds(httpTimeout);
-        this.executor = new ThreadPoolExecutor(0,
-                8,
-                30,
-                TimeUnit.SECONDS,
-                new SynchronousQueue<>());
+        this.client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(this.httpTimeout)
+                .build();
     }
 
     public String getGithubContent(String url) throws IOException, InterruptedException {
+        log.debug("Fetching Github URL {}", url);
         URI uri = URI.create(url);
-        if (!this.isValidGithubUri(uri)) {
-            throw new MalformedURLException("Invalid Github url.");
-        }
         HttpResponse<InputStream> response = makeRequest(uri);
 
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
@@ -98,12 +97,6 @@ public class GithubClient {
     }
 
     private HttpResponse<InputStream> makeRequest(URI uri) throws InterruptedException {
-        HttpClient client = HttpClient.newBuilder()
-                .executor(executor)
-                .version(HttpClient.Version.HTTP_1_1)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(this.httpTimeout)
-                .build();
         try {
             return client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
         } catch (IOException ex) {
@@ -131,14 +124,21 @@ public class GithubClient {
         }
     }
 
-    public boolean isValidGithubUri(URI uri) {
-        return uri.getHost().equalsIgnoreCase(GITHUB_API_URI)
+    public URI getValidGithubUri(URI uri) throws IOException {
+        if (uri.getHost().equalsIgnoreCase(GITHUB_API_URI)
                 && uri.getScheme().equalsIgnoreCase("https")
-                && (uri.getPort() == -1 || uri.getPort() == 443);
+                && (uri.getPort() == -1 || uri.getPort() == 443)) {
+                    return UriComponentsBuilder.newInstance()
+                        .scheme("https").host(uri.getHost()).path(uri.getPath()).query(uri.getQuery()).build().toUri();
+                }
+        else {
+            throw new MalformedURLException("Invalid Github url.");
+        }
     }
 
-    private HttpRequest getRequest(URI uri) {
-        HttpRequest.Builder request = HttpRequest.newBuilder(uri)
+    private HttpRequest getRequest(URI uri) throws IOException {
+        URI validUri = this.getValidGithubUri(uri);
+        HttpRequest.Builder request = HttpRequest.newBuilder(validUri)
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
                 .GET()
                 .timeout(httpTimeout);
