@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1697819541-01
+      author: pauline
+      changes:
+        - dropForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_metrics
+            constraintName: FK65c9asnnjs3q0lktqj103mvcv
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
