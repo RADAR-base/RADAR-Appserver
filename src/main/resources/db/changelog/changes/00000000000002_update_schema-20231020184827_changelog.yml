@@ -12,3 +12,8 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: users
             validate: true
+        - dropColumn:
+            columns:
+              - column:
+                  name: user_id
+            tableName: user_metrics
