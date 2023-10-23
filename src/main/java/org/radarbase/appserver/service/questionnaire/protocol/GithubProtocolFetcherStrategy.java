@@ -33,10 +33,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.dto.protocol.GithubContent;
 import org.radarbase.appserver.dto.protocol.Protocol;
 import org.radarbase.appserver.dto.protocol.ProtocolCacheEntry;
+import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.GithubClient;
+import org.radarbase.appserver.service.GithubService;
 import org.radarbase.appserver.util.CachedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,13 +49,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -72,7 +80,8 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     private final transient ObjectMapper localMapper;
     // Keeps a cache of github URI's associated with protocol for each project
     private final transient CachedMap<String, URI> projectProtocolUriMap;
-    private final transient GithubClient githubClient;
+
+    private final transient GithubService githubService;
 
     @SneakyThrows
     @Autowired
@@ -83,7 +92,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
             ObjectMapper objectMapper,
             UserRepository userRepository,
             ProjectRepository projectRepository,
-            GithubClient githubClient) {
+            GithubService githubService) {
         if (protocolRepo == null
                 || protocolRepo.isEmpty()
                 || protocolFileName == null
@@ -101,7 +110,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         this.localMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
-        this.githubClient = githubClient;
+        this.githubService = githubService;
     }
 
     @Override
@@ -147,7 +156,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     }
 
     @Override
-    public synchronized Map<String, Protocol> fetchProtocolsPerProject() {
+    public Map<String, Protocol> fetchProtocolsPerProject() {
         Set<String> protocolPaths = getProtocolPaths();
 
         if (protocolPaths == null) {
@@ -221,10 +230,10 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         Map<String, URI> protocolUriMap = new HashMap<>();
 
         try {
-            String content = githubClient.getGithubContent(GITHUB_API_URI + protocolRepo + "/branches/" + protocolBranch);
+            String content = githubService.getGithubContentWithoutCache(GITHUB_API_URI + protocolRepo + "/branches/" + protocolBranch);
             ObjectNode result = getArrayNode(content);
             String treeSha = result.findValue("tree").findValue("sha").asText();
-            String treeContent = githubClient.getGithubContent(GITHUB_API_URI + protocolRepo + "/git/trees/" + treeSha + "?recursive=true");
+            String treeContent = githubService.getGithubContent(GITHUB_API_URI + protocolRepo + "/git/trees/" + treeSha + "?recursive=true");
 
             JsonNode tree = getArrayNode(treeContent).get("tree");
             for (JsonNode jsonNode : tree) {
@@ -242,7 +251,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
     }
 
     private Protocol getProtocolFromUrl(URI uri) throws IOException, InterruptedException {
-        String contentString = githubClient.getGithubContent(uri.toString());
+        String contentString = githubService.getGithubContent(uri.toString());
         GithubContent content = localMapper.readValue(contentString, GithubContent.class);
         return localMapper.readValue(content.getContent(), Protocol.class);
     }

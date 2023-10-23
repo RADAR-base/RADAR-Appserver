@@ -57,7 +57,7 @@ public class GithubClient {
     private final transient String authorizationHeader;
 
     private transient final Duration httpTimeout;
-    private transient final Executor executor;
+    private transient final HttpClient client;
 
     @Value("${security.github.client.maxContentLength:1000000}")
     private transient int maxContentLength;
@@ -69,14 +69,15 @@ public class GithubClient {
             @Value("${security.github.client.token:}") String githubToken) {
         this.authorizationHeader = githubToken != null ? "Bearer " + githubToken.trim() : "";
         this.httpTimeout = Duration.ofSeconds(httpTimeout);
-        this.executor = new ThreadPoolExecutor(0,
-                8,
-                30,
-                TimeUnit.SECONDS,
-                new SynchronousQueue<>());
+        this.client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(this.httpTimeout)
+                .build();
     }
 
     public String getGithubContent(String url) throws IOException, InterruptedException {
+        log.debug("Fetching Github URL {}", url);
         URI uri = URI.create(url);
         HttpResponse<InputStream> response = makeRequest(uri);
 
@@ -96,12 +97,6 @@ public class GithubClient {
     }
 
     private HttpResponse<InputStream> makeRequest(URI uri) throws InterruptedException {
-        HttpClient client = HttpClient.newBuilder()
-                .executor(executor)
-                .version(HttpClient.Version.HTTP_1_1)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(this.httpTimeout)
-                .build();
         try {
             return client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
         } catch (IOException ex) {

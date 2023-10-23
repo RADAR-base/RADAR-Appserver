@@ -1,3 +1,0 @@
-resourceName: res_AppServer
-publicKeyEndpoints:
-  - http://localhost:8081/oauth/token_key

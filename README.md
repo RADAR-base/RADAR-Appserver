@@ -30,14 +30,14 @@ The app server provides REST endpoints to interact with the entities and data. F
         
    3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.  Also, change the properties in `src/main/resources/application.properties` to dev or prod according to your requirements. 
 
-4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 11, please download and install it before building. 
+4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 17, please download and install it before building. 
 
 5. The build will need to create a logs directory. The default path is `/usr/local/var/lib/radar/appserver/logs`. Either create the directory there using `sudo mkdir -p /usr/local/var/lib/radar/appserver/logs` followed by `sudo chown $USER /usr/local/var/lib/radar/appserver/logs` or change logs file directory in `src/main/resources/logback-spring.xml` to local log directory like `<property name="LOGS" value="logs" />`
 
 6. The appserver uses the Admin SDK to communicate with the Firebase Cloud Messaging. To 
    configure this, please look at the [FCM section](#fcm).
 
-7. To run the build on mac or linux, run the below -
+7. To run the build, run the command below -
    ```bash
     ./gradlew bootRun
    ```
@@ -141,13 +141,12 @@ The same result as stated in [Getting Started](#getting-started) can be achieved
 ## FCM
 
 ### AdminSDK
-To configure AdminSDK, follow the official Firebase [documentation](https://firebase.google.
-com/docs/admin/setup#initialize-sdk) till you setup the environment variable (`GOOGLE_APPLICATION_CREDENTIALS`). In the properties 
+To configure AdminSDK, follow the official Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize-sdk) till you setup the environment variable (`GOOGLE_APPLICATION_CREDENTIALS`). In the properties 
 file, you would need to set `fcmserver.fcmsender` to `org.radarbase.fcm.downstream.AdminSdkFcmSender`. 
 
 
 ## Docker/ Docker Compose
-The AppServer is also available as a docker container. It's [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
+The AppServer is also available as a docker container. Its [Dockerfile](/Dockerfile) is provided with the project. It can be run as follows -
 
 ```shell
     docker run -v /logs/:/var/log/radar/appserver/ \
@@ -167,7 +166,7 @@ The same can be achieved by running as a docker-compose service. Just specify th
         ports:
           - 8080:8080
         volumes:
-          - ./radar_is.yml:/resources/radar_is.yml
+          - ./radar-is.yml:/resources/radar-is.yml
           - ./logs/:/var/log/radar/appserver/
           - ./etc/google-credentials.json:/etc/google-credentials.json
         environment:
@@ -176,7 +175,7 @@ The same can be achieved by running as a docker-compose service. Just specify th
           RADAR_ADMIN_USER: "radar"
           RADAR_ADMIN_PASSWORD: "radar"
           SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
-          RADAR_IS_CONFIG_LOCATION: "/resources/radar_is.yml"
+          RADAR_IS_CONFIG_LOCATION: "/resources/radar-is.yml"
           SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
 ```
 
@@ -378,7 +377,7 @@ security.radar.managementportal.url=<your management portal base url>
 This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is controlled using Pre and Post annotations for each permission.
 All the classes are located in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal). 
 
-You can provide the Management Portal specific config in [radar_is.yml](radar_is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
+You can provide the Management Portal specific config in [radar-is.yml](radar-is.yml) file providing the public key endpoint and the resource name. The path to this file should be specified in the env variable `RADAR_IS_CONFIG_LOCATION`.
 
 ### Management Portal Clients
 If security is enabled, please also make sure that the correct resources and scope are set in the OAuth Client configurations in Management Portal.
