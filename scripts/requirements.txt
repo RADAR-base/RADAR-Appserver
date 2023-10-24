@@ -4,4 +4,4 @@ idna==2.9
 JayDeBeApi==1.2.2
 JPype1==0.7.5
 requests==2.23.0
-urllib3==1.26.5
+urllib3==1.26.18
