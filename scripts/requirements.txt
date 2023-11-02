@@ -3,5 +3,5 @@ chardet==3.0.4
 idna==2.9
 JayDeBeApi==1.2.2
 JPype1==0.7.5
-requests==2.23.0
+requests==2.31.0
 urllib3==1.26.5
