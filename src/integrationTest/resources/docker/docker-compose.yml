@@ -67,8 +67,7 @@ services:
   # Management Portal                                                         #
   #---------------------------------------------------------------------------#
   managementportal:
-#    image: radarbase/management-portal:2.1.0
-    image: managementportal:latest
+    image: radarbase/management-portal:2.1.0
     networks:
       - mp
     ports:
