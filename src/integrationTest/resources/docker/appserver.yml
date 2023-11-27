@@ -19,3 +19,4 @@ services:
       SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
       RADAR_IS_CONFIG_LOCATION: "/resources/radar-is.yml"
       SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/radar

@@ -1,3 +1,4 @@
+# start the supporting dockerstack using the :dev image of the managementportal dependency.
 version: "3.8"
 
 include:

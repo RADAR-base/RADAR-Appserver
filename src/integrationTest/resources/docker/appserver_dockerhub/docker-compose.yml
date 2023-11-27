@@ -1,3 +1,4 @@
+# start the dockerstack using a prebuilt image pulled from dockerhub. This stack does not work without adding GOOGLE_APPLICATION_CREDENTIALS
 version: "3.8"
 
 include:
@@ -8,3 +9,7 @@ services:
     extends:
       file: ../appserver.yml
       service: appserver
+    networks:
+      - db
+      - default
+      - admin
