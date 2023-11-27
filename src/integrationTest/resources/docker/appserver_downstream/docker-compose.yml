@@ -1,0 +1,7 @@
+version: "3.8"
+
+include:
+  - "../non_appserver/docker-compose.yml"
+
+# This file should be called in conjunction with the accompanying docker-compose.override.yml file
+# This can be done by navigating to the directory with both files and calling 'docker compose up -d'

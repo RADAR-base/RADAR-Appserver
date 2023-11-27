@@ -1,0 +1,10 @@
+version: "3.8"
+
+include:
+  - "../non_appserver/docker-compose.yml"
+
+services:
+  appserver:
+    extends:
+      file: ../appserver.yml
+      service: appserver

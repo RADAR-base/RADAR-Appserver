@@ -1,0 +1,51 @@
+version: "3.8"
+
+networks:
+  db:
+    driver: bridge
+    internal: true
+  admin:
+    driver: bridge
+    internal: true
+  mp:
+    driver: bridge
+    internal: true
+
+services:
+  postgres:
+    extends:
+      file: ../postgres.yml
+      service: postgres
+    networks:
+      - db
+      - default
+    ports:
+      - "5432:5432"
+
+  spring-boot-admin:
+    extends:
+      file: ../spring-boot-admin.yml
+      service: spring-boot-admin
+    networks:
+      - admin
+      - default
+
+  #---------------------------------------------------------------------------#
+  # Management Portal                                                         #
+  #---------------------------------------------------------------------------#
+  managementportal:
+    extends:
+      file: ../managementportal.yml
+      service: managementportal
+    networks:
+      - mp
+      - default
+    ports:
+      - "8081:8081"
+
+  managementportal-postgresql:
+    extends:
+      file: ../managementportal-postgresql.yml
+      service: postgres
+    networks:
+      - mp
