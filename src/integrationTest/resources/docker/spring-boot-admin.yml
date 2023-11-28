@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  spring-boot-admin:
+    image: slydeveloper/spring-boot-admin:latest
+    restart: always
+    ports:
+      - "8888:1111"
+    environment:
+      SPRING_BOOT_ADMIN_USER_NAME: radar
+      SPRING_BOOT_ADMIN_USER_PASSWORD: appserver
+      SPRING_BOOT_ADMIN_TITLE: RADAR-appserver
+      SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"username":"radar","password":"appserver","title":"RADAR-appserver"}}}}'
