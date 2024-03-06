@@ -29,7 +29,8 @@ public class AuthConfig {
 
   @Bean
   public ManagementPortalAuthProperties getAuthProperties() {
-    return new ManagementPortalAuthProperties(baseUrl, resourceName);
+    TokenVerifierPublicKeyConfig validatorConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
+    return new ManagementPortalAuthProperties(baseUrl, resourceName, validatorConfig.getPublicKeyEndpoints());
   }
 
   /**
