@@ -120,8 +120,8 @@ public class RadarProjectController {
    *     org.radarbase.appserver.exception.NotFoundException} if project was not found.
    */
   @Authorized(
-      permission = AuthPermissions.CREATE,
-      entity = AuthEntities.MEASUREMENT,
+      permission = AuthPermissions.UPDATE,
+      entity = AuthEntities.PROJECT,
       permissionOn = PermissionOn.PROJECT)
   @PutMapping(
       value = "/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT,
@@ -160,7 +160,7 @@ public class RadarProjectController {
   }
 
   // TODO think about plain authorized
-  @Authorized(permission = AuthPermissions.CREATE, entity = AuthEntities.MEASUREMENT)
+  @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   @GetMapping("/" + PathsUtil.PROJECT_PATH + "/project")
   public ResponseEntity<ProjectDto> getProjectsUsingId(
       HttpServletRequest request, @Valid @PathParam("id") Long id) {
@@ -169,8 +169,8 @@ public class RadarProjectController {
       RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
       if (authorization.hasPermission(
           token,
-          AuthPermissions.CREATE,
-          AuthEntities.MEASUREMENT,
+          AuthPermissions.READ,
+          AuthEntities.PROJECT,
           PermissionOn.PROJECT,
           projectDto.getProjectId(),
           null,
