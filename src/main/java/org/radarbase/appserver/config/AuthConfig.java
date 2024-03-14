@@ -1,9 +1,6 @@
 package org.radarbase.appserver.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.radarbase.auth.config.TokenValidatorConfig;
-import org.radarbase.auth.config.TokenVerifierPublicKeyConfig;
-import org.radarbase.auth.exception.ConfigurationException;
 import org.radarbase.auth.token.RadarToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +29,8 @@ public class AuthConfig {
 
   @Bean
   public ManagementPortalAuthProperties getAuthProperties() {
-    return new ManagementPortalAuthProperties(baseUrl, resourceName);
+    TokenVerifierPublicKeyConfig validatorConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
+    return new ManagementPortalAuthProperties(baseUrl, resourceName, validatorConfig.getPublicKeyEndpoints());
   }
 
   /**
@@ -45,15 +43,7 @@ public class AuthConfig {
   @Bean
   AuthValidator<RadarToken> getAuthValidator(
       @Autowired ManagementPortalAuthProperties managementPortalAuthProperties) {
-    try {
-      TokenValidatorConfig validatorConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath();
-      return new ManagementPortalAuthValidator(managementPortalAuthProperties, validatorConfig);
-    } catch (ConfigurationException exc) {
-      log.warn(
-          "Could not loading config from RADAR_IS file. Now using default public key "
-              + "endpoint...");
-      return new ManagementPortalAuthValidator(managementPortalAuthProperties);
-    }
+    return new ManagementPortalAuthValidator(managementPortalAuthProperties);
   }
 
   @Bean
