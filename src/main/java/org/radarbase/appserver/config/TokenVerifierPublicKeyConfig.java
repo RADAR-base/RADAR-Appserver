@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by dverbeec on 14/06/2017.
  */
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class TokenVerifierPublicKeyConfig  {
 
     private static final Logger log = LoggerFactory.getLogger(TokenVerifierPublicKeyConfig.class);
@@ -26,9 +27,9 @@ public class TokenVerifierPublicKeyConfig  {
 
     private static final String CONFIG_FILE_NAME = "radar-is.yml";
 
-    private List<URI> publicKeyEndpoints = new LinkedList<>();
+    private transient List<URI> publicKeyEndpoints = new LinkedList<>();
 
-    private String resourceName;
+    private transient String resourceName;
 
     /**
      * Read the configuration from file. This method will first check if the environment variable
