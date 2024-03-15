@@ -121,15 +121,35 @@ public class RadarProjectController {
    */
   @Authorized(
       permission = AuthPermissions.UPDATE,
-      entity = AuthEntities.PROJECT,
+      entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.PROJECT)
   @PutMapping(
       value = "/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
   public ResponseEntity<ProjectDto> updateProject(
-      @Valid @PathParam("projectId") String projectId, @Valid @RequestBody ProjectDto projectDto) {
-    ProjectDto projectDto1 = this.projectService.updateProject(projectDto);
-    return ResponseEntity.ok(projectDto1);
+      @Valid @PathParam("projectId") String projectId, @Valid @RequestBody ProjectDto projectDto,
+      HttpServletRequest request) {
+
+    if (authorization != null) {
+      RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
+      if (authorization.hasPermission(
+              token,
+              AuthPermissions.UPDATE,
+              AuthEntities.SUBJECT,
+              PermissionOn.PROJECT,
+              projectDto.getProjectId(),
+              null,
+              null)) {
+        ProjectDto projectDto1 = this.projectService.updateProject(projectDto);
+        return ResponseEntity.ok(projectDto1);
+      } else {
+        throw new AuthorizationFailedException(
+                "The token does not have permission for the project " + projectDto.getProjectId());
+      }
+    } else {
+      ProjectDto projectDto1 = this.projectService.updateProject(projectDto);
+      return ResponseEntity.ok(projectDto1);
+    }
   }
 
   @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
