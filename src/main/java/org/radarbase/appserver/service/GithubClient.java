@@ -67,7 +67,7 @@ public class GithubClient {
     public GithubClient(
             @Value("${security.github.client.timeout:10}") int httpTimeout,
             @Value("${security.github.client.token:}") String githubToken) {
-        this.authorizationHeader = githubToken != null ? "Bearer " + githubToken.trim() : "";
+        this.authorizationHeader = githubToken.isEmpty() ? "" : "Bearer " + githubToken.trim();
         this.httpTimeout = Duration.ofSeconds(httpTimeout);
         this.client = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
@@ -76,31 +76,36 @@ public class GithubClient {
                 .build();
     }
 
-    public String getGithubContent(String url) throws IOException, InterruptedException {
+    public String getGithubContent(String url, boolean authenticated) throws IOException, InterruptedException {
         log.debug("Fetching Github URL {}", url);
-        URI uri = URI.create(url);
-        HttpResponse<InputStream> response = makeRequest(uri);
+        HttpResponse<InputStream> response = makeRequest(getRequest(URI.create(url), authenticated));
 
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             checkContentLengthHeader(response);
-
             try (InputStream inputStream = response.body()) {
                 byte[] bytes = inputStream.readNBytes(maxContentLength + 1);
                 checkContentLength(bytes.length);
                 return new String(bytes);
             }
+        } else if (response.statusCode() == 401 && authenticated) {
+            log.warn("Unauthorized access to Github content from URL {}, retrying..", url);
+            return getGithubContent(url, false);
         } else {
             log.error("Error getting Github content from URL {} : {}", url, response);
             throw new ResponseStatusException(
                     HttpStatus.valueOf(response.statusCode()), "Github content could not be retrieved");
-        }
+        }     
     }
 
-    private HttpResponse<InputStream> makeRequest(URI uri) throws InterruptedException {
+    public String getGithubContent(String url) throws IOException, InterruptedException {
+        return getGithubContent(url, true);
+    }
+
+    private HttpResponse<InputStream> makeRequest(HttpRequest request) throws InterruptedException {
         try {
-            return client.send(getRequest(uri), HttpResponse.BodyHandlers.ofInputStream());
+            return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
         } catch (IOException ex) {
-            log.error("Failed to retrieve data from github {}: {}", uri, ex.toString());
+            log.error("Failed to retrieve data from github {}: {}", request.uri(), ex.toString());
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Github responded with an error.");
         }
     }
@@ -136,13 +141,14 @@ public class GithubClient {
         }
     }
 
-    private HttpRequest getRequest(URI uri) throws IOException {
+    private HttpRequest getRequest(URI uri, boolean authenticated) throws IOException {
         URI validUri = this.getValidGithubUri(uri);
         HttpRequest.Builder request = HttpRequest.newBuilder(validUri)
                 .header("Accept", GITHUB_API_ACCEPT_HEADER)
                 .GET()
                 .timeout(httpTimeout);
-        if (!authorizationHeader.isEmpty()) {
+        if (!this.authorizationHeader.isEmpty() && authenticated) {
+            log.info("Adding authorization header to request");
             request.header("Authorization", authorizationHeader);
         }
         return request.build();

@@ -44,6 +44,6 @@ public class GithubService {
     }
 
     public String getGithubContentWithoutCache(String url) throws IOException, InterruptedException {
-        return githubClient.getGithubContent(url);
+        return githubClient.getGithubContent(url, true);
     }
 }
