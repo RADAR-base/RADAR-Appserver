@@ -17,48 +17,44 @@ public class ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidProjectDetailsException.class)
     public final ResponseEntity<ErrorDetails> handleInvalidProjectDetailsException(Exception ex, WebRequest request) throws Exception {
-        String cause = ex.getCause() != null ? ex.getCause().getMessage() : null;
-        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
-        ErrorDetails error;
-        if (cause != null) {
-            error = new ErrorDetailsWithCause(Instant.now(), status.value(), cause, ex.getMessage(), request.getDescription(false));
-        } else {
-            error = new ErrorDetails(Instant.now(), status.value(), ex.getMessage(), request.getDescription(false));
-        }
-        return new ResponseEntity<>(error, status);
+        return handleEntityWithCause(ex, request);
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
     public final ResponseEntity<ErrorDetails> handleAlreadyExistsException(Exception ex, WebRequest request) throws Exception {
-        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
-        ErrorDetails error = new ErrorDetails(Instant.now(), status.value(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(error, status);
+        return handleEntityWithoutCause(ex, request);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public final ResponseEntity<ErrorDetails> handleNotFoundException(Exception ex, WebRequest request) throws Exception {
-        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
-        ErrorDetails error = new ErrorDetails(Instant.now(), status.value(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(error, status);
+        return handleEntityWithoutCause(ex, request);
     }
 
     @ExceptionHandler(InvalidNotificationDetailsException.class)
     public final ResponseEntity<ErrorDetails> handleInvalidNotificationDetailsException(Exception ex, WebRequest request) {
-        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
-        ErrorDetails error = new ErrorDetails(Instant.now(), status.value(), ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(error, status);
+        return handleEntityWithoutCause(ex, request);
     }
 
     @ExceptionHandler(InvalidUserDetailsException.class)
     public final ResponseEntity<ErrorDetails> handleInvalidUserDetailsException(Exception ex, WebRequest request) {
-        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
+        return handleEntityWithCause(ex, request);
+    }
+
+    public ResponseEntity<ErrorDetails> handleEntityWithCause(Exception ex, WebRequest request) {
         String cause = ex.getCause() != null ? ex.getCause().getMessage() : null;
+        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
         ErrorDetails error;
         if (cause != null) {
             error = new ErrorDetailsWithCause(Instant.now(), status.value(), cause, ex.getMessage(), request.getDescription(false));
         } else {
             error = new ErrorDetails(Instant.now(), status.value(), ex.getMessage(), request.getDescription(false));
         }
+        return new ResponseEntity<>(error, status);
+    }
+
+    public ResponseEntity<ErrorDetails> handleEntityWithoutCause(Exception ex, WebRequest request) {
+        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
+        ErrorDetails error = new ErrorDetails(Instant.now(), status.value(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(error, status);
     }
 }
