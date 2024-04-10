@@ -34,7 +34,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Notification {
+public class NotificationProtocol {
+    @JsonProperty("enabled")
+    private boolean enabled = true;
 
     @JsonProperty("title")
     private LanguageText title;
@@ -42,4 +44,7 @@ public class Notification {
     @JsonProperty("text")
     private LanguageText body;
 
+    public boolean isEnabled() {
+        return enabled;
+    }
 }
