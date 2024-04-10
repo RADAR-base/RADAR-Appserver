@@ -24,12 +24,16 @@ package org.radarbase.appserver.service.questionnaire.protocol.factory;
 
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
+import org.radarbase.appserver.service.questionnaire.protocol.DisabledNotificationHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleNotificationHandler;
 
 public class NotificationHandlerFactory {
 
-    public static ProtocolHandler getNotificationHandler() {
-        return new SimpleNotificationHandler();
+    public static ProtocolHandler getNotificationHandler(boolean enabled) {
+        if (enabled) {
+            return new SimpleNotificationHandler();
+        }
+        return new DisabledNotificationHandler();
     }
 
 }
