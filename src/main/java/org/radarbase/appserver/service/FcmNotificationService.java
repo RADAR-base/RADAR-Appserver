@@ -405,7 +405,7 @@ public class FcmNotificationService implements NotificationService {
                                             notification.getTitle(),
                                             notification.getBody(),
                                             notification.getType(),
-                                            notification.getTtlSeconds()).isPresent()
+                                            notification.getTtlSeconds()).isEmpty()
                         )
                         .collect(Collectors.toList());
 
