@@ -37,7 +37,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findByUserIdAndTaskId(Long userId, Long taskId);
 
+    List<Notification> findByTaskId(Long id);
+
     void deleteByUserId(Long userId);
+
+    void deleteByTaskId(Long taskId);
 
     void deleteByUserIdAndTaskId(Long userId, Long taskId);
 
@@ -62,6 +66,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     boolean existsByIdAndUserId(Long id, Long userId);
 
     boolean existsById(@NotNull Long id);
+
+    boolean existsByTaskId(Long taskId);
 
     void deleteByFcmMessageId(String fcmMessageId);
 
