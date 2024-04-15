@@ -15,6 +15,19 @@ import java.time.Instant;
 @ControllerAdvice
 public class ResponseEntityExceptionHandler {
 
+    @ExceptionHandler(Exception.class)
+    public final ResponseEntity<ErrorDetails> handleUnhandledException(Exception ex, WebRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        ErrorDetails error;
+        if (ex.getCause() == null) {
+           error = new ErrorDetails(Instant.now(), status.value(), ex.getMessage(), request.getDescription(false));
+        } else {
+            error = new ErrorDetailsWithCause(Instant.now(), status.value(), ex.getCause().getMessage(), ex.getMessage(), request.getDescription(false));
+        }
+        return new ResponseEntity<>(error, status);
+    }
+
+
     @ExceptionHandler(InvalidProjectDetailsException.class)
     public final ResponseEntity<ErrorDetails> handleInvalidProjectDetailsException(Exception ex, WebRequest request) throws Exception {
         return handleEntityWithCause(ex, request);
