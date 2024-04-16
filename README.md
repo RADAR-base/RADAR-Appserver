@@ -23,10 +23,10 @@ The app server provides REST endpoints to interact with the entities and data. F
    3.1. To use the standalone instance, run the database a docker service by
     
        ```bash
-         docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d hsqldb
+         docker-compose -f src/integrationTest/resources/docker/non_appserver/docker-compose.yml up -d postgres
         ```
         
-        This will start the database at `localhost:9001`
+        This will start the database at `localhost:5432`
         
    3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`.  Also, change the properties in `src/main/resources/application.properties` to dev or prod according to your requirements. 
 
@@ -152,7 +152,7 @@ The AppServer is also available as a docker container. Its [Dockerfile](/Dockerf
     docker run -v /logs/:/var/log/radar/appserver/ \
     -v etc/google-credentials.json:/etc/google-credentials.json \
     -e "GOOGLE_APPLICATION_CREDENTIALS=/etc/google-credentials.json" \
-    radarbase/radar-appserver:0.0.1
+    radarbase/radar-appserver:1.1.0
 ```
 Make sure to have the correct path to the google-credentials.json file.
 
@@ -179,7 +179,7 @@ The same can be achieved by running as a docker-compose service. Just specify th
           SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
 ```
 
-An example `docker-compose` file with all the other components is provided in [integrationTest resources](/src/integrationTest/resources/docker/docker-compose.yml).
+An example `docker-compose` file with all the other components is provided in [integrationTest resources](/src/integrationTest/resources/docker/appserver_dockerhub/docker-compose.yml).
 
 ## Architecture
 Here is a high level architecture and data flow diagram for the AppServer and its example interaction with a Cordova application (hybrid) like the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire).
@@ -407,13 +407,13 @@ To make this work,
     spring.boot.admin.client".password = admin-server-password
   ```
 
-The same can be achieved when deployed with the components as microservices in docker containers using docker-compose. The file [docker-compose.yml](/src/integrationTest/resources/docker/docker-compose.yml) in this project shows an example of how this is achieved.
+The same can be achieved when deployed with the components as microservices in docker containers using docker-compose. The file [docker-compose.yml](/src/integrationTest/resources/docker/appserver_dockerhub/docker-compose.yml) in this project shows an example of how this is achieved.
 Please note how the App server is configured in the container compared to the method of adding properties in `application.properties` file shown above.
 
 Just run - 
 
 ```bash
-cd src/integrationTest/resources/docker/
+cd src/integrationTest/resources/docker/appserver_dockerhub/
 sudo docker-compose up -d
 ```
 

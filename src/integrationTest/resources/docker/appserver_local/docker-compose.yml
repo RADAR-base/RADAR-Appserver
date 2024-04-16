@@ -1,0 +1,16 @@
+# start the dockerstack using a locally built docker image of the appserver. This stack does not work without adding GOOGLE_APPLICATION_CREDENTIALS
+version: "3.8"
+
+include:
+  - "../non_appserver/docker-compose.yml"
+
+services:
+  appserver:
+    extends:
+      file: ../appserver.yml
+      service: appserver
+    image: appserver
+    networks:
+      - db
+      - default
+      - admin

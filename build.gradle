@@ -24,7 +24,6 @@ java {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
@@ -39,7 +38,7 @@ ext {
     springDocVersion = '2.2.0'
     lombokVersion = '1.18.26'
     junit5Version = '5.9.2'
-    radarSpringAuthVersion = '1.2.0'
+    radarSpringAuthVersion = '1.2.1'
     springSecurityVersion = '6.0.2'
     hibernateValidatorVersion = '8.0.0.Final'
 }
