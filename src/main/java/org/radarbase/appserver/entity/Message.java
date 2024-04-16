@@ -42,6 +42,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.lang.Nullable;
+import jakarta.persistence.CascadeType;
 
 @MappedSuperclass
 @Getter
