@@ -416,12 +416,11 @@ public class FcmNotificationService implements NotificationService {
                                             notification.getTitle(),
                                             notification.getBody(),
                                             notification.getType(),
-                                            notification.getTtlSeconds()).isPresent()
+                                            notification.getTtlSeconds()).isEmpty()
                         )
                         .collect(Collectors.toList());
 
-        List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
-        this.notificationRepository.flush();
+        List<Notification> savedNotifications = this.notificationRepository.saveAllAndFlush(newNotifications);
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
         this.schedulerService.scheduleMultiple(savedNotifications);
