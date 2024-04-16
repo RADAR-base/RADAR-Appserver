@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
+import radar.spring.auth.exception.AuthorizationFailedException;
+import radar.spring.auth.exception.ResourceForbiddenException;
 
 import java.time.Instant;
 
@@ -27,6 +29,15 @@ public class ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, status);
     }
 
+    @ExceptionHandler(AuthorizationFailedException.class)
+    public final ResponseEntity<ErrorDetails> handleAuthorizationFailedException(Exception ex, WebRequest request) throws Exception {
+        return handleEntityWithCause(ex, request);
+    }
+
+    @ExceptionHandler(ResourceForbiddenException.class)
+    public final ResponseEntity<ErrorDetails> handleResourceForbiddenException(Exception ex, WebRequest request) throws Exception {
+        return handleEntityWithCause(ex, request);
+    }
 
     @ExceptionHandler(InvalidProjectDetailsException.class)
     public final ResponseEntity<ErrorDetails> handleInvalidProjectDetailsException(Exception ex, WebRequest request) throws Exception {
