@@ -31,6 +31,7 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
@@ -369,6 +370,16 @@ public class FcmNotificationService implements NotificationService {
     }
 
     @Transactional
+    public void deleteNotificationsByTaskId(Task task) {
+        Long taskId = task.getId();
+        if(notificationRepository.existsByTaskId(taskId)) {
+            List<Notification> notifications = notificationRepository.findByTaskId(taskId);
+            schedulerService.deleteScheduledMultiple(notifications);
+            notificationRepository.deleteByTaskId(taskId);
+        }
+    }
+
+    @Transactional
     public FcmNotifications addNotifications(
             FcmNotifications notificationDtos, String subjectId, String projectId, boolean schedule) {
         final User user = subjectAndProjectExistElseThrow(subjectId, projectId);
@@ -409,8 +420,7 @@ public class FcmNotificationService implements NotificationService {
                         )
                         .collect(Collectors.toList());
 
-        List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
-        this.notificationRepository.flush();
+        List<Notification> savedNotifications = this.notificationRepository.saveAllAndFlush(newNotifications);
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
         this.schedulerService.scheduleMultiple(savedNotifications);

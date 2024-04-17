@@ -42,6 +42,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.lang.Nullable;
+import jakarta.persistence.CascadeType;
 
 @MappedSuperclass
 @Getter
@@ -64,7 +65,7 @@ public class Message extends AuditModel implements Serializable, Scheduled {
     @JsonIgnore
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "task_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore

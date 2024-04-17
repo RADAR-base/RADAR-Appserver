@@ -57,6 +57,7 @@ public class TaskStateEventService {
 
     private final transient TaskStateEventRepository taskStateEventRepository;
     private final transient TaskService taskService;
+    private final transient FcmNotificationService notificationService;
 
     private final transient ApplicationEventPublisher taskApplicationEventPublisher;
     private final transient ObjectMapper objectMapper;
@@ -65,10 +66,12 @@ public class TaskStateEventService {
     public TaskStateEventService(
             TaskStateEventRepository taskStateEventRepository,
             TaskService taskService,
+            FcmNotificationService notificationService,
             ApplicationEventPublisher taskApplicationEventPublisher,
             ObjectMapper objectMapper) {
         this.taskStateEventRepository = taskStateEventRepository;
         this.taskService = taskService;
+        this.notificationService = notificationService;
         this.taskApplicationEventPublisher = taskApplicationEventPublisher;
         this.objectMapper = objectMapper;
     }
@@ -77,6 +80,9 @@ public class TaskStateEventService {
     public void addTaskStateEvent(TaskStateEvent taskStateEvent) {
         taskStateEventRepository.save(taskStateEvent);
         taskService.updateTaskStatus(taskStateEvent.getTask(), taskStateEvent.getState());
+        if (taskStateEvent.getState().equals(TaskState.COMPLETED)) {
+            notificationService.deleteNotificationsByTaskId(taskStateEvent.getTask());
+        }
     }
 
     @Transactional(readOnly = true)
