@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.io.IOException;
 
 @Slf4j
 @Service
@@ -76,7 +77,12 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
         NotificationProtocol protocol = assessment.getProtocol().getNotification();
 
-        return NotificationHandlerFactory.getNotificationHandler(protocol);
+        try {
+            return NotificationHandlerFactory.getNotificationHandler(protocol);
+        } catch (IOException e) {
+            log.error("Invalid Notification Handler Type");
+            return null;
+        }
     }
 
     @Override
