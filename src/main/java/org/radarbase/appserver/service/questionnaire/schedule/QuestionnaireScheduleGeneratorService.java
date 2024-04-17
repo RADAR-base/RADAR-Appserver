@@ -75,9 +75,8 @@ public class QuestionnaireScheduleGeneratorService implements ScheduleGeneratorS
     public ProtocolHandler getNotificationHandler(Assessment assessment) {
         if (assessment.getType() == AssessmentType.CLINICAL) return null;
         NotificationProtocol protocol = assessment.getProtocol().getNotification();
-        boolean enabled = protocol != null && protocol.isEnabled();
 
-        return NotificationHandlerFactory.getNotificationHandler(enabled);
+        return NotificationHandlerFactory.getNotificationHandler(protocol);
     }
 
     @Override

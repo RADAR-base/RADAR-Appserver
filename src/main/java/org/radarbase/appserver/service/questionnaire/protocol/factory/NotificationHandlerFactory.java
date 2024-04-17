@@ -26,14 +26,19 @@ import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.DisabledNotificationHandler;
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleNotificationHandler;
+import org.radarbase.appserver.dto.protocol.NotificationProtocol;
 
 public class NotificationHandlerFactory {
 
-    public static ProtocolHandler getNotificationHandler(boolean enabled) {
-        if (enabled) {
-            return new SimpleNotificationHandler();
+    public static ProtocolHandler getNotificationHandler(NotificationProtocol protocol) {
+        switch (protocol.getMode()) {
+            case STANDARD:
+                return new SimpleNotificationHandler();
+            case DISABLED:
+                return new DisabledNotificationHandler();
+            default:
+                return new SimpleNotificationHandler();
         }
-        return new DisabledNotificationHandler();
     }
 
 }
