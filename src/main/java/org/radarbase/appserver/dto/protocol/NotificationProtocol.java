@@ -34,12 +34,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Notification {
+public class NotificationProtocol {
+    @JsonProperty("mode")
+    private NotificationProtocolMode mode = NotificationProtocolMode.STANDARD;
 
     @JsonProperty("title")
     private LanguageText title;
 
     @JsonProperty("text")
     private LanguageText body;
-
 }

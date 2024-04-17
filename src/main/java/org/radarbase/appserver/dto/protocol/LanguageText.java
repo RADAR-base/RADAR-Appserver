@@ -22,6 +22,7 @@
 package org.radarbase.appserver.dto.protocol;
 
 import lombok.Data;
+import java.util.Locale;
 
 /** @author yatharthranjan */
 @Data
@@ -38,4 +39,23 @@ public class LanguageText {
   private String de;
 
   private String es;
+
+  public String getText(String languageCode) {
+    switch (languageCode.toLowerCase(Locale.getDefault())) {
+        case "en":
+            return en;
+        case "it":
+            return it;
+        case "nl":
+            return nl;
+        case "da":
+            return da;
+        case "de":
+            return de;
+        case "es":
+            return es;
+        default:
+            return "";
+    }
+  }
 }

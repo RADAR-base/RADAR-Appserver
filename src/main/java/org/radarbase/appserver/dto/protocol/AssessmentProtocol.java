@@ -46,7 +46,7 @@ public class AssessmentProtocol {
 
     private ClinicalProtocol clinicalProtocol;
 
-    private Notification notification;
+    private NotificationProtocol notification;
 
     @JsonDeserialize(using = ReferenceTimestampDeserializer.class)
     public void setReferenceTimestamp(Object responseObject) {

@@ -3,6 +3,7 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.ReminderTimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
+import org.radarbase.appserver.dto.protocol.NotificationProtocol;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
@@ -25,18 +26,21 @@ public class SimpleReminderHandler implements ProtocolHandler {
     @Override
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
-        List<Notification> notifications = generateReminders(assessmentSchedule.getTasks(), assessment, timezone, user);
+        NotificationProtocol protocol = assessment.getProtocol().getNotification();
+        String title = this.taskNotificationGeneratorService.getTitleText(user.getLanguage(), protocol.getTitle(), NotificationType.REMINDER);
+        String body = this.taskNotificationGeneratorService.getBodyText(user.getLanguage(), protocol.getBody(), NotificationType.REMINDER, assessment.getEstimatedCompletionTime());
+        List<Notification> notifications = generateReminders(assessmentSchedule.getTasks(), assessment, timezone, user, title, body);
         assessmentSchedule.setReminders(notifications);
         return assessmentSchedule;
     }
 
-    public List<Notification> generateReminders(List<Task> tasks, Assessment assessment, TimeZone timezone, User user) {
+    public List<Notification> generateReminders(List<Task> tasks, Assessment assessment, TimeZone timezone, User user, String title, String body) {
         return tasks.parallelStream()
                 .flatMap(task -> {
                     ReminderTimePeriod reminders = assessment.getProtocol().getReminders();
                     return IntStream.range(0, reminders.getRepeat()).mapToObj(i -> {
                         Instant timestamp = timeCalculatorService.advanceRepeat(task.getTimestamp().toInstant(), reminders, timezone);
-                        Notification notification = this.taskNotificationGeneratorService.createNotification(task, NotificationType.REMINDER, timestamp);
+                        Notification notification = this.taskNotificationGeneratorService.createNotification(task, timestamp, title, body);
                         notification.setUser(user);
                         return notification;
                     });
