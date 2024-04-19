@@ -14,7 +14,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '2.4.1'
+version = '2.4.2'
 
 java {
     toolchain {
