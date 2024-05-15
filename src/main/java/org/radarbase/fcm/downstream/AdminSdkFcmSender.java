@@ -204,7 +204,7 @@ public class AdminSdkFcmSender implements FcmSender {
         apsAlertBuilder.addTitleLocalizationArg(titleLocArgs);
 
       String bodyLocKey = getString(notificationMessage.getNotification().get("body_loc_key"));
-      if (bodyLocKey != null) apsAlertBuilder.setLocalizationKey("body_loc_key");
+      if (bodyLocKey != null) apsAlertBuilder.setLocalizationKey(bodyLocKey);
 
       String bodyLocArgs = getString(notificationMessage.getNotification().get("body_loc_args"));
       if (bodyLocKey != null && bodyLocArgs != null)
