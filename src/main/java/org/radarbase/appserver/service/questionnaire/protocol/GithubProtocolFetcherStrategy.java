@@ -125,6 +125,7 @@ public class GithubProtocolFetcherStrategy implements ProtocolFetcherStrategy {
         Map<String, Protocol> subjectProtocolMap = users.parallelStream()
                 .map(u -> this.fetchProtocolForSingleUser(u, u.getProject().getProjectId(), protocolPaths))
                 .filter(c -> c.getProtocol() != null)
+                .distinct()
                 .collect(Collectors.toMap(ProtocolCacheEntry::getId, ProtocolCacheEntry::getProtocol));
 
         log.info("Refreshed Protocols from Github");
