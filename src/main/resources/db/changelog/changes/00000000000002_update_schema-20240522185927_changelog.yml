@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1543511610622-8
+      author: pauline
+      changes:
+        - dropUniqueConstraint:
+            tableName: users
+            constraintName: UKmm6u3xspqfqoolkjhsvdrqefq
+  - changeSet:
+      id: 1716400827373-1
+      author: pauline
+      changes:
+        - addUniqueConstraint:
+            columnNames: subject_id, project_id
+            constraintName: UK_subject_project
+            tableName: users
+  - changeSet:
+      id: 1716400827373-2
+      author: pauline
+      changes:
+        - addUniqueConstraint:
+            columnNames: fcm_token
+            constraintName: UK_fcm_token
+            tableName: users

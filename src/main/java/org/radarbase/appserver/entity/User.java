@@ -61,7 +61,8 @@ import java.util.Objects;
 @Table(
         name = "users",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})
+                @UniqueConstraint(columnNames = {"subject_id", "project_id"}),
+                @UniqueConstraint(columnNames = {"fcm_token"})
         })
 @Entity
 @Getter
