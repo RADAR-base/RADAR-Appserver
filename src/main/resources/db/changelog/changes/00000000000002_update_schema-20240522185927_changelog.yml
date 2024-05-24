@@ -14,11 +14,3 @@ databaseChangeLog:
             columnNames: subject_id, project_id
             constraintName: UKg6m4nzwvxqpwtrbeynasdcplo
             tableName: users
-  - changeSet:
-      id: 1716400827373-2
-      author: pauline
-      changes:
-        - addUniqueConstraint:
-            columnNames: fcm_token
-            constraintName: UKtt8k2ufjqryoomkjxsebufgtr
-            tableName: users
