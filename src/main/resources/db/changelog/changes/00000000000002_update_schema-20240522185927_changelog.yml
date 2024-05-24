@@ -12,7 +12,7 @@ databaseChangeLog:
       changes:
         - addUniqueConstraint:
             columnNames: subject_id, project_id
-            constraintName: UK_subject_project
+            constraintName: UKg6m4nzwvxqpwtrbeynasdcplo
             tableName: users
   - changeSet:
       id: 1716400827373-2
@@ -20,5 +20,5 @@ databaseChangeLog:
       changes:
         - addUniqueConstraint:
             columnNames: fcm_token
-            constraintName: UK_fcm_token
+            constraintName: UKtt8k2ufjqryoomkjxsebufgtr
             tableName: users
