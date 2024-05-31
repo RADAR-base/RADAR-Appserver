@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableJpaAuditing
-@EnableConfigurationProperties({FcmServerConfig.class})
+@EnableConfigurationProperties({FcmServerConfig.class, S3StorageProperties.class})
 @EnableTransactionManagement
 @EnableAsync
 @EnableScheduling
