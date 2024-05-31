@@ -41,6 +41,7 @@ ext {
     radarSpringAuthVersion = '1.2.1'
     springSecurityVersion = '6.0.2'
     hibernateValidatorVersion = '8.0.0.Final'
+    minioVersion = '8.5.10'
 }
 
 sourceSets {
@@ -65,6 +66,7 @@ dependencies {
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springBootVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
     runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
+    implementation("io.minio:minio:$minioVersion")
 
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: springDocVersion)
