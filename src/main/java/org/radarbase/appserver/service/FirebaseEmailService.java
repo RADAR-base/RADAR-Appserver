@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
-@ConditionalOnExpression("${send-email.enabled:false} and 'firebase' == '${email.type:}'")
+@ConditionalOnExpression("${send-email.enabled:false} and 'firebase' == '${send-email.type:}'")
 public class FirebaseEmailService implements EmailService {
 
     @Override

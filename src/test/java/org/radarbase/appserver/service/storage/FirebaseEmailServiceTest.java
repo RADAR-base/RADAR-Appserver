@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
     classes = {FirebaseEmailService.class},
     properties = {
         "send-email.enabled=true",
-        "email.type=firebase",
+        "send-email.type=firebase",
     }
 )
 class FirebaseEmailServiceTest {
