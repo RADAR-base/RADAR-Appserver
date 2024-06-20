@@ -100,6 +100,7 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.8.2'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.8.2'
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
+    testImplementation group: 'org.mockito', name: 'mockito-inline', version: '2.7.21'
 
     gatlingImplementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 }
