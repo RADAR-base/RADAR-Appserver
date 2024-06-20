@@ -4,6 +4,32 @@
 
 General purpose application server for the radar platform currently with capability to schedule push notifications.
 
+<!-- TOC -->
+* [RADAR-Appserver](#radar-appserver)
+  * [Introduction](#introduction)
+  * [Getting Started](#getting-started)
+  * [REST API](#rest-api)
+    * [Quickstart](#quickstart)
+  * [FCM](#fcm)
+    * [AdminSDK](#adminsdk)
+  * [Docker/ Docker Compose](#docker-docker-compose)
+  * [Architecture](#architecture)
+  * [Notification Lifecycle](#notification-lifecycle)
+  * [Protocols](#protocols)
+  * [Documentation](#documentation)
+  * [Client](#client)
+  * [Security](#security)
+    * [Management Portal](#management-portal)
+    * [Management Portal Clients](#management-portal-clients)
+    * [Other Security Providers](#other-security-providers)
+  * [Monitoring](#monitoring)
+  * [Performance Testing](#performance-testing)
+  * [Code-Style and Quality](#code-style-and-quality)
+  * [Unit and Integration Testing](#unit-and-integration-testing)
+  * [Features](#features)
+    * [Feature specific documentation](#feature-specific-documentation)
+<!-- TOC -->
+
 ## Introduction
 
 This is an app server which provides facilities to store app information (User related) and scheduling of push notifications using Firebase Cloud Messaging. 
@@ -489,7 +515,7 @@ A style template following the Google Java style guidelines is also provided for
 ```
 This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
 
-## Current Features
+## Features
 - Provides a general purpose FCM library with facility to send messages with Admin SDK support.
 - Provides functionality of scheduling notifications via FCM.
 - Acts as a data store for important user and app related data (like FCM token to subject mapping, notifications, user metrics, etc).
@@ -498,3 +524,7 @@ This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
 - Contains swagger integration for easy API documentation and generation of Java client.
 - Uses [lombok.data](https://projectlombok.org/) in most places to reduce boilerplate code and make it more readable.
 - Has support for Auditing of database entities.
+- Send emails from study subjects (originating from aRMT application) via Firebase _Trigger Email from Firestore_ extension.
+
+### Feature specific documentation
+- [Send emails](/docs/send-emails.md)
