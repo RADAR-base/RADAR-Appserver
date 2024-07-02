@@ -28,5 +28,11 @@ public class S3StorageProperties {
     private String accessKey;
     private String secretKey;
     private String bucketName;
-    private String subPath;
+    private Path path = new Path();
+
+    @Data
+    public static class Path {
+        private String prefix;
+        private boolean collectPerDay;
+    }
 }

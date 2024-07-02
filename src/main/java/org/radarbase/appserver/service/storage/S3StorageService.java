@@ -27,47 +27,44 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
-
 
 @Slf4j
 @Service
 @ConditionalOnExpression("${file-upload.enabled:false} and 's3' == '${storage.type:}'")
-public class S3StorageService extends RandomUuidFilenameStorageService implements StorageService {
+public class S3StorageService implements StorageService {
 
     @Autowired
     private S3StorageProperties s3StorageProperties;
 
     @Autowired
     private MinioClientInitializer bucketClient;
-    private String subPath = "";
-
-    @PostConstruct
-    public void init() {
-        if (s3StorageProperties.getSubPath() != null) {
-            subPath = s3StorageProperties.getSubPath().replaceAll("^/|/$", "");
-            if (!subPath.isEmpty()) {
-                subPath = subPath + "/";
-            }
-        }
-    }
 
     public String store(MultipartFile file, String projectId, String subjectId, String topicId) {
         Assert.notNull(file, "File must not be null");
         Assert.notEmpty(new String[]{projectId, subjectId, topicId}, "Project, subject and topic IDs must not be empty");
-        String filePath = String.format("%s%s/%s/%s/%s", subPath, projectId, subjectId, topicId, generateRandomFilename(file.getOriginalFilename()));
-        log.debug("Storing file at path: {}", filePath);
+
+         StoragePath filePath = StoragePath.builder()
+            .prefix(s3StorageProperties.getPath().getPrefix())
+            .projectId(projectId)
+            .subjectId(subjectId)
+            .topicId(topicId)
+            .collectPerDay(s3StorageProperties.getPath().isCollectPerDay())
+            .filename(file.getOriginalFilename())
+            .build();
+
+        log.debug("Attempt storing file at path: {}", filePath.getFullPath());
+
         try {
             bucketClient.getClient().putObject(PutObjectArgs
                 .builder()
                 .bucket(bucketClient.getBucketName())
-                .object(filePath)
+                .object(filePath.getFullPath())
                 .stream(file.getInputStream(), file.getSize(), -1)
                 .build());
         } catch (Exception e) {
             throw new RuntimeException("Could not store file", e);
         }
-        return filePath;
+        return filePath.getPathInTopicDir();
     }
 
 }
