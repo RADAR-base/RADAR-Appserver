@@ -21,38 +21,37 @@
 
 package org.radarbase.appserver.service.scheduler.quartz;
 
-import com.google.firebase.ErrorCode;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.MessagingErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
 import org.radarbase.appserver.service.UserService;
-import org.radarbase.appserver.service.scheduler.DataMessageSchedulerService;
-import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
+import org.radarbase.appserver.service.transmitter.DataMessageTransmitter;
+import org.radarbase.appserver.service.transmitter.EmailNotificationTransmitter;
+import org.radarbase.appserver.service.transmitter.NotificationTransmitter;
+import org.radarbase.appserver.service.transmitter.FcmTransmitter;
+
+import java.util.List;
 
 /**
- * A {@link Job} that sends an FCM message to the device when executed.
+ * A {@link Job} that sends messages to the device or email when executed.
  *
  * @author yatharthranjan
- * @see NotificationSchedulerService
- * @see SchedulerServiceImpl
+ * @see FcmTransmitter
+ * @see EmailNotificationTransmitter
  */
 @Slf4j
 public class MessageJob implements Job {
 
-  private final transient NotificationSchedulerService notificationSchedulerService;
+  private final transient List<NotificationTransmitter> notificationTransmitters;
 
-  private final transient DataMessageSchedulerService dataMessageSchedulerService;
+  private final transient List<DataMessageTransmitter> dataMessageTransmitters;
 
   private final transient FcmNotificationService notificationService;
 
@@ -61,13 +60,13 @@ public class MessageJob implements Job {
   private final transient UserService userService;
 
   public MessageJob(
-      NotificationSchedulerService notificationSchedulerService,
-      DataMessageSchedulerService dataMessageSchedulerService,
+      List<NotificationTransmitter> notificationTransmitters,
+      List<DataMessageTransmitter> dataMessageTransmitters,
       FcmNotificationService notificationService,
       FcmDataMessageService dataMessageService,
       UserService userService) {
-    this.notificationSchedulerService = notificationSchedulerService;
-    this.dataMessageSchedulerService = dataMessageSchedulerService;
+    this.notificationTransmitters = notificationTransmitters;
+    this.dataMessageTransmitters = dataMessageTransmitters;
     this.notificationService = notificationService;
     this.dataMessageService = dataMessageService;
     this.userService = userService;
@@ -88,7 +87,6 @@ public class MessageJob implements Job {
   @Override
   @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   public void execute(JobExecutionContext context) throws JobExecutionException {
-    Message message = null;
     try {
       JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
       MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
@@ -100,78 +98,23 @@ public class MessageJob implements Job {
           Notification notification =
               notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
                   projectId, subjectId, messageId);
-          message = notification;
-          notificationSchedulerService.send(notification);
+          // Note: at present there are FcmTransmitter and EmailNotificationTransmitter.
+          // Only the Fcm transmitter (sneakily) emits Exceptions caught by the JobExecutionException.
+          // As a result Fcm notifications are leading the job success/failure status.
+          notificationTransmitters.forEach(t -> t.send(notification));
           break;
         case DATA:
           DataMessage dataMessage =
               dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
                   projectId, subjectId, messageId);
-          message = dataMessage;
-          dataMessageSchedulerService.send(dataMessage);
+          dataMessageTransmitters.forEach(t -> t.send(dataMessage));
           break;
         default:
           break;
-      }
-    } catch (FirebaseMessagingException exc) {
-      log.error("Error occurred when sending downstream message.", exc);
-      // TODO: update the data message status using event
-      if (message != null) {
-        handleErrorCode(exc.getErrorCode(), message);
-        handleFCMErrorCode(exc.getMessagingErrorCode(), message);
       }
     } catch (Exception e) {
       throw new JobExecutionException(e);
     }
   }
 
-  protected void handleErrorCode(ErrorCode errorCode, Message message) {
-    // More info on ErrorCode: https://firebase.google.com/docs/reference/fcm/rest/v1/ErrorCode
-    switch (errorCode) {
-      case INVALID_ARGUMENT:
-      case INTERNAL:
-      case ABORTED:
-      case CONFLICT:
-      case CANCELLED:
-      case DATA_LOSS:
-      case NOT_FOUND:
-      case OUT_OF_RANGE:
-      case ALREADY_EXISTS:
-      case DEADLINE_EXCEEDED:
-      case PERMISSION_DENIED:
-      case RESOURCE_EXHAUSTED:
-      case FAILED_PRECONDITION:
-      case UNAUTHENTICATED:
-      case UNKNOWN:
-        break;
-      case UNAVAILABLE:
-        // TODO: Could schedule for retry.
-        log.warn("The FCM service is unavailable.");
-        break;
-    }
-  }
-
-  protected void handleFCMErrorCode(MessagingErrorCode errorCode, Message message) {
-    switch (errorCode) {
-      case INTERNAL:
-      case QUOTA_EXCEEDED:
-      case INVALID_ARGUMENT:
-      case SENDER_ID_MISMATCH:
-      case THIRD_PARTY_AUTH_ERROR:
-        break;
-      case UNAVAILABLE:
-        // TODO: Could schedule for retry.
-        log.warn("The FCM service is unavailable.");
-        break;
-      case UNREGISTERED:
-        FcmUserDto userDto = new FcmUserDto(message.getUser());
-        log.warn("The Device for user {} was unregistered.", userDto.getSubjectId());
-        notificationService.removeNotificationsForUser(
-            userDto.getProjectId(), userDto.getSubjectId());
-        dataMessageService.removeDataMessagesForUser(
-            userDto.getProjectId(), userDto.getSubjectId());
-        userService.checkFcmTokenExistsAndReplace(userDto);
-        break;
-    }
-  }
 }

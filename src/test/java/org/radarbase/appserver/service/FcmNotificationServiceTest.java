@@ -21,26 +21,6 @@
 
 package org.radarbase.appserver.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.radarbase.appserver.controller.FcmNotificationControllerTest.FCM_MESSAGE_ID;
-import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
-import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
-import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
-import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_BODY;
-import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_FCM_MESSAGE_ID;
-import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_SOURCE_ID;
-import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_TITLE;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -57,15 +37,34 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
-import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
+import org.radarbase.appserver.service.scheduler.MessageSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.FCM_MESSAGE_ID;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.PROJECT_ID;
+import static org.radarbase.appserver.controller.FcmNotificationControllerTest.USER_ID;
+import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_BODY;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_FCM_MESSAGE_ID;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_SOURCE_ID;
+import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_TITLE;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 @ExtendWith(SpringExtension.class)
@@ -81,7 +80,7 @@ class FcmNotificationServiceTest {
     private static User user;
     private final transient Instant scheduledTime = Instant.now().plus(Duration.ofSeconds(100));
     @MockBean
-    private transient NotificationSchedulerService schedulerService;
+    private transient MessageSchedulerService schedulerService;
     // TODO Make this generic when NotificationService interface is complete
     @Autowired
     private transient FcmNotificationService notificationService;
@@ -538,7 +537,7 @@ class FcmNotificationServiceTest {
         @Autowired
         private transient ProjectRepository projectRepository;
         @Autowired
-        private transient NotificationSchedulerService schedulerService;
+        private transient MessageSchedulerService schedulerService;
         @Autowired
         private transient ApplicationEventPublisher eventPublisher;
 

@@ -21,13 +21,6 @@
 
 package org.radarbase.appserver.service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.radarbase.appserver.converter.DataMessageConverter;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.radarbase.appserver.dto.fcm.FcmDataMessages;
@@ -43,11 +36,19 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.DataMessageRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
-import org.radarbase.appserver.service.scheduler.DataMessageSchedulerService;
+import org.radarbase.appserver.service.scheduler.MessageSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * {@link Service} for interacting with the {@link DataMessage} {@link jakarta.persistence.Entity}
@@ -67,7 +68,7 @@ public class FcmDataMessageService implements DataMessageService {
     private final transient DataMessageRepository dataMessageRepository;
     private final transient UserRepository userRepository;
     private final transient ProjectRepository projectRepository;
-    private final transient DataMessageSchedulerService schedulerService;
+    private final transient MessageSchedulerService schedulerService;
     private final transient DataMessageConverter dataMessageConverter;
     private final transient ApplicationEventPublisher dataMessageStateEventPublisher;
 
@@ -76,7 +77,7 @@ public class FcmDataMessageService implements DataMessageService {
             DataMessageRepository dataMessageRepository,
             UserRepository userRepository,
             ProjectRepository projectRepository,
-            DataMessageSchedulerService schedulerService,
+            MessageSchedulerService schedulerService,
             DataMessageConverter dataMessageConverter,
             ApplicationEventPublisher eventPublisher) {
         this.dataMessageRepository = dataMessageRepository;
