@@ -59,6 +59,7 @@ public class UploadController {
   @PostMapping(
       "/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT +
       "/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT +
+      "/" + PathsUtil.FILE_PATH +
       "/" + PathsUtil.TOPIC_PATH + "/" + PathsUtil.TOPIC_ID_CONSTANT +
       "/upload")
   public ResponseEntity<?> subjectFileUpload(
