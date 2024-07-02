@@ -43,7 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UploadController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = {
-    "file-upload.enabled=true"
+    "file-upload.enabled=true",
+    "security.radar.managementportal.enabled=false"
 })
 class UploadControllerTest {
 
@@ -70,7 +71,7 @@ class UploadControllerTest {
   @Test
   void testUploadFile() throws Exception {
     String uri = String.format(
-        "/projects/%s/users/%s/topics/%s/upload", PROJECT_ID, SUBJECT_ID, TOPIC_ID);
+        "/projects/%s/users/%s/files/topics/%s/upload", PROJECT_ID, SUBJECT_ID, TOPIC_ID);
     mockMvc
         .perform(
             MockMvcRequestBuilders

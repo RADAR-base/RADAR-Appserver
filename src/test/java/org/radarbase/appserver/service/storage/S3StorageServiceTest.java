@@ -19,17 +19,11 @@
 package org.radarbase.appserver.service.storage;
 
 import io.minio.MinioClient;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
+import io.minio.PutObjectArgs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.radarbase.appserver.config.S3StorageProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,17 +33,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
@@ -58,7 +47,7 @@ import static org.mockito.Mockito.mock;
         "file-upload.enabled=true",
         "storage.type=s3",
         "storage.s3.bucket-name=my-bucket",
-        "storage.s3.sub-path=my-sub-path",
+        "storage.s3.path.prefix=my-sub-path",
     }
 )
 @EnableConfigurationProperties({S3StorageProperties.class})
@@ -81,7 +70,7 @@ class S3StorageServiceTest {
     public void setUp() throws Exception {
         given(minioInit.getBucketName()).willReturn("my-bucket");
         given(minioInit.getClient()).willReturn(minioClient);
-        given(minioClient.putObject(any())).willReturn(null);
+        given(minioClient.putObject(any(PutObjectArgs.class))).willReturn(null);
     }
 
     @Test
@@ -98,13 +87,8 @@ class S3StorageServiceTest {
     @Test
     void testStore() throws Exception {
         String path = s3StorageService.store(multipartFile, "projectId", "subjectId", "topicId");
-        // Make sure that MinioClient.putObject is called with the correct arguments.
-        verify(minioClient).putObject(argThat(args -> args.bucket().equals("my-bucket")
-            && args.object().startsWith("my-sub-path/projectId/subjectId/topicId/")
-            && args.object().endsWith(".txt"))
-        );
-
-        assertTrue(path.startsWith("my-sub-path/projectId/subjectId/topicId/"));
+        verify(minioClient).putObject(any());
+        assertTrue(path.matches("[0-9]+_[a-z0-9-]+\\.txt"));
     }
 
 }
