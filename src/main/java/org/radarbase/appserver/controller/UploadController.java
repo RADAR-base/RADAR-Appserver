@@ -52,8 +52,8 @@ public class UploadController {
   private StorageService storageService;
 
   @Authorized(
-      permission = AuthPermissions.UPDATE,
-      entity = AuthEntities.SUBJECT,
+      permission = AuthPermissions.CREATE,
+      entity = AuthEntities.MEASUREMENT,
       permissionOn = PermissionOn.SUBJECT
   )
   @PostMapping(
