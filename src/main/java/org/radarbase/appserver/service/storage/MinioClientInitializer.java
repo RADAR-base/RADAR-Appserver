@@ -31,11 +31,11 @@ import javax.annotation.PostConstruct;
 @ConditionalOnExpression("${file-upload.enabled:false} and 's3' == '${storage.type:}'")
 public class MinioClientInitializer {
 
-    private MinioClient minioClient;
-    private String bucketName;
+    private transient MinioClient minioClient;
+    private transient String bucketName;
 
     @Autowired
-    private S3StorageProperties s3StorageProperties;
+    private transient S3StorageProperties s3StorageProperties;
 
     @PostConstruct
     public void init() {

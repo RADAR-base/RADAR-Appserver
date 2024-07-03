@@ -34,10 +34,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class S3StorageService implements StorageService {
 
     @Autowired
-    private S3StorageProperties s3StorageProperties;
+    private transient S3StorageProperties s3StorageProperties;
 
     @Autowired
-    private MinioClientInitializer bucketClient;
+    private transient MinioClientInitializer bucketClient;
 
     public String store(MultipartFile file, String projectId, String subjectId, String topicId) {
         Assert.notNull(file, "File must not be null");

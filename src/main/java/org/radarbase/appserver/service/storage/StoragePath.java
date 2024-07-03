@@ -5,6 +5,7 @@ import org.springframework.util.Assert;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,8 +41,8 @@ import java.util.stream.Stream;
  */
 public class StoragePath {
 
-    private String pathInBucket;
-    private String pathInTopicDirectory;
+    private transient String pathInBucket;
+    private transient String pathInTopicDirectory;
 
     public StoragePath (String pathInBucket, String pathInTopicDirectory) {
         this.pathInBucket = pathInBucket;
@@ -62,82 +63,82 @@ public class StoragePath {
 
     public static class Builder {
 
-        private String prefix = "";
-        private String filename = "";
-        private boolean collectPerDay = false;
-        private String projectId = "";
-        private String subjectId = "";
-        private String topicId = "";
-        private String folderTimestampPattern = "yyyyMMdd";
-        private String fileTimestampPattern = "yyyyMMddHHmmss";
-        private String dirSep = "/";
+        private transient String pathPrefix = "";
+        private transient String file = "";
+        private transient boolean doCollectPerDay = false;
+        private transient String project = "";
+        private transient String subject = "";
+        private transient String topic = "";
+        private transient String folderPattern = "yyyyMMdd";
+        private transient String filePattern = "yyyyMMddHHmmss";
+        private transient String dirSep = "/";
 
         public Builder filename(String filename) {
-            this.filename = filename;
+            this.file = filename;
             return this;
         }
 
         public Builder prefix(String prefix) {
             Assert.notNull(prefix, "Prefix must not be null");
-            this.prefix = prefix;
+            this.pathPrefix = prefix;
             return this;
         }
 
         public Builder collectPerDay(boolean collectPerDay) {
-            this.collectPerDay = collectPerDay;
+            this.doCollectPerDay = collectPerDay;
             return this;
         }
 
         public Builder projectId(String projectId) {
             Assert.notNull(projectId, "Project Id must not be null");
-            this.projectId = projectId;
+            this.project = projectId;
             return this;
         }
 
         public Builder subjectId(String subjectId) {
             Assert.notNull(subjectId, "Subject Id must not be null");
-            this.subjectId = subjectId;
+            this.subject = subjectId;
             return this;
         }
 
         public Builder topicId(String topicId) {
             Assert.notNull(topicId, "Topic Id must not be null");
-            this.topicId = topicId;
+            this.topic = topicId;
             return this;
         }
 
         public Builder dayFolderPattern(String dayFolderPattern) {
             Assert.notNull(dayFolderPattern, "Day folder pattern must not be null");
-            this.folderTimestampPattern = dayFolderPattern;
+            this.folderPattern = dayFolderPattern;
             return this;
         }
 
         public Builder fileTimestampPattern(String fileTimestampPattern) {
             Assert.notNull(fileTimestampPattern, "File timestamp pattern must not be null");
-            this.fileTimestampPattern = fileTimestampPattern;
+            this.filePattern = fileTimestampPattern;
             return this;
         }
 
         public StoragePath build() {
-            Assert.isTrue(!filename.isBlank(), "Filename must be set.");
-            Assert.isTrue(!projectId.isBlank(), "Project Id must be set.");
-            Assert.isTrue(!subjectId.isBlank(), "Subject Id must be set.");
-            Assert.isTrue(!topicId.isBlank(), "Topic Id must be set.");
+            Assert.isTrue(!file.isBlank(), "Filename must be set.");
+            Assert.isTrue(!project.isBlank(), "Project Id must be set.");
+            Assert.isTrue(!subject.isBlank(), "Subject Id must be set.");
+            Assert.isTrue(!topic.isBlank(), "Topic Id must be set.");
 
             String pathInTopicDir = Stream.of(
-                    this.collectPerDay ? getDayFolder() : "",
+                    this.doCollectPerDay ? getDayFolder() : "",
                     // Storing files under their original filename is a security risk, as it can be used to
                     // overwrite existing files. We generate a random filename server-side to mitigate this risk.
                     // See https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload
-                    generateRandomFilename(this.filename)
+                    generateRandomFilename(this.file)
             ).filter(s -> !s.isBlank())
             .collect(Collectors.joining(this.dirSep));
 
             String fullPath = Stream.of(
-                    this.prefix,
-                    projectId,
-                    subjectId,
-                    topicId,
+                    this.pathPrefix,
+                    project,
+                    subject,
+                    topic,
                     pathInTopicDir
             ).filter(s -> !s.isBlank())
             .collect(Collectors.joining(this.dirSep));
@@ -146,12 +147,12 @@ public class StoragePath {
         }
 
         private String generateRandomFilename(String originalFilename) {
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(this.fileTimestampPattern));
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(this.filePattern));
             return timestamp + "_" + UUID.randomUUID() + getFileExtension(originalFilename);
         }
 
         private String getDayFolder() {
-            return LocalDate.now().format(DateTimeFormatter.ofPattern(this.folderTimestampPattern));
+            return LocalDate.now().format(DateTimeFormatter.ofPattern(this.folderPattern));
         }
 
         private String getFileExtension(String originalFilename) {
@@ -159,7 +160,7 @@ public class StoragePath {
             if (lastDot < 0) {
                 return "";
             } else {
-                return originalFilename.substring(lastDot).toLowerCase();
+                return originalFilename.substring(lastDot).toLowerCase(Locale.ENGLISH);
             }
         }
 
