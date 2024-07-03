@@ -64,7 +64,7 @@ public class S3StorageService implements StorageService {
         } catch (Exception e) {
             throw new RuntimeException("Could not store file", e);
         }
-        return filePath.getPathInTopicDir();
+        return filePath.getFullPath();
     }
 
 }
