@@ -21,6 +21,9 @@ package org.radarbase.appserver.service.storage;
 import io.minio.PutObjectArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.config.S3StorageProperties;
+import org.radarbase.appserver.exception.FileStorageException;
+import org.radarbase.appserver.exception.InvalidFileDetailsException;
+import org.radarbase.appserver.exception.InvalidPathDetailsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
@@ -40,31 +43,37 @@ public class S3StorageService implements StorageService {
     private transient MinioClientInitializer bucketClient;
 
     public String store(MultipartFile file, String projectId, String subjectId, String topicId) {
-        Assert.notNull(file, "File must not be null");
-        Assert.notEmpty(new String[]{projectId, subjectId, topicId}, "Project, subject and topic IDs must not be empty");
-
-         StoragePath filePath = StoragePath.builder()
-            .prefix(s3StorageProperties.getPath().getPrefix())
-            .projectId(projectId)
-            .subjectId(subjectId)
-            .topicId(topicId)
-            .collectPerDay(s3StorageProperties.getPath().isCollectPerDay())
-            .filename(file.getOriginalFilename())
-            .build();
-
-        log.debug("Attempt storing file at path: {}", filePath.getFullPath());
+        if (
+            file == null || projectId == null || subjectId == null || topicId == null
+            || file.isEmpty()|| projectId.isEmpty() || subjectId.isEmpty() || topicId.isEmpty()) {
+            throw new InvalidFileDetailsException("File, project, subject and topic IDs must not be empty");
+        }
 
         try {
+            StoragePath filePath = StoragePath.builder()
+                .prefix(s3StorageProperties.getPath().getPrefix())
+                .projectId(projectId)
+                .subjectId(subjectId)
+                .topicId(topicId)
+                .collectPerDay(s3StorageProperties.getPath().isCollectPerDay())
+                .filename(file.getOriginalFilename())
+                .build();
+
+            log.debug("Attempt storing file at path: {}", filePath.getFullPath());
+
             bucketClient.getClient().putObject(PutObjectArgs
                 .builder()
                 .bucket(bucketClient.getBucketName())
                 .object(filePath.getFullPath())
                 .stream(file.getInputStream(), file.getSize(), -1)
                 .build());
+
+            return filePath.getFullPath();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidPathDetailsException("There is a problem resolving the path on the object storage", e);
         } catch (Exception e) {
-            throw new RuntimeException("Could not store file", e);
+            throw new FileStorageException("There is a problem storing the file on the object storage", e);
         }
-        return filePath.getFullPath();
     }
 
 }
