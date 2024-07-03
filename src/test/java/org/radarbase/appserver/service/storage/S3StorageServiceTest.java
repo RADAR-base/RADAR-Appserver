@@ -92,7 +92,7 @@ class S3StorageServiceTest {
     void testStore() throws Exception {
         String path = s3StorageService.store(multipartFile, PROJECT_ID, SUBJECT_ID, TOPIC_ID);
         verify(minioClient).putObject(any());
-        assertTrue(path.matches("[0-9]+_[a-z0-9-]+\\.txt"));
+        assertTrue(path.matches("my-sub-path/"+PROJECT_ID+"/"+SUBJECT_ID+"/"+TOPIC_ID+"/[0-9]+_[a-z0-9-]+\\.txt"));
     }
 
 }
