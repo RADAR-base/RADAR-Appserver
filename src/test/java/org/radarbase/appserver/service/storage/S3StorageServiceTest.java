@@ -54,17 +54,21 @@ import static org.mockito.Mockito.verify;
 class S3StorageServiceTest {
 
     @Autowired
-    private S3StorageService s3StorageService;
+    private transient S3StorageService s3StorageService;
 
     @MockBean
-    private MinioClientInitializer minioInit;
+    private transient MinioClientInitializer minioInit;
 
     @Mock
-    private MinioClient minioClient;
+    private transient MinioClient minioClient;
 
-    MockMultipartFile multipartFile = new MockMultipartFile(
+    private transient MockMultipartFile multipartFile = new MockMultipartFile(
         "file", "my-file.txt", "text/plain", "my-file-content".getBytes()
     );
+
+    private static final String PROJECT_ID = "projectId";
+    private static final String SUBJECT_ID = "subjectId";
+    private static final String TOPIC_ID = "topicId";
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -75,18 +79,18 @@ class S3StorageServiceTest {
 
     @Test
     void testInvalidArguments() {
-        assertThrows(Exception.class, () -> s3StorageService.store(null, "projectId", "subjectId", "topicId"));
-        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), null, "subjectId", "topicId"));
-        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), "projectId", null, "topicId"));
-        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), "projectId", "subjectId", null));
-        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), "", "subjectId", "topicId"));
-        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), "projectId", "", "topicId"));
-        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), "projectId", "subjectId", ""));
+        assertThrows(Exception.class, () -> s3StorageService.store(null, PROJECT_ID, SUBJECT_ID, TOPIC_ID));
+        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), null, SUBJECT_ID, TOPIC_ID));
+        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), PROJECT_ID, null, TOPIC_ID));
+        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), PROJECT_ID, SUBJECT_ID, null));
+        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), "", SUBJECT_ID, TOPIC_ID));
+        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), PROJECT_ID, "", TOPIC_ID));
+        assertThrows(Exception.class, () -> s3StorageService.store(mock(MultipartFile.class), PROJECT_ID, SUBJECT_ID, ""));
     }
 
     @Test
     void testStore() throws Exception {
-        String path = s3StorageService.store(multipartFile, "projectId", "subjectId", "topicId");
+        String path = s3StorageService.store(multipartFile, PROJECT_ID, SUBJECT_ID, TOPIC_ID);
         verify(minioClient).putObject(any());
         assertTrue(path.matches("[0-9]+_[a-z0-9-]+\\.txt"));
     }

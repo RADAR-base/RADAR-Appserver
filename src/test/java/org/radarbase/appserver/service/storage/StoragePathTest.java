@@ -10,25 +10,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 class StoragePathTest {
 
+    private static final String PREFIX = "prefix";
+    private static final String FILENAME = "example.txt";
+    private static final String PROJECT_ID = "project1";
+    private static final String SUBJECT_ID = "subjectA";
+    private static final String TOPIC_ID = "topicX";
+
+    private static final String SIMPLE_LOCALFILE_PATTERN = "[0-9]+_[a-z0-9-]+\\.txt";
+
     @Test
     void minimalValidPath() {
         StoragePath path = StoragePath.builder()
-            .filename("example.txt")
-            .projectId("project1")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .filename(FILENAME)
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .build();
         assertTrue(path.getFullPath().matches("project1/subjectA/topicX/[0-9]+_[a-z0-9-]+\\.txt"));
-        assertTrue(path.getPathInTopicDir().matches("[0-9]+_[a-z0-9-]+\\.txt"));
+        assertTrue(path.getPathInTopicDir().matches(SIMPLE_LOCALFILE_PATTERN));
     }
 
     @Test
     void includeDayFolder() {
         StoragePath path = StoragePath.builder()
-            .filename("example.txt")
-            .projectId("project1")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .filename(FILENAME)
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .collectPerDay(true)
             .build();
         assertTrue(path.getFullPath().matches("project1/subjectA/topicX/[0-9]+/[0-9]+_[a-z0-9-]+\\.txt"));
@@ -38,36 +46,36 @@ class StoragePathTest {
     @Test
     void includePrefix() {
         StoragePath path = StoragePath.builder()
-            .prefix("prefix")
-            .filename("example.txt")
-            .projectId("project1")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .prefix(PREFIX)
+            .filename(FILENAME)
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .build();
         assertTrue(path.getFullPath().matches("prefix/project1/subjectA/topicX/[0-9]+_[a-z0-9-]+\\.txt"));
-        assertTrue(path.getPathInTopicDir().matches("[0-9]+_[a-z0-9-]+\\.txt"));
+        assertTrue(path.getPathInTopicDir().matches(SIMPLE_LOCALFILE_PATTERN));
     }
 
     @Test
     void testLowercaseExtension() {
         StoragePath path = StoragePath.builder()
             .filename("example.TXT")
-            .projectId("project1")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .build();
         assertTrue(path.getFullPath().matches("project1/subjectA/topicX/[0-9]+_[a-z0-9-]+\\.txt"));
-        assertTrue(path.getPathInTopicDir().matches("[0-9]+_[a-z0-9-]+\\.txt"));
+        assertTrue(path.getPathInTopicDir().matches(SIMPLE_LOCALFILE_PATTERN));
     }
 
     @Test
     void testAllCombined() {
         StoragePath path = StoragePath.builder()
-            .prefix("prefix")
+            .prefix(PREFIX)
             .filename("example.TXT")
-            .projectId("project1")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .collectPerDay(true)
             .build();
         assertTrue(path.getFullPath().matches("prefix/project1/subjectA/topicX/[0-9]+/[0-9]+_[a-z0-9-]+\\.txt"));
@@ -78,35 +86,35 @@ class StoragePathTest {
     void testDotsInFilename() {
         StoragePath path = StoragePath.builder()
             .filename("example.com.txt")
-            .projectId("project1")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .build();
         assertTrue(path.getFullPath().matches("project1/subjectA/topicX/[0-9]+_[a-z0-9-]+\\.txt"));
-        assertTrue(path.getPathInTopicDir().matches("[0-9]+_[a-z0-9-]+\\.txt"));
+        assertTrue(path.getPathInTopicDir().matches(SIMPLE_LOCALFILE_PATTERN));
     }
 
     @Test
     void testThrowsIllegalArguments() {
         assertThrows(IllegalArgumentException.class, () -> StoragePath.builder()
-            .projectId("project1")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .build());
         assertThrows(IllegalArgumentException.class, () -> StoragePath.builder()
-            .filename("example.txt")
-            .subjectId("subjectA")
-            .topicId("topicX")
+            .filename(FILENAME)
+            .subjectId(SUBJECT_ID)
+            .topicId(TOPIC_ID)
             .build());
         assertThrows(IllegalArgumentException.class, () -> StoragePath.builder()
-            .filename("example.txt")
-            .projectId("project1")
-            .topicId("topicX")
+            .filename(FILENAME)
+            .projectId(PROJECT_ID)
+            .topicId(TOPIC_ID)
             .build());
         assertThrows(IllegalArgumentException.class, () -> StoragePath.builder()
-            .filename("example.txt")
-            .projectId("project1")
-            .subjectId("subjectA")
+            .filename(FILENAME)
+            .projectId(PROJECT_ID)
+            .subjectId(SUBJECT_ID)
             .build());
     }
 

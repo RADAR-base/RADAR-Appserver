@@ -64,7 +64,7 @@ class UploadControllerTest {
         .willReturn(FILE_PATH);
   }
 
-  MockMultipartFile multipartFile = new MockMultipartFile(
+  private transient MockMultipartFile multipartFile = new MockMultipartFile(
       "file", "my-file.txt", "text/plain", file
   );
 

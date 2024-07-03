@@ -49,7 +49,7 @@ import java.net.URISyntaxException;
 public class UploadController {
 
   @Autowired
-  private StorageService storageService;
+  private transient StorageService storageService;
 
   @Authorized(
       permission = AuthPermissions.CREATE,
