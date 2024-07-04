@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
+
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -55,6 +57,10 @@ public class FcmUserDto implements Serializable {
   @NotEmpty
   // User ID to be used in org.radarcns.kafka.ObservationKey record keys
   private String subjectId;
+
+  @Email
+  // Email address of the user (optional, needed when sending notifications via email)
+  private String emailAddress;
 
   // The most recent time when the app was opened
   private Instant lastOpened;
@@ -127,6 +133,11 @@ public class FcmUserDto implements Serializable {
   public FcmUserDto setSubjectId(String subjectId) {
     this.subjectId = subjectId;
     return this;
+  }
+
+  public FcmUserDto setEmailAddress(String emailAddress) {
+      this.emailAddress = emailAddress;
+      return this;
   }
 
   public FcmUserDto setLastOpened(Instant lastOpened) {
