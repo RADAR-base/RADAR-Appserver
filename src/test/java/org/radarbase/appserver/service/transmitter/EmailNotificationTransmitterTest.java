@@ -73,6 +73,7 @@ class EmailNotificationTransmitterTest {
         when(notification.getUser()).thenReturn(user);
         when(notification.getTitle()).thenReturn("Title");
         when(notification.getBody()).thenReturn("Body");
+        when(notification.isEmailEnabled()).thenReturn(true);
         return notification;
     }
 }
