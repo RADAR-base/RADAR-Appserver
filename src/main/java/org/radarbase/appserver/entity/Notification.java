@@ -120,6 +120,9 @@ public class Notification extends Message {
     @Column(name = "click_action")
     private String clickAction;
 
+    @Column(name = "email_enabled")
+    private boolean emailEnabled = false;
+
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "additional_key", nullable = true)
@@ -158,6 +161,7 @@ public class Notification extends Message {
         transient String androidChannelId;
         transient String tag;
         transient String clickAction;
+        transient boolean emailEnabled;
         transient Map<String, String> additionalData;
         transient Task task;
 
@@ -193,6 +197,7 @@ public class Notification extends Message {
             this.androidChannelId = notification.getAndroidChannelId();
             this.tag = notification.getTag();
             this.clickAction = notification.getClickAction();
+            this.emailEnabled = notification.isEmailEnabled();
             this.additionalData = notification.getAdditionalData();
             this.task = notification.getTask();
         }
@@ -343,6 +348,11 @@ public class Notification extends Message {
             return this;
         }
 
+        public NotificationBuilder emailEnabled(boolean emailEnabled) {
+            this.emailEnabled = emailEnabled;
+            return this;
+        }
+
         public NotificationBuilder additionalData(Map<String, String> additionalData) {
             this.additionalData = additionalData;
             return this;
@@ -386,6 +396,7 @@ public class Notification extends Message {
             notification.setAndroidChannelId(this.androidChannelId);
             notification.setTag(this.tag);
             notification.setClickAction(this.clickAction);
+            notification.setEmailEnabled(this.emailEnabled);
             notification.setAdditionalData(this.additionalData);
             notification.setTask(this.task);
 
