@@ -52,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
   @Value("${notification.email.enabled:false}")
-  private boolean sendEmailNotifications;
+  private transient boolean sendEmailNotifications;
 
   private final transient UserConverter userConverter;
   private final transient UserRepository userRepository;

@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(value = "notification.email.enabled", havingValue = "true")
 public class EmailNotificationTransmitter implements NotificationTransmitter {
 
-    private final JavaMailSender emailSender;
+    private final transient JavaMailSender emailSender;
 
     @Value("${notification.email.from}")
-    private String from;
+    private transient String from;
 
     public EmailNotificationTransmitter(
         @Autowired JavaMailSender emailSender
