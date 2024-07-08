@@ -66,7 +66,7 @@ public class FcmTransmitter implements NotificationTransmitter, DataMessageTrans
     public void send(DataMessage dataMessage) {
         try {
             fcmSender.send(createMessageFromDataMessage(dataMessage));
-        }  catch (FirebaseMessagingException exc) {
+        } catch (FirebaseMessagingException exc) {
             handleFcmException(exc, dataMessage);
         } catch (Exception exc) {
             throw new FcmMessageTransmitException("Could not transmit a data message through Fcm", exc);
