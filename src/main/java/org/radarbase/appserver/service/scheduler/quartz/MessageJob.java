@@ -31,7 +31,6 @@ import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
-import org.radarbase.appserver.service.UserService;
 import org.radarbase.appserver.service.transmitter.DataMessageTransmitter;
 import org.radarbase.appserver.service.transmitter.EmailNotificationTransmitter;
 import org.radarbase.appserver.service.transmitter.NotificationTransmitter;
@@ -57,19 +56,15 @@ public class MessageJob implements Job {
 
   private final transient FcmDataMessageService dataMessageService;
 
-  private final transient UserService userService;
-
   public MessageJob(
       List<NotificationTransmitter> notificationTransmitters,
       List<DataMessageTransmitter> dataMessageTransmitters,
       FcmNotificationService notificationService,
-      FcmDataMessageService dataMessageService,
-      UserService userService) {
+      FcmDataMessageService dataMessageService) {
     this.notificationTransmitters = notificationTransmitters;
     this.dataMessageTransmitters = dataMessageTransmitters;
     this.notificationService = notificationService;
     this.dataMessageService = dataMessageService;
-    this.userService = userService;
   }
 
   /**
