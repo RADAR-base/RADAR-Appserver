@@ -34,12 +34,12 @@ import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
 import org.radarbase.appserver.service.transmitter.DataMessageTransmitter;
-import org.radarbase.appserver.service.transmitter.EmailNotificationTransmitter;
-import org.radarbase.appserver.service.transmitter.NotificationTransmitter;
 import org.radarbase.appserver.service.transmitter.FcmTransmitter;
+import org.radarbase.appserver.service.transmitter.NotificationTransmitter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A {@link Job} that sends messages to the device or email when executed.
@@ -85,23 +85,24 @@ public class MessageJob implements Job {
   @Override
   @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   public void execute(JobExecutionContext context) throws JobExecutionException {
-      JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-      MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
-      String projectId = jobDataMap.getString("projectId");
-      String subjectId = jobDataMap.getString("subjectId");
-      Long messageId = jobDataMap.getLong("messageId");
-      List<Exception> exceptions = new ArrayList<>();
+    JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+    MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
+    String projectId = jobDataMap.getString("projectId");
+    String subjectId = jobDataMap.getString("subjectId");
+    Long messageId = jobDataMap.getLong("messageId");
+    List<Exception> exceptions = new ArrayList<>();
+    try {
       switch (type) {
         case NOTIFICATION:
           Notification notification =
               notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
                   projectId, subjectId, messageId);
           notificationTransmitters.forEach(t -> {
-              try {
-                  t.send(notification);
-              } catch (MessageTransmitException e) {
-                  exceptions.add(e);
-              }
+            try {
+              t.send(notification);
+            } catch (MessageTransmitException e) {
+              exceptions.add(e);
+            }
           });
           break;
         case DATA:
@@ -109,22 +110,29 @@ public class MessageJob implements Job {
               dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
                   projectId, subjectId, messageId);
           dataMessageTransmitters.forEach(t -> {
-              try {
-                  t.send(dataMessage);
-              } catch (MessageTransmitException e) {
-                  exceptions.add(e);
-              }
+            try {
+              t.send(dataMessage);
+            } catch (MessageTransmitException e) {
+              exceptions.add(e);
+            }
           });
           break;
         default:
           break;
       }
-
+    } catch (Exception e) {
+      log.error("Could not transmit a message", e);
+      throw new JobExecutionException("Could not transmit a message", e);
+    } finally {
       // Here handle the exceptions that occurred while transmitting the message via the
       // transmitters. At present, only the FcmTransmitter affects the job execution state.
-      if (exceptions.stream().anyMatch(e -> e instanceof FcmMessageTransmitException)) {
-          throw new JobExecutionException("Could not transmit a message", exceptions.get(0));
+      Optional<Exception> fcmException = exceptions.stream()
+          .filter(e -> e instanceof FcmMessageTransmitException)
+          .findFirst();
+      if (fcmException.isPresent()) {
+        throw new JobExecutionException("Could not transmit a message", fcmException.get());
       }
+    }
 
   }
 
