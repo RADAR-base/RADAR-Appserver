@@ -22,7 +22,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties("storage.s3")
+@ConfigurationProperties("radar.storage.s3")
 public class S3StorageProperties {
     private String url;
     private String accessKey;

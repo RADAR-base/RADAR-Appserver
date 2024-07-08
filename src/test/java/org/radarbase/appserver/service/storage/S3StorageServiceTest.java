@@ -44,10 +44,10 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest(
     classes = {S3StorageService.class},
     properties = {
-        "file-upload.enabled=true",
-        "storage.type=s3",
-        "storage.s3.bucket-name=my-bucket",
-        "storage.s3.path.prefix=my-sub-path",
+        "radar.file-upload.enabled=true",
+        "radar.storage.type=s3",
+        "radar.storage.s3.bucket-name=my-bucket",
+        "radar.storage.s3.path.prefix=my-sub-path",
     }
 )
 @EnableConfigurationProperties({S3StorageProperties.class})

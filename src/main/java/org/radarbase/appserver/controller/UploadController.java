@@ -44,7 +44,7 @@ import java.net.URISyntaxException;
  */
 @CrossOrigin
 @RestController
-@ConditionalOnProperty(value = "file-upload.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "radar.file-upload.enabled", havingValue = "true")
 @Slf4j
 public class UploadController {
 
