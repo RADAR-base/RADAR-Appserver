@@ -41,9 +41,9 @@ public class EmailNotificationTransmitter implements NotificationTransmitter {
         }
     }
 
-    private static SimpleMailMessage createEmailFromNotification(Notification notification) {
+    private SimpleMailMessage createEmailFromNotification(Notification notification) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(notification.getUser().getEmailAddress());
+        message.setFrom(from);
         message.setTo(notification.getUser().getEmailAddress());
         message.setSubject(notification.getTitle());
         message.setText(notification.getBody());
