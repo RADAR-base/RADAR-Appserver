@@ -2,6 +2,7 @@ package org.radarbase.appserver.service.transmitter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.exception.EmailMessageTransmitException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,7 +27,7 @@ public class EmailNotificationTransmitter implements NotificationTransmitter {
     }
 
     @Override
-    public void send(Notification notification) {
+    public void send(Notification notification) throws EmailMessageTransmitException {
         if (notification.getUser().getEmailAddress() == null || notification.getUser().getEmailAddress().isBlank()) {
             log.warn("Could not transmit a notification via email because subject {} has no email address.",
                 notification.getUser().getSubjectId());
@@ -35,9 +36,8 @@ public class EmailNotificationTransmitter implements NotificationTransmitter {
         try {
             emailSender.send(createEmailFromNotification(notification));
         } catch (Exception e) {
-            // Note: the EmailNotificationTransmitter does not emit Exceptions caught by the JobExecutionException.
-            // As a result, email notifications are not influencing the job success/failure status.
             log.error("Could not transmit a notification via email", e);
+            throw new EmailMessageTransmitException("Could not transmit a notification via email", e);
         }
     }
 

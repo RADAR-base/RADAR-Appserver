@@ -4,6 +4,5 @@ import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.exception.MessageTransmitException;
 
 public interface DataMessageTransmitter {
-    // Can Sneakily throw MessageTransmitException
-    void send(DataMessage dataMessage);
+    void send(DataMessage dataMessage) throws MessageTransmitException;
 }

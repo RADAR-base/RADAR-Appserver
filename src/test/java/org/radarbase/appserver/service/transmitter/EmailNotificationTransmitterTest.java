@@ -2,13 +2,9 @@ package org.radarbase.appserver.service.transmitter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.radarbase.appserver.dto.protocol.AssessmentType;
 import org.radarbase.appserver.entity.Notification;
-import org.radarbase.appserver.entity.Project;
-import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.entity.UserMetrics;
-import org.radarbase.appserver.event.state.TaskState;
+import org.radarbase.appserver.exception.EmailMessageTransmitException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,12 +13,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.HashMap;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doThrow;
@@ -57,13 +49,15 @@ class EmailNotificationTransmitterTest {
         Notification invalidNotification = buildNotification();
         when(invalidNotification.getUser().getEmailAddress()).thenReturn(null);
         assertDoesNotThrow(() -> emailNotificationTransmitter.send(invalidNotification), "Notification with User w/o an email address should not throw an exception");
+        when(invalidNotification.getUser().getEmailAddress()).thenReturn("");
+        assertDoesNotThrow(() -> emailNotificationTransmitter.send(invalidNotification), "Notification with User w/o an email address should not throw an exception");
     }
 
     @Test
-    void testExceptionNotThrownWithEmailFailure() {
+    void testExceptionThrownWithEmailFailure() {
         doThrow(mock(MailException.class)).when(javaMailSender).send(any(SimpleMailMessage.class));
         Notification validNotification = buildNotification();
-        assertDoesNotThrow(() -> emailNotificationTransmitter.send(validNotification), "Problems during sending of email notifications should not throw an exception");
+        assertThrows(EmailMessageTransmitException.class, () -> emailNotificationTransmitter.send(validNotification), "Problems during sending of email notifications should throw an exception");
     }
 
     private Notification buildNotification() {

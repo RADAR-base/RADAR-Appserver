@@ -9,6 +9,7 @@ import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.exception.FcmMessageTransmitException;
 import org.radarbase.appserver.exception.MessageTransmitException;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
@@ -56,7 +57,7 @@ public class FcmTransmitter implements NotificationTransmitter, DataMessageTrans
         }  catch (FirebaseMessagingException exc) {
             handleFcmException(exc, notification);
         } catch (Exception exc) {
-            throw new MessageTransmitException("Could not transmit a notification through Fcm", exc);
+            throw new FcmMessageTransmitException("Could not transmit a notification through Fcm", exc);
         }
     }
 
@@ -68,7 +69,7 @@ public class FcmTransmitter implements NotificationTransmitter, DataMessageTrans
         }  catch (FirebaseMessagingException exc) {
             handleFcmException(exc, dataMessage);
         } catch (Exception exc) {
-            throw new MessageTransmitException("Could not transmit a data message through Fcm", exc);
+            throw new FcmMessageTransmitException("Could not transmit a data message through Fcm", exc);
         }
     }
 

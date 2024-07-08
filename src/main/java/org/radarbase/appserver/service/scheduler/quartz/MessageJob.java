@@ -28,6 +28,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Notification;
+import org.radarbase.appserver.exception.FcmMessageTransmitException;
+import org.radarbase.appserver.exception.MessageTransmitException;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
@@ -36,6 +38,7 @@ import org.radarbase.appserver.service.transmitter.EmailNotificationTransmitter;
 import org.radarbase.appserver.service.transmitter.NotificationTransmitter;
 import org.radarbase.appserver.service.transmitter.FcmTransmitter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -82,34 +85,47 @@ public class MessageJob implements Job {
   @Override
   @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
   public void execute(JobExecutionContext context) throws JobExecutionException {
-    try {
       JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
       MessageType type = MessageType.valueOf(jobDataMap.getString("messageType"));
       String projectId = jobDataMap.getString("projectId");
       String subjectId = jobDataMap.getString("subjectId");
       Long messageId = jobDataMap.getLong("messageId");
+      List<Exception> exceptions = new ArrayList<>();
       switch (type) {
         case NOTIFICATION:
           Notification notification =
               notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
                   projectId, subjectId, messageId);
-          // Note: at present there are FcmTransmitter and EmailNotificationTransmitter.
-          // Only the Fcm transmitter (sneakily) emits Exceptions caught by the JobExecutionException.
-          // As a result Fcm notifications are leading the job success/failure status.
-          notificationTransmitters.forEach(t -> t.send(notification));
+          notificationTransmitters.forEach(t -> {
+              try {
+                  t.send(notification);
+              } catch (MessageTransmitException e) {
+                  exceptions.add(e);
+              }
+          });
           break;
         case DATA:
           DataMessage dataMessage =
               dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
                   projectId, subjectId, messageId);
-          dataMessageTransmitters.forEach(t -> t.send(dataMessage));
+          dataMessageTransmitters.forEach(t -> {
+              try {
+                  t.send(dataMessage);
+              } catch (MessageTransmitException e) {
+                  exceptions.add(e);
+              }
+          });
           break;
         default:
           break;
       }
-    } catch (Exception e) {
-      throw new JobExecutionException(e);
-    }
+
+      // Here handle the exceptions that occurred while transmitting the message via the
+      // transmitters. At present, only the FcmTransmitter affects the job execution state.
+      if (exceptions.stream().anyMatch(e -> e instanceof FcmMessageTransmitException)) {
+          throw new JobExecutionException("Could not transmit a message", exceptions.get(0));
+      }
+
   }
 
 }
