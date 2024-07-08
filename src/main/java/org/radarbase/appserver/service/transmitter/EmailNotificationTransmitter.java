@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@ConditionalOnProperty(value = "notification.email.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "radar.notification.email.enabled", havingValue = "true")
 public class EmailNotificationTransmitter implements NotificationTransmitter {
 
     private final transient JavaMailSender emailSender;
 
-    @Value("${notification.email.from}")
+    @Value("${radar.notification.email.from}")
     private transient String from;
 
     public EmailNotificationTransmitter(

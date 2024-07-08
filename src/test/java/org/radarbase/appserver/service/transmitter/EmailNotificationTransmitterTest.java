@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(
     classes = {EmailNotificationTransmitter.class},
     properties = {
-        "notification.email.enabled=true"
+        "radar.notification.email.enabled=true"
     }
 )
 class EmailNotificationTransmitterTest {

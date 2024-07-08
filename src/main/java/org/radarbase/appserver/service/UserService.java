@@ -51,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserService {
 
-  @Value("${notification.email.enabled:false}")
+  @Value("${radar.notification.email.enabled:false}")
   private transient boolean sendEmailNotifications;
 
   private final transient UserConverter userConverter;
