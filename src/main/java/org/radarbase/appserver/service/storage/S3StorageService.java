@@ -33,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
-@ConditionalOnExpression("${file-upload.enabled:false} and 's3' == '${storage.type:}'")
+@ConditionalOnExpression("${radar.file-upload.enabled:false} and 's3' == '${radar.storage.type:}'")
 public class S3StorageService implements StorageService {
 
     @Autowired

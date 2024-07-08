@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UploadController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = {
-    "file-upload.enabled=true",
+    "radar.file-upload.enabled=true",
     "security.radar.managementportal.enabled=false"
 })
 class UploadControllerTest {

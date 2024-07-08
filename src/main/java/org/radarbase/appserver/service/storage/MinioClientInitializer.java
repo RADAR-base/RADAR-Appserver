@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-@ConditionalOnExpression("${file-upload.enabled:false} and 's3' == '${storage.type:}'")
+@ConditionalOnExpression("${radar.file-upload.enabled:false} and 's3' == '${radar.storage.type:}'")
 public class MinioClientInitializer {
 
     private transient MinioClient minioClient;
