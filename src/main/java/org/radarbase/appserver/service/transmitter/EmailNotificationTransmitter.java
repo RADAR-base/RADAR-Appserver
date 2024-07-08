@@ -29,12 +29,12 @@ public class EmailNotificationTransmitter implements NotificationTransmitter {
     @Override
     public void send(Notification notification) throws EmailMessageTransmitException {
         if (notification.isEmailEnabled()) {
-            if (notification.getUser().getEmailAddress() == null || notification.getUser().getEmailAddress().isBlank()) {
-                log.warn("Could not transmit a notification via email because subject {} has no email address.",
-                    notification.getUser().getSubjectId());
-                return;
-            }
             try {
+                if (notification.getUser().getEmailAddress() == null || notification.getUser().getEmailAddress().isBlank()) {
+                    log.warn("Could not transmit a notification via email because subject {} has no email address.",
+                        notification.getUser().getSubjectId());
+                    return;
+                }
                 emailSender.send(createEmailFromNotification(notification));
             } catch (Exception e) {
                 log.error("Could not transmit a notification via email", e);
