@@ -157,10 +157,9 @@ public class UserService {
     }
 
     if (sendEmailNotifications && (userDto.getEmailAddress() == null || userDto.getEmailAddress().isEmpty())) {
-        throw new InvalidUserDetailsException(
-            "The option to send notifications via email is enabled. " +
-                "Email Address is required for sending email notifications. " +
-                "Please provide a valid email address.");
+      log.warn("No email address was provided for new subject '{}'. The option to send notifications via email " +
+          "('radar.notification.email.enabled') will not work for this subject. Consider to provide a valid email " +
+          "address for subject '{}'.", userDto.getSubjectId());
     }
 
     User newUser = userConverter.dtoToEntity(userDto).setProject(project);

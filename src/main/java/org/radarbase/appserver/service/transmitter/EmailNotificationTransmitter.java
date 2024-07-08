@@ -28,20 +28,16 @@ public class EmailNotificationTransmitter implements NotificationTransmitter {
     @Override
     public void send(Notification notification) {
         if (notification.getUser().getEmailAddress() == null || notification.getUser().getEmailAddress().isBlank()) {
-            log.error("Could not transmit a notification via email because subject {} has no email address.",
+            log.warn("Could not transmit a notification via email because subject {} has no email address.",
                 notification.getUser().getSubjectId());
             return;
         }
-        if (notification.isEmailEnabled()) {
-            try {
-                emailSender.send(createEmailFromNotification(notification));
-            } catch (Exception e) {
-                // Note: the EmailNotificationTransmitter does not emit Exceptions caught by the JobExecutionException.
-                // As a result, email notifications are not influencing the job success/failure status.
-                log.error("Could not transmit a notification via email", e);
-            }
-        } else {
-            log.debug("Email notification is not enabled for: {}", notification.toString());
+        try {
+            emailSender.send(createEmailFromNotification(notification));
+        } catch (Exception e) {
+            // Note: the EmailNotificationTransmitter does not emit Exceptions caught by the JobExecutionException.
+            // As a result, email notifications are not influencing the job success/failure status.
+            log.error("Could not transmit a notification via email", e);
         }
     }
 
