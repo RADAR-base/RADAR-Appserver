@@ -125,14 +125,7 @@ public class StoragePath {
             Assert.isTrue(!subject.isBlank(), "Subject Id must be set.");
             Assert.isTrue(!topic.isBlank(), "Topic Id must be set.");
 
-            String pathInTopicDir = Stream.of(
-                    this.doCollectPerDay ? getDayFolder() : "",
-                    // Storing files under their original filename is a security risk, as it can be used to
-                    // overwrite existing files. We generate a random filename server-side to mitigate this risk.
-                    // See https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload
-                    generateRandomFilename(this.file)
-            ).filter(s -> !s.isBlank())
-            .collect(Collectors.joining(this.dirSep));
+            String pathInTopicDir = buildPathInTopicDir();
 
             String fullPath = Stream.of(
                     this.pathPrefix,
@@ -144,6 +137,17 @@ public class StoragePath {
             .collect(Collectors.joining(this.dirSep));
 
             return new StoragePath(fullPath, pathInTopicDir);
+        }
+
+        private String buildPathInTopicDir() {
+            return Stream.of(
+                    this.doCollectPerDay ? getDayFolder() : "",
+                    // Storing files under their original filename is a security risk, as it can be used to
+                    // overwrite existing files. We generate a random filename server-side to mitigate this risk.
+                    // See https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload
+                    generateRandomFilename(this.file)
+                ).filter(s -> !s.isBlank())
+                .collect(Collectors.joining(this.dirSep));
         }
 
         private String generateRandomFilename(String originalFilename) {
