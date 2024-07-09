@@ -54,6 +54,7 @@ public class UserConverter implements Converter<User, FcmUserDto> {
     return new User()
         .setFcmToken(fcmUserDto.getFcmToken())
         .setSubjectId(fcmUserDto.getSubjectId())
+        .setEmailAddress(fcmUserDto.getEmailAddress())
         .setUserMetrics(getValidUserMetrics(fcmUserDto))
         .setEnrolmentDate(fcmUserDto.getEnrolmentDate())
         .setTimezone(fcmUserDto.getTimezone())

@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1720181460-1
+      author: yatharth
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: email_enabled
+                  type: boolean
+                  defaultValueBoolean: false
+            tableName: notifications

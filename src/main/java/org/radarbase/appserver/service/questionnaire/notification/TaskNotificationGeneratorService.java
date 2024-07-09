@@ -10,7 +10,8 @@ import java.time.Instant;
 public class TaskNotificationGeneratorService {
     private transient int SECONDS_TO_MILLIS = 1000;
 
-    public Notification createNotification(Task task, Instant notificationTimestamp, String title, String body) {
+    public Notification createNotification(Task task, Instant notificationTimestamp,
+                                           String title, String body, boolean emailEnabled) {
 
         Notification.NotificationBuilder current = new Notification.NotificationBuilder();
         current.scheduledTime(notificationTimestamp);
@@ -22,6 +23,7 @@ public class TaskNotificationGeneratorService {
         current.task(task);
         current.title(title);
         current.body(body);
+        current.emailEnabled(emailEnabled);
 
         return current.build();
     }

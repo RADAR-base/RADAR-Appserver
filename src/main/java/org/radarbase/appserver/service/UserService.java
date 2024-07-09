@@ -36,6 +36,7 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class UserService {
+
+  @Value("${radar.notification.email.enabled:false}")
+  private transient boolean sendEmailNotifications;
 
   private final transient UserConverter userConverter;
   private final transient UserRepository userRepository;
@@ -150,6 +154,12 @@ public class UserService {
               + " already exists in project ID "
               + userDto.getProjectId()
               + ". Please use Update endpoint if need to update the user");
+    }
+
+    if (sendEmailNotifications && (userDto.getEmailAddress() == null || userDto.getEmailAddress().isEmpty())) {
+      log.warn("No email address was provided for new subject '{}'. The option to send notifications via email " +
+          "('radar.notification.email.enabled') will not work for this subject. Consider to provide a valid email " +
+          "address for subject '{}'.", userDto.getSubjectId());
     }
 
     User newUser = userConverter.dtoToEntity(userDto).setProject(project);

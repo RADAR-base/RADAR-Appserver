@@ -79,6 +79,9 @@ public class User extends AuditModel implements Serializable {
     @Column(name = "subject_id", nullable = false)
     private String subjectId;
 
+    @Column(name = "email")
+    private String emailAddress;
+
     @NotNull
     @Column(name = "fcm_token", nullable = false, unique = true)
     private String fcmToken;
@@ -115,6 +118,11 @@ public class User extends AuditModel implements Serializable {
 
     public User setSubjectId(String subjectId) {
         this.subjectId = subjectId;
+        return this;
+    }
+
+    public User setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
         return this;
     }
 

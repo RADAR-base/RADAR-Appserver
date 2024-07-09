@@ -53,12 +53,10 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public abstract class MessageSchedulerService<T extends Message> {
+public class MessageSchedulerService<T extends Message> {
 
     // TODO add a schedule cache to cache incoming requests
-
     protected static final QuartzNamingStrategy NAMING_STRATEGY = new SimpleQuartzNamingStrategy();
-    protected static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;
     protected final transient FcmSender fcmSender;
     protected final transient SchedulerService schedulerService;
 
@@ -68,8 +66,6 @@ public abstract class MessageSchedulerService<T extends Message> {
         this.fcmSender = fcmSender;
         this.schedulerService = schedulerService;
     }
-
-    public abstract void send(T message) throws Exception;
 
     public static SimpleTriggerFactoryBean getTriggerForMessage(
             Message message, JobDetail jobDetail) {
@@ -102,12 +98,6 @@ public abstract class MessageSchedulerService<T extends Message> {
         jobDetailFactory.setJobDataAsMap(map);
         jobDetailFactory.afterPropertiesSet();
         return jobDetailFactory;
-    }
-
-    protected static void putIfNotNull(Map<String, Object> map, String key, Object value) {
-        if (value != null) {
-            map.put(key, value);
-        }
     }
 
     public void schedule(T message) {

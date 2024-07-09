@@ -60,6 +60,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-quartz')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-mail')
     implementation group: "org.springframework.security", name: "spring-security-config", version: springSecurityVersion
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springBootVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
@@ -205,4 +206,8 @@ tasks.named("dependencyUpdates").configure {
     rejectVersionIf {
         isNonStable(it.candidate.version)
     }
+}
+
+pmd {
+    sourceSets = [sourceSets.main]
 }

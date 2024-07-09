@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
-import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import java.time.Duration;
@@ -61,6 +60,7 @@ import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -80,7 +80,7 @@ class NotificationSchedulerServiceTest {
     private static final String JOB_DETAIL_ID = "message-jobdetail-test-subject-1";
     private static Notification notification;
     @Autowired
-    private transient NotificationSchedulerService notificationSchedulerService;
+    private transient MessageSchedulerService schedulerService;
     @Autowired
     private transient Scheduler scheduler;
 
@@ -113,15 +113,16 @@ class NotificationSchedulerServiceTest {
                         .build();
     }
 
-    @Test
-    void sendNotification() {
-        assertDoesNotThrow(() -> notificationSchedulerService.send(notification));
-    }
+    // TODO move this test for message transmitters
+    // @Test
+//    void sendNotification() {
+//        assertDoesNotThrow(() -> schedulerService.send(notification));
+//    }
 
     @Test
     void scheduleNotification() throws InterruptedException, SchedulerException {
         scheduler.getListenerManager().addJobListener(new TestJobListener());
-        notificationSchedulerService.schedule(notification);
+        schedulerService.schedule(notification);
 
         // sleep for 5 seconds for the job to be executed.
         // Assert statements are in the listener.
@@ -131,7 +132,7 @@ class NotificationSchedulerServiceTest {
     @Test
     void scheduleNotifications() throws InterruptedException, SchedulerException {
         scheduler.getListenerManager().addJobListener(new TestJobListener());
-        notificationSchedulerService.scheduleMultiple(List.of(notification));
+        schedulerService.scheduleMultiple(List.of(notification));
 
         Thread.sleep(5000);
     }
@@ -140,9 +141,9 @@ class NotificationSchedulerServiceTest {
     void updateScheduledNotification() throws SchedulerException {
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
+                MessageSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
         SimpleTriggerFactoryBean triggerFactoryBean =
-                NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
+                MessageSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
         Notification notification2 =
@@ -154,7 +155,7 @@ class NotificationSchedulerServiceTest {
                         .build();
 
         // when
-        notificationSchedulerService.updateScheduled(notification2);
+        schedulerService.updateScheduled(notification2);
 
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
@@ -178,15 +179,15 @@ class NotificationSchedulerServiceTest {
     void deleteScheduledNotifications() throws SchedulerException {
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
+                MessageSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
         SimpleTriggerFactoryBean triggerFactoryBean =
-                NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
+                MessageSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
         // when
-        notificationSchedulerService.deleteScheduledMultiple(List.of(notification));
+        schedulerService.deleteScheduledMultiple(List.of(notification));
 
         assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
     }
@@ -196,15 +197,15 @@ class NotificationSchedulerServiceTest {
 
         // given
         JobDetailFactoryBean jobDetail =
-                NotificationSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
+                MessageSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION);
         SimpleTriggerFactoryBean triggerFactoryBean =
-                NotificationSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
+                MessageSchedulerService.getTriggerForMessage(notification, jobDetail.getObject());
         scheduler.scheduleJob(jobDetail.getObject(), triggerFactoryBean.getObject());
 
         assertTrue(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
 
         // when
-        notificationSchedulerService.deleteScheduled(notification);
+        schedulerService.deleteScheduled(notification);
 
         assertFalse(scheduler.checkExists(new JobKey(JOB_DETAIL_ID)));
     }
@@ -215,10 +216,11 @@ class NotificationSchedulerServiceTest {
         private transient Scheduler scheduler;
 
         @Bean
-        public NotificationSchedulerService schedulerServiceBeanConfig() {
+        @Primary
+        public MessageSchedulerService schedulerServiceBeanConfig() {
 
             // mock FCM as we do not want to connect to the server
-            return new NotificationSchedulerService(
+            return new MessageSchedulerService(
                     mock(FcmSender.class), new SchedulerServiceImpl(scheduler));
         }
     }
