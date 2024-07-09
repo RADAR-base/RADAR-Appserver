@@ -207,3 +207,7 @@ tasks.named("dependencyUpdates").configure {
         isNonStable(it.candidate.version)
     }
 }
+
+pmd {
+    sourceSets = [sourceSets.main]
+}

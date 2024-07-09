@@ -27,6 +27,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class FcmTransmitter implements NotificationTransmitter, DataMessageTransmitter {
 
     protected static final boolean IS_DELIVERY_RECEIPT_REQUESTED = true;

@@ -34,6 +34,7 @@ import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.MessageType;
 import org.radarbase.appserver.service.transmitter.DataMessageTransmitter;
+import org.radarbase.appserver.service.transmitter.EmailNotificationTransmitter;
 import org.radarbase.appserver.service.transmitter.FcmTransmitter;
 import org.radarbase.appserver.service.transmitter.NotificationTransmitter;
 
@@ -123,17 +124,15 @@ public class MessageJob implements Job {
     } catch (Exception e) {
       log.error("Could not transmit a message", e);
       throw new JobExecutionException("Could not transmit a message", e);
-    } finally {
-      // Here handle the exceptions that occurred while transmitting the message via the
-      // transmitters. At present, only the FcmTransmitter affects the job execution state.
-      Optional<Exception> fcmException = exceptions.stream()
-          .filter(e -> e instanceof FcmMessageTransmitException)
-          .findFirst();
-      if (fcmException.isPresent()) {
-        throw new JobExecutionException("Could not transmit a message", fcmException.get());
-      }
     }
 
+    // Here handle the exceptions that occurred while transmitting the message via the
+    // transmitters. At present, only the FcmTransmitter affects the job execution state.
+    Optional<Exception> fcmException = exceptions.stream()
+        .filter(e -> e instanceof FcmMessageTransmitException)
+        .findFirst();
+    if (fcmException.isPresent()) {
+      throw new JobExecutionException("Could not transmit a message", fcmException.get());
+    }
   }
-
 }
