@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +63,12 @@ public class UploadController {
       "/" + PathsUtil.FILE_PATH +
       "/" + PathsUtil.TOPIC_PATH + "/" + PathsUtil.TOPIC_ID_CONSTANT +
       "/upload")
+  @CrossOrigin(
+      origins = "*",
+      allowedHeaders = "*",
+      exposedHeaders = "Location", // needed to get the URI of the uploaded file in aRMT
+      methods = { RequestMethod.POST }
+  )
   public ResponseEntity<?> subjectFileUpload(
       @RequestParam("file") MultipartFile file,
       @PathVariable String projectId,
