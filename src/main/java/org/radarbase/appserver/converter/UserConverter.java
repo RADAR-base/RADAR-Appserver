@@ -58,7 +58,8 @@ public class UserConverter implements Converter<User, FcmUserDto> {
         .setUserMetrics(getValidUserMetrics(fcmUserDto))
         .setEnrolmentDate(fcmUserDto.getEnrolmentDate())
         .setTimezone(fcmUserDto.getTimezone())
-        .setLanguage(fcmUserDto.getLanguage());
+        .setLanguage(fcmUserDto.getLanguage())
+        .setAttributes(fcmUserDto.getAttributes());
   }
 
   @Override
