@@ -6,6 +6,6 @@ databaseChangeLog:
         - addColumn:
             columns:
               - column:
-                  name: email
+                  name: email_address
                   type: VARCHAR(255)
             tableName: users
