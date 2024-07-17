@@ -42,7 +42,7 @@ import org.springframework.lang.Nullable;
 /**
  * {@link Entity} for persisting notifications. The corresponding DTO is {@link FcmNotificationDto}.
  * This also includes information for scheduling the notification through the Firebase Cloud
- * Messaging(FCM) system.
+ * Messaging(FCM) system, and for sending email notifications.
  *
  * @author yatharthranjan
  * @see Scheduled
@@ -123,6 +123,12 @@ public class Notification extends Message {
     @Column(name = "email_enabled")
     private boolean emailEnabled = false;
 
+    @Column(name = "email_title")
+    private String emailTitle;
+
+    @Column(name = "email_body")
+    private String emailBody;
+
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "additional_key", nullable = true)
@@ -164,6 +170,8 @@ public class Notification extends Message {
         transient boolean emailEnabled;
         transient Map<String, String> additionalData;
         transient Task task;
+        transient String emailTitle;
+        transient String emailBody;
 
 
         public NotificationBuilder(Notification notification) {
@@ -198,6 +206,8 @@ public class Notification extends Message {
             this.tag = notification.getTag();
             this.clickAction = notification.getClickAction();
             this.emailEnabled = notification.isEmailEnabled();
+            this.emailTitle = notification.getEmailTitle();
+            this.emailBody = notification.getEmailBody();
             this.additionalData = notification.getAdditionalData();
             this.task = notification.getTask();
         }
@@ -353,6 +363,16 @@ public class Notification extends Message {
             return this;
         }
 
+        public NotificationBuilder emailTitle(String title) {
+            this.emailTitle = title;
+            return this;
+        }
+
+        public NotificationBuilder emailBody(String body) {
+            this.emailBody = body;
+            return this;
+        }
+
         public NotificationBuilder additionalData(Map<String, String> additionalData) {
             this.additionalData = additionalData;
             return this;
@@ -397,6 +417,8 @@ public class Notification extends Message {
             notification.setTag(this.tag);
             notification.setClickAction(this.clickAction);
             notification.setEmailEnabled(this.emailEnabled);
+            notification.setEmailTitle(this.emailTitle);
+            notification.setEmailBody(this.emailBody);
             notification.setAdditionalData(this.additionalData);
             notification.setTask(this.task);
 

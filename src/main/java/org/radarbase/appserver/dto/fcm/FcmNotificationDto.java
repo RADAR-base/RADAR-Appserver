@@ -111,6 +111,10 @@ public class FcmNotificationDto implements Serializable {
 
   private boolean emailEnabled;
 
+  private String emailTitle;
+
+  private String emailBody;
+
   private boolean mutableContent;
 
   @DateTimeFormat(iso = ISO.DATE_TIME)
@@ -155,6 +159,8 @@ public class FcmNotificationDto implements Serializable {
     this.tag = notificationEntity.getTag();
     this.clickAction = notificationEntity.getClickAction();
     this.emailEnabled = notificationEntity.isEmailEnabled();
+    this.emailTitle = notificationEntity.getEmailTitle();
+    this.emailBody = notificationEntity.getEmailBody();
     this.mutableContent = notificationEntity.isMutableContent();
   }
 
@@ -303,10 +309,20 @@ public class FcmNotificationDto implements Serializable {
     return this;
   }
 
-    public FcmNotificationDto setEmailEnabled(boolean emailEnabled) {
-        this.emailEnabled = emailEnabled;
-        return this;
-    }
+  public FcmNotificationDto setEmailEnabled(boolean emailEnabled) {
+      this.emailEnabled = emailEnabled;
+      return this;
+  }
+
+  public FcmNotificationDto setEmailTitle(String emailTitle) {
+      this.emailTitle = emailTitle;
+      return this;
+  }
+
+  public FcmNotificationDto setEmailBody(String emailBody) {
+      this.emailBody = emailBody;
+      return this;
+  }
 
   public FcmNotificationDto setMutableContent(boolean mutableContent) {
     this.mutableContent = mutableContent;
