@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -156,7 +155,7 @@ public class UserService {
               + ". Please use Update endpoint if need to update the user");
     }
 
-    if (sendEmailNotifications && (userDto.getEmailAddress() == null || userDto.getEmailAddress().isEmpty())) {
+    if (sendEmailNotifications && (userDto.getEmail() == null || userDto.getEmail().isEmpty())) {
       log.warn("No email address was provided for new subject '{}'. The option to send notifications via email " +
           "('radar.notification.email.enabled') will not work for this subject. Consider to provide a valid email " +
           "address for subject '{}'.", userDto.getSubjectId());
