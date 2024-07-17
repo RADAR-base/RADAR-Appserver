@@ -93,6 +93,7 @@ public class FcmUserDto implements Serializable {
     this.id = user.getId();
     this.projectId = user.getProject().getProjectId();
     this.subjectId = user.getSubjectId();
+    this.emailAddress = user.getEmailAddress();
     if (user.getUsermetrics() != null) {
       this.lastOpened = user.getUsermetrics().getLastOpened();
       this.lastDelivered = user.getUsermetrics().getLastDelivered();
