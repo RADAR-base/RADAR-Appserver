@@ -17,5 +17,11 @@ public class EmailNotificationProtocol {
     
     @JsonProperty("enabled")
     private boolean enabled = false;
+
+    @JsonProperty("title")
+    private LanguageText title;
+
+    @JsonProperty("text")
+    private LanguageText body;
     
 }
