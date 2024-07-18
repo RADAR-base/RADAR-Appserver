@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class EmailNotificationProtocol {
     
     @JsonProperty("enabled")
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     @JsonProperty("title")
     private LanguageText title;
