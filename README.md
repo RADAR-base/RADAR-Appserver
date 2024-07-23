@@ -431,34 +431,25 @@ spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 ```
 
-In addition, the _email_ field should be set in the _notification_ section of the [protocol](#protocols). The _email_ field has:
+In addition, in the notification scheduling request set the following fields:
 
-- field named _enabled_ with value _true_.
-- (optional) _title_ and _text_ fields that are key/value pairs of language and text. 
+- _emailEnabled_ with value _true_.
+- (optional) _emailTitle_: subject of the email (notification title will be used when not specified)
+- (optional) _emailBody_: body of the email (notification text will be used when not specified)
 
-If not specified, the _title_ and _text_ fields of the push notification will be used.
-
-Example:
+Example of a request body (partial) to the notification scheduling endpoint:
 
 ```json
 {
   ...
-  "notification": {
-    ...
-    "email": {
-      "enabled": true,
-      "title": {
-        "en": "My email title in English",
-        "nl": "Mijn e-mail titel in het Nederlands"
-      },
-      "text": {
-        "en": "My email body in English",
-        "nl": "Mijn e-mail tekst in het Nederlands"
-      }
-    }
-  }
+  "emailEnabled": true,
+  "emailTitle": "My email title",
+  "emailBody": "My email body",
+  ...
 }
 ```
+
+Note: HTML email is not supported at the moment of this writing.
 
 ## Documentation
 
