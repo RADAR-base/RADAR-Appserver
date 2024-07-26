@@ -25,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 @Component
 @ConditionalOnExpression("${radar.file-upload.enabled:false} and 's3' == '${radar.storage.type:}'")
 public class MinioClientInitializer {
@@ -37,8 +35,7 @@ public class MinioClientInitializer {
     @Autowired
     private transient S3StorageProperties s3StorageProperties;
 
-    @PostConstruct
-    public void init() {
+    private void initClient() {
         try {
             minioClient =
                 MinioClient.builder()
@@ -57,6 +54,9 @@ public class MinioClientInitializer {
     }
 
     public MinioClient getClient() {
+        if (minioClient == null) {
+            initClient();
+        }
         return minioClient;
     }
 
