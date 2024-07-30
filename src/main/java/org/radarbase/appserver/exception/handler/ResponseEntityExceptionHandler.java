@@ -64,6 +64,21 @@ public class ResponseEntityExceptionHandler {
         return handleEntityWithCause(ex, request);
     }
 
+    @ExceptionHandler(InvalidFileDetailsException.class)
+    public final ResponseEntity<ErrorDetails> handleInvalidFileDetailsException(Exception ex, WebRequest request) {
+        return handleEntityWithCause(ex, request);
+    }
+
+    @ExceptionHandler(InvalidPathDetailsException.class)
+    public final ResponseEntity<ErrorDetails> handleInvalidPathDetailsException(Exception ex, WebRequest request) {
+        return handleEntityWithCause(ex, request);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public final ResponseEntity<ErrorDetails> handleFileStorageException(Exception ex, WebRequest request) {
+        return handleEntityWithCause(ex, request);
+    }
+
     public ResponseEntity<ErrorDetails> handleEntityWithCause(Exception ex, WebRequest request) {
         String cause = ex.getCause() != null ? ex.getCause().getMessage() : null;
         HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
