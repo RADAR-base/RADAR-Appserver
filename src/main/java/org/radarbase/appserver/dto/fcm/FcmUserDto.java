@@ -60,7 +60,7 @@ public class FcmUserDto implements Serializable {
 
   @Email
   // Email address of the user (optional, needed when sending notifications via email)
-  private String emailAddress;
+  private String email;
 
   // The most recent time when the app was opened
   private Instant lastOpened;
@@ -93,6 +93,7 @@ public class FcmUserDto implements Serializable {
     this.id = user.getId();
     this.projectId = user.getProject().getProjectId();
     this.subjectId = user.getSubjectId();
+    this.email = user.getEmailAddress();
     if (user.getUsermetrics() != null) {
       this.lastOpened = user.getUsermetrics().getLastOpened();
       this.lastDelivered = user.getUsermetrics().getLastDelivered();
@@ -135,8 +136,8 @@ public class FcmUserDto implements Serializable {
     return this;
   }
 
-  public FcmUserDto setEmailAddress(String emailAddress) {
-      this.emailAddress = emailAddress;
+  public FcmUserDto setEmail(String email) {
+      this.email = email;
       return this;
   }
 

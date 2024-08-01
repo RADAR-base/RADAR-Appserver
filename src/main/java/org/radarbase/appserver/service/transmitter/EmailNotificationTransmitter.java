@@ -1,6 +1,7 @@
 package org.radarbase.appserver.service.transmitter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.exception.EmailMessageTransmitException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +45,13 @@ public class EmailNotificationTransmitter implements NotificationTransmitter {
     }
 
     private SimpleMailMessage createEmailFromNotification(Notification notification) {
+        String title = ObjectUtils.defaultIfNull(notification.getEmailTitle(), notification.getTitle());
+        String body = ObjectUtils.defaultIfNull(notification.getEmailBody(), notification.getBody());
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
         message.setTo(notification.getUser().getEmailAddress());
-        message.setSubject(notification.getTitle());
-        message.setText(notification.getBody());
+        message.setSubject(title);
+        message.setText(body);
         return message;
     }
 }
