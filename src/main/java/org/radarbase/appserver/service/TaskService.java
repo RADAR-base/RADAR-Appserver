@@ -141,9 +141,7 @@ public class TaskService {
                 .filter(task -> !this.taskRepository.existsByUserIdAndNameAndTimestamp(user.getId(), task.getName(), task.getTimestamp()))
                 .collect(Collectors.toList());
 
-        List<Task> saved = this.taskRepository.saveAll(newTasks);
-        this.taskRepository.flush();
-
+        List<Task> saved = this.taskRepository.saveAllAndFlush(newTasks);
         saved.forEach(t -> addTaskStateEvent(t, TaskState.ADDED, t.getCreatedAt().toInstant()));
 
         return saved;

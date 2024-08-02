@@ -66,6 +66,9 @@ public class NotificationConverter implements Converter<Notification, FcmNotific
                 .sound(notificationDto.getSound())
                 .subtitle(notificationDto.getSubtitle())
                 .tag(notificationDto.getTag())
+                .emailEnabled(notificationDto.isEmailEnabled())
+                .emailTitle(notificationDto.getEmailTitle())
+                .emailBody(notificationDto.getEmailBody())
                 .build();
     }
 

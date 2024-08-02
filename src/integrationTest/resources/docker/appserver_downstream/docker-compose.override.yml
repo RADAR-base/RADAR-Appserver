@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  managementportal:
+    extends:
+      file: ../managementportal.yml
+      service: managementportal
+    image: radarbase/management-portal:dev

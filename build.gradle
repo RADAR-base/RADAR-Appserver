@@ -14,7 +14,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '2.4.1'
+version = '2.4.2'
 
 java {
     toolchain {
@@ -24,7 +24,6 @@ java {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
@@ -39,9 +38,10 @@ ext {
     springDocVersion = '2.2.0'
     lombokVersion = '1.18.26'
     junit5Version = '5.9.2'
-    radarSpringAuthVersion = '1.2.0'
+    radarSpringAuthVersion = '1.2.1'
     springSecurityVersion = '6.0.2'
     hibernateValidatorVersion = '8.0.0.Final'
+    minioVersion = '8.5.10'
 }
 
 sourceSets {
@@ -61,10 +61,12 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-quartz')
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-mail')
     implementation group: "org.springframework.security", name: "spring-security-config", version: springSecurityVersion
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springBootVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
     runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
+    implementation("io.minio:minio:$minioVersion")
 
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: springDocVersion)
@@ -206,4 +208,8 @@ tasks.named("dependencyUpdates").configure {
     rejectVersionIf {
         isNonStable(it.candidate.version)
     }
+}
+
+pmd {
+    sourceSets = [sourceSets.main]
 }

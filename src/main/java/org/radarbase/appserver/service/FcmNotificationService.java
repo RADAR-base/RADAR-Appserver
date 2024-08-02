@@ -31,6 +31,7 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmNotifications;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Project;
+import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.event.state.MessageState;
 import org.radarbase.appserver.event.state.dto.NotificationStateEventDto;
@@ -41,7 +42,7 @@ import org.radarbase.appserver.exception.NotificationAlreadyExistsException;
 import org.radarbase.appserver.repository.NotificationRepository;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
-import org.radarbase.appserver.service.scheduler.NotificationSchedulerService;
+import org.radarbase.appserver.service.scheduler.MessageSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class FcmNotificationService implements NotificationService {
     private final transient NotificationRepository notificationRepository;
     private final transient UserRepository userRepository;
     private final transient ProjectRepository projectRepository;
-    private final transient NotificationSchedulerService schedulerService;
+    private final transient MessageSchedulerService schedulerService;
     private final transient NotificationConverter notificationConverter;
     private final transient ApplicationEventPublisher notificationStateEventPublisher;
 
@@ -74,7 +75,7 @@ public class FcmNotificationService implements NotificationService {
             NotificationRepository notificationRepository,
             UserRepository userRepository,
             ProjectRepository projectRepository,
-            NotificationSchedulerService schedulerService,
+            MessageSchedulerService schedulerService,
             NotificationConverter notificationConverter,
             ApplicationEventPublisher eventPublisher) {
         this.notificationRepository = notificationRepository;
@@ -369,6 +370,16 @@ public class FcmNotificationService implements NotificationService {
     }
 
     @Transactional
+    public void deleteNotificationsByTaskId(Task task) {
+        Long taskId = task.getId();
+        if(notificationRepository.existsByTaskId(taskId)) {
+            List<Notification> notifications = notificationRepository.findByTaskId(taskId);
+            schedulerService.deleteScheduledMultiple(notifications);
+            notificationRepository.deleteByTaskId(taskId);
+        }
+    }
+
+    @Transactional
     public FcmNotifications addNotifications(
             FcmNotifications notificationDtos, String subjectId, String projectId, boolean schedule) {
         final User user = subjectAndProjectExistElseThrow(subjectId, projectId);
@@ -405,12 +416,11 @@ public class FcmNotificationService implements NotificationService {
                                             notification.getTitle(),
                                             notification.getBody(),
                                             notification.getType(),
-                                            notification.getTtlSeconds()).isPresent()
+                                            notification.getTtlSeconds()).isEmpty()
                         )
                         .collect(Collectors.toList());
 
-        List<Notification> savedNotifications = this.notificationRepository.saveAll(newNotifications);
-        this.notificationRepository.flush();
+        List<Notification> savedNotifications = this.notificationRepository.saveAllAndFlush(newNotifications);
         savedNotifications.forEach(
                 n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
         this.schedulerService.scheduleMultiple(savedNotifications);

@@ -61,7 +61,8 @@ import java.util.Objects;
 @Table(
         name = "users",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"subject_id", "fcm_token", "project_id"})
+                @UniqueConstraint(columnNames = {"subject_id", "project_id"}),
+                @UniqueConstraint(columnNames = {"fcm_token"})
         })
 @Entity
 @Getter
@@ -77,6 +78,9 @@ public class User extends AuditModel implements Serializable {
     @NotNull
     @Column(name = "subject_id", nullable = false)
     private String subjectId;
+
+    @Column(name = "email")
+    private String emailAddress;
 
     @NotNull
     @Column(name = "fcm_token", nullable = false, unique = true)
@@ -114,6 +118,11 @@ public class User extends AuditModel implements Serializable {
 
     public User setSubjectId(String subjectId) {
         this.subjectId = subjectId;
+        return this;
+    }
+
+    public User setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
         return this;
     }
 

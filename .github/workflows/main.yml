@@ -1,8 +1,9 @@
 # Continuous integration, including test and integration test
 name: CI
 
-# Run in master and dev branches and in all pull requests to those branches
+# Run in master and dev branches and in all pull requests to those branches, as well as on workflow dispatch for downstream testing
 on:
+  workflow_dispatch:
   push:
     branches: [ master, dev ]
   pull_request:
@@ -33,13 +34,15 @@ jobs:
       - name: Compile code
         run: ./gradlew assemble
 
+      # Use 'docker compose' instead of 'docker-compose' to use v2
       - name: Setup docker services
         run: |
             sudo mkdir -p /usr/local/var/lib/radar/appserver/logs/
             sudo chown -R $(whoami) /usr/local/var/lib/radar/appserver/logs
-            docker-compose -f src/integrationTest/resources/docker/docker-compose.yml up -d postgres managementportal
+            docker compose -f src/integrationTest/resources/docker/non_appserver/docker-compose.yml up -d
             # Wait for services to start up.
             sleep 50
+
       - name: Install gpg secret key
         run: |
           cat <(echo -e "${{ secrets.GPG_SECRET_KEY }}") | gpg --batch --import
@@ -60,10 +63,52 @@ jobs:
           if-no-files-found: ignore
           retention-days: 5
 
+  # Build and test the code against the :dev docker image of parent repositories
+  test-downstream:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # only run this on 'ready for review' PRs or when triggered by an upstream job
+    if: github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+        # Use 'docker compose' instead of 'docker-compose' to use v2
+      - name: Setup docker services (:dev)
+        run: |
+          sudo mkdir -p /usr/local/var/lib/radar/appserver/logs/
+          sudo chown -R $(whoami) /usr/local/var/lib/radar/appserver/logs
+          # call docker compose without args to include the override file
+          cd src/integrationTest/resources/docker/appserver_downstream
+          docker compose up -d
+          # Wait for services to start up.
+          sleep 50
+
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Decrypt google application credentials
+        run: |
+          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
+
+      # Gradle check
+      - name: Check
+        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/src/integrationTest/resources/google-credentials.json ./gradlew check
+
   # Check that the docker image builds correctly
   docker:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.converter.UserConverter;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.dto.fcm.FcmUsers;
-import org.radarbase.appserver.dto.questionnaire.Schedule;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.InvalidUserDetailsException;
@@ -36,6 +35,7 @@ import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +49,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class UserService {
+
+  @Value("${radar.notification.email.enabled:false}")
+  private transient boolean sendEmailNotifications;
 
   private final transient UserConverter userConverter;
   private final transient UserRepository userRepository;
@@ -150,6 +153,12 @@ public class UserService {
               + " already exists in project ID "
               + userDto.getProjectId()
               + ". Please use Update endpoint if need to update the user");
+    }
+
+    if (sendEmailNotifications && (userDto.getEmail() == null || userDto.getEmail().isEmpty())) {
+      log.warn("No email address was provided for new subject '{}'. The option to send notifications via email " +
+          "('radar.notification.email.enabled') will not work for this subject. Consider to provide a valid email " +
+          "address for subject '{}'.", userDto.getSubjectId());
     }
 
     User newUser = userConverter.dtoToEntity(userDto).setProject(project);

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 12583923408-1
+      author: pim
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+            tableName: users

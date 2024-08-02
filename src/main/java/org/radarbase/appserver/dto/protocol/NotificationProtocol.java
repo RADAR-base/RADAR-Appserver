@@ -34,7 +34,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Notification {
+public class NotificationProtocol {
+    @JsonProperty("mode")
+    private NotificationProtocolMode mode = NotificationProtocolMode.STANDARD;
 
     @JsonProperty("title")
     private LanguageText title;
@@ -42,4 +44,7 @@ public class Notification {
     @JsonProperty("text")
     private LanguageText body;
 
+    @JsonProperty("email")
+    private EmailNotificationProtocol email;
 }
+
