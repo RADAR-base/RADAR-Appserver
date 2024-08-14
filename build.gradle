@@ -33,7 +33,7 @@ bootJar {
 
 ext {
     springBootVersion = '2.6.6'
-    springVersion = '6.0.6'
+    springVersion = '6.1.12'
     springOauth2Version = "2.5.1.RELEASE"
     springDocVersion = '2.2.0'
     lombokVersion = '1.18.26'
