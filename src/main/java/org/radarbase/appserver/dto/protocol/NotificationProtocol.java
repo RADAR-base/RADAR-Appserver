@@ -45,6 +45,6 @@ public class NotificationProtocol {
     private LanguageText body;
 
     @JsonProperty("email")
-    private EmailNotificationProtocol email;
+    private EmailNotificationProtocol email = new EmailNotificationProtocol();
 }
 
