@@ -74,7 +74,7 @@ dependencies {
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
     runtimeOnly('org.hsqldb:hsqldb')
     runtimeOnly('org.liquibase:liquibase-core:4.20.0')
-    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.5.4')
+    runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.7.4')
 
 
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
