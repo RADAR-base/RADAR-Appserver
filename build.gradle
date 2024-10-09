@@ -81,7 +81,7 @@ dependencies {
     annotationProcessor "org.springframework:spring-context-indexer:$springVersion"
 
     // FCM Admin SDK
-    implementation 'com.google.firebase:firebase-admin:9.1.1'
+    implementation 'com.google.firebase:firebase-admin:9.3.0'
 
     // AOP
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
