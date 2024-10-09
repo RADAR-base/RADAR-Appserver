@@ -35,7 +35,7 @@ ext {
     springBootVersion = '3.2.10'
     springVersion = '6.0.6'
     springOauth2Version = "2.5.1.RELEASE"
-    springOauth2AutoconfigureVersion = "2.6.6"
+    springOauth2AutoconfigureVersion = "2.6.8"
     springDocVersion = '2.2.0'
     lombokVersion = '1.18.26'
     junit5Version = '5.9.2'
