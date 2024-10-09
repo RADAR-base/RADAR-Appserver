@@ -2,7 +2,7 @@ plugins {
     id 'pmd'
     id 'io.gatling.gradle' version '3.9.2.1'
     id 'com.github.johnrengelman.shadow' version '8.1.0'
-    id 'org.springframework.boot' version "3.0.4"
+    id 'org.springframework.boot' version '3.2.10'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id("com.github.ben-manes.versions") version "0.46.0"
 }
@@ -32,9 +32,10 @@ bootJar {
 }
 
 ext {
-    springBootVersion = '2.6.6'
+    springBootVersion = '3.2.10'
     springVersion = '6.0.6'
     springOauth2Version = "2.5.1.RELEASE"
+    springOauth2AutoconfigureVersion = "2.6.6"
     springDocVersion = '2.2.0'
     lombokVersion = '1.18.26'
     junit5Version = '5.9.2'
@@ -62,7 +63,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-mail')
     implementation group: "org.springframework.security", name: "spring-security-config", version: springSecurityVersion
-    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springBootVersion)
+    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springOauth2AutoconfigureVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
     runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
 
