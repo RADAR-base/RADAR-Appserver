@@ -40,7 +40,7 @@ ext {
     lombokVersion = '1.18.26'
     junit5Version = '5.9.2'
     radarSpringAuthVersion = '1.2.1'
-    springSecurityVersion = '6.0.2'
+    springSecurityVersion = '6.0.5'
     hibernateValidatorVersion = '8.0.0.Final'
 }
 
