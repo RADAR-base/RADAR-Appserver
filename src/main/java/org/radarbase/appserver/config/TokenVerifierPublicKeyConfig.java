@@ -38,7 +38,7 @@ public class TokenVerifierPublicKeyConfig  {
      * so subsequent calls to this method will return the same object.
      *
      * @return The initialized configuration object based on the contents of the configuration file
-     * @throws RuntimException If there is any problem loading the configuration
+     * @throws RuntimeException If there is any problem loading the configuration
      */
     public static TokenVerifierPublicKeyConfig readFromFileOrClasspath() {
         String customLocation = System.getenv(LOCATION_ENV);
@@ -79,6 +79,10 @@ public class TokenVerifierPublicKeyConfig  {
 
     public String getResourceName() {
         return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
     }
 
 }
