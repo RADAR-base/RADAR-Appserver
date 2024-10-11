@@ -28,10 +28,10 @@ import static org.radarbase.appserver.controller.FcmNotificationControllerTest.U
 import static org.radarbase.appserver.controller.RadarUserControllerTest.FCM_TOKEN_1;
 import static org.radarbase.appserver.controller.RadarUserControllerTest.TIMEZONE;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Instant;
 import jakarta.persistence.PersistenceException;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -145,6 +145,6 @@ class UserRepositoryTest {
                             entityManager.flush();
                         });
 
-        assertEquals(ConstraintViolationException.class, ex.getCause().getClass());
+        assertEquals(SQLIntegrityConstraintViolationException.class, ex.getCause().getClass());
     }
 }
