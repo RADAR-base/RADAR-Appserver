@@ -84,7 +84,7 @@ dependencies {
     annotationProcessor "org.springframework:spring-context-indexer:$springVersion"
 
     // FCM Admin SDK
-    implementation('com.google.firebase:firebase-admin:9.3.0') {
+    implementation('com.google.firebase:firebase-admin:9.4.1') {
         // Possibly remove these constraints when a newer version of firebase-adkon is available.
         constraints {
             implementation('com.google.protobuf:protobuf-java:3.25.5') {
