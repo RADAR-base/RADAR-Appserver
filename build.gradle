@@ -1,17 +1,23 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'pmd'
+    id 'java'
+    id 'eclipse'
+    id 'scala'
+    id 'checkstyle'
     id 'io.gatling.gradle' version '3.9.2.1'
     id 'com.github.johnrengelman.shadow' version '8.1.0'
     id 'org.springframework.boot' version '3.2.10'
     id 'org.openjfx.javafxplugin' version '0.0.13'
-    id("com.github.ben-manes.versions") version "0.46.0"
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.github.ben-manes.versions' version "0.46.0"
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.25"
+    id "org.jetbrains.kotlin.plugin.spring" version "1.9.25"
 }
-
-apply plugin: 'checkstyle'
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'scala'
 
 group = 'org.radarbase'
 version = '2.4.3'
@@ -20,6 +26,10 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 repositories {
@@ -43,6 +53,8 @@ ext {
     springSecurityVersion = '6.0.5'
     hibernateValidatorVersion = '8.0.0.Final'
     minioVersion = '8.5.10'
+    kotlinVersion = '1.9.20'
+    jacksonKotlinVersion = '2.18.2'
 }
 
 sourceSets {
@@ -67,7 +79,9 @@ dependencies {
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springOauth2AutoconfigureVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
     runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
-    implementation("io.minio:minio:$minioVersion")
+    implementation("io.minio:minio:$minioVersion") {
+        exclude group: 'org.jetbrains.kotlin'
+    }
 
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: springDocVersion)
@@ -99,6 +113,11 @@ dependencies {
     // AOP
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion)
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.25"
+
+    // serialization
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 
@@ -137,12 +156,20 @@ javadoc {
 }
 
 wrapper {
-    gradleVersion '8.0.2'
+    gradleVersion '8.3'
 }
 
 test {
     useJUnitPlatform() {
         excludeEngines 'junit-vintage'
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+        apiVersion = KotlinVersion.KOTLIN_1_9
+        languageVersion = KotlinVersion.KOTLIN_1_9
     }
 }
 
