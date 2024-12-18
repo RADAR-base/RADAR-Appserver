@@ -53,7 +53,7 @@ ext {
     springSecurityVersion = '6.0.5'
     hibernateValidatorVersion = '8.0.0.Final'
     minioVersion = '8.5.10'
-    kotlinVersion = '1.9.20'
+    kotlinVersion = '1.9.25'
     jacksonKotlinVersion = '2.18.2'
 }
 
@@ -114,9 +114,7 @@ dependencies {
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion)
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.25"
-
-    // serialization
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
