@@ -54,7 +54,8 @@ ext {
     hibernateValidatorVersion = '8.0.0.Final'
     minioVersion = '8.5.10'
     kotlinVersion = '1.9.25'
-    jacksonKotlinVersion = '2.18.2'
+    jacksonKotlinVersion = '2.15.4'
+    dateTimeVersion = '0.6.1'
 }
 
 sourceSets {
@@ -116,6 +117,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-datetime:$dateTimeVersion"
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 
