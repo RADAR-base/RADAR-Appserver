@@ -7,6 +7,7 @@ plugins {
     id 'pmd'
     id 'java'
     id 'eclipse'
+    id 'idea'
     id 'scala'
     id 'checkstyle'
     id 'io.gatling.gradle' version '3.9.2.1'
@@ -31,6 +32,13 @@ java {
 
 kotlin {
     jvmToolchain(17)
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
 
 repositories {
