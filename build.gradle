@@ -52,11 +52,11 @@ springBoot {
 
 bootJar {
     mainClass = 'org.radarbase.appserver.AppserverApplicationKt'
-    duplicatesStrategy = 'include'
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 jar {
-    duplicatesStrategy = 'include'
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 ext {
