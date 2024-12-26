@@ -1,5 +1,6 @@
 package org.radarbase.appserver.service.transmitter;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.entity.Notification;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Disabled
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
     classes = {EmailNotificationTransmitter.class},

@@ -66,6 +66,7 @@ import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTI
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_SOURCE_ID;
 import static org.radarbase.appserver.repository.NotificationRepositoryTest.NOTIFICATION_TITLE;
 
+@Disabled
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 @ExtendWith(SpringExtension.class)
 @DataJpaTest

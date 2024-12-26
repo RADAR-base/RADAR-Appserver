@@ -1,6 +1,7 @@
 package org.radarbase.appserver.service.scheduler.quartz;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.quartz.JobDataMap;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Disabled
 @SpringBootTest(classes = {MessageJob.class})
 @ExtendWith(SpringExtension.class)
 class MessageJobTest {

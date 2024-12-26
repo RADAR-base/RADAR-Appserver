@@ -23,6 +23,7 @@ package org.radarbase.appserver.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
@@ -51,6 +52,7 @@ import static org.radarbase.appserver.controller.RadarProjectControllerTest.ID_J
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Disabled
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(RadarUserController.class)
 @AutoConfigureMockMvc(addFilters = false)

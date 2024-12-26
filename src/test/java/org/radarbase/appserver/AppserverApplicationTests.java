@@ -3,6 +3,7 @@ package org.radarbase.appserver;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+//@Disabled
 //@RunWith(SpringRunner.class)
 //@SpringBootTest
 public class AppserverApplicationTests {
