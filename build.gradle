@@ -1,3 +1,4 @@
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -10,7 +11,7 @@ plugins {
     id 'checkstyle'
     id 'io.gatling.gradle' version '3.9.2.1'
     id 'com.github.johnrengelman.shadow' version '8.1.0'
-    id 'org.springframework.boot' version '3.2.10'
+    id 'org.springframework.boot' version '3.3.3'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'com.github.ben-manes.versions' version "0.46.0"
@@ -37,12 +38,21 @@ repositories {
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
+springBoot {
+    mainClass.set('org.radarbase.appserver.AppserverApplicationKt')
+}
+
 bootJar {
-    mainClass = 'org.radarbase.appserver.AppserverApplication'
+    mainClass = 'org.radarbase.appserver.AppserverApplicationKt'
+    duplicatesStrategy = 'include'
+}
+
+jar {
+    duplicatesStrategy = 'include'
 }
 
 ext {
-    springBootVersion = '3.2.10'
+    springBootVersion = '3.3.3'
     springVersion = '6.0.6'
     springOauth2Version = "2.5.2.RELEASE"
     springOauth2AutoconfigureVersion = "2.6.8"
@@ -59,6 +69,11 @@ ext {
 }
 
 sourceSets {
+    main {
+        kotlin {
+            srcDirs += 'src/main/java'
+        }
+    }
     integrationTest {
         java {
             compileClasspath += main.output + test.output + test.compileClasspath
@@ -156,7 +171,7 @@ javadoc {
 }
 
 wrapper {
-    gradleVersion '8.3'
+    gradleVersion '8.5'
 }
 
 test {

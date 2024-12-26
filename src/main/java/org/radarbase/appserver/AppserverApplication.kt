@@ -18,15 +18,14 @@
  *  *
  *
  */
-
 package org.radarbase.appserver
 
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
 
 @SpringBootApplication(scanBasePackages = ["org.radarbase.appserver", "org.radarbase.fcm"])
 class AppserverApplication
 
-fun main(args : Array<String>) {
-    runApplication<AppserverApplication>(*args)
+fun main(args: Array<String>) {
+    SpringApplication.run(AppserverApplication::class.java, *args)
 }
