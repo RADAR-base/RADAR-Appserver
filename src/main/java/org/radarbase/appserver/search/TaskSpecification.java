@@ -14,7 +14,7 @@ import jakarta.persistence.criteria.Root;
 public class TaskSpecification implements Specification<Task> {
     private static final long serialVersionUID = 327842183571958L;
 
-    private SearchCriteria criteria;
+    private transient SearchCriteria criteria;
 
     @Override
     public Predicate toPredicate
