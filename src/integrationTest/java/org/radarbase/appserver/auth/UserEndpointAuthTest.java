@@ -78,7 +78,7 @@ public class UserEndpointAuthTest {
 
   @BeforeEach
   public void createProject() {
-    ProjectDto projectDto = new ProjectDto().setProjectId("radar");
+    ProjectDto projectDto = new ProjectDto(null, "radar", null, null);
     HttpEntity<ProjectDto> projectEntity = new HttpEntity<>(projectDto, AUTH_HEADER);
 
     restTemplate.exchange(

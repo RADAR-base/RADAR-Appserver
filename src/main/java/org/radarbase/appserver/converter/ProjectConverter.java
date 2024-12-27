@@ -45,10 +45,6 @@ public class ProjectConverter implements Converter<Project, ProjectDto> {
   @Override
   public ProjectDto entityToDto(Project project) {
 
-    return new ProjectDto()
-        .setId(project.getId())
-        .setProjectId(project.getProjectId())
-        .setCreatedAt(project.getCreatedAt().toInstant())
-        .setUpdatedAt(project.getUpdatedAt().toInstant());
+    return new ProjectDto(project.getId(), project.getProjectId(), project.getCreatedAt().toInstant(), project.getUpdatedAt().toInstant());
   }
 }

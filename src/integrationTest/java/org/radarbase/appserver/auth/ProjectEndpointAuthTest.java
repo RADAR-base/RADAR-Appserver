@@ -69,7 +69,7 @@ public class ProjectEndpointAuthTest {
   @Test
   public void unauthorisedCreateProject() {
 
-    ProjectDto projectDto = new ProjectDto().setProjectId("radar");
+    ProjectDto projectDto = new ProjectDto(null, "STAGING_PROJECT", null, null);
     HttpEntity<ProjectDto> projectEntity = new HttpEntity<>(projectDto, HEADERS);
 
     ResponseEntity<ProjectDto> responseEntity = null;
@@ -125,7 +125,7 @@ public class ProjectEndpointAuthTest {
   @Test
   @Order(1)
   public void createSingleProjectWithAuth() {
-    ProjectDto projectDto = new ProjectDto().setProjectId("STAGING_PROJECT");
+    ProjectDto projectDto = new ProjectDto(null, "STAGING_PROJECT", null, null);
     HttpEntity<ProjectDto> projectEntity = new HttpEntity<>(projectDto, AUTH_HEADER);
 
     ResponseEntity<ProjectDto> responseEntity =
@@ -140,6 +140,7 @@ public class ProjectEndpointAuthTest {
       // Since this is just an auth test we can return.
       return;
     }
+    System.out.println("Result from ITPROJECT: " + responseEntity.getBody());
     assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
   }
 
@@ -154,7 +155,7 @@ public class ProjectEndpointAuthTest {
             HttpMethod.GET,
             projectEntity,
             ProjectDto.class);
-
+    System.out.println("Result from ITPROJECT: " + responseEntity.getBody());
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
 
