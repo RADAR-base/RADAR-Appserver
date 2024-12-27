@@ -125,7 +125,7 @@ public class ProjectEndpointAuthTest {
   @Test
   @Order(1)
   public void createSingleProjectWithAuth() {
-    ProjectDto projectDto = new ProjectDto().setProjectId("radar");
+    ProjectDto projectDto = new ProjectDto().setProjectId("STAGING_PROJECT");
     HttpEntity<ProjectDto> projectEntity = new HttpEntity<>(projectDto, AUTH_HEADER);
 
     ResponseEntity<ProjectDto> responseEntity =
@@ -150,7 +150,7 @@ public class ProjectEndpointAuthTest {
 
     ResponseEntity<ProjectDto> responseEntity =
         restTemplate.exchange(
-            createURLWithPort(port, "/projects/radar"),
+            createURLWithPort(port, "/projects/STAGING_PROJECT"),
             HttpMethod.GET,
             projectEntity,
             ProjectDto.class);

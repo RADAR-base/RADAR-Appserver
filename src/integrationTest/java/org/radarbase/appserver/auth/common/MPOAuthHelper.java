@@ -39,12 +39,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class MPOAuthHelper implements OAuthHelper {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final String ACCESS_TOKEN;
-  private static final String MP_URL = "http://localhost:8081/managementportal/";
+  private static final String MP_URL = "https://stage.radar-base.net/managementportal/";
   private static final String MP_CLIENT = "ManagementPortalapp";
-  private static final String REST_CLIENT = "pRMT";
-  private static final String USER = "sub-1";
+  private static final String REST_CLIENT = "aRMT";
+  private static final String USER = "cf1aa04e-ba64-47e5-a437-c0e8ebfc6bcf";
   private static final String ADMIN_USER = "admin";
-  private static final String ADMIN_PASSWORD = "admin";
+  private static final String ADMIN_PASSWORD = "::67~canada~MANNER~press~64::";
   private static final String MpPairUri =
       UriComponentsBuilder.fromHttpUrl(MP_URL)
           .path("api")
