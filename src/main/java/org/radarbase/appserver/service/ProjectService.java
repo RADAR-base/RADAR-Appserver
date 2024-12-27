@@ -23,8 +23,8 @@ package org.radarbase.appserver.service;
 
 import java.util.Optional;
 import org.radarbase.appserver.converter.ProjectConverter;
-import org.radarbase.appserver.dto.ProjectDto;
-import org.radarbase.appserver.dto.ProjectDtos;
+import org.radarbase.appserver.dto.ProjectDTO;
+import org.radarbase.appserver.dto.ProjectDTOs;
 import org.radarbase.appserver.entity.Project;
 import org.radarbase.appserver.exception.InvalidProjectDetailsException;
 import org.radarbase.appserver.exception.NotFoundException;
@@ -52,13 +52,13 @@ public class ProjectService {
   }
 
   @Transactional(readOnly = true)
-  public ProjectDtos getAllProjects() {
-    return new ProjectDtos()
+  public ProjectDTOs getAllProjects() {
+    return new ProjectDTOs()
         .setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
   }
 
   @Transactional(readOnly = true)
-  public ProjectDto getProjectById(Long id) {
+  public ProjectDTO getProjectById(Long id) {
     Optional<Project> project = projectRepository.findById(id);
 
     if (project.isPresent()) {
@@ -69,7 +69,7 @@ public class ProjectService {
   }
 
   @Transactional(readOnly = true)
-  public ProjectDto getProjectByProjectId(String projectId) {
+  public ProjectDTO getProjectByProjectId(String projectId) {
     Optional<Project> project = projectRepository.findByProjectId(projectId);
 
     if (project.isPresent()) {
@@ -80,7 +80,7 @@ public class ProjectService {
   }
 
   @Transactional
-  public ProjectDto addProject(ProjectDto projectDto) {
+  public ProjectDTO addProject(ProjectDTO projectDto) {
     if (projectDto.getId() != null) {
       throw new InvalidProjectDetailsException(
           projectDto,
@@ -105,7 +105,7 @@ public class ProjectService {
   }
 
   @Transactional
-  public ProjectDto updateProject(ProjectDto projectDto) {
+  public ProjectDTO updateProject(ProjectDTO projectDto) {
     if (projectDto.getId() == null) {
       throw new InvalidProjectDetailsException(
           projectDto,

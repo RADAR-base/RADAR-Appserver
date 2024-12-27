@@ -33,9 +33,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.ProjectDTO;
 /**
- * {@link Entity} for persisting projects. The corresponding DTO is {@link ProjectDto}.
+ * {@link Entity} for persisting projects. The corresponding DTO is {@link ProjectDTO}.
  *
  * @author yatharthranjan
  */

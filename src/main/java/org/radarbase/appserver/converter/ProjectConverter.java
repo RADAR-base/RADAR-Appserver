@@ -21,7 +21,7 @@
 
 package org.radarbase.appserver.converter;
 
-import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.ProjectDTO;
 import org.radarbase.appserver.entity.Project;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -34,17 +34,17 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class ProjectConverter implements Converter<Project, ProjectDto> {
+public class ProjectConverter implements Converter<Project, ProjectDTO> {
 
   @Override
-  public Project dtoToEntity(ProjectDto projectDto) {
+  public Project dtoToEntity(ProjectDTO projectDto) {
 
     return new Project().setProjectId(projectDto.getProjectId());
   }
 
   @Override
-  public ProjectDto entityToDto(Project project) {
+  public ProjectDTO entityToDto(Project project) {
 
-    return new ProjectDto(project.getId(), project.getProjectId(), project.getCreatedAt().toInstant(), project.getUpdatedAt().toInstant());
+    return new ProjectDTO(project.getId(), project.getProjectId(), project.getCreatedAt().toInstant(), project.getUpdatedAt().toInstant());
   }
 }

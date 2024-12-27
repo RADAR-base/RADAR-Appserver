@@ -3,7 +3,7 @@ package org.radarbase.appserver.dto
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.Instant
 
-data class ProjectDto(
+data class ProjectDTO(
     var id: Long? = null,
     var projectId: String? = null,
 
