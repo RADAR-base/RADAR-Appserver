@@ -54,7 +54,7 @@ public class ProjectService {
   @Transactional(readOnly = true)
   public ProjectDTOs getAllProjects() {
     return new ProjectDTOs()
-        .setProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
+        .withProjects(projectConverter.entitiesToDtos(projectRepository.findAll()));
   }
 
   @Transactional(readOnly = true)

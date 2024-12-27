@@ -141,7 +141,7 @@ public class RadarProjectController {
     if (authorization != null) {
       ProjectDTOs finalProjectDtos =
           new ProjectDTOs()
-              .setProjects(
+              .withProjects(
                   projectDtos.getProjects().stream()
                       .filter(
                           project ->
