@@ -19,6 +19,8 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "1.9.25"
     id "org.jetbrains.kotlin.plugin.allopen" version "1.9.25"
     id "org.jetbrains.kotlin.plugin.spring" version "1.9.25"
+    id "org.jetbrains.kotlin.plugin.jpa" version "1.9.25"
+    id "org.jetbrains.kotlin.plugin.noarg" version "2.1.0"
 }
 
 group = 'org.radarbase'
@@ -170,6 +172,17 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
     gatlingImplementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+}
+
+allOpen {
+    annotation("org.springframework.stereotype.Service")
+    annotation("org.springframework.stereotype.Repository")
+    annotation("org.springframework.stereotype.Controller")
+    annotation("org.springframework.web.bind.annotation.RestController")
+}
+
+noArg {
+    annotation("org.radarbase.appserver.util.GenerateZeroArgs")
 }
 
 javafx {
