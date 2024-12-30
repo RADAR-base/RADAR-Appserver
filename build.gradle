@@ -20,7 +20,7 @@ plugins {
     id "org.jetbrains.kotlin.plugin.allopen" version "1.9.25"
     id "org.jetbrains.kotlin.plugin.spring" version "1.9.25"
     id "org.jetbrains.kotlin.plugin.jpa" version "1.9.25"
-    id "org.jetbrains.kotlin.plugin.noarg" version "2.1.0"
+    id "org.jetbrains.kotlin.plugin.noarg" version "1.9.25"
 }
 
 group = 'org.radarbase'
@@ -131,6 +131,7 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
+    kapt("org.springframework:spring-context-indexer:$springVersion")
     annotationProcessor "org.springframework:spring-context-indexer:$springVersion"
 
     // FCM Admin SDK
@@ -153,7 +154,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-datetime:$dateTimeVersion"
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.25")
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
+
     kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
@@ -172,13 +176,6 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
     gatlingImplementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
-}
-
-allOpen {
-    annotation("org.springframework.stereotype.Service")
-    annotation("org.springframework.stereotype.Repository")
-    annotation("org.springframework.stereotype.Controller")
-    annotation("org.springframework.web.bind.annotation.RestController")
 }
 
 noArg {
