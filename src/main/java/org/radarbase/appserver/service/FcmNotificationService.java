@@ -122,12 +122,12 @@ public class FcmNotificationService implements NotificationService {
 
     @Transactional(readOnly = true)
     public FcmNotifications getNotificationsByProjectId(String projectId) {
-        Optional<Project> project = projectRepository.findByProjectId(projectId);
+        Project project = projectRepository.findByProjectId(projectId);
 
-        if (project.isEmpty()) {
+        if (project == null) {
             throw new NotFoundException("Project not found with projectId " + projectId);
         }
-        List<User> users = this.userRepository.findByProjectId(project.get().getId());
+        List<User> users = this.userRepository.findByProjectId(project.getId());
         Set<Notification> notifications = new HashSet<>();
         users.stream()
                 .map((User user) -> this.notificationRepository.findByUserId(user.getId()))
@@ -450,14 +450,14 @@ public class FcmNotificationService implements NotificationService {
     }
 
     public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {
-        Optional<Project> project = this.projectRepository.findByProjectId(projectId);
-        if (project.isEmpty()) {
+        Project project = this.projectRepository.findByProjectId(projectId);
+        if (project == null) {
             throw new NotFoundException(
                     "Project Id does not exist. Please create a project with the ID first");
         }
 
         Optional<User> user =
-                this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
+                this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId());
         if (user.isEmpty()) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }

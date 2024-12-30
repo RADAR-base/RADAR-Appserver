@@ -99,10 +99,12 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public FcmUsers getUsersByProjectId(String projectId) {
-    Project project = projectRepository.findByProjectId(projectId)
-            .orElseThrow(() -> new NotFoundException(
-                    "Project not found with projectId " + projectId));
+    Project project = projectRepository.findByProjectId(projectId);
 
+    if (project == null) {
+      throw new NotFoundException(
+              "Project not found with projectId " + projectId);
+    }
     List<User> users = this.userRepository.findByProjectId(project.getId());
 
     return new FcmUsers().setUsers(userConverter.entitiesToDtos(users));
@@ -110,9 +112,11 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public FcmUserDto getUsersByProjectIdAndSubjectId(String projectId, String subjectId) {
-    Project project = projectRepository.findByProjectId(projectId)
-            .orElseThrow(() -> new NotFoundException(
-                    "Project not found with projectId " + projectId));
+    Project project = projectRepository.findByProjectId(projectId);
+    if (project == null) {
+      throw new NotFoundException(
+              "Project not found with projectId " + projectId);
+    }
 
     User user = this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId())
             .orElseThrow(() -> new NotFoundException(
@@ -139,9 +143,12 @@ public class UserService {
     // TODO: Make the above pluggable so can use others or none.
 
     log.debug("User DTO:" + userDto);
-    Project project = this.projectRepository.findByProjectId(userDto.getProjectId())
-            .orElseThrow(() -> new NotFoundException(
-                    "Project Id does not exist. Please create a project with the ID first"));
+    Project project = this.projectRepository.findByProjectId(userDto.getProjectId());
+
+    if (project == null) {
+      throw new NotFoundException(
+              "Project Id does not exist. Please create a project with the ID first");
+    }
 
     Optional<User> existingUser = this.userRepository.findBySubjectIdAndProjectId(
             userDto.getSubjectId(), project.getId());
@@ -173,9 +180,11 @@ public class UserService {
   // TODO update to use Id instead of subjectId
   @Transactional
   public FcmUserDto updateUser(FcmUserDto userDto) {
-    Project project = this.projectRepository.findByProjectId(userDto.getProjectId())
-            .orElseThrow(() -> new NotFoundException(
-                    "Project Id does not exist. Please create a project with the ID first"));
+    Project project = this.projectRepository.findByProjectId(userDto.getProjectId());
+    if (project == null) {
+      throw new NotFoundException(
+              "Project Id does not exist. Please create a project with the ID first");
+    }
 
     User user = this.userRepository.findBySubjectIdAndProjectId(
             userDto.getSubjectId(), project.getId())
@@ -217,9 +226,12 @@ public class UserService {
   }
 
   public void deleteUserByProjectIdAndSubjectId(String projectId, String subjectId) {
-    Project project = this.projectRepository.findByProjectId(projectId)
-            .orElseThrow(() -> new NotFoundException(
-                    "Project Id does not exist. Cannot delete user without a valid project."));
+    Project project = this.projectRepository.findByProjectId(projectId);
+
+    if (project == null) {
+      throw new NotFoundException(
+              "Project Id does not exist. Cannot delete user without a valid project.");
+    }
 
     User user = this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId())
             .orElseThrow(() -> new InvalidUserDetailsException(

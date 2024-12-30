@@ -217,14 +217,14 @@ public class QuestionnaireScheduleService {
     }
 
     public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {
-        Optional<Project> project = this.projectRepository.findByProjectId(projectId);
-        if (project.isEmpty()) {
+        Project project = this.projectRepository.findByProjectId(projectId);
+        if (project == null) {
             throw new NotFoundException(
                     "Project Id does not exist. Please create a project with the ID first");
         }
 
         Optional<User> user =
-                this.userRepository.findBySubjectIdAndProjectId(subjectId, project.get().getId());
+                this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId());
         if (user.isEmpty()) {
             throw new NotFoundException("Subject Id does not exist. Please create a user with the ID first");
         }
