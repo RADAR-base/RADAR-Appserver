@@ -26,6 +26,10 @@ class Project(
     val projectId: String
 ) : Serializable, AuditModel() {
 
+    init {
+        require(projectId.isNotBlank()) { "Project ID must not be blank." }
+    }
+
     constructor(projectId: String) : this(null, projectId)
 
     companion object {
@@ -52,14 +56,19 @@ class Project(
     )
 
     /**
-     * Creates a copy of the current Project object with the specified properties.
+     * Creates a copy of the current Project object with optional property overrides.
+     *
+     * This method ensures that auditing fields (`createdAt`, `updatedAt`) are preserved.
      *
      * @param id Optional id to override the current project's id. Defaults to the current id.
-     * @param projectId The project identifier to set for the new Project object. Defaults to the current projectId.
+     * @param projectId Optional project identifier. Defaults to the current projectId.
      * @return A new Project object with the specified or inherited properties.
      */
     fun copy(
         id: Long? = this.id,
         projectId: String = this.projectId,
-    ): Project = Project(id, projectId)
+    ): Project = Project(id, projectId).apply {
+        this.createdAt = this@Project.createdAt
+        this.updatedAt = this@Project.updatedAt
+    }
 }
