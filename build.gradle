@@ -17,10 +17,10 @@ plugins {
     id 'com.github.ben-manes.versions' version "0.46.0"
     id 'org.jetbrains.kotlin.jvm' version '1.9.25'
     id "org.jetbrains.kotlin.kapt" version "1.9.25"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.25"
+//    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.25"
     id "org.jetbrains.kotlin.plugin.spring" version "1.9.25"
     id "org.jetbrains.kotlin.plugin.jpa" version "1.9.25"
-    id "org.jetbrains.kotlin.plugin.noarg" version "1.9.25"
+//    id "org.jetbrains.kotlin.plugin.noarg" version "1.9.25"
 }
 
 group = 'org.radarbase'
@@ -180,6 +180,10 @@ dependencies {
 
 noArg {
     annotation("org.radarbase.appserver.util.GenerateZeroArgs")
+}
+
+allOpen {
+    annotation("jakarta.persistence.MappedSuperclass")
 }
 
 javafx {
