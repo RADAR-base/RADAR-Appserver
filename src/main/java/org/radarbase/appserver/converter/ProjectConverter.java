@@ -39,7 +39,7 @@ public class ProjectConverter implements Converter<Project, ProjectDTO> {
   @Override
   public Project dtoToEntity(ProjectDTO projectDto) {
 
-    return new Project().setProjectId(projectDto.getProjectId());
+    return new Project(projectDto.getProjectId());
   }
 
   @Override

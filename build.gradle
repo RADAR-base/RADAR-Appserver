@@ -184,6 +184,7 @@ noArg {
 
 allOpen {
     annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Entity")
 }
 
 javafx {

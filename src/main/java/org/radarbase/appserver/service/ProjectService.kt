@@ -87,7 +87,7 @@ class ProjectService(
 
         checkValidProjectDetails(
             projectDTO,
-            { projectId != null },
+            { projectId == null },
             { "At least 'project id' must be supplied" }
         )
 
@@ -112,18 +112,16 @@ class ProjectService(
     fun updateProject(projectDTO: ProjectDTO): ProjectDTO {
         checkValidProjectDetails(
             projectDTO,
-            { projectDTO.id != null },
+            { projectDTO.id == null },
             { "The 'id' of the project must be supplied for updating project" }
         )
 
-        val project: Project =
+        val existingProject: Project =
             checkPresence(projectRepository.findByIdOrNull(projectDTO.id)) { "Project with id ${projectDTO.id} not found" }
 
-        project.apply {
-            setProjectId(projectDTO.projectId)
-        }
-        val updatedProject = projectRepository.save(project)
+        val updatedProject = existingProject.copy(projectId = projectDTO.projectId)
+        val savedProject = projectRepository.save(updatedProject)
 
-        return projectConverter.entityToDto(updatedProject)
+        return projectConverter.entityToDto(savedProject)
     }
 }
