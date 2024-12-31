@@ -25,7 +25,7 @@ inline fun <T : Any> checkPresence(value: T?, messageProvider: () -> String): T 
  * @param messageProvider a lambda providing the error message for the exception
  * @throws InvalidProjectDetailsException if the validation fails
  */
-inline fun checkValidProjectDetails(
+inline fun checkInvalidProjectDetails(
     projectDTO: ProjectDTO,
     invalidation: () -> Boolean,
     messageProvider: () -> String

@@ -37,12 +37,10 @@ class Project(
         private const val serialVersionUID = 12312466855464L
     }
 
-    override fun equals(other: Any?): Boolean {
-        return equalTo(
-            other,
-            Project::projectId,
-        )
-    }
+    override fun equals(other: Any?): Boolean = equalTo(
+        other,
+        Project::projectId,
+    )
 
     override fun hashCode(): Int {
         return Objects.hash(projectId)
