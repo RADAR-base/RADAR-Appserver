@@ -1,12 +1,12 @@
 package org.radarbase.appserver.service
 
-import org.radarbase.appserver.converter.ProjectConverter
 import org.radarbase.appserver.dto.ProjectDTO
 import org.radarbase.appserver.dto.ProjectDTOs
 import org.radarbase.appserver.entity.Project
 import org.radarbase.appserver.exception.AlreadyExistsException
 import org.radarbase.appserver.exception.InvalidProjectDetailsException
 import org.radarbase.appserver.exception.NotFoundException
+import org.radarbase.appserver.mapper.ProjectMapper
 import org.radarbase.appserver.repository.ProjectRepository
 import org.radarbase.appserver.util.checkInvalidProjectDetails
 import org.radarbase.appserver.util.checkPresence
@@ -20,13 +20,13 @@ import org.springframework.transaction.annotation.Transactional
  * [Projects][Project] represent the same entities as in the [ManagementPortal](https://github.com/RADAR-base/ManagementPortal) and their names
  * should align with the projects in the [ManagementPortal](https://github.com/RADAR-base/ManagementPortal).
  *
- * It uses [ProjectRepository] for persistence operations and [ProjectConverter]
+ * It uses [ProjectRepository] for persistence operations and [ProjectMapper]
  * for converting between entity and DTO objects.
  */
 @Service
 class ProjectService(
     private val projectRepository: ProjectRepository,
-    private val projectConverter: ProjectConverter
+    private val projectMapper: ProjectMapper
 ) {
     /**
      * Retrieves all projects from the repository.
@@ -35,7 +35,7 @@ class ProjectService(
      */
     @Transactional(readOnly = true)
     fun getAllProjects(): ProjectDTOs {
-        return ProjectDTOs(projectConverter.entitiesToDtos(projectRepository.findAll()))
+        return ProjectDTOs(projectMapper.entitiesToDtos(projectRepository.findAll()).toMutableList())
     }
 
     /**
@@ -49,7 +49,7 @@ class ProjectService(
     fun getProjectById(id: Long): ProjectDTO {
         val project: Project = checkPresence(projectRepository.findByIdOrNull(id)) { "Project with id $id not found" }
 
-        return projectConverter.entityToDto(project)
+        return projectMapper.entityToDto(project)
     }
 
     /**
@@ -64,7 +64,7 @@ class ProjectService(
         val project =
             checkPresence(projectRepository.findByProjectId(projectId)) { "Project with projectId $projectId not found" }
 
-        return projectConverter.entityToDto(project)
+        return projectMapper.entityToDto(project)
     }
 
     /**
@@ -97,7 +97,7 @@ class ProjectService(
             )
         }
 
-        return projectConverter.entityToDto(projectRepository.save<Project>(projectConverter.dtoToEntity(projectDTO)))
+        return projectMapper.entityToDto(projectRepository.save<Project>(projectMapper.dtoToEntity(projectDTO)))
     }
 
     /**
@@ -119,9 +119,8 @@ class ProjectService(
         val existingProject: Project =
             checkPresence(projectRepository.findByIdOrNull(projectDTO.id)) { "Project with id ${projectDTO.id} not found" }
 
-        val updatedProject = existingProject.copy(projectId = projectDTO.projectId)
-        val savedProject = projectRepository.save(updatedProject)
+        val savedProject = projectRepository.save(existingProject.apply { this.projectId = projectDTO.projectId })
 
-        return projectConverter.entityToDto(savedProject)
+        return projectMapper.entityToDto(savedProject)
     }
 }

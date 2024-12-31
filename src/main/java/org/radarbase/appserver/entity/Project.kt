@@ -19,16 +19,12 @@ import java.util.*
 class Project(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    val id: Long? = null,
+    var id: Long? = null,
 
     @field:NotNull
     @Column(name = "project_id", unique = true, nullable = false)
-    val projectId: String
+    var projectId: String? = null,
 ) : Serializable, AuditModel() {
-
-    init {
-        require(projectId.isNotBlank()) { "Project ID must not be blank." }
-    }
 
     constructor(projectId: String) : this(null, projectId)
 
@@ -52,21 +48,4 @@ class Project(
         Project::createdAt,
         Project::updatedAt
     )
-
-    /**
-     * Creates a copy of the current Project object with optional property overrides.
-     *
-     * This method ensures that auditing fields (`createdAt`, `updatedAt`) are preserved.
-     *
-     * @param id Optional id to override the current project's id. Defaults to the current id.
-     * @param projectId Optional project identifier. Defaults to the current projectId.
-     * @return A new Project object with the specified or inherited properties.
-     */
-    fun copy(
-        id: Long? = this.id,
-        projectId: String = this.projectId,
-    ): Project = Project(id, projectId).apply {
-        this.createdAt = this@Project.createdAt
-        this.updatedAt = this@Project.updatedAt
-    }
 }
