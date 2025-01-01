@@ -180,6 +180,9 @@ class UserService(
      * @throws InvalidUserDetailsException If a user with the same subject ID already exists in the specified project.
      */
     fun saveUserInProject(userDto: FcmUserDto): FcmUserDto {
+        // TODO: Future -- If any value is null get them using the MP api using others. (eg only subject
+        // id, then get project id and source ids from MP)
+        // TODO: Make the above pluggable so can use others or none.
         logger.debug("Saving user: {}", userDto)
 
         val project: Project = checkPresence(projectRepository.findByProjectId(userDto.projectId)) {
@@ -231,6 +234,7 @@ class UserService(
      * @throws InvalidUserDetailsException If the user with the specified subject ID does not exist within the project.
      */
     fun updateUser(userDto: FcmUserDto): FcmUserDto {
+//        TODO update to use Id instead of subjectId
         val project: Project = checkPresence(projectRepository.findByProjectId(userDto.projectId)) {
             "Project with id ${userDto.projectId} not found. Please create the project first."
         }
