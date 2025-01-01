@@ -147,20 +147,32 @@ public class RadarUserController {
     if (authorization != null) {
       // Filter the users based on access.
       FcmUsers usersFinal =
-          new FcmUsers()
-              .setUsers(
+          new FcmUsers(
                   users.getUsers().stream()
-                      .filter(
-                          user ->
-                              authorization.hasPermission(
-                                  (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY),
-                                  AuthPermissions.READ,
-                                  AuthEntities.SUBJECT,
-                                  PermissionOn.SUBJECT,
-                                  user.getProjectId(),
-                                  user.getSubjectId(),
-                                  null))
-                      .collect(Collectors.toList()));
+                          .filter(
+                                  user ->
+                                          authorization.hasPermission(
+                                                  (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY),
+                                                  AuthPermissions.READ,
+                                                  AuthEntities.SUBJECT,
+                                                  PermissionOn.SUBJECT,
+                                                  user.getProjectId(),
+                                                  user.getSubjectId(),
+                                                  null))
+                          .collect(Collectors.toList()));
+//              .setUsers(
+//                  users.getUsers().stream()
+//                      .filter(
+//                          user ->
+//                              authorization.hasPermission(
+//                                  (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY),
+//                                  AuthPermissions.READ,
+//                                  AuthEntities.SUBJECT,
+//                                  PermissionOn.SUBJECT,
+//                                  user.getProjectId(),
+//                                  user.getSubjectId(),
+//                                  null))
+//                      .collect(Collectors.toList()));
       return ResponseEntity.ok(usersFinal);
     } else {
       return ResponseEntity.ok(users);
@@ -242,7 +254,7 @@ public class RadarUserController {
       @Valid @PathVariable String projectId, @Valid @PathVariable String subjectId) {
 
     return ResponseEntity.ok(
-        this.userService.getUsersByProjectIdAndSubjectId(projectId, subjectId));
+        this.userService.getUserByProjectIdAndSubjectId(projectId, subjectId));
   }
 
   @Authorized(

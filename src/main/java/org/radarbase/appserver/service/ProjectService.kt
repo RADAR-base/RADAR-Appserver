@@ -45,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional
  * for converting between entity and DTO objects.
  */
 @Service
+@Transactional
 class ProjectService(
     private val projectRepository: ProjectRepository,
     private val projectMapper: ProjectMapper
@@ -96,7 +97,6 @@ class ProjectService(
      * @throws InvalidProjectDetailsException if the input contains invalid data
      * @throws AlreadyExistsException if the project is already present
      */
-    @Transactional
     fun addProject(projectDTO: ProjectDTO): ProjectDTO {
         val projectId: String? = projectDTO.projectId
 
@@ -129,7 +129,6 @@ class ProjectService(
      * @throws InvalidProjectDetailsException if the input contains invalid project data
      * @throws NotFoundException if the project to update does not exist
      */
-    @Transactional
     fun updateProject(projectDTO: ProjectDTO): ProjectDTO {
         checkInvalidProjectDetails (
             projectDTO,

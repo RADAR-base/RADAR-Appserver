@@ -56,12 +56,14 @@ public class SimpleScheduleNotificationHandler implements ScheduleNotificationHa
       if (ex.getMessage().contains("Project")) {
         try {
           projectService.addProject(new ProjectDTO(null, projectId, null, null));
-          userService.saveUserInProject(userDto.setProjectId(projectId));
+          userDto.setProjectId(projectId);
+          userService.saveUserInProject(userDto);
         } catch (Exception e) {
           log.warn("Exception while adding notification.", ex);
         }
       } else if (ex.getMessage().contains("Subject")) {
-        userService.saveUserInProject(userDto.setProjectId(projectId));
+        userDto.setProjectId(projectId);
+        userService.saveUserInProject(userDto);
       }
       notificationService.addNotification(notificationDto, userDto.getSubjectId(), projectId);
     } catch (AlreadyExistsException ex) {

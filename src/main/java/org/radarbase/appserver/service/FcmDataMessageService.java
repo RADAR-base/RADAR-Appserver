@@ -103,11 +103,11 @@ public class FcmDataMessageService implements DataMessageService {
 
     @Transactional(readOnly = true)
     public FcmDataMessages getDataMessagesBySubjectId(String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isEmpty()) {
+        User user = this.userRepository.findBySubjectId(subjectId);
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        List<DataMessage> dataMessages = dataMessageRepository.findByUserId(user.get().getId());
+        List<DataMessage> dataMessages = dataMessageRepository.findByUserId(user.getId());
         return new FcmDataMessages()
                 .setDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
     }
@@ -140,13 +140,13 @@ public class FcmDataMessageService implements DataMessageService {
 
     @Transactional(readOnly = true)
     public boolean checkIfDataMessageExists(FcmDataMessageDto dataMessageDto, String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isEmpty()) {
+        User user = this.userRepository.findBySubjectId(subjectId);
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        DataMessage dataMessage = new DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user.get()).build();
+        DataMessage dataMessage = new DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build();
 
-        List<DataMessage> dataMessages = this.dataMessageRepository.findByUserId(user.get().getId());
+        List<DataMessage> dataMessages = this.dataMessageRepository.findByUserId(user.getId());
         return dataMessages.contains(dataMessage);
     }
 
@@ -273,17 +273,16 @@ public class FcmDataMessageService implements DataMessageService {
 
     @Transactional
     public void removeDataMessagesForUserUsingFcmToken(String fcmToken) {
-        Optional<User> user = this.userRepository.findByFcmToken(fcmToken);
+        User user = this.userRepository.findByFcmToken(fcmToken);
 
-        user.ifPresentOrElse(
-                (User user1) -> {
-                    this.dataMessageRepository.deleteByUserId(user1.getId());
+        if (user == null) {
+            throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");
+        } else {
+            this.dataMessageRepository.deleteByUserId(user.getId());
           /*User newUser = user1.setFcmToken("");
           this.userRepository.save(newUser);*/
-                },
-                () -> {
-                    throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");
-                });
+        }
+
     }
 
     @Transactional
@@ -317,13 +316,13 @@ public class FcmDataMessageService implements DataMessageService {
                     "Project Id does not exist. Please create a project with the ID first");
         }
 
-        Optional<User> user =
+        User user =
                 this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId());
-        if (user.isEmpty()) {
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
 
-        return user.get();
+        return user;
     }
 
     @Transactional(readOnly = true)

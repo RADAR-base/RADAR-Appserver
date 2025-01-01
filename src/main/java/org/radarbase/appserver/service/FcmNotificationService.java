@@ -101,11 +101,11 @@ public class FcmNotificationService implements NotificationService {
 
     @Transactional(readOnly = true)
     public FcmNotifications getNotificationsBySubjectId(String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isEmpty()) {
+        User user = this.userRepository.findBySubjectId(subjectId);
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        List<Notification> notifications = notificationRepository.findByUserId(user.get().getId());
+        List<Notification> notifications = notificationRepository.findByUserId(user.getId());
         return new FcmNotifications()
                 .setNotifications(notificationConverter.entitiesToDtos(notifications));
     }
@@ -138,13 +138,13 @@ public class FcmNotificationService implements NotificationService {
 
     @Transactional(readOnly = true)
     public boolean checkIfNotificationExists(FcmNotificationDto notificationDto, String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isEmpty()) {
+        User user = this.userRepository.findBySubjectId(subjectId);
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        Notification notification = new Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user.get()).build();
+        Notification notification = new Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build();
 
-        List<Notification> notifications = this.notificationRepository.findByUserId(user.get().getId());
+        List<Notification> notifications = this.notificationRepository.findByUserId(user.getId());
         return notifications.contains(notification);
     }
 
@@ -355,18 +355,17 @@ public class FcmNotificationService implements NotificationService {
 
     @Transactional
     public void removeNotificationsForUserUsingFcmToken(String fcmToken) {
-        Optional<User> user = this.userRepository.findByFcmToken(fcmToken);
+        User user = this.userRepository.findByFcmToken(fcmToken);
 
-        user.ifPresentOrElse(
-                (User user1) -> {
-                    this.schedulerService.deleteScheduledMultiple(
-                            this.notificationRepository.findByUserId(user1.getId()));
+        if (user == null) {
+            throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");
+        } else {
+            this.schedulerService.deleteScheduledMultiple(
+                    this.notificationRepository.findByUserId(user.getId()));
 
-                    this.notificationRepository.deleteByUserId(user1.getId());
-                },
-                () -> {
-                    throw new InvalidUserDetailsException("The user with the given Fcm Token does not exist");
-                });
+            this.notificationRepository.deleteByUserId(user.getId());
+        }
+
     }
 
     @Transactional
@@ -456,13 +455,13 @@ public class FcmNotificationService implements NotificationService {
                     "Project Id does not exist. Please create a project with the ID first");
         }
 
-        Optional<User> user =
+        User user =
                 this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId());
-        if (user.isEmpty()) {
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
 
-        return user.get();
+        return user;
     }
 
     @Transactional(readOnly = true)

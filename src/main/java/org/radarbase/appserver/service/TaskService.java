@@ -86,20 +86,20 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<Task> getTasksBySubjectId(String subjectId) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isEmpty()) {
+        User user = this.userRepository.findBySubjectId(subjectId);
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        return taskRepository.findByUserId(user.get().getId());
+        return taskRepository.findByUserId(user.getId());
     }
 
     @Transactional(readOnly = true)
     public List<Task> getTasksBySubjectIdAndType(String subjectId, AssessmentType type) {
-        Optional<User> user = this.userRepository.findBySubjectId(subjectId);
-        if (user.isEmpty()) {
+        User user = this.userRepository.findBySubjectId(subjectId);
+        if (user == null) {
             throw new NotFoundException(INVALID_SUBJECT_ID_MESSAGE);
         }
-        return taskRepository.findByUserIdAndType(user.get().getId(), type);
+        return taskRepository.findByUserIdAndType(user.getId(), type);
     }
 
     public List<Task> getTasksByUser(User user) {

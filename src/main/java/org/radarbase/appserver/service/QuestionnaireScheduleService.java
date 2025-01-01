@@ -223,13 +223,13 @@ public class QuestionnaireScheduleService {
                     "Project Id does not exist. Please create a project with the ID first");
         }
 
-        Optional<User> user =
+        User user =
                 this.userRepository.findBySubjectIdAndProjectId(subjectId, project.getId());
-        if (user.isEmpty()) {
+        if (user == null) {
             throw new NotFoundException("Subject Id does not exist. Please create a user with the ID first");
         }
 
-        return user.get();
+        return user;
     }
 
     private TaskSpecificationsBuilder getSearchBuilder(String projectId,
