@@ -22,9 +22,6 @@
 package org.radarbase.appserver.dto.fcm
 
 import jakarta.validation.constraints.Size
-import lombok.EqualsAndHashCode
-import lombok.Getter
-import lombok.ToString
 
 data class FcmUsers(
     @field:Size(max = 1500)
