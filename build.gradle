@@ -182,6 +182,7 @@ noArg {
 }
 
 allOpen {
+    annotation("org.radarbase.appserver.util.OpenClass")
     annotation("jakarta.persistence.MappedSuperclass")
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.Embeddable")

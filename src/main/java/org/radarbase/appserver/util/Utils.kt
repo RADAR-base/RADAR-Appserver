@@ -24,12 +24,20 @@ package org.radarbase.appserver.util
 import org.radarbase.appserver.dto.ProjectDTO
 import org.radarbase.appserver.exception.InvalidProjectDetailsException
 import org.radarbase.appserver.exception.NotFoundException
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 /**
  * Throws [NotFoundException] with the result of calling [messageProvider] if the value is null.
  * Otherwise, returns the not null value.
  */
+@OptIn(ExperimentalContracts::class)
 inline fun <T : Any> checkPresence(value: T?, messageProvider: () -> String): T {
+
+    contract {
+        returns() implies (value != null)
+    }
+
     if (value == null) {
         throw NotFoundException(messageProvider())
     } else {
@@ -52,6 +60,29 @@ inline fun checkInvalidProjectDetails(
     messageProvider: () -> String
 ) {
     if (invalidation()) {
-        throw InvalidProjectDetailsException(projectDTO, IllegalArgumentException(messageProvider()))
+        throw InvalidProjectDetailsException(
+            projectDTO,
+            IllegalArgumentException(messageProvider())
+        )
+    }
+}
+
+/**
+ * Validates a condition for the given details and throws a specified
+ * RuntimeException if the condition is met (User details are invalid).
+ *
+ * @param invalidation a lambda returning `true` if the user details are invalid
+ * @param messageProvider a lambda providing the error message for the exception
+ * @throws E runtime exception if the validation fails
+ *
+ */
+inline fun <reified E : Exception> checkInvalidDetails(
+    invalidation: () -> Boolean,
+    messageProvider: () -> String
+) {
+    if (invalidation()) {
+        throw E::class.java.getDeclaredConstructor(
+            String::class.java
+        ).newInstance(messageProvider())
     }
 }
