@@ -153,7 +153,6 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-datetime:$dateTimeVersion"
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.25")
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
     kapt("org.springframework.boot:spring-boot-configuration-processor")
