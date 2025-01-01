@@ -22,7 +22,7 @@
 package org.radarbase.appserver.service.fcm;
 
 import lombok.extern.slf4j.Slf4j;
-import org.radarbase.appserver.dto.ProjectDTO;
+import org.radarbase.appserver.dto.ProjectDto;
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
 import org.radarbase.appserver.dto.fcm.FcmUserDto;
 import org.radarbase.appserver.exception.AlreadyExistsException;
@@ -55,7 +55,7 @@ public class SimpleScheduleNotificationHandler implements ScheduleNotificationHa
     } catch (NotFoundException ex) {
       if (ex.getMessage().contains("Project")) {
         try {
-          projectService.addProject(new ProjectDTO(null, projectId, null, null));
+          projectService.addProject(new ProjectDto(null, projectId, null, null));
           userDto.setProjectId(projectId);
           userService.saveUserInProject(userDto);
         } catch (Exception e) {

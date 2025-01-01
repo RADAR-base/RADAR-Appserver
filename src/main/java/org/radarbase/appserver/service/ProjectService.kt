@@ -21,8 +21,8 @@
 
 package org.radarbase.appserver.service
 
-import org.radarbase.appserver.dto.ProjectDTO
-import org.radarbase.appserver.dto.ProjectDTOs
+import org.radarbase.appserver.dto.ProjectDto
+import org.radarbase.appserver.dto.ProjectDtos
 import org.radarbase.appserver.entity.Project
 import org.radarbase.appserver.exception.AlreadyExistsException
 import org.radarbase.appserver.exception.InvalidProjectDetailsException
@@ -53,22 +53,22 @@ class ProjectService(
     /**
      * Retrieves all projects from the repository.
      *
-     * @return [ProjectDTOs] object containing a list of all projects as DTOs.
+     * @return [ProjectDtos] object containing a list of all projects as DTOs.
      */
     @Transactional(readOnly = true)
-    fun getAllProjects(): ProjectDTOs {
-        return ProjectDTOs(projectMapper.entitiesToDtos(projectRepository.findAll()).toMutableList())
+    fun getAllProjects(): ProjectDtos {
+        return ProjectDtos(projectMapper.entitiesToDtos(projectRepository.findAll()).toMutableList())
     }
 
     /**
      * Retrieves a project by its unique identifier (ID).
      *
      * @param id the unique ID of the project
-     * @return the [ProjectDTO] of the project
+     * @return the [ProjectDto] of the project
      * @throws NotFoundException if no project with the given ID exists
      */
     @Transactional(readOnly = true)
-    fun getProjectById(id: Long): ProjectDTO {
+    fun getProjectById(id: Long): ProjectDto {
         val project: Project = checkPresence(projectRepository.findByIdOrNull(id)) { "Project with id $id not found" }
 
         return projectMapper.entityToDto(project)
@@ -78,11 +78,11 @@ class ProjectService(
      * Retrieves a project by its ManagementPortal project ID.
      *
      * @param projectId the unique project ID in the ManagementPortal
-     * @return the [ProjectDTO] of the project
+     * @return the [ProjectDto] of the project
      * @throws NotFoundException if no project with the given project ID exists
      */
     @Transactional(readOnly = true)
-    fun getProjectByProjectId(projectId: String): ProjectDTO {
+    fun getProjectByProjectId(projectId: String): ProjectDto {
         val project =
             checkPresence(projectRepository.findByProjectId(projectId)) { "Project with projectId $projectId not found" }
 
@@ -92,12 +92,12 @@ class ProjectService(
     /**
      * Creates a new project in the repository.
      *
-     * @param projectDTO the [ProjectDTO] containing details of the project to create
-     * @return the [ProjectDTO] of the newly created project
+     * @param projectDTO the [ProjectDto] containing details of the project to create
+     * @return the [ProjectDto] of the newly created project
      * @throws InvalidProjectDetailsException if the input contains invalid data
      * @throws AlreadyExistsException if the project is already present
      */
-    fun addProject(projectDTO: ProjectDTO): ProjectDTO {
+    fun addProject(projectDTO: ProjectDto): ProjectDto {
         val projectId: String? = projectDTO.projectId
 
         checkInvalidProjectDetails(
@@ -124,12 +124,12 @@ class ProjectService(
     /**
      * Updates an existing project in the repository.
      *
-     * @param projectDTO the [ProjectDTO] containing updated details of the project
-     * @return the updated [ProjectDTO]
+     * @param projectDTO the [ProjectDto] containing updated details of the project
+     * @return the updated [ProjectDto]
      * @throws InvalidProjectDetailsException if the input contains invalid project data
      * @throws NotFoundException if the project to update does not exist
      */
-    fun updateProject(projectDTO: ProjectDTO): ProjectDTO {
+    fun updateProject(projectDTO: ProjectDto): ProjectDto {
         checkInvalidProjectDetails (
             projectDTO,
             { projectDTO.id == null },

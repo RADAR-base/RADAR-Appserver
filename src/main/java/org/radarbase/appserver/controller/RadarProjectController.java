@@ -32,8 +32,8 @@ import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 import org.radarbase.appserver.config.AuthConfig.AuthEntities;
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions;
-import org.radarbase.appserver.dto.ProjectDTO;
-import org.radarbase.appserver.dto.ProjectDTOs;
+import org.radarbase.appserver.dto.ProjectDto;
+import org.radarbase.appserver.dto.ProjectDtos;
 import org.radarbase.appserver.service.ProjectService;
 import org.radarbase.auth.token.RadarToken;
 import org.springframework.http.MediaType;
@@ -84,8 +84,8 @@ public class RadarProjectController {
   @PostMapping(
       value = "/" + PathsUtil.PROJECT_PATH,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<ProjectDTO> addProject(
-      HttpServletRequest request, @Valid @RequestBody ProjectDTO projectDto)
+  public ResponseEntity<ProjectDto> addProject(
+      HttpServletRequest request, @Valid @RequestBody ProjectDto projectDto)
           throws URISyntaxException, IOException {
 
     if (authorization != null) {
@@ -98,7 +98,7 @@ public class RadarProjectController {
           projectDto.getProjectId(),
           null,
           null)) {
-        ProjectDTO projectDtoNew = this.projectService.addProject(projectDto);
+        ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
         return ResponseEntity.created(new URI("/projects/project?id=" + projectDtoNew.getId()))
             .body(projectDtoNew);
       } else {
@@ -106,7 +106,7 @@ public class RadarProjectController {
             "The token does not have permission for the project " + projectDto.getProjectId());
       }
     } else {
-      ProjectDTO projectDtoNew = this.projectService.addProject(projectDto);
+      ProjectDto projectDtoNew = this.projectService.addProject(projectDto);
       return ResponseEntity.created(new URI("/projects/project?id=" + projectDtoNew.getId()))
           .body(projectDtoNew);
     }
@@ -126,21 +126,21 @@ public class RadarProjectController {
   @PutMapping(
       value = "/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT,
       consumes = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<ProjectDTO> updateProject(
-      @Valid @PathParam("projectId") String projectId, @Valid @RequestBody ProjectDTO projectDto,
+  public ResponseEntity<ProjectDto> updateProject(
+      @Valid @PathParam("projectId") String projectId, @Valid @RequestBody ProjectDto projectDto,
       HttpServletRequest request) {
-      ProjectDTO projectDto1 = this.projectService.updateProject(projectDto);
+      ProjectDto projectDto1 = this.projectService.updateProject(projectDto);
       return ResponseEntity.ok(projectDto1);
   }
 
   @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   @GetMapping("/" + PathsUtil.PROJECT_PATH)
-  public ResponseEntity<ProjectDTOs> getAllProjects(HttpServletRequest request) {
+  public ResponseEntity<ProjectDtos> getAllProjects(HttpServletRequest request) {
 
-    ProjectDTOs projectDtos = this.projectService.getAllProjects();
+    ProjectDtos projectDtos = this.projectService.getAllProjects();
     if (authorization != null) {
-      ProjectDTOs finalProjectDtos =
-          new ProjectDTOs()
+      ProjectDtos finalProjectDtos =
+          new ProjectDtos()
               .withProjects(
                   projectDtos.getProjects().stream()
                       .filter(
@@ -163,9 +163,9 @@ public class RadarProjectController {
   // TODO think about plain authorized
   @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   @GetMapping("/" + PathsUtil.PROJECT_PATH + "/project")
-  public ResponseEntity<ProjectDTO> getProjectsUsingId(
+  public ResponseEntity<ProjectDto> getProjectsUsingId(
       HttpServletRequest request, @Valid @PathParam("id") Long id) {
-    ProjectDTO projectDto = this.projectService.getProjectById(id);
+    ProjectDto projectDto = this.projectService.getProjectById(id);
     if (authorization != null) {
       RadarToken token = (RadarToken) request.getAttribute(AuthAspect.TOKEN_KEY);
       if (authorization.hasPermission(
@@ -191,7 +191,7 @@ public class RadarProjectController {
       entity = AuthEntities.SUBJECT,
       permissionOn = PermissionOn.PROJECT)
   @GetMapping("/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT)
-  public ResponseEntity<ProjectDTO> getProjectsUsingProjectId(
+  public ResponseEntity<ProjectDto> getProjectsUsingProjectId(
       @Valid @PathVariable String projectId) {
     return ResponseEntity.ok(this.projectService.getProjectByProjectId(projectId));
   }

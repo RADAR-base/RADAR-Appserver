@@ -36,7 +36,7 @@ import java.time.Instant
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class ProjectDTO(
+data class ProjectDto(
     var id: Long? = null,
 
     @field:NotNull
