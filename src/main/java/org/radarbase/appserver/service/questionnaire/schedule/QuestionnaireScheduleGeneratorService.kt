@@ -20,70 +20,80 @@
  */
 package org.radarbase.appserver.service.questionnaire.schedule
 
-import lombok.extern.slf4j.Slf4j
 import org.radarbase.appserver.dto.protocol.Assessment
-import org.radarbase.appserver.dto.protocol.AssessmentType
+import org.radarbase.appserver.dto.protocol.AssessmentType.CLINICAL
+import org.radarbase.appserver.dto.protocol.NotificationProtocol
+import org.radarbase.appserver.dto.protocol.RepeatProtocol
+import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire
 import org.radarbase.appserver.entity.Task
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
 import org.radarbase.appserver.service.questionnaire.protocol.factory.*
-import org.springframework.beans.factory.annotation.Autowired
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.IOException
 
-@Slf4j
 @Service
-class QuestionnaireScheduleGeneratorService @Autowired constructor() : ScheduleGeneratorService {
-    override fun getProtocolHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.getType() == AssessmentType.CLINICAL) return ProtocolHandlerFactory.getProtocolHandler(
-            ProtocolHandlerType.CLINICAL
-        )
-        else return ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE)
+class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
+
+    override fun getProtocolHandler(assessment: Assessment): ProtocolHandler {
+        return when (assessment.type) {
+            CLINICAL -> ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.CLINICAL)
+            else -> ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE)
+        }
     }
 
     override fun getRepeatProtocolHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.getType() == AssessmentType.CLINICAL) return null
+        if (assessment.type == CLINICAL) return null
 
-        var type = RepeatProtocolHandlerType.SIMPLE
-        val repeatProtocol = assessment.getProtocol().getRepeatProtocol()
-        if (repeatProtocol.getDayOfWeek() != null) type = RepeatProtocolHandlerType.DAYOFWEEK
+        val repeatProtocol: RepeatProtocol? = assessment.protocol.repeatProtocol
+        val type = if (repeatProtocol?.dayOfWeek != null) {
+            RepeatProtocolHandlerType.DAYOFWEEK
+        } else {
+            RepeatProtocolHandlerType.SIMPLE
+        }
         return RepeatProtocolHandlerFactory.getRepeatProtocolHandler(type)
     }
 
     override fun getRepeatQuestionnaireHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.getType() == AssessmentType.CLINICAL) return null
+        if (assessment.type == CLINICAL) return null
 
-        var type = RepeatQuestionnaireHandlerType.SIMPLE
-        val repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire()
-        if (repeatQuestionnaire.getDayOfWeekMap() != null) type = RepeatQuestionnaireHandlerType.DAYOFWEEKMAP
-        if (repeatQuestionnaire.getRandomUnitsFromZeroBetween() != null) type = RepeatQuestionnaireHandlerType.RANDOM
+        val repeatQuestionnaire: RepeatQuestionnaire? = assessment.protocol.repeatQuestionnaire
+        val type = when {
+            repeatQuestionnaire?.dayOfWeekMap != null -> RepeatQuestionnaireHandlerType.DAYOFWEEKMAP
+            repeatQuestionnaire?.randomUnitsFromZeroBetween != null -> RepeatQuestionnaireHandlerType.RANDOM
+            else -> RepeatQuestionnaireHandlerType.SIMPLE
+        }
+
         return RepeatQuestionnaireHandlerFactory.getRepeatQuestionnaireHandler(type)
     }
 
     override fun getNotificationHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.getType() == AssessmentType.CLINICAL) return null
-        val protocol = assessment.getProtocol().getNotification()
+        if (assessment.getType() == CLINICAL) return null
+        val protocol: NotificationProtocol = assessment.protocol?.notification ?: return null
 
-        try {
-            return NotificationHandlerFactory.getNotificationHandler(protocol)
-        } catch (e: IOException) {
-            QuestionnaireScheduleGeneratorService.log.error("Invalid Notification Handler Type")
-            return null
+        return try {
+            NotificationHandlerFactory.getNotificationHandler(protocol)
+        } catch (_: IOException) {
+            logger.error("Invalid Notification Handler Type")
+            null
         }
     }
 
     override fun getReminderHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.getType() == AssessmentType.CLINICAL) return null
-
-        return ReminderHandlerFactory.getReminderHandler()
+        return if (assessment.getType() == CLINICAL) {
+            null
+        } else ReminderHandlerFactory.reminderHandler
     }
 
-    public override fun getCompletedQuestionnaireHandler(
-        assessment: Assessment,
-        prevTasks: MutableList<Task?>?,
-        prevTimezone: String?
+    override fun getCompletedQuestionnaireHandler(
+        assessment: Assessment, prevTasks: List<Task>, prevTimezone: String
     ): ProtocolHandler? {
-        if (assessment.getType() == AssessmentType.CLINICAL) return null
+        return if (assessment.getType() == CLINICAL) {
+            null
+        } else CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
+    }
 
-        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
+    companion object {
+        private val logger = LoggerFactory.getLogger(QuestionnaireScheduleGeneratorService::class.java)
     }
 }
