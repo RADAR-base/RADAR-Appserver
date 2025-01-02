@@ -23,12 +23,8 @@ package org.radarbase.appserver.service.questionnaire.protocol.factory
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatProtocolHandler
 
-
 object RepeatProtocolHandlerFactory {
-    fun getRepeatProtocolHandler(name: RepeatProtocolHandlerType): ProtocolHandler {
-        when (name) {
-            RepeatProtocolHandlerType.SIMPLE -> return SimpleRepeatProtocolHandler()
-            else -> return SimpleRepeatProtocolHandler()
-        }
+    fun getRepeatProtocolHandler(protocolHandlerType: RepeatProtocolHandlerType): ProtocolHandler {
+        return SimpleRepeatProtocolHandler()
     }
 }
