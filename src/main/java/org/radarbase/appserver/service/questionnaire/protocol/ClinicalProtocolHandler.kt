@@ -18,19 +18,31 @@
  *  *
  *
  */
+
 package org.radarbase.appserver.service.questionnaire.protocol
 
 import org.radarbase.appserver.dto.protocol.Assessment
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.User
 
+/**
+ * Handles the processing and management of clinical protocols.
+ */
 class ClinicalProtocolHandler : ProtocolHandler {
+    /**
+     * Handles the processing of an assessment schedule by updating its name based on the provided assessment.
+     *
+     * @param assessmentSchedule The assessment schedule to be updated.
+     * @param assessment The assessment containing details used to update the schedule.
+     * @param user The user associated with the assessment. This parameter may be null.
+     * @return The updated assessment schedule with the name set based on the assessment's name.
+     */
     override fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User?
+        user: User
     ): AssessmentSchedule {
-        assessmentSchedule.setName(assessment.getName())
+        assessmentSchedule.name = assessment.name
         return assessmentSchedule
     }
 }

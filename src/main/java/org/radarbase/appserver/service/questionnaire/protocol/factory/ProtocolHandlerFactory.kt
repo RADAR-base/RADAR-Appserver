@@ -24,13 +24,11 @@ import org.radarbase.appserver.service.questionnaire.protocol.ClinicalProtocolHa
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleProtocolHandler
 
-
 object ProtocolHandlerFactory {
-    fun getProtocolHandler(name: ProtocolHandlerType): ProtocolHandler {
-        when (name) {
-            ProtocolHandlerType.SIMPLE -> return SimpleProtocolHandler()
-            ProtocolHandlerType.CLINICAL -> return ClinicalProtocolHandler()
-            else -> return SimpleProtocolHandler()
+    fun getProtocolHandler(protocolType: ProtocolHandlerType): ProtocolHandler {
+        return when (protocolType) {
+            ProtocolHandlerType.CLINICAL -> ClinicalProtocolHandler()
+            else -> SimpleProtocolHandler()
         }
     }
 }

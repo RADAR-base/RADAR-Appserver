@@ -18,10 +18,12 @@
  *  *
  *
  */
+
 package org.radarbase.appserver.service.questionnaire.protocol
 
 import org.radarbase.appserver.dto.protocol.Assessment
-import org.radarbase.appserver.dto.protocol.ReferenceTimestampType
+import org.radarbase.appserver.dto.protocol.ReferenceTimestamp
+import org.radarbase.appserver.dto.protocol.ReferenceTimestampType.*
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.User
 import java.time.Instant
@@ -29,53 +31,53 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * A handler for processing simple protocols. This implementation defines the logic to update
+ * the [AssessmentSchedule] based on the protocol's reference timestamp.
+ *
+ * The `SimpleProtocolHandler` utilizes [TimeCalculatorService] for timestamp calculations
+ */
 class SimpleProtocolHandler : ProtocolHandler {
-    @Transient
+
     private val timeCalculatorService = TimeCalculatorService()
 
+    /**
+     * Processes the given assessment schedule and updates it with appropriate timestamps
+     *
+     * @param assessmentSchedule The assessment schedule to be updated.
+     * @param assessment The assessment containing protocol details and additional metadata.
+     * @param user The user whose timezone and enrolment date are used in processing.
+     * @return The updated [AssessmentSchedule] with a populated reference timestamp and name.
+     * @throws IllegalArgumentException If the user's enrolment date is null when the reference timestamp
+     * is not provided.
+     */
     override fun handle(
-        assessmentSchedule: AssessmentSchedule,
-        assessment: Assessment,
-        user: User
+        assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User
     ): AssessmentSchedule {
-        val referenceTimestamp = assessment.getProtocol().getReferenceTimestamp()
+
+        val referenceTimestamp: ReferenceTimestamp? = assessment.protocol.referenceTimestamp
         val timezone = TimeZone.getTimeZone(user.timezone)
         val timezoneId = timezone.toZoneId()
-        if (referenceTimestamp != null) {
-            val timestamp = referenceTimestamp.getTimestamp()
-            when (referenceTimestamp.getFormat()) {
-                ReferenceTimestampType.DATE -> assessmentSchedule.setReferenceTimestamp(
-                    LocalDate.parse(timestamp).atStartOfDay(timezoneId).toInstant()
-                )
+        assessmentSchedule.referenceTimestamp = if (referenceTimestamp != null) {
+            val timestamp = referenceTimestamp.timestamp
 
-                ReferenceTimestampType.DATETIME -> assessmentSchedule.setReferenceTimestamp(
-                    LocalDateTime.parse(
-                        timestamp
-                    ).atZone(timezoneId).toInstant()
-                )
+            when (referenceTimestamp.format) {
+                DATE -> LocalDate.parse(timestamp).atStartOfDay(timezoneId).toInstant()
 
-                ReferenceTimestampType.DATETIMEUTC -> assessmentSchedule.setReferenceTimestamp(
-                    Instant.parse(
-                        referenceTimestamp.getTimestamp()
-                    )
-                )
+                DATETIME -> LocalDateTime.parse(timestamp).atZone(timezoneId).toInstant()
 
-                ReferenceTimestampType.NOW -> assessmentSchedule.setReferenceTimestamp(Instant.now())
-                ReferenceTimestampType.TODAY -> assessmentSchedule.setReferenceTimestamp(
-                    timeCalculatorService.setDateTimeToMidnight(
-                        Instant.now(), timezone
-                    )
-                )
+                DATETIMEUTC -> Instant.parse(timestamp)
+
+                NOW -> Instant.now()
+
+                TODAY -> timeCalculatorService.setDateTimeToMidnight(Instant.now(), timezone)
             }
         } else {
-            assessmentSchedule.setReferenceTimestamp(
-                timeCalculatorService.setDateTimeToMidnight(
-                    user.enrolmentDate!!,
-                    timezone
-                )
-            )
+            val userEnrolmentDate = user.enrolmentDate
+            requireNotNull(userEnrolmentDate) { "User enrolment date is null when handling SimpleProtocolHandler." }
+            timeCalculatorService.setDateTimeToMidnight(userEnrolmentDate, timezone)
         }
-        assessmentSchedule.setName(assessment.getName())
+        assessmentSchedule.name = assessment.name
         return assessmentSchedule
     }
 }
