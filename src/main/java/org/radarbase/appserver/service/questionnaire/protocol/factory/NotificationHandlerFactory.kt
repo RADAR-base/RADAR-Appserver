@@ -31,11 +31,10 @@ import java.io.IOException
 object NotificationHandlerFactory {
     @Throws(IOException::class)
     fun getNotificationHandler(protocol: NotificationProtocol): ProtocolHandler {
-        when (protocol.getMode()) {
-            NotificationProtocolMode.STANDARD -> return SimpleNotificationHandler()
-            NotificationProtocolMode.DISABLED -> return DisabledNotificationHandler()
+        return when (protocol.mode) {
+            NotificationProtocolMode.DISABLED -> DisabledNotificationHandler()
             NotificationProtocolMode.COMBINED -> throw IOException("Combined Notification Protocol Mode is not supported yet")
-            else -> return SimpleNotificationHandler()
+            else -> SimpleNotificationHandler()
         }
     }
 }
