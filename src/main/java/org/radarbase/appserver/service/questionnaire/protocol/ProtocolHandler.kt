@@ -18,12 +18,25 @@
  *  *
  *
  */
+
 package org.radarbase.appserver.service.questionnaire.protocol
 
 import org.radarbase.appserver.dto.protocol.Assessment
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.User
 
+/**
+ * Interface for handling protocol-related tasks. Implementations are responsible for processing
+ * and updating an [AssessmentSchedule] based on the associated [protocol][Assessment] details.
+ */
 interface ProtocolHandler {
-    fun handle(assessmentSchedule: AssessmentSchedule?, assessment: Assessment?, user: User?): AssessmentSchedule?
+    /**
+     * Processes the given assessment schedule and updates it with appropriate data based on the input parameters.
+     *
+     * @param assessmentSchedule The assessment schedule that will be updated.
+     * @param assessment The assessment containing protocol details and metadata used for processing.
+     * @param user The user whose information, such as timezone and enrolment date, is utilized in the processing.
+     * @return The updated [AssessmentSchedule] containing the results of the handling process.
+     */
+    fun handle(assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User): AssessmentSchedule
 }
