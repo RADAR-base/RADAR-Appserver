@@ -30,8 +30,6 @@ import java.util.*
 import java.util.stream.Collectors
 
 class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
-    @Transient
-    private val DefaultTaskCompletionWindow = 86400000L
 
     @Transient
     private val timeCalculatorService = TimeCalculatorService()
@@ -78,7 +76,11 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
     }
 
     private fun calculateCompletionWindow(completionWindow: TimePeriod?): Long {
-        if (completionWindow == null) return DefaultTaskCompletionWindow
+        if (completionWindow == null) return DEFAULT_TASK_COMPLETION_WINDOW
         return timeCalculatorService.timePeriodToMillis(completionWindow)
+    }
+
+    companion object {
+        private const val DEFAULT_TASK_COMPLETION_WINDOW = 86400000L
     }
 }

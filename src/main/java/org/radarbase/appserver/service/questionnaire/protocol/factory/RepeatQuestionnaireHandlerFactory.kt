@@ -25,11 +25,10 @@ import org.radarbase.appserver.service.questionnaire.protocol.RandomRepeatQuesti
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatQuestionnaireHandler
 
 object RepeatQuestionnaireHandlerFactory {
-    fun getRepeatQuestionnaireHandler(name: RepeatQuestionnaireHandlerType): ProtocolHandler {
-        when (name) {
-            RepeatQuestionnaireHandlerType.SIMPLE -> return SimpleRepeatQuestionnaireHandler()
-            RepeatQuestionnaireHandlerType.RANDOM -> return RandomRepeatQuestionnaireHandler()
-            else -> return SimpleRepeatQuestionnaireHandler()
+    fun getRepeatQuestionnaireHandler(questionnaireHandlerType: RepeatQuestionnaireHandlerType): ProtocolHandler {
+        return when (questionnaireHandlerType) {
+            RepeatQuestionnaireHandlerType.RANDOM -> RandomRepeatQuestionnaireHandler()
+            else -> SimpleRepeatQuestionnaireHandler()
         }
     }
 }
