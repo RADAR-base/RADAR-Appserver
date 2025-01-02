@@ -1,14 +1,17 @@
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.dto.protocol
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public enum AssessmentType {
+enum class AssessmentType {
     @JsonProperty("scheduled")
     SCHEDULED,
+
     @JsonProperty("clinical")
     CLINICAL,
+
     @JsonProperty("triggered")
     TRIGGERED,
+
     @JsonProperty("all")
     ALL
 }
