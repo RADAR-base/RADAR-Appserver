@@ -25,47 +25,91 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
+/**
+ * A service for performing time-related calculations such as advancing a timestamp by a given time period
+ * or converting time periods to milliseconds. This utility helps in handling various time-based operations,
+ * considering specific time zones.
+ */
 class TimeCalculatorService {
-    @Transient
-    var WEEK_TO_DAYS: Int = 7
 
-    @Transient
-    var MONTH_TO_DAYS: Int = 31
-
-    @Transient
-    var YEAR_TO_DAYS: Int = 365
-
-    fun advanceRepeat(referenceTime: Instant, offset: TimePeriod, timezone: TimeZone): Instant? {
-        val time = ZonedDateTime.ofInstant(referenceTime, timezone.toZoneId()).truncatedTo(ChronoUnit.MILLIS)
-        when (offset.getUnit()) {
-            "min" -> return time.plus(offset.getAmount().toLong(), ChronoUnit.MINUTES).toInstant()
-            "hour" -> return time.plus(offset.getAmount().toLong(), ChronoUnit.HOURS).toInstant()
-            "day" -> return time.plus(offset.getAmount().toLong(), ChronoUnit.DAYS).toInstant()
-            "week" -> return time.plus(offset.getAmount().toLong(), ChronoUnit.WEEKS).toInstant()
-            "month" -> return time.plus(offset.getAmount().toLong(), ChronoUnit.MONTHS).toInstant()
-            "year" -> return time.plus(offset.getAmount().toLong(), ChronoUnit.YEARS).toInstant()
-            else -> return ZonedDateTime.now().plus(2, ChronoUnit.YEARS).toInstant()
+    /**
+     * Calculates an adjusted time based on a reference time, an offset, and a specific timezone.
+     *
+     * @param referenceTime the base time from which adjustments will be calculated
+     * @param offset the time period adjustment to be applied, containing the unit and amount
+     * @param timezone the timezone used to convert and calculate the adjusted time
+     * @return the calculated Instant time with the adjustment applied
+     */
+    fun advanceRepeat(referenceTime: Instant, offset: TimePeriod, timezone: TimeZone): Instant {
+        val time = referenceTime.atZone(timezone.toZoneId()).truncatedTo(ChronoUnit.MILLIS)
+        return when (offset.unit) {
+            "min" -> time.plus(offset.amount.toLong(), ChronoUnit.MINUTES).toInstant()
+            "hour" -> time.plus(offset.amount.toLong(), ChronoUnit.HOURS).toInstant()
+            "day" -> time.plus(offset.amount.toLong(), ChronoUnit.DAYS).toInstant()
+            "week" -> time.plus(offset.amount.toLong(), ChronoUnit.WEEKS).toInstant()
+            "month" -> time.plus(offset.amount.toLong(), ChronoUnit.MONTHS).toInstant()
+            "year" -> time.plus(offset.amount.toLong(), ChronoUnit.YEARS).toInstant()
+            else -> ZonedDateTime.now().plus(2, ChronoUnit.YEARS).toInstant()
         }
     }
 
-    fun setDateTimeToMidnight(timestamp: Instant, timezone: TimeZone): Instant? {
-        var time = ZonedDateTime.ofInstant(timestamp, timezone.toZoneId())
-        time = time.toLocalDate().atStartOfDay(time.getZone())
-        return time.toInstant()
+    /**
+     * Adjusts the given timestamp to midnight in the specified timezone.
+     *
+     * @param timestamp The original timestamp to be adjusted.
+     * @param timezone The timezone in which the timestamp should be set to midnight.
+     * @return The adjusted timestamp set to midnight in the specified timezone.
+     */
+    fun setDateTimeToMidnight(timestamp: Instant, timezone: TimeZone): Instant {
+        val baseTime = timestamp.atZone(timezone.toZoneId())
+        return baseTime.toLocalDate().atStartOfDay(baseTime.zone).toInstant()
     }
 
+    /**
+     * Converts a given time period into its equivalent duration in milliseconds.
+     *
+     * @param offset the time period to be converted, consisting of an amount and a unit,
+     * such as minutes, hours, days, weeks, months, or years.
+     * @return the time period's equivalent duration in milliseconds as a long value.
+     */
     fun timePeriodToMillis(offset: TimePeriod): Long {
-        val amount = offset.getAmount()
-        when (offset.getUnit()) {
-            "min" -> return TimeUnit.MINUTES.toMillis(amount.toLong())
-            "hour" -> return TimeUnit.HOURS.toMillis(amount.toLong())
-            "day" -> return TimeUnit.DAYS.toMillis(amount.toLong())
-            "week" -> return TimeUnit.DAYS.toMillis((amount * WEEK_TO_DAYS).toLong())
-            "month" -> return TimeUnit.DAYS.toMillis((amount * MONTH_TO_DAYS).toLong())
-            "year" -> return TimeUnit.DAYS.toMillis((amount * YEAR_TO_DAYS).toLong())
-            else -> return TimeUnit.DAYS.toMillis(1)
+        val amount = offset.amount
+        val duration: Duration = when (offset.unit) {
+            "min" -> amount.minutes
+            "hour" -> amount.hours
+            "day" -> amount.days
+            "week" -> (amount * WEEK_TO_DAYS).days
+            "month" -> (amount * MONTH_TO_DAYS).days
+            "year" -> (amount * YEAR_TO_DAYS).days
+            else -> 1.days
         }
+        return duration.inWholeMilliseconds
+    }
+
+    companion object {
+        /**
+         * Represents the number of days in a week.
+         *
+         * This constant is used for conversions and calculations involving weeks
+         * and days, where a week is assumed to always contain 7 days.
+         */
+        private const val WEEK_TO_DAYS = 7
+        /**
+         * Constant representing the number of days in a month. It is used as an approximate value
+         * where 31 days is considered the standard number of days in a month for calculations.
+         */
+        private const val MONTH_TO_DAYS = 31
+        /**
+         * Represents the number of days in a standard non-leap year.
+         *
+         * This constant is used in date and time calculations where a year is approximated
+         * as 365 days. It does not account for leap years or variations in calendar systems.
+         */
+        private const val YEAR_TO_DAYS = 365
     }
 }
