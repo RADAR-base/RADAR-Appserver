@@ -32,6 +32,6 @@ package org.radarbase.appserver.mapper
 interface Mapper<D, E> {
     fun dtoToEntity(dto: D): E
     fun entityToDto(entity: E): D
-    fun entitiesToDtos(entities: List<E>): List<D> = entities.asSequence().mapTo (ArrayList(), ::entityToDto)
-    fun dtosToEntities(dtos: List<D>): List<E> = dtos.asSequence().mapTo (ArrayList(), ::dtoToEntity)
+    fun entitiesToDtos(entities: List<E>): List<D> = entities.parallelStream().map(::entityToDto).toList()
+    fun dtosToEntities(dtos: List<D>): List<E> = dtos.parallelStream().map ( ::dtoToEntity).toList()
 }
