@@ -18,13 +18,12 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol
 
-package org.radarbase.appserver.service.questionnaire.protocol;
+import org.radarbase.appserver.dto.protocol.Assessment
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
+import org.radarbase.appserver.entity.User
 
-import org.radarbase.appserver.dto.protocol.Assessment;
-import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.entity.User;
-
-public interface ProtocolHandler {
-    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user);
+interface ProtocolHandler {
+    fun handle(assessmentSchedule: AssessmentSchedule?, assessment: Assessment?, user: User?): AssessmentSchedule?
 }

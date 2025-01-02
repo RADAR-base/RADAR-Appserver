@@ -18,22 +18,15 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol.factory
 
-package org.radarbase.appserver.service.questionnaire.protocol.factory;
+import org.radarbase.appserver.entity.Task
+import org.radarbase.appserver.service.questionnaire.protocol.CompletedQuestionnaireHandler
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
 
 
-import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatProtocolHandler;
-
-public class RepeatProtocolHandlerFactory {
-
-    public static ProtocolHandler getRepeatProtocolHandler(RepeatProtocolHandlerType name) {
-        switch (name) {
-            case SIMPLE:
-                return new SimpleRepeatProtocolHandler();
-            default:
-                return new SimpleRepeatProtocolHandler();
-        }
+object CompletedQuestionnaireHandlerFactory {
+    fun getCompletedQuestionnaireHandler(prevTasks: MutableList<Task?>?, prevTimezone: String?): ProtocolHandler {
+        return CompletedQuestionnaireHandler(prevTasks, prevTimezone)
     }
-
 }

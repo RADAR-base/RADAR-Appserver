@@ -18,11 +18,10 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol.factory
 
-package org.radarbase.appserver.service.questionnaire.protocol.factory;
-
-public enum ProtocolHandlerType {
+enum class RepeatProtocolHandlerType {
     SIMPLE,
-    CLINICAL,
+    DAYOFWEEK,
     OTHER
 }

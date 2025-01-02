@@ -18,17 +18,17 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol.factory
 
-package org.radarbase.appserver.service.questionnaire.protocol.factory;
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatProtocolHandler
 
 
-import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.SimpleReminderHandler;
-
-public class ReminderHandlerFactory {
-
-    public static ProtocolHandler getReminderHandler() {
-        return new SimpleReminderHandler();
+object RepeatProtocolHandlerFactory {
+    fun getRepeatProtocolHandler(name: RepeatProtocolHandlerType): ProtocolHandler {
+        when (name) {
+            RepeatProtocolHandlerType.SIMPLE -> return SimpleRepeatProtocolHandler()
+            else -> return SimpleRepeatProtocolHandler()
+        }
     }
-
 }

@@ -18,21 +18,11 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol.factory
 
-package org.radarbase.appserver.service.questionnaire.protocol.factory;
-
-
-import org.radarbase.appserver.entity.Task;
-import org.radarbase.appserver.service.TaskService;
-import org.radarbase.appserver.service.questionnaire.protocol.CompletedQuestionnaireHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
-
-import java.util.List;
-
-public class CompletedQuestionnaireHandlerFactory {
-
-    public static ProtocolHandler getCompletedQuestionnaireHandler(List<Task> prevTasks, String prevTimezone) {
-        return new CompletedQuestionnaireHandler(prevTasks, prevTimezone);
-    }
-
+enum class RepeatQuestionnaireHandlerType {
+    SIMPLE,
+    DAYOFWEEKMAP,
+    RANDOM,
+    OTHER
 }

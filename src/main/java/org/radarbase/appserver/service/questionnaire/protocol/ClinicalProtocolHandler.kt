@@ -18,23 +18,19 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol
 
-package org.radarbase.appserver.service.questionnaire.protocol;
+import org.radarbase.appserver.dto.protocol.Assessment
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
+import org.radarbase.appserver.entity.User
 
-import org.radarbase.appserver.dto.protocol.Assessment;
-import org.radarbase.appserver.dto.protocol.AssessmentProtocol;
-import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
-import org.radarbase.appserver.entity.User;
-
-import java.time.Instant;
-
-@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class ClinicalProtocolHandler implements ProtocolHandler {
-
-    @Override
-    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
-        assessmentSchedule.setName(assessment.getName());
-        return assessmentSchedule;
+class ClinicalProtocolHandler : ProtocolHandler {
+    override fun handle(
+        assessmentSchedule: AssessmentSchedule,
+        assessment: Assessment,
+        user: User?
+    ): AssessmentSchedule {
+        assessmentSchedule.setName(assessment.getName())
+        return assessmentSchedule
     }
-
 }

@@ -18,11 +18,12 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol.factory
 
-package org.radarbase.appserver.service.questionnaire.protocol.factory;
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleReminderHandler
 
-public enum RepeatProtocolHandlerType {
-    SIMPLE,
-    DAYOFWEEK,
-    OTHER
+
+object ReminderHandlerFactory {
+    val reminderHandler: ProtocolHandler
+        get() = SimpleReminderHandler()
 }

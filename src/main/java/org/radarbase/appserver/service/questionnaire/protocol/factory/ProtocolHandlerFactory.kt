@@ -18,25 +18,19 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.questionnaire.protocol.factory
 
-package org.radarbase.appserver.service.questionnaire.protocol.factory;
+import org.radarbase.appserver.service.questionnaire.protocol.ClinicalProtocolHandler
+import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
+import org.radarbase.appserver.service.questionnaire.protocol.SimpleProtocolHandler
 
 
-import org.radarbase.appserver.service.questionnaire.protocol.ClinicalProtocolHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler;
-import org.radarbase.appserver.service.questionnaire.protocol.SimpleProtocolHandler;
-
-public class ProtocolHandlerFactory {
-
-    public static ProtocolHandler getProtocolHandler(ProtocolHandlerType name) {
-        switch (name) {
-            case SIMPLE:
-                return new SimpleProtocolHandler();
-            case CLINICAL:
-                return new ClinicalProtocolHandler();
-            default:
-                return new SimpleProtocolHandler();
+object ProtocolHandlerFactory {
+    fun getProtocolHandler(name: ProtocolHandlerType): ProtocolHandler {
+        when (name) {
+            ProtocolHandlerType.SIMPLE -> return SimpleProtocolHandler()
+            ProtocolHandlerType.CLINICAL -> return ClinicalProtocolHandler()
+            else -> return SimpleProtocolHandler()
         }
     }
-
 }
