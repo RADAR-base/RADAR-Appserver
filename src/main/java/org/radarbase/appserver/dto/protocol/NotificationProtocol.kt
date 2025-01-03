@@ -18,33 +18,19 @@
  *  *
  *
  */
+package org.radarbase.appserver.dto.protocol
 
-package org.radarbase.appserver.dto.protocol;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-/**
- * @author yatharthranjan
- */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NotificationProtocol {
-    @JsonProperty("mode")
-    private NotificationProtocolMode mode = NotificationProtocolMode.STANDARD;
-
-    @JsonProperty("title")
-    private LanguageText title;
-
-    @JsonProperty("text")
-    private LanguageText body;
-
-    @JsonProperty("email")
-    private EmailNotificationProtocol email = new EmailNotificationProtocol();
-}
-
+data class NotificationProtocol(
+    @field:JsonProperty("mode")
+    var mode: NotificationProtocolMode = NotificationProtocolMode.STANDARD,
+    @field:JsonProperty("title")
+    var title: LanguageText? = null,
+    @field:JsonProperty("text")
+    var body: LanguageText? = null,
+    @field:JsonProperty("email")
+    var email: EmailNotificationProtocol = EmailNotificationProtocol()
+)

@@ -1,16 +1,20 @@
-package org.radarbase.appserver.dto.protocol;
+package org.radarbase.appserver.dto.protocol
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty
 
-public enum ReferenceTimestampType {
+enum class ReferenceTimestampType {
     @JsonProperty("date")
-    DATE    ,
+    DATE,
+
     @JsonProperty("datetime")
     DATETIME,
+
     @JsonProperty("datetimeutc")
     DATETIMEUTC,
+
     @JsonProperty("now")
     NOW,
+
     @JsonProperty("today")
     TODAY
 }

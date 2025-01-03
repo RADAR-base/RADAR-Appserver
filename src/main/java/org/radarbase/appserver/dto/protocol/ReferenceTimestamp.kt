@@ -18,29 +18,19 @@
  *  *
  *
  */
+package org.radarbase.appserver.dto.protocol
 
-package org.radarbase.appserver.dto.protocol;
-
-import lombok.Data;
-import org.radarbase.appserver.validation.CheckExactlyOneNotNull;
-
-import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty
+import lombok.AllArgsConstructor
+import lombok.Data
+import lombok.NoArgsConstructor
 
 /**
  * @author yatharthranjan
  */
-@Data
-@CheckExactlyOneNotNull(fieldNames = {"unitsFromZero", "randomUnitsFromZeroBetween", "dayOfWeekMap"})
-public class RepeatQuestionnaire {
-    @NotNull
-    private String unit;
-
-    private List<Integer> unitsFromZero;
-
-    private List<Integer[]> randomUnitsFromZeroBetween;
-
-    private Map<String, RepeatQuestionnaire> dayOfWeekMap;
-}
-
+data class ReferenceTimestamp (
+    @field:JsonProperty("timestamp")
+    var timestamp: String? = null,
+    @field:JsonProperty("format")
+    var format: ReferenceTimestampType? = null
+)

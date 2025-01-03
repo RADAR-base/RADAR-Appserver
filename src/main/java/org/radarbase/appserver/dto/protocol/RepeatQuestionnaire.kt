@@ -18,19 +18,22 @@
  *  *
  *
  */
+package org.radarbase.appserver.dto.protocol
 
-package org.radarbase.appserver.dto.protocol;
+import jakarta.validation.constraints.NotNull
+import org.radarbase.appserver.validation.CheckExactlyOneNotNull
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+/**
+ * Data Transfer object (DTO) for RepeatQuestionnaire. Handles repeat configurations for questionnaires.
+ *
+ * @author yatharthranjan
+ */
+@CheckExactlyOneNotNull(fieldNames = ["unitsFromZero", "randomUnitsFromZeroBetween", "dayOfWeekMap"])
+data class RepeatQuestionnaire(
+    @field:NotNull
+    var unit: String? = null,
+    var unitsFromZero: List<Int>? = null,
+    var randomUnitsFromZeroBetween: List<Array<Int>>? = null,
+    var dayOfWeekMap: Map<String, RepeatQuestionnaire>? = null
+)
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class ReminderTimePeriod extends TimePeriod {
-
-    private Integer repeat;
-}
