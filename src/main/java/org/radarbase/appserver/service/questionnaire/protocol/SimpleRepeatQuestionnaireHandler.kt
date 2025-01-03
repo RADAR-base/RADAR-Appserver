@@ -21,6 +21,7 @@
 package org.radarbase.appserver.service.questionnaire.protocol
 
 import org.radarbase.appserver.dto.protocol.Assessment
+import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire
 import org.radarbase.appserver.dto.protocol.TimePeriod
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.Task
@@ -31,47 +32,39 @@ import java.util.stream.Collectors
 
 class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
 
-    @Transient
     private val timeCalculatorService = TimeCalculatorService()
-
-    @Transient
     private val taskGeneratorService = TaskGeneratorService()
 
     override fun handle(
-        assessmentSchedule: AssessmentSchedule,
-        assessment: Assessment,
-        user: User
+        assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User
     ): AssessmentSchedule {
-        val tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user)
-        assessmentSchedule.setTasks(tasks)
+        val referenceTimestamp = assessmentSchedule.referenceTimestamps ?: return assessmentSchedule
+        val tasks = generateTasks(assessment, referenceTimestamp, user)
+        assessmentSchedule.tasks = tasks
         return assessmentSchedule
     }
 
     private fun generateTasks(
-        assessment: Assessment,
-        referenceTimestamps: MutableList<Instant?>,
-        user: User
-    ): MutableList<Task?> {
+        assessment: Assessment, referenceTimestamps: List<Instant>, user: User
+    ): List<Task> {
         val timezone = TimeZone.getTimeZone(user.timezone)
-        val repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire()
-        val unitsFromZero = repeatQuestionnaire.getUnitsFromZero()
-        val completionWindow = this.calculateCompletionWindow(assessment.getProtocol().getCompletionWindow())
+        val repeatQuestionnaire: RepeatQuestionnaire? = assessment.protocol?.repeatQuestionnaire
+        val repeatQuestionnaireUnit: String? = repeatQuestionnaire?.unit
+        if (repeatQuestionnaireUnit == null) return emptyList()
+        val unitsFromZero: List<Int> = repeatQuestionnaire.unitsFromZero ?: emptyList()
+        val completionWindow = this.calculateCompletionWindow(assessment.protocol?.completionWindow)
 
-        val tasks = referenceTimestamps.parallelStream()
-            .flatMap<Task?> { referenceTimestamp: Instant? ->
-                val timePeriod = TimePeriod()
-                timePeriod.setUnit(repeatQuestionnaire.getUnit())
-                val t = unitsFromZero.parallelStream()
-                    .map<Task?> { unitFromZero: Int? ->
-                        timePeriod.setAmount(unitFromZero)
-                        val taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp!!, timePeriod, timezone)
-                        val task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow)
-                        task.setUser(user)
-                        task
-                    }.collect(Collectors.toList())
-                t.stream()
-            }.collect(Collectors.toList())
-
+        val tasks = referenceTimestamps.parallelStream().flatMap { referenceTimestamp: Instant ->
+            val timePeriod = TimePeriod()
+            timePeriod.unit = repeatQuestionnaireUnit
+            unitsFromZero.parallelStream().map { unitFromZero: Int ->
+                timePeriod.amount = unitFromZero
+                val taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone)
+                taskGeneratorService.buildTask(assessment, taskTime, completionWindow).apply {
+                    this.user = user
+                }
+            }
+        }.collect(Collectors.toList())
         return tasks
     }
 

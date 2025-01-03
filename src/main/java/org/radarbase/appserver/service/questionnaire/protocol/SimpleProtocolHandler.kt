@@ -55,13 +55,18 @@ class SimpleProtocolHandler : ProtocolHandler {
         assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User
     ): AssessmentSchedule {
 
-        val referenceTimestamp: ReferenceTimestamp? = assessment.protocol.referenceTimestamp
+        val referenceTimestamp: ReferenceTimestamp? = assessment.protocol?.referenceTimestamp
         val timezone = TimeZone.getTimeZone(user.timezone)
         val timezoneId = timezone.toZoneId()
         assessmentSchedule.referenceTimestamp = if (referenceTimestamp != null) {
-            val timestamp = referenceTimestamp.timestamp
+            val timestamp = requireNotNull(referenceTimestamp.timestamp) {
+                "Reference timestamp is null when handling SimpleProtocolHandler."
+            }
+            val timestampFormat = requireNotNull(referenceTimestamp.format) {
+                "Reference timestamp format is null when handling SimpleProtocolHandler."
 
-            when (referenceTimestamp.format) {
+            }
+            when (timestampFormat) {
                 DATE -> LocalDate.parse(timestamp).atStartOfDay(timezoneId).toInstant()
 
                 DATETIME -> LocalDateTime.parse(timestamp).atZone(timezoneId).toInstant()
@@ -74,7 +79,9 @@ class SimpleProtocolHandler : ProtocolHandler {
             }
         } else {
             val userEnrolmentDate = user.enrolmentDate
-            requireNotNull(userEnrolmentDate) { "User enrolment date is null when handling SimpleProtocolHandler." }
+            requireNotNull(userEnrolmentDate) {
+                "User enrolment date is null when handling SimpleProtocolHandler."
+            }
             timeCalculatorService.setDateTimeToMidnight(userEnrolmentDate, timezone)
         }
         assessmentSchedule.name = assessment.name

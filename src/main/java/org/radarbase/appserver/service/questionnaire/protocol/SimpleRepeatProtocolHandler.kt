@@ -25,6 +25,7 @@ import org.radarbase.appserver.dto.protocol.RepeatProtocol
 import org.radarbase.appserver.dto.protocol.TimePeriod
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.User
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
@@ -37,9 +38,15 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
         user: User
     ): AssessmentSchedule {
         val timezone = user.timezone
-        requireNotNull(timezone) { "User timezone is null when handling SimpleRepeatProtocolHandler." }
-        val referenceTimestamps =
-            generateReferenceTimestamps(assessment, assessmentSchedule.referenceTimestamp, timezone)
+        requireNotNull(timezone) {
+            "User timezone is null when handling SimpleRepeatProtocolHandler."
+        }
+
+        val referenceTimestamp = requireNotNull(assessmentSchedule.referenceTimestamp) {
+            "Reference timestamp is null when handling SimpleRepeatProtocolHandler."
+        }
+
+        val referenceTimestamps = generateReferenceTimestamps(assessment, referenceTimestamp, timezone)
         assessmentSchedule.referenceTimestamps = referenceTimestamps
         return assessmentSchedule
     }
@@ -50,8 +57,17 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
         timezoneId: String
     ): List<Instant> {
         val timezone = TimeZone.getTimeZone(timezoneId)
-        val repeatProtocol: RepeatProtocol = assessment.protocol.repeatProtocol
-        val simpleRepeatProtocol = TimePeriod(repeatProtocol.unit, repeatProtocol.amount)
+        val repeatProtocol: RepeatProtocol? = assessment.protocol?.repeatProtocol
+
+        val repeatProtocolUnit: String? = repeatProtocol?.unit
+        val repeatProtocolAmount: Int? = repeatProtocol?.amount
+
+        if (repeatProtocol == null || repeatProtocolUnit == null ||  repeatProtocolAmount == null) {
+            logger.warn("Repeat protocol is null for assessment in SimpleRepeatProtocolHandler")
+            return emptyList()
+        }
+
+        val simpleRepeatProtocol = TimePeriod(repeatProtocolUnit, repeatProtocolAmount)
         var referenceTime: Instant = calculateValidStartTime(startTime, timezone, simpleRepeatProtocol)
         val referenceTimestamps: MutableList<Instant> = mutableListOf()
         while (isValidReferenceTimestamp(referenceTime, timezone)) {
@@ -68,11 +84,11 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
     }
 
     private fun calculateValidStartTime(
-        time: Instant,
+        startTime: Instant,
         timezone: TimeZone,
         simpleRepeatProtocol: TimePeriod
     ): Instant {
-        var referenceTime = time
+        var referenceTime = startTime
         val defaultStartTime = timeCalculatorService.advanceRepeat(Instant.now(), MINUS_ONE_WEEK, timezone)
         while (referenceTime.isBefore(defaultStartTime)) {
             referenceTime = timeCalculatorService.advanceRepeat(referenceTime, simpleRepeatProtocol, timezone)
@@ -81,6 +97,8 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(SimpleRepeatProtocolHandler::class.java)
+
         private val PLUS_ONE_WEEK = TimePeriod("week", 1)
         private val MINUS_ONE_WEEK = TimePeriod("week", -1)
         private const val MAX_YEAR = 2030
