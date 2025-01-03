@@ -226,7 +226,7 @@ public class FcmDataMessageService implements DataMessageService {
         DataMessage dataMessageSaved = this.dataMessageRepository.saveAndFlush(newDataMessage);
         addDataMessageStateEvent(
                 dataMessageSaved, MessageState.UPDATED, dataMessageSaved.getUpdatedAt().toInstant());
-        if (!dataMessage.get().isDelivered()) {
+        if (!dataMessage.get().getDelivered()) {
             this.schedulerService.updateScheduled(dataMessageSaved);
         }
         return dataMessageConverter.entityToDto(dataMessageSaved);

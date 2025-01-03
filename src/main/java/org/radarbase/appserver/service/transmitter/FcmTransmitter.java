@@ -10,7 +10,6 @@ import org.radarbase.appserver.entity.DataMessage;
 import org.radarbase.appserver.entity.Message;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.exception.FcmMessageTransmitException;
-import org.radarbase.appserver.exception.MessageTransmitException;
 import org.radarbase.appserver.service.FcmDataMessageService;
 import org.radarbase.appserver.service.FcmNotificationService;
 import org.radarbase.appserver.service.UserService;
@@ -90,7 +89,7 @@ public class FcmTransmitter implements NotificationTransmitter, DataMessageTrans
             .to(to)
             .condition(notification.getFcmCondition())
             .priority(notification.getPriority())
-            .mutableContent(notification.isMutableContent())
+            .mutableContent(notification.getMutableContent())
             .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
             .messageId(String.valueOf(notification.getFcmMessageId()))
             .timeToLive(Objects.requireNonNullElse(notification.getTtlSeconds(), DEFAULT_TIME_TO_LIVE))
@@ -107,7 +106,7 @@ public class FcmTransmitter implements NotificationTransmitter, DataMessageTrans
             .to(to)
             .condition(dataMessage.getFcmCondition())
             .priority(dataMessage.getPriority())
-            .mutableContent(dataMessage.isMutableContent())
+            .mutableContent(dataMessage.getMutableContent())
             .deliveryReceiptRequested(IS_DELIVERY_RECEIPT_REQUESTED)
             .messageId(String.valueOf(dataMessage.getFcmMessageId()))
             .timeToLive(Objects.requireNonNullElse(dataMessage.getTtlSeconds(), DEFAULT_TIME_TO_LIVE))

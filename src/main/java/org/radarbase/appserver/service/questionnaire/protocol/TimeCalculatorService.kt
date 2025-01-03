@@ -47,13 +47,14 @@ class TimeCalculatorService {
      */
     fun advanceRepeat(referenceTime: Instant, offset: TimePeriod, timezone: TimeZone): Instant {
         val time = referenceTime.atZone(timezone.toZoneId()).truncatedTo(ChronoUnit.MILLIS)
+        val amount = requireNotNull(offset.amount) { "Amount cannot be null in time calculator service" }
         return when (offset.unit) {
-            "min" -> time.plus(offset.amount.toLong(), ChronoUnit.MINUTES).toInstant()
-            "hour" -> time.plus(offset.amount.toLong(), ChronoUnit.HOURS).toInstant()
-            "day" -> time.plus(offset.amount.toLong(), ChronoUnit.DAYS).toInstant()
-            "week" -> time.plus(offset.amount.toLong(), ChronoUnit.WEEKS).toInstant()
-            "month" -> time.plus(offset.amount.toLong(), ChronoUnit.MONTHS).toInstant()
-            "year" -> time.plus(offset.amount.toLong(), ChronoUnit.YEARS).toInstant()
+            "min" -> time.plus(amount.toLong(), ChronoUnit.MINUTES).toInstant()
+            "hour" -> time.plus(amount.toLong(), ChronoUnit.HOURS).toInstant()
+            "day" -> time.plus(amount.toLong(), ChronoUnit.DAYS).toInstant()
+            "week" -> time.plus(amount.toLong(), ChronoUnit.WEEKS).toInstant()
+            "month" -> time.plus(amount.toLong(), ChronoUnit.MONTHS).toInstant()
+            "year" -> time.plus(amount.toLong(), ChronoUnit.YEARS).toInstant()
             else -> ZonedDateTime.now().plus(2, ChronoUnit.YEARS).toInstant()
         }
     }
@@ -78,7 +79,7 @@ class TimeCalculatorService {
      * @return the time period's equivalent duration in milliseconds as a long value.
      */
     fun timePeriodToMillis(offset: TimePeriod): Long {
-        val amount = offset.amount
+        val amount = requireNotNull(offset.amount) { "Amount cannot be null in time calculator service" }
         val duration: Duration = when (offset.unit) {
             "min" -> amount.minutes
             "hour" -> amount.hours

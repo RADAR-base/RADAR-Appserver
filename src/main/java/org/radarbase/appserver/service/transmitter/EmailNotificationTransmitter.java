@@ -29,7 +29,7 @@ public class EmailNotificationTransmitter implements NotificationTransmitter {
 
     @Override
     public void send(Notification notification) throws EmailMessageTransmitException {
-        if (notification.isEmailEnabled()) {
+        if (notification.getEmailEnabled()) {
             try {
                 if (notification.getUser().getEmailAddress() == null || notification.getUser().getEmailAddress().isBlank()) {
                     log.warn("Could not transmit a notification via email because subject {} has no email address.",

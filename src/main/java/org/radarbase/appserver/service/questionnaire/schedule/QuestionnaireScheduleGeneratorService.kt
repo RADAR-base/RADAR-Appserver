@@ -45,7 +45,7 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     override fun getRepeatProtocolHandler(assessment: Assessment): ProtocolHandler? {
         if (assessment.type == CLINICAL) return null
 
-        val repeatProtocol: RepeatProtocol? = assessment.protocol.repeatProtocol
+        val repeatProtocol: RepeatProtocol? = assessment.protocol?.repeatProtocol
         val type = if (repeatProtocol?.dayOfWeek != null) {
             RepeatProtocolHandlerType.DAYOFWEEK
         } else {
@@ -57,7 +57,7 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     override fun getRepeatQuestionnaireHandler(assessment: Assessment): ProtocolHandler? {
         if (assessment.type == CLINICAL) return null
 
-        val repeatQuestionnaire: RepeatQuestionnaire? = assessment.protocol.repeatQuestionnaire
+        val repeatQuestionnaire: RepeatQuestionnaire? = assessment.protocol?.repeatQuestionnaire
         val type = when {
             repeatQuestionnaire?.dayOfWeekMap != null -> RepeatQuestionnaireHandlerType.DAYOFWEEKMAP
             repeatQuestionnaire?.randomUnitsFromZeroBetween != null -> RepeatQuestionnaireHandlerType.RANDOM
@@ -68,7 +68,7 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     }
 
     override fun getNotificationHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.getType() == CLINICAL) return null
+        if (assessment.type == CLINICAL) return null
         val protocol: NotificationProtocol = assessment.protocol?.notification ?: return null
 
         return try {
@@ -80,7 +80,7 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     }
 
     override fun getReminderHandler(assessment: Assessment): ProtocolHandler? {
-        return if (assessment.getType() == CLINICAL) {
+        return if (assessment.type == CLINICAL) {
             null
         } else ReminderHandlerFactory.reminderHandler
     }
@@ -88,7 +88,7 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     override fun getCompletedQuestionnaireHandler(
         assessment: Assessment, prevTasks: List<Task>, prevTimezone: String
     ): ProtocolHandler? {
-        return if (assessment.getType() == CLINICAL) {
+        return if (assessment.type == CLINICAL) {
             null
         } else CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
     }
