@@ -16,18 +16,20 @@
 
 package org.radarbase.appserver.dto.protocol
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
-enum class AssessmentType {
-    @JsonProperty("scheduled")
-    SCHEDULED,
-
-    @JsonProperty("clinical")
-    CLINICAL,
-
-    @JsonProperty("triggered")
-    TRIGGERED,
-
-    @JsonProperty("all")
-    ALL
+/**
+ * Data Transfer object (DTO) for Protocol. A project may represent a `Protocol` for scheduling
+ * questionnaires.
+ *
+ * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
+ */
+data class Protocol(
+    var version: String? = null,
+    var schemaVersion: String? = null,
+    var name: String? = null,
+    var healthIssues: List<String>? = null,
+    var protocols: List<Assessment>? = null
+) {
+    fun hasAssessment(assessment: String): Boolean {
+        return protocols?.any { it.name == assessment } == true
+    }
 }

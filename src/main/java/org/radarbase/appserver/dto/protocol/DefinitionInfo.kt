@@ -16,18 +16,13 @@
 
 package org.radarbase.appserver.dto.protocol
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import java.net.URI
 
-enum class AssessmentType {
-    @JsonProperty("scheduled")
-    SCHEDULED,
+/** @author yatharthranjan
+ */
 
-    @JsonProperty("clinical")
-    CLINICAL,
-
-    @JsonProperty("triggered")
-    TRIGGERED,
-
-    @JsonProperty("all")
-    ALL
-}
+data class DefinitionInfo (
+    val repository: URI? = null,
+    val name: String? = null,
+    val avsc: String? = null
+)
