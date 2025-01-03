@@ -91,35 +91,50 @@ class Task : AuditModel(), Serializable {
 
     class TaskBuilder(task: Task? = null) {
 
+        @Transient
         var id: Long? = task?.id
 
+        @Transient
         var completed: Boolean? = task?.completed == true
 
+        @Transient
         @field:NotNull
         var timestamp: Timestamp? = task?.timestamp
 
+        @Transient
         var name: String? = task?.name
 
+        @Transient
         var type: AssessmentType? = task?.type
 
+        @Transient
         var estimatedCompletionTime: Int = task?.estimatedCompletionTime ?: 0
 
+        @Transient
         var completionWindow: Long? = task?.completionWindow
 
+        @Transient
         var warning: String? = task?.warning
 
+        @Transient
         var isClinical: Boolean? = task?.isClinical == true
 
+        @Transient
         var timeCompleted: Timestamp? = task?.timeCompleted
 
+        @Transient
         var showInCalendar: Boolean? = task?.showInCalendar != false
 
+        @Transient
         var isDemo: Boolean? = task?.isDemo == true
 
+        @Transient
         var priority: Int = task?.priority ?: 0
 
+        @Transient
         var nQuestions: Int = task?.nQuestions ?: 0
 
+        @Transient
         var user: User? = task?.user
 
         fun id(id: Long?) = apply {

@@ -48,7 +48,7 @@ import org.springframework.lang.Nullable;
  *
  * @author yatharthranjan
  * @see Scheduled
- * @see org.radarbase.appserver.service.scheduler.DataMessageSchedulerService
+// * @see org.radarbase.appserver.service.scheduler.DataMessageSchedulerService
  */
 @Entity
 @Table(
@@ -108,12 +108,12 @@ public class DataMessage extends Message {
             this.fcmMessageId = dataMessage.getFcmMessageId();
             this.fcmTopic = dataMessage.getFcmTopic();
             this.fcmCondition = dataMessage.getFcmCondition();
-            this.delivered = dataMessage.isDelivered();
-            this.validated = dataMessage.isValidated();
+            this.delivered = dataMessage.getDelivered();
+            this.validated = dataMessage.getValidated();
             this.appPackage = dataMessage.getAppPackage();
             this.sourceType = dataMessage.getSourceType();
-            this.dryRun = dataMessage.isDryRun();
-            this.mutableContent = dataMessage.isMutableContent();
+            this.dryRun = dataMessage.getDryRun();
+            this.mutableContent = dataMessage.getMutableContent();
             this.dataMap = dataMessage.getDataMap();
         }
 
