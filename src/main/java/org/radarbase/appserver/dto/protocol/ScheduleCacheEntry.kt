@@ -18,35 +18,11 @@
  *  *
  *
  */
+package org.radarbase.appserver.dto.protocol
 
-package org.radarbase.appserver.dto.protocol;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Data;
-import org.radarbase.appserver.util.Base64Deserializer;
-
-import java.util.List;
+import org.radarbase.appserver.dto.questionnaire.Schedule
 
 /**
- * Data Transfer object (DTO) for Protocol. A project may represent a Protcol for scheduling
- * questionnaires.
- *
- * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
  * @author yatharthranjan
  */
-@Data
-public class GithubContent {
-
-  @JsonDeserialize(using = Base64Deserializer.class)
-  private String content;
-
-  private String sha;
-
-  private String size;
-
-  private String url;
-
-  private String node_id;
-
-  private String encoding;
-}
+data class ScheduleCacheEntry(val id: String, val schedule: Schedule = Schedule())

@@ -18,25 +18,9 @@
  *  *
  *
  */
+package org.radarbase.appserver.dto.protocol
 
-package org.radarbase.appserver.dto.protocol;
+import lombok.Data
 
-import lombok.Data;
-
-import java.time.Instant;
-
-/**
- * @author yatharthranjan
- */
 @Data
-public class ProtocolCacheEntry {
-
-    private String id;
-
-    private Protocol protocol;
-
-    public ProtocolCacheEntry(String id, Protocol protocol) {
-        this.id = id;
-        this.protocol = protocol;
-    }
-}
+class ProtocolCacheEntry(val id: String, val protocol: Protocol?)
