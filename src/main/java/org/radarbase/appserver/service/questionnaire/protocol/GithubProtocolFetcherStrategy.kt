@@ -23,6 +23,7 @@ package org.radarbase.appserver.service.questionnaire.protocol
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import jakarta.annotation.PostConstruct
 import org.radarbase.appserver.dto.protocol.GithubContent
 import org.radarbase.appserver.dto.protocol.Protocol
 import org.radarbase.appserver.dto.protocol.ProtocolCacheEntry
@@ -95,11 +96,13 @@ class GithubProtocolFetcherStrategy(
         CachedMap(::retrieveProtocolDirectories, Duration.ofHours(3), Duration.ofMinutes(4))
 
 
-    init {
-        require(protocolRepo.isNullOrBlank() && protocolFileName.isNullOrBlank() && protocolBranch.isNullOrBlank()) {
-            "Protocol Repo and File name must be configured."
+    @PostConstruct
+    fun validateConfiguration() {
+        require(!protocolRepo.isNullOrBlank() && !protocolFileName.isNullOrBlank() && !protocolBranch.isNullOrBlank()) {
+            "Protocol Repo, File name, and Branch must be configured."
         }
     }
+
 
     /**
      * Fetches protocol configurations for all users stored in the user repository and associates each
@@ -178,7 +181,6 @@ class GithubProtocolFetcherStrategy(
             }
             .collect(Collectors.toMap({ it.id }, { it.protocol!! }))
             .also { logger.debug("Refreshed Protocols from Github") }
-
     }
 
     /**

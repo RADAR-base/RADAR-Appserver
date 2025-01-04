@@ -117,9 +117,7 @@ class UserService(
         val project: Project =
             checkPresence(projectRepository.findByProjectId(projectId)) { "Project with id $projectId not found" }
 
-        val pId: Long = requireNotNull(project.id) { "Project id must not be null" }
-
-        val users: List<User> = userRepository.findByProjectId(pId)
+        val users: List<User> = userRepository.findByProjectId(project.id)
 
         return FcmUsers(userMapper.entitiesToDtos(users))
     }
@@ -141,11 +139,9 @@ class UserService(
         val project: Project =
             checkPresence(projectRepository.findByProjectId(projectId)) { "Project with id $projectId not found" }
 
-        val pId: Long = requireNotNull(project.id) { "Project id must not be null" }
-
         val user: User = checkPresence(
             userRepository.findBySubjectIdAndProjectId(
-                subjectId, pId
+                subjectId, project.id
             )
         ) { "User with subjectId $subjectId not found" }
 
@@ -213,11 +209,12 @@ class UserService(
                 // maintain a bidirectional relationship
                 it.user = newUser
             }
+            newUser.project = project
         }.run {
             userRepository.save<User>(this)
         }
 
-        this.scheduleService.generateScheduleForUser(user)
+        this.scheduleService.generateScheduleForUser(savedUser)
 
         return userMapper.entityToDto(savedUser)
     }
@@ -241,7 +238,7 @@ class UserService(
 
         val user: User? = userRepository.findBySubjectIdAndProjectId(
             userDto.subjectId,
-            requireNotNull(project.id) { "Project id must not be null" })
+            project.id)
 
         checkInvalidDetails<InvalidUserDetailsException>(
             { user == null },
@@ -277,6 +274,16 @@ class UserService(
         return userMapper.entityToDto(user)
     }
 
+    fun updateLastDelivered(fcmToken: String?, lastDelivered: Instant?) {
+        val user: User = checkPresence(userRepository.findByFcmToken(fcmToken)) {
+            "User with the fcm-token $fcmToken doesn't exists"
+        }
+        user.usermetrics?.let {
+            it.lastDelivered = lastDelivered
+        }
+        userRepository.save<User>(user)
+    }
+
     /**
      * Deletes a user associated with a specific project and subject ID.
      * This method verifies the existence of the project and the user in the
@@ -294,7 +301,7 @@ class UserService(
 
         val user = userRepository.findBySubjectIdAndProjectId(
             subjectId,
-            requireNotNull(project.id) { "Project id must not be null" })
+            project.id)
 
         checkInvalidDetails<InvalidUserDetailsException>(
             { user == null },

@@ -61,7 +61,7 @@ data class FcmUserDto(
     var language: String? = null,
 
     @field:Size(max = 100)
-    val attributes: Map<String, String>? = null,
+    val attributes: Map<String?, String?>? = null,
 ) {
     constructor(user: User) : this(
         id = user.id,
