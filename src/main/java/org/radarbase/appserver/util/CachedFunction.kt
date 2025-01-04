@@ -48,20 +48,7 @@ class CachedFunction<I : Any, O : Any>(
 ) : CustomThrowingFunction<I, O> {
 
 
-    private val cachedMap: MutableMap<I, LockedResult> =
-        object : LinkedHashMap<I, LockedResult>(16, 0.75f, false) {
-            /**
-             * Determines whether the eldest entry in the map should be removed based on the current size and
-             * the maximum number of entries allowed.
-             *
-             * @param eldest the eldest entry in the map being considered for removal
-             * @return true if the size of the map exceeds the maximum allowed entries and the eldest entry
-             * should be removed; false otherwise
-             */
-            override fun removeEldestEntry(eldest: Map.Entry<I, LockedResult>): Boolean {
-                return size > maxEntries
-            }
-        }
+    private val cachedMap: MutableMap<I, LockedResult> = LinkedHashMap<I, LockedResult>(16, 0.75f, false)
 
     /**
      * Computes or retrieves a cached value associated with the given key.
@@ -78,7 +65,24 @@ class CachedFunction<I : Any, O : Any>(
             cachedMap.getOrPut(key) {
                 LockedResult(key)
             }
+        }.apply {
+            checkMaxSize()
         }.getOrCompute()
+    }
+
+    /**
+     * Determines whether the eldest entry in the map should be removed based on the current size and
+     * the maximum number of entries allowed.
+     */
+    private fun checkMaxSize() {
+        val toRemove = cachedMap.size - maxEntries
+        if (toRemove > 0) {
+            val iter = cachedMap.entries.iterator()
+            repeat(toRemove) {
+                iter.next()
+                iter.remove()
+            }
+        }
     }
 
     /**
@@ -115,9 +119,13 @@ class CachedFunction<I : Any, O : Any>(
             val result: Result<O>? = reference.get()
 
             if (result != null && !result.isExpired()) {
-                when(result) {
-                    is Result.Success -> return result.value
-                    is Result.Failure -> throw result.exception
+                when (result) {
+                    is Result.Success -> {
+                        return result.value
+                    }
+                    is Result.Failure -> {
+                        throw result.exception
+                    }
                 }
             }
 
