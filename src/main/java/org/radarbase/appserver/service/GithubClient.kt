@@ -118,6 +118,8 @@ class GithubClient(
         }
     }
 
+    fun getGithubContent(url: String): String = getGithubContent(url, true)
+
     /**
      * Validates the given content length against a predefined maximum content length.
      * Throws a `ResponseStatusException` if the content length exceeds the allowed maximum.
