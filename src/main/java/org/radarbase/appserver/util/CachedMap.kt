@@ -53,7 +53,7 @@ class CachedMap<S: Any, T: Any> (
      *
      * @return map of data
      */
-    fun getCache(): Map<S, T> = cache.get().map
+    fun getCachedMap(): Map<S, T> = cache.get().map
 
     /**
      * Get a key from the map. If the key is missing, it will check whether
