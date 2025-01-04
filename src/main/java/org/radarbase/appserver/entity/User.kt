@@ -107,7 +107,7 @@ class User(
     @CollectionTable(name = "attributes_map")
     @MapKeyColumn(name = "key", nullable = true)
     @Column(name = "value")
-    var attributes: Map<String, String>? = HashMap(),
+    var attributes: Map<String?, String?>? = HashMap(),
 ) : AuditModel(), Serializable {
 
     override fun toString(): String = stringRepresentation(

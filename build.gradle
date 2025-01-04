@@ -81,6 +81,8 @@ ext {
     jacksonKotlinVersion = '2.15.4'
     dateTimeVersion = '0.6.1'
     mapstructVersion = '1.6.3'
+    ktorVersion = '3.0.3'
+    coroutinesVersion = '1.10.1'
 }
 
 sourceSets {
@@ -156,8 +158,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.25")
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
     kapt("org.springframework.boot:spring-boot-configuration-processor")
-
     kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation "io.ktor:ktor-client-cio:$ktorVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 

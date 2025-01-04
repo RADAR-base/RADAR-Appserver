@@ -1,8 +1,6 @@
 package org.radarbase.appserver.service
 
 import org.radarbase.appserver.util.CachedFunction
-import org.radarbase.appserver.util.CustomThrowingFunction
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
@@ -11,6 +9,18 @@ import org.springframework.web.server.ResponseStatusException
 import java.io.IOException
 import java.time.Duration
 
+/**
+ * A service component responsible for wrapping GitHub content-fetching functionality
+ * with caching capabilities. This service allows efficient fetching of GitHub content,
+ * reducing redundant calls to the GitHub API by using a local cache for frequently accessed content.
+ *
+ * Configuration for caching behavior can be customized via application properties.
+ *
+ * @property githubClient The [GithubClient] used for API interaction.
+ * @property cacheTime The duration, in seconds, for which the content should be cached.
+ * @property retryTime The duration, in seconds, for which retries are attempted in case of errors.
+ * @property maxSize The maximum size of the cache.
+ */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 class GithubService (
@@ -20,6 +30,7 @@ class GithubService (
     @Value("\${security.github.cache.retryDuration:60}") retryTime: Int,
     @Value("\${security.github.cache.size:10000}") maxSize: Int
 ) {
+
     @Transient
     private val cachedGetContent: CachedFunction<String, String> = CachedFunction<String, String>(
         githubClient::getGithubContent,
@@ -28,7 +39,16 @@ class GithubService (
         maxSize
     )
 
-    @Throws(IOException::class, InterruptedException::class)
+    /**
+     * Retrieves the content from a given GitHub URL. The result is cached to optimize repeated calls.
+     *
+     * @param url The URL of the GitHub resource to retrieve the content from.
+     * @return The content retrieved from the specified GitHub URL as a string.
+     * @throws IOException If an I/O error occurs during the request.
+     * @throws ResponseStatusException If an HTTP response indicates a failure.
+     * @throws IllegalStateException If an unknown exception occurs during execution.
+     */
+    @Throws(IOException::class)
     fun getGithubContent(url: String): String = try {
         this.cachedGetContent.applyWithException(url)
     } catch (ex: IOException) {
@@ -39,6 +59,13 @@ class GithubService (
         throw IllegalStateException("Unknown exception $ex", ex)
     }
 
+    /**
+     * Fetches the content of the given GitHub URL directly without utilizing the caching mechanism.
+     *
+     * @param url The URL of the GitHub resource to be fetched.
+     * @return The content of the GitHub resource as a string.
+     * @throws IOException If an error occurs during the request.
+     */
     @Throws(IOException::class)
     fun getGithubContentWithoutCache(url: String): String {
         return githubClient.getGithubContent(url)

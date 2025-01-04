@@ -51,7 +51,7 @@ public class ProtocolEndpoint {
   @GetMapping("/" + PathsUtil.PROTOCOL_PATH)
   @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
   public @Size(max = 100) Map<String, Protocol> getProtocols() {
-    return this.protocolGenerator.getAllProtocols();
+    return this.protocolGenerator.retrieveAllProtocols();
   }
 
   @GetMapping(
