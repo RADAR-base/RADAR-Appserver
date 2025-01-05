@@ -51,7 +51,6 @@ import java.util.*
     )]
 )
 @Entity
-
 class Notification : Message() {
 
     @field:NotNull
@@ -383,7 +382,7 @@ class Notification : Message() {
             return this
         }
 
-        fun additionalData(additionalData: MutableMap<String?, String?>?): NotificationBuilder = apply {
+        fun additionalData(additionalData: Map<String?, String?>?): NotificationBuilder = apply {
             this.additionalData = additionalData
             return this
         }
