@@ -19,28 +19,17 @@
  *
  */
 
-package org.radarbase.appserver.dto;
+package org.radarbase.appserver.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.Instant;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.radarbase.appserver.event.state.MessageState;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import org.radarbase.appserver.event.state.TaskState
+import java.time.Instant
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DataMessageStateEventDto {
-
-    private Long id;
-
-    private Long dataMessageId;
-
-    private MessageState state;
-
-    private Instant time;
-
-    private String associatedInfo;
-}
+data class TaskStateEventDto (
+    var id: Long? = null,
+    var taskId: Long? = null,
+    var state: TaskState? = null,
+    var time: Instant? = null,
+    var associatedInfo: String? = null
+)
