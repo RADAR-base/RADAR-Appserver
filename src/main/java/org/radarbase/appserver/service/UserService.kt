@@ -53,20 +53,15 @@ import java.time.Instant
 @Transactional
 @Suppress("unused")
 class UserService(
+    @Transient
+    @Value("\${radar.notification.email.enabled:false}")
+    private val sendEmailNotifications: Boolean,
+
     val userMapper: UserMapper,
     val userRepository: UserRepository,
     val projectRepository: ProjectRepository,
     val scheduleService: QuestionnaireScheduleService,
 ) {
-
-    /**
-     * Indicates whether email notifications are enabled for the application.
-     * This variable is configured via the `radar.notification.email.enabled`
-     * property and defaults to `false` if no value is explicitly set.
-     */
-    @Transient
-    @Value("\${radar.notification.email.enabled:false}")
-    var sendEmailNotifications: Boolean = false
 
     /**
      * Retrieves all users associated with the projects.
@@ -271,7 +266,7 @@ class UserService(
             this.scheduleService.generateScheduleForUser(savedUser)
         }
 
-        return userMapper.entityToDto(user)
+        return userMapper.entityToDto(savedUser)
     }
 
     fun updateLastDelivered(fcmToken: String?, lastDelivered: Instant?) {
