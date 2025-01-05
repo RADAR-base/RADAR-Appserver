@@ -32,18 +32,18 @@ import java.time.Instant
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 class UserMapper: Mapper<FcmUserDto, User> {
-    override fun dtoToEntity(fcmUserDto: FcmUserDto): User = User().apply {
-        this.fcmToken = fcmUserDto.fcmToken
-        this.subjectId = fcmUserDto.subjectId
-        this.emailAddress = fcmUserDto.email
-        this.usermetrics = getValidUserMetrics(fcmUserDto)
-        this.enrolmentDate = fcmUserDto.enrolmentDate
-        this.timezone = fcmUserDto.timezone
-        this.language = fcmUserDto.language
-        this.attributes = fcmUserDto.attributes
+    override fun dtoToEntity(dto: FcmUserDto): User = User().apply {
+        this.fcmToken = dto.fcmToken
+        this.subjectId = dto.subjectId
+        this.emailAddress = dto.email
+        this.usermetrics = getValidUserMetrics(dto)
+        this.enrolmentDate = dto.enrolmentDate
+        this.timezone = dto.timezone
+        this.language = dto.language
+        this.attributes = dto.attributes
     }
 
-    override fun entityToDto(user: User): FcmUserDto = FcmUserDto(user)
+    override fun entityToDto(entity: User): FcmUserDto = FcmUserDto(entity)
 
     companion object {
         fun getValidUserMetrics(fcmUserDto: FcmUserDto): UserMetrics {

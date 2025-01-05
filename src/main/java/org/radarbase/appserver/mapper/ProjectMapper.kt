@@ -39,17 +39,17 @@ class ProjectMapper : Mapper<ProjectDto, Project> {
     /**
      * Converts a ProjectDTO object to a Project entity.
      */
-    override fun dtoToEntity(projectDTO: ProjectDto): Project {
-        return Project(id = projectDTO.id, projectId = projectDTO.projectId)
+    override fun dtoToEntity(dto: ProjectDto): Project {
+        return Project(id = dto.id, projectId = dto.projectId)
     }
 
     /**
      * Converts a Project entity to a ProjectDTO object.
      */
-    override fun entityToDto(project: Project): ProjectDto = ProjectDto(
-        id = project.id,
-        projectId = project.projectId,
-        createdAt = project.createdAt?.toInstant(),
-        updatedAt = project.updatedAt?.toInstant()
+    override fun entityToDto(entity: Project): ProjectDto = ProjectDto(
+        id = entity.id,
+        projectId = entity.projectId,
+        createdAt = entity.createdAt?.toInstant(),
+        updatedAt = entity.updatedAt?.toInstant()
     )
 }
