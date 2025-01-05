@@ -19,9 +19,9 @@
  *
  */
 
-package org.radarbase.appserver.event.state;
+package org.radarbase.appserver.event.state
 
-public enum MessageState {
+enum class MessageState {
     // Database controlled
     ADDED, UPDATED, CANCELLED,
 
