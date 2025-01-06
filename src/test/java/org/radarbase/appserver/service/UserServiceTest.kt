@@ -35,9 +35,6 @@ class UserServiceTest {
     @MockBean
     private lateinit var projectRepository: ProjectRepository
 
-    @MockBean
-    private lateinit var scheduleService: QuestionnaireScheduleService
-
     private val enrolmentDate: Instant = Instant.now().plus(Duration.ofSeconds(100))
 
     @BeforeEach
@@ -192,6 +189,6 @@ class UserServiceTest {
         private const val TIMEZONE = "Europe/Bucharest"
         private const val USER_ID = "test-user"
         private const val PROJECT_ID = "test-project"
-        private const val FCM_TOKEN_1 = "xxxx";
+        private const val FCM_TOKEN_1 = "xxxx"
     }
 }

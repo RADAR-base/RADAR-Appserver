@@ -1,8 +1,5 @@
 package org.radarbase.appserver.service
 
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Bean
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 
@@ -29,21 +25,20 @@ class ProjectServiceTest {
     @Autowired
     private lateinit var projectService: ProjectService
 
-    private val projectRepository: ProjectRepository = mockk(relaxed = true)
+    @MockBean
+    private lateinit var projectRepository: ProjectRepository
 
     @BeforeEach
     fun setUp() {
-        clearAllMocks()
-
         val project = Project().apply {
             this.projectId = PROJECT_ID
             createdAt = Date()
             updatedAt = Date()
         }
 
-        every { projectRepository.findByProjectId(PROJECT_ID) } returns project.apply { id = 1L }
-        every { projectRepository.findAll() } returns listOf(project.apply { id = 1L })
-        every { projectRepository.findByIdOrNull(1L) } returns project.apply { id = 1 }
+        Mockito.`when`(projectRepository.findByProjectId(PROJECT_ID)).thenReturn(project.apply { id = 1L })
+        Mockito.`when`(projectRepository.findAll()).thenReturn(listOf(project.apply { id = 1L }))
+        Mockito.`when`(projectRepository.findById(1L)).thenReturn(Optional.of(project.apply { id = 1L }))
 
         val projectNew = Project().apply {
             projectId = "$PROJECT_ID-new"
@@ -51,7 +46,7 @@ class ProjectServiceTest {
             updatedAt = Date()
         }
 
-        every { projectRepository.save(projectNew) } returns projectNew.apply { id = 2L }
+        Mockito.`when`(projectRepository.save(projectNew)).thenReturn(projectNew.apply { id = 2L })
 
         val projectUpdated = Project().apply {
             projectId = "$PROJECT_ID-updated"
@@ -60,7 +55,7 @@ class ProjectServiceTest {
             updatedAt = Date()
         }
 
-        every { projectRepository.save(projectUpdated) } returns projectUpdated
+        Mockito.`when`(projectRepository.save(projectUpdated)).thenReturn(projectUpdated)
     }
 
     @Test
