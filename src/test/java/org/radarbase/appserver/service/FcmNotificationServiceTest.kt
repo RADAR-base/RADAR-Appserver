@@ -381,7 +381,7 @@ class FcmNotificationServiceTest {
             .withSourceId(NOTIFICATION_SOURCE_ID)
             .withFcmMessageId("1234567")
             .withTtlSeconds(86400)
-            .withDelivered(false);
+            .withDelivered(false)
 
         notificationService.addNotification(notificationDto, USER_ID, PROJECT_ID)
         val savedNotification = notificationService.getNotificationById(3L)
@@ -465,7 +465,7 @@ class FcmNotificationServiceTest {
     @Test
     fun updateNotification() {
         val notificationDto = FcmNotificationDto()
-            .withBody(NOTIFICATION_BODY + " Updated")
+            .withBody("$NOTIFICATION_BODY Updated")
             .withTitle("Testing 2 Updated")
             .withScheduledTime(scheduledTime)
             .withSourceId(NOTIFICATION_SOURCE_ID)
@@ -476,11 +476,11 @@ class FcmNotificationServiceTest {
 
         val notificationDto1 = notificationService.updateNotification(notificationDto, USER_ID, PROJECT_ID)
 
-        assertEquals("Test notif Updated", notificationDto1.body);
-        assertEquals("Testing 2 Updated", notificationDto1.title);
+        assertEquals("Test notif Updated", notificationDto1.body)
+        assertEquals("Testing 2 Updated", notificationDto1.title)
     }
 
-    // If does not throw CustomExceptionHandler then test is valid
+    // If it does not throw CustomExceptionHandler then test is valid
     @Test
     fun removeNotificationsForUser() {
         assertDoesNotThrow {
@@ -503,7 +503,7 @@ class FcmNotificationServiceTest {
         }
     }
 
-    // If does not throw CustomExceptionHandler then test is valid
+    // If it does not throw CustomExceptionHandler then test is valid
     @Test
     fun removeNotificationsForUserUsingFcmToken() {
         assertDoesNotThrow {

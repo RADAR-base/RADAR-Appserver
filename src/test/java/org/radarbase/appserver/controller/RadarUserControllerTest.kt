@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
-import org.radarbase.appserver.controller.FcmDataMessageControllerTest.USER_ID
+import org.radarbase.appserver.controller.FcmDataMessageControllerTest.Companion.USER_ID
 import org.radarbase.appserver.controller.RadarProjectControllerTest.Companion.ID_JSON_PATH
 import org.radarbase.appserver.controller.RadarProjectControllerTest.Companion.PROJECT_ID
 import org.radarbase.appserver.dto.fcm.FcmUserDto
