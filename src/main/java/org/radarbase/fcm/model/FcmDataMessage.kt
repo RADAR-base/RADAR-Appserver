@@ -18,24 +18,31 @@
  *  *
  *
  */
+package org.radarbase.fcm.model
 
-package org.radarbase.fcm.model;
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Map;
-import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-
-/** @author yatharthranjan */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuperBuilder
-@Getter
-public class FcmNotificationMessage extends FcmDownstreamMessage {
+class FcmDataMessage : FcmDownstreamMessage() {
 
-  // TODO Add specific Notification model and data model classes instead of using Maps.
+    @JsonProperty
+    var data: Map<String, String>? = null
 
-  @JsonProperty private Map<String, Object> notification;
+    class Builder : FcmDownstreamMessage.Builder<Builder>() {
 
-  @JsonProperty private Map<String, String> data;
+        private var data: Map<String, String>? = null
+
+        fun data(data: Map<String, String>?) = apply {
+            this.data = data
+        }
+
+        override fun build(): FcmDataMessage {
+            val message = FcmDataMessage()
+            applyTo(message)
+            message.data = this.data
+            return message
+        }
+
+    }
 }

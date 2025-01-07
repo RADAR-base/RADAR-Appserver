@@ -18,8 +18,8 @@
  *  *
  *
  */
+package org.radarbase.fcm.model
 
-package org.radarbase.fcm.model;
-
-/** @author yatharthranjan */
-public interface FcmMessage {}
+/** @author yatharthranjan
+ */
+interface FcmMessage 
