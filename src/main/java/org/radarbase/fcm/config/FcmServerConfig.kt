@@ -18,12 +18,17 @@
  *  *
  *
  */
+package org.radarbase.fcm.config
 
-package org.radarbase.fcm.common;
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
- * A stereotype to specify if a class is a client of the FCM CCS server.
+ * Loads Configuration required to connect to the FCM server.
  *
  * @author yatharthranjan
  */
-public interface CcsClient {}
+@ConfigurationProperties(value = "fcmserver")
+data class FcmServerConfig (
+    var fcmsender: String? = null,
+    var credentials: String? = null
+    )
