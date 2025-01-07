@@ -29,13 +29,14 @@ import java.util.*
 
 /** @author yatharthranjan
  */
+@Suppress("unused")
 @Repository
-interface NotificationRepository : JpaRepository<Notification?, Long?> {
-    fun findByUserId(userId: Long?): MutableList<Notification?>?
+interface NotificationRepository : JpaRepository<Notification, Long> {
+    fun findByUserId(userId: Long?): List<Notification>
 
-    fun findByUserIdAndTaskId(userId: Long?, taskId: Long?): MutableList<Notification?>?
+    fun findByUserIdAndTaskId(userId: Long?, taskId: Long?): List<Notification>
 
-    fun findByTaskId(id: Long?): MutableList<Notification?>?
+    fun findByTaskId(id: Long?): List<Notification>
 
     fun deleteByUserId(userId: Long?)
 
@@ -61,11 +62,9 @@ interface NotificationRepository : JpaRepository<Notification?, Long?> {
         body: String?,
         type: String?,
         ttlSeconds: Int
-    ): Optional<Notification?>?
+    ): Notification?
 
     fun existsByIdAndUserId(id: Long?, userId: Long?): Boolean
-
-    override fun existsById(id: @NotNull Long?): Boolean
 
     fun existsByTaskId(taskId: Long?): Boolean
 
@@ -73,7 +72,7 @@ interface NotificationRepository : JpaRepository<Notification?, Long?> {
 
     fun deleteByIdAndUserId(id: Long?, userId: Long?)
 
-    fun findByFcmMessageId(fcmMessageId: String?): Optional<Notification?>?
+    fun findByFcmMessageId(fcmMessageId: String?): Notification?
 
-    fun findByIdAndUserId(id: Long, userId: Long): Optional<Notification?>?
+    fun findByIdAndUserId(id: Long, userId: Long): Notification?
 }

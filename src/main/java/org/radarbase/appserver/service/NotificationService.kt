@@ -18,11 +18,6 @@
  *  *
  *
  */
+package org.radarbase.appserver.service
 
-package org.radarbase.appserver.service;
-
-public interface NotificationService {
-
-  // TODO add methods and use for autowiring everywhere
-
-}
+interface NotificationService 
