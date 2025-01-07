@@ -18,9 +18,8 @@
  *  *
  *
  */
+package org.radarbase.appserver.auth.common
 
-package org.radarbase.appserver.auth.common;
-
-public interface OAuthHelper {
-  public String getAccessToken();
+interface OAuthHelper {
+    fun  getAccessToken(): String
 }
