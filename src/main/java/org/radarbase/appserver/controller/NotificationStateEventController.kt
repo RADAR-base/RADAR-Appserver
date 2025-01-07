@@ -32,7 +32,7 @@ import javax.naming.SizeLimitExceededException
 
 @CrossOrigin
 @RestController
-class NotificationStateEventController(@field:Transient private val notificationStateEventService: NotificationStateEventService) {
+class NotificationStateEventController(private val notificationStateEventService: NotificationStateEventService) {
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
     @GetMapping(
         value = [("/"
@@ -44,8 +44,8 @@ class NotificationStateEventController(@field:Transient private val notification
     )
     fun getNotificationStateEventsByNotificationId(
         @PathVariable notificationId: Long
-    ): ResponseEntity<MutableList<NotificationStateEventDto?>?> {
-        return ResponseEntity.ok<MutableList<NotificationStateEventDto?>?>(
+    ): ResponseEntity<List<NotificationStateEventDto>> {
+        return ResponseEntity.ok(
             notificationStateEventService.getNotificationStateEventsByNotificationId(notificationId)
         )
     }
@@ -71,8 +71,8 @@ class NotificationStateEventController(@field:Transient private val notification
         @PathVariable projectId: String?,
         @PathVariable subjectId: String?,
         @PathVariable notificationId: Long
-    ): ResponseEntity<MutableList<NotificationStateEventDto?>?> {
-        return ResponseEntity.ok<MutableList<NotificationStateEventDto?>?>(
+    ): ResponseEntity<List<NotificationStateEventDto>> {
+        return ResponseEntity.ok(
             notificationStateEventService.getNotificationStateEvents(
                 projectId, subjectId, notificationId
             )
@@ -102,7 +102,7 @@ class NotificationStateEventController(@field:Transient private val notification
         @PathVariable subjectId: String?,
         @PathVariable notificationId: Long,
         @RequestBody notificationStateEventDto: NotificationStateEventDto
-    ): ResponseEntity<MutableList<NotificationStateEventDto?>?> {
+    ): ResponseEntity<List<NotificationStateEventDto>> {
         notificationStateEventService.publishNotificationStateEventExternal(
             projectId, subjectId, notificationId, notificationStateEventDto
         )

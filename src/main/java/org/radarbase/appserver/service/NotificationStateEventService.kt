@@ -113,13 +113,12 @@ class NotificationStateEventService(
             }
         }
 
-        val stateEvent =
-            org.radarbase.appserver.event.state.dto.NotificationStateEventDto(
+        val stateEvent = org.radarbase.appserver.event.state.dto.NotificationStateEventDto(
                 this,
                 notification,
-                notificationStateEventDto.state,
+                notificationStateEventDto.state!!,
                 additionalInfo,
-                notificationStateEventDto.time
+                notificationStateEventDto.time!!
             )
         notificationApplicationEventPublisher.publishEvent(stateEvent)
     }
