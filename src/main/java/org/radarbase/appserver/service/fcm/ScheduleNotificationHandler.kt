@@ -18,13 +18,13 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.fcm
 
-package org.radarbase.appserver.service.fcm;
+import org.radarbase.appserver.dto.fcm.FcmNotificationDto
+import org.radarbase.appserver.dto.fcm.FcmUserDto
 
-import org.radarbase.appserver.dto.fcm.FcmNotificationDto;
-import org.radarbase.appserver.dto.fcm.FcmUserDto;
-
-public interface ScheduleNotificationHandler {
-  void handleScheduleNotification(
-      FcmNotificationDto notificationDto, FcmUserDto userDto, String projectId);
+interface ScheduleNotificationHandler {
+    fun handleScheduleNotification(
+        notificationDto: FcmNotificationDto, userDto: FcmUserDto, projectId: String?
+    )
 }
