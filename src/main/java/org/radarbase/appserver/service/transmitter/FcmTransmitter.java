@@ -85,7 +85,7 @@ public class FcmTransmitter implements NotificationTransmitter, DataMessageTrans
         String to =
             Objects.requireNonNullElseGet(
                 notification.getFcmTopic(), notification.getUser()::getFcmToken);
-        return FcmNotificationMessage.builder()
+        return new FcmNotificationMessage.Builder()
             .to(to)
             .condition(notification.getFcmCondition())
             .priority(notification.getPriority())
@@ -102,7 +102,7 @@ public class FcmTransmitter implements NotificationTransmitter, DataMessageTrans
         String to =
             Objects.requireNonNullElseGet(
                 dataMessage.getFcmTopic(), dataMessage.getUser()::getFcmToken);
-        return FcmDataMessage.builder()
+        return new FcmDataMessage.Builder()
             .to(to)
             .condition(dataMessage.getFcmCondition())
             .priority(dataMessage.getPriority())

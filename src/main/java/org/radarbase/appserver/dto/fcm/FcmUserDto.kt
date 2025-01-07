@@ -48,10 +48,10 @@ data class FcmUserDto(
 
     @field:NotNull
     @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    val enrolmentDate: Instant? = null,
+    var enrolmentDate: Instant? = null,
 
     @field:NotNull
-    val timezone: String? = null,
+    var timezone: String? = null,
 
     /**
      * Timezone of the user based on tz database names
@@ -61,7 +61,7 @@ data class FcmUserDto(
     var language: String? = null,
 
     @field:Size(max = 100)
-    val attributes: Map<String?, String?>? = null,
+    var attributes: Map<String?, String?>? = null,
 ) {
     constructor(user: User) : this(
         id = user.id,

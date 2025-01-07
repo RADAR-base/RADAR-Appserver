@@ -31,18 +31,17 @@ class TaskGeneratorService {
 
     fun buildTask(assessment: Assessment, timestamp: Instant, completionWindow: Long): Task {
         val isClinical = assessment.type == AssessmentType.CLINICAL
-        val task = TaskBuilder()
-            .name(assessment.name)
-            .type(assessment.type)
-            .estimatedCompletionTime(assessment.estimatedCompletionTime!!)
-            .completionWindow(completionWindow)
-            .priority(assessment.order)
-            .timestamp(timestamp)
-            .showInCalendar(assessment.showInCalendar)
-            .isDemo(assessment.isDemo)
-            .nQuestions(assessment.nQuestions)
+        return TaskBuilder().apply {
+            name(assessment.name)
+            type(assessment.type)
+            estimatedCompletionTime(assessment.estimatedCompletionTime!!)
+            completionWindow(completionWindow)
+            priority(assessment.order)
+            timestamp(timestamp)
+            showInCalendar(assessment.showInCalendar)
+            isDemo(assessment.isDemo)
+            nQuestions(assessment.nQuestions)
             .isClinical(isClinical)
-            .build()
-        return task
+        }.build()
     }
 }

@@ -156,7 +156,7 @@ class UserService(
                 user.fcmToken = FCM_TOKEN_PREFIX + Instant.now().toString()
             }
         }?.also {
-            userRepository.save<User>(it)
+            userRepository.saveAndFlush<User>(it)
         }
     }
 
@@ -206,7 +206,7 @@ class UserService(
             }
             newUser.project = project
         }.run {
-            userRepository.save<User>(this)
+            userRepository.saveAndFlush<User>(this)
         }
 
         this.scheduleService.generateScheduleForUser(savedUser)
@@ -256,7 +256,7 @@ class UserService(
             }
         }
 
-        val savedUser: User = userRepository.save<User>(user)
+        val savedUser: User = userRepository.saveAndFlush<User>(user)
         // Generate schedule for user
         if (user.attributes != userDto.attributes ||
             user.timezone != userDto.timezone ||
@@ -276,7 +276,7 @@ class UserService(
         user.usermetrics?.let {
             it.lastDelivered = lastDelivered
         }
-        userRepository.save<User>(user)
+        userRepository.saveAndFlush<User>(user)
     }
 
     /**
@@ -301,8 +301,7 @@ class UserService(
         checkInvalidDetails<InvalidUserDetailsException>(
             { user == null },
             {
-                "The user with specified subject ID $subjectId does not exist in project ID "
-                "$projectId. Please specify a valid user for deleting."
+                "The user with specified subject ID $subjectId does not exist in project ID $projectId. Please specify a valid user for deleting."
             }
         )
 

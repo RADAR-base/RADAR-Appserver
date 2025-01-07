@@ -30,9 +30,6 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
-import java.util.Set
-import java.util.stream.Collectors
-import javax.naming.SizeLimitExceededException
 
 @Service
 class NotificationStateEventService(
@@ -87,7 +84,6 @@ class NotificationStateEventService(
     }
 
     @Transactional
-    @Throws(SizeLimitExceededException::class)
     fun publishNotificationStateEventExternal(
         projectId: String?,
         subjectId: String?,
@@ -123,13 +119,13 @@ class NotificationStateEventService(
         notificationApplicationEventPublisher.publishEvent(stateEvent)
     }
 
-    @Throws(SizeLimitExceededException::class, IllegalStateException::class)
+    @Throws(IllegalStateException::class)
     private fun checkState(notificationId: Long, state: MessageState?) {
         if (EXTERNAL_EVENTS.contains(state)) {
             if (notificationStateEventRepository.countByNotificationId(notificationId)
                 >= MAX_NUMBER_OF_STATES
             ) {
-                throw SizeLimitExceededException("The max limit of state changes($MAX_NUMBER_OF_STATES) has been reached. Cannot add new states.")
+                throw IllegalStateException("The max limit of state changes($MAX_NUMBER_OF_STATES) has been reached. Cannot add new states.")
             }
         } else {
             throw IllegalStateException("The state $state is not an external state and cannot be updated by this endpoint.")

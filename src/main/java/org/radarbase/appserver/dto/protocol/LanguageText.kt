@@ -31,8 +31,8 @@ data class LanguageText(
     var de: String? = null,
     var es: String? = null
 ) {
-    fun getText(languageCode: String): String {
-        return when (languageCode.lowercase(Locale.getDefault())) {
+    fun getText(languageCode: String?): String {
+        return when (languageCode?.lowercase(Locale.getDefault())) {
             "en" -> en
             "it" -> it
             "nl" -> nl

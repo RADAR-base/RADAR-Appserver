@@ -14,22 +14,21 @@
  *  limitations under the License.
  */
 
-package org.radarbase.appserver.dto.protocol
+package org.radarbase.appserver.service.questionnaire.protocol
 
-/**
- * Data Transfer object (DTO) for Protocol. A project may represent a `Protocol` for scheduling
- * questionnaires.
- *
- * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
- */
-data class Protocol(
-    var version: String? = null,
-    var schemaVersion: String? = null,
-    var name: String? = null,
-    var healthIssues: List<String>? = null,
-    var protocols: List<Assessment>? = null
-) {
-    fun hasAssessment(assessment: String?): Boolean {
-        return protocols?.any { it.name == assessment } == true
+import org.radarbase.appserver.dto.protocol.Assessment
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
+import org.radarbase.appserver.entity.Notification
+import org.radarbase.appserver.entity.User
+
+class DisabledNotificationHandler : ProtocolHandler {
+    override fun handle(
+        assessmentSchedule: AssessmentSchedule,
+        assessment: Assessment,
+        user: User
+    ): AssessmentSchedule {
+        return assessmentSchedule.also {
+            it.notifications = emptyList()
+        }
     }
 }

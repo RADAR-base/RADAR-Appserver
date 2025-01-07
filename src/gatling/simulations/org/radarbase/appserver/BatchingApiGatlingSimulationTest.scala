@@ -92,16 +92,16 @@ class BatchingApiGatlingSimulationTest extends Simulation {
           .repeat(s"$numOfNotificationsPerUser", "nn") {
             exec { session =>
               session("fcmNotifications").validate[FcmNotifications].map(fcmNotifications =>
-                fcmNotifications.addNotification(new FcmNotificationDto().setScheduledTime(Instant.now().plus(Duration.ofDays(50)))
-                  .setBody(getValue(notifBodyTemplate.apply(session)))
-                  .setTitle(getValue(notifTitleTemplate.apply(session)))
-                  .setFcmMessageId(getValue(notifMessageIdTemplate.apply(session)))
-                  .setSourceId(getValue(notifSourceIdTemplate.apply(session)))
-                  .setTtlSeconds(86400)
-                  .setAppPackage("aRMT")
-                  .setSourceType("aRMT")
-                  .setType("ESM")
-                  .setDelivered(false)
+                fcmNotifications.addNotification(new FcmNotificationDto().withScheduledTime(Instant.now().plus(Duration.ofDays(50)))
+                  .withBody(getValue(notifBodyTemplate.apply(session)))
+                  .withTitle(getValue(notifTitleTemplate.apply(session)))
+                  .withFcmMessageId(getValue(notifMessageIdTemplate.apply(session)))
+                  .withSourceId(getValue(notifSourceIdTemplate.apply(session)))
+                  .withTtlSeconds(86400)
+                  .withAppPackage("aRMT")
+                  .withSourceType("aRMT")
+                  .withType("ESM")
+                  .withDelivered(false)
                 )
               )
 

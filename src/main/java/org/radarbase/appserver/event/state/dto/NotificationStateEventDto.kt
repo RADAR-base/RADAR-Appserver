@@ -20,15 +20,11 @@
  */
 package org.radarbase.appserver.event.state.dto
 
-import lombok.Getter
-import lombok.ToString
 import org.radarbase.appserver.entity.Notification
 import org.radarbase.appserver.event.state.MessageState
 import java.io.Serial
 import java.time.Instant
 
-@Getter
-@ToString
 /**
  * Create a new ApplicationEvent.
  *
@@ -38,7 +34,7 @@ import java.time.Instant
  * @param additionalInfo any additional info associated with the state change.
  */
 class NotificationStateEventDto(
-    val source: Any,
+    source: Any,
     val notification: Notification,
     state: MessageState,
     additionalInfo: Map<String, String>?,

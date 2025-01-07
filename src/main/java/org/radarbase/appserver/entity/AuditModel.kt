@@ -3,7 +3,6 @@ package org.radarbase.appserver.entity
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
 import org.radarbase.appserver.util.equalTo
-import org.radarbase.appserver.util.stringRepresentation
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -35,7 +34,6 @@ abstract class AuditModel {
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     var createdAt: Date? = null
-        protected set
 
     /**
      * Timestamp indicating the last modification time of an entity.
@@ -47,12 +45,6 @@ abstract class AuditModel {
     @Column(name = "updated_at", nullable = false)
     @LastModifiedDate
     var updatedAt: Date? = null
-        protected set
-
-    override fun toString(): String = stringRepresentation(
-        AuditModel::createdAt,
-        AuditModel::updatedAt
-    )
 
     override fun equals(other: Any?): Boolean = equalTo(
         other,

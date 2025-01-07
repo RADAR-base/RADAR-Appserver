@@ -134,10 +134,10 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) : Serializable {
         this.mutableContent = mutableContent
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is FcmDataMessageDto) return false
-        val that = o
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FcmDataMessageDto) return false
+        val that = other
         return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime
                 && appPackage == that.appPackage
                 && sourceType == that.sourceType

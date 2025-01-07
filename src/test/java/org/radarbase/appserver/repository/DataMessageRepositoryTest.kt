@@ -153,12 +153,12 @@ class DataMessageRepositoryTest {
             user.id!!, DATA_MESSAGE_SOURCE_ID, scheduledTime, 86400)
 
         assertTrue(exists)
-        assertTrue(dataMessageRepository.existsById(id))
+        assertTrue(dataMessageRepository.existsById(id!!))
     }
 
     @Test
     fun `when delete data message by id then exists false`() {
-        dataMessageRepository.deleteById(id)
+        dataMessageRepository.deleteById(id!!)
 
         val dataMessage = entityManager.find(DataMessage::class.java, id)
         assertNull(dataMessage)

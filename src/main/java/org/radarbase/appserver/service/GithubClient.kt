@@ -51,6 +51,10 @@ import java.net.URI
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 class GithubClient(
+    @Value("\${security.github.client.maxContentLength:1000000}")
+    @Transient
+    private val maxContentLength: Int,
+
     @Value("\${security.github.client.timeout:10}") httpTimeout: Int,
     @Value("\${security.github.client.token:}") githubToken: String
 ) {
@@ -74,15 +78,6 @@ class GithubClient(
         }
         followRedirects = true
     }
-
-    /**
-     * Represents the maximum allowed content length for data fetched from GitHub.
-     * Configurable via the `security.github.client.maxContentLength` property in the application configuration.
-     * If not specified, it defaults to 1000000.
-     */
-    @Value("\${security.github.client.maxContentLength:1000000}")
-    @Transient
-    private val maxContentLength = 0
 
     /**
      * Retrieves the content from a specified GitHub URL. This method attempts to make an authenticated request

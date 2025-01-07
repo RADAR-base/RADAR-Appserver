@@ -80,7 +80,7 @@ public class TaskService {
         if (task.isPresent()) {
             return task.get();
         } else {
-            throw new NotFoundException("Task not found with id" + id);
+            throw new NotFoundException("Task not found with id " + id);
         }
     }
 

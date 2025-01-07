@@ -21,7 +21,7 @@
 
 package org.radarbase.appserver.service;
 
-import org.radarbase.appserver.converter.DataMessageConverter;
+import org.radarbase.appserver.mapper.DataMessageMapper;
 import org.radarbase.appserver.dto.fcm.FcmDataMessageDto;
 import org.radarbase.appserver.dto.fcm.FcmDataMessages;
 import org.radarbase.appserver.entity.DataMessage;
@@ -69,7 +69,7 @@ public class FcmDataMessageService implements DataMessageService {
     private final transient UserRepository userRepository;
     private final transient ProjectRepository projectRepository;
     private final transient MessageSchedulerService schedulerService;
-    private final transient DataMessageConverter dataMessageConverter;
+    private final transient DataMessageMapper dataMessageConverter;
     private final transient ApplicationEventPublisher dataMessageStateEventPublisher;
 
     @Autowired
@@ -78,7 +78,7 @@ public class FcmDataMessageService implements DataMessageService {
             UserRepository userRepository,
             ProjectRepository projectRepository,
             MessageSchedulerService schedulerService,
-            DataMessageConverter dataMessageConverter,
+            DataMessageMapper dataMessageConverter,
             ApplicationEventPublisher eventPublisher) {
         this.dataMessageRepository = dataMessageRepository;
         this.userRepository = userRepository;
@@ -92,7 +92,7 @@ public class FcmDataMessageService implements DataMessageService {
     public FcmDataMessages getAllDataMessages() {
         List<DataMessage> dataMessages = dataMessageRepository.findAll();
         return new FcmDataMessages()
-                .setDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
+                .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
     }
 
     @Transactional(readOnly = true)
@@ -109,7 +109,7 @@ public class FcmDataMessageService implements DataMessageService {
         }
         List<DataMessage> dataMessages = dataMessageRepository.findByUserId(user.getId());
         return new FcmDataMessages()
-                .setDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
+                .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
     }
 
     @Transactional(readOnly = true)
@@ -119,7 +119,7 @@ public class FcmDataMessageService implements DataMessageService {
 
         List<DataMessage> dataMessages = dataMessageRepository.findByUserId(user.getId());
         return new FcmDataMessages()
-                .setDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
+                .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
     }
 
     @Transactional(readOnly = true)
@@ -135,7 +135,7 @@ public class FcmDataMessageService implements DataMessageService {
                 .map((User user) -> this.dataMessageRepository.findByUserId(user.getId()))
                 .forEach(dataMessages::addAll);
         return new FcmDataMessages()
-                .setDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
+                .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages));
     }
 
     @Transactional(readOnly = true)
@@ -306,7 +306,7 @@ public class FcmDataMessageService implements DataMessageService {
         );
         this.schedulerService.scheduleMultiple(savedDataMessages);
         return new FcmDataMessages()
-                .setDataMessages(dataMessageConverter.entitiesToDtos(savedDataMessages));
+                .withDataMessages(dataMessageConverter.entitiesToDtos(savedDataMessages));
     }
 
     public User subjectAndProjectExistElseThrow(String subjectId, String projectId) {

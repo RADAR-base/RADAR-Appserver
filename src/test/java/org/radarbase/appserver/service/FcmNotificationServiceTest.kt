@@ -250,10 +250,10 @@ class FcmNotificationServiceTest {
             .thenReturn(listOf(notification1, notification2))
 
         Mockito.`when`(notificationRepository.findByFcmMessageId(NOTIFICATION_FCM_MESSAGE_ID))
-            .thenReturn(Optional.of(notification1))
+            .thenReturn(notification1)
 
         Mockito.`when`(notificationRepository.findByFcmMessageId(FCM_MESSAGE_ID))
-            .thenReturn(Optional.of(notification2))
+            .thenReturn(notification2)
 
         Mockito.`when`(notificationRepository.findById(1L)).thenReturn(Optional.of(notification1))
 
@@ -296,7 +296,7 @@ class FcmNotificationServiceTest {
         )
             .thenReturn(true)
 
-        Mockito.`when`(notificationRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(notification1))
+        Mockito.`when`(notificationRepository.findByIdAndUserId(1L, 1L)).thenReturn(notification1)
 
     }
 
@@ -526,7 +526,7 @@ class FcmNotificationServiceTest {
         private lateinit var projectRepository: ProjectRepository
 
         @Autowired
-        private lateinit var schedulerService: MessageSchedulerService<*>
+        private lateinit var schedulerService: MessageSchedulerService<Notification>
 
         @Autowired
         private lateinit var eventPublisher: ApplicationEventPublisher

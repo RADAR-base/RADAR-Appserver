@@ -51,7 +51,7 @@ class DataMessageMapper : Mapper<FcmDataMessageDto, DataMessage> {
         }.build()
     }
 
-    override fun entityToDto(dataMessage: DataMessage): FcmDataMessageDto {
-        return FcmDataMessageDto(dataMessage)
+    override fun entityToDto(entity: DataMessage): FcmDataMessageDto {
+        return FcmDataMessageDto(entity)
     }
 }

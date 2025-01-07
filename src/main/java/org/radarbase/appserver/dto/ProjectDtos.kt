@@ -6,7 +6,7 @@ data class ProjectDtos (
     @field:Size(max = 500)
     val projects: MutableList<ProjectDto> = mutableListOf(),
 ) {
-    fun withProjects(projects: MutableList<ProjectDto>): ProjectDtos = apply{
+    fun withProjects(projects: List<ProjectDto>): ProjectDtos = apply{
         this.projects.clear()
         this.projects.addAll(projects)
     }

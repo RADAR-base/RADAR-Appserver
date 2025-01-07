@@ -123,6 +123,7 @@ class User(
     )
 
     override fun equals(other: Any?): Boolean = equalTo(
+        other,
         User::subjectId,
         User::fcmToken,
         User::project,
@@ -130,7 +131,7 @@ class User(
     )
 
     override fun hashCode(): Int {
-        return Objects.hash(subjectId, fcmToken, project)
+        return Objects.hash(subjectId, fcmToken, project, enrolmentDate)
     }
 
     companion object {

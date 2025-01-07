@@ -26,7 +26,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface TaskStateEventRepository : JpaRepository<TaskStateEvent?, Long?> {
+interface TaskStateEventRepository : JpaRepository<TaskStateEvent, Long> {
     fun findByTaskId(taskId: Long?): List<TaskStateEvent>
 
     fun countByTaskId(taskId: Long?): Long

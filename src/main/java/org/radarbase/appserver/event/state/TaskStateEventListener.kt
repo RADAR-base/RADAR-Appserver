@@ -48,7 +48,7 @@ class TaskStateEventListener(
     @Async
     fun onTaskStateChange(event: TaskStateEventDto) {
         val info = convertMapToString(event.additionalInfo)
-        logger.debug("ID: {}, STATE: {}", event.task.id, event.state)
+        logger.debug("ID: {}, STATE: {}", event.task?.id, event.state)
         val eventEntity = TaskStateEvent(
             event.task, event.state, event.time, info
         )

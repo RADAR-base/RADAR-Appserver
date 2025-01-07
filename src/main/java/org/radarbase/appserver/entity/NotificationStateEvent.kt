@@ -44,10 +44,10 @@ class NotificationStateEvent : MessageStateEvent {
     var notification: Notification? = null
 
     constructor(
+        notification: Notification,
         state: MessageState,
         time: Instant,
         associatedInfo: String?,
-        notification: Notification
     ) : super(state, time, associatedInfo) {
         this.notification = notification
     }

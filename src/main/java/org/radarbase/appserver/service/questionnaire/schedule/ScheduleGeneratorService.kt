@@ -28,6 +28,7 @@ import org.radarbase.appserver.dto.questionnaire.Schedule
 import org.radarbase.appserver.entity.Task
 import org.radarbase.appserver.entity.User
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
+import java.util.stream.Collectors
 
 interface ScheduleGeneratorService {
     fun getProtocolHandler(assessment: Assessment): ProtocolHandler?
@@ -55,7 +56,7 @@ interface ScheduleGeneratorService {
             val prevTasks: List<Task> = prevAssessmentSchedules.firstOrNull { it.name == assessment.name }?.tasks
                 ?: emptyList()
             generateSingleAssessmentSchedule(assessment, user, prevTasks, prevTimezone)
-        }.toList()
+        }.collect(Collectors.toList())
 
         return Schedule(assessmentSchedules, user, protocol.version)
     }

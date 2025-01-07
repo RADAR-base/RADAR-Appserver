@@ -56,6 +56,9 @@ class UserServiceTest {
     @MockBean
     private lateinit var projectRepository: ProjectRepository
 
+    @MockBean
+    private lateinit var scheduleService: QuestionnaireScheduleService
+
     private val enrolmentDate: Instant = Instant.now().plus(Duration.ofSeconds(100))
 
     @BeforeEach

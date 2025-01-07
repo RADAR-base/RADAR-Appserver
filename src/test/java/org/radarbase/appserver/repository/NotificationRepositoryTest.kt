@@ -163,12 +163,12 @@ class NotificationRepositoryTest {
         )
 
         assertTrue(exists)
-        assertTrue(notificationRepository.existsById(id))
+        assertTrue(notificationRepository.existsById(id!!))
     }
 
     @Test
     fun `when delete notification by id then exists false`() {
-        notificationRepository.deleteById(id)
+        notificationRepository.deleteById(id!!)
         val notification = entityManager.find(Notification::class.java, id)
         assertNull(notification)
     }

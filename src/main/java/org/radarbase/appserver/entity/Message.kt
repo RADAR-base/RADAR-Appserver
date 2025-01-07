@@ -123,6 +123,11 @@ class Message(
         )
     }
 
+    override fun toString(): String {
+        return "Message(id=$id, user=$user, task=$task, sourceId=$sourceId, scheduledTime=$scheduledTime, ttlSeconds=$ttlSeconds, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, delivered=$delivered, validated=$validated, appPackage=$appPackage, sourceType=$sourceType, dryRun=$dryRun, priority=$priority, mutableContent=$mutableContent)"
+    }
+
+
     companion object {
         @Serial
         private const val serialVersionUID = -367424816328519L

@@ -34,7 +34,7 @@ import org.springframework.web.util.UriComponentsBuilder
 class MPOAuthHelper : OAuthHelper {
     companion object {
         private val mapper = ObjectMapper()
-        private const val MP_URL = "http://localhost:8081/managementportal/"
+        private const val MP_URL = "http://stage.radar-base.net/managementportal/"
         private const val MP_CLIENT = "ManagementPortalapp"
         private const val REST_CLIENT = "pRMT"
         private const val USER = "sub-1"
@@ -69,7 +69,10 @@ class MPOAuthHelper : OAuthHelper {
                 add("grant_type", "password")
             }
 
-            val headers = HttpHeaders().apply { setBasicAuth(MP_CLIENT, "") }
+            val headers = HttpHeaders().apply {
+                setBasicAuth(MP_CLIENT, "")
+            }
+
             val request = HttpEntity(map, headers)
 
             val response = restTemplate.exchange(MpTokenUri, HttpMethod.POST, request, String::class.java)

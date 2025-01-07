@@ -38,7 +38,9 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
     override fun handle(
         assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User
     ): AssessmentSchedule {
-        val referenceTimestamp = assessmentSchedule.referenceTimestamps ?: return assessmentSchedule
+        val referenceTimestamp = assessmentSchedule.referenceTimestamps ?: return assessmentSchedule.also {
+            it.tasks = emptyList()
+        }
         val tasks = generateTasks(assessment, referenceTimestamp, user)
         assessmentSchedule.tasks = tasks
         return assessmentSchedule

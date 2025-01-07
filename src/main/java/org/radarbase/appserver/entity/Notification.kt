@@ -435,15 +435,15 @@ class Notification : Message() {
         }
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o !is Notification) {
+        if (other !is Notification) {
             return false
         }
-        val that = o
-        return super.equals(o)
+        val that = other
+        return super.equals(other)
                 && title == that.title
                 && body == that.body
                 && type == that.type
@@ -459,7 +459,7 @@ class Notification : Message() {
     }
 
     override fun toString(): String {
-        return "Notification(title=$title, body=$body, type=$type, sound=$sound, badge=$badge, subtitle=$subtitle, icon=$icon, color=$color, bodyLocKey=$bodyLocKey, bodyLocArgs=$bodyLocArgs, titleLocKey=$titleLocKey, titleLocArgs=$titleLocArgs, androidChannelId=$androidChannelId, tag=$tag, clickAction=$clickAction, emailEnabled=$emailEnabled, emailTitle=$emailTitle, emailBody=$emailBody, additionalData=$additionalData)"
+        return "Notification(title=$title, body=$body, type=$type, sound=$sound, badge=$badge, subtitle=$subtitle, icon=$icon, color=$color, bodyLocKey=$bodyLocKey, bodyLocArgs=$bodyLocArgs, titleLocKey=$titleLocKey, titleLocArgs=$titleLocArgs, androidChannelId=$androidChannelId, tag=$tag, clickAction=$clickAction, emailEnabled=$emailEnabled, emailTitle=$emailTitle, emailBody=$emailBody, additionalData=$additionalData, Message=${super.toString()})"
     }
 
 

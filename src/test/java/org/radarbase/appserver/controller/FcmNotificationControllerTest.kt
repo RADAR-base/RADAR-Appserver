@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.doAnswer
+import org.mockito.kotlin.eq
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.dto.fcm.FcmNotifications
 import org.radarbase.appserver.service.FcmNotificationService

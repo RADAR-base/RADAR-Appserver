@@ -22,7 +22,6 @@ package org.radarbase.appserver.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import jakarta.websocket.server.PathParam
 import org.radarbase.appserver.config.AuthConfig.AuthEntities
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions
 import org.radarbase.appserver.dto.fcm.FcmUserDto
@@ -39,9 +38,6 @@ import radar.spring.auth.common.PermissionOn
 import radar.spring.auth.exception.AuthorizationFailedException
 import java.net.URI
 import java.net.URISyntaxException
-import java.util.*
-import java.util.stream.Collectors
-import kotlin.Throws
 
 /**
  * Resource Endpoint for getting and adding users. Each notification [ ] needs to be associated to a user. A user may
@@ -89,14 +85,14 @@ class RadarUserController(
             ) {
                 if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(userDto)
                 val user = userService.saveUserInProject(userDto)
-                return ResponseEntity.created(URI("/\${PathsUtil.USER_PATH}/user?id=\${user.id}")).body(user)
+                return ResponseEntity.created(URI("${PathsUtil.USER_PATH}/user?id=${user.id}")).body(user)
             } else {
                 throw AuthorizationFailedException("The provided token does not have enough privileges.")
             }
         } ?: run {
             if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(userDto)
             val user = userService.saveUserInProject(userDto)
-            return ResponseEntity.created(URI("/\${PathsUtil.USER_PATH}/user?id=\${user.id}")).body(user)
+            return ResponseEntity.created(URI("${PathsUtil.USER_PATH}/user?id=${user.id}")).body(user)
         }
     }
 

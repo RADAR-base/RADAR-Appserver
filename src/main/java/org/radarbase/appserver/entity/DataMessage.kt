@@ -21,10 +21,6 @@
 package org.radarbase.appserver.entity
 
 import jakarta.persistence.*
-import lombok.Getter
-import lombok.NoArgsConstructor
-import lombok.Setter
-import lombok.ToString
 import org.springframework.lang.Nullable
 import java.io.Serial
 import java.time.Instant
@@ -188,25 +184,26 @@ class DataMessage : Message() {
         }
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
-            return true
-        }
-        if (o !is DataMessage) {
-            return false
-        }
-        return super.equals(o)
-    }
 
-    override fun hashCode(): Int {
-        return Objects.hash(
-            super.hashCode(),
-            dataMap
-        )
-    }
 
     override fun toString(): String {
         return "DataMessage(dataMap=$dataMap)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as DataMessage
+
+        return dataMap == other.dataMap
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (dataMap?.hashCode() ?: 0)
+        return result
     }
 
     companion object {
