@@ -25,8 +25,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface NotificationStateEventRepository : JpaRepository<NotificationStateEvent?, Long?> {
-    fun findByNotificationId(notificationId: Long): MutableList<NotificationStateEvent?>?
+interface NotificationStateEventRepository : JpaRepository<NotificationStateEvent, Long> {
 
-    fun countByNotificationId(notificationId: Long): Long
+    fun findByNotificationId(notificationId: Long?): List<NotificationStateEvent>
+
+    fun countByNotificationId(notificationId: Long?): Long
 }
