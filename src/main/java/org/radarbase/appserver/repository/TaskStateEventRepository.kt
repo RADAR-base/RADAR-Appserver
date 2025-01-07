@@ -19,19 +19,15 @@
  *
  */
 
-package org.radarbase.appserver.repository;
+package org.radarbase.appserver.repository
 
-import org.radarbase.appserver.entity.TaskStateEvent;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import org.radarbase.appserver.entity.TaskStateEvent
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
 
 @Repository
-public interface TaskStateEventRepository extends
-        JpaRepository<TaskStateEvent, Long> {
+interface TaskStateEventRepository : JpaRepository<TaskStateEvent?, Long?> {
+    fun findByTaskId(taskId: Long?): List<TaskStateEvent>
 
-    List<TaskStateEvent> findByTaskId(long taskId);
-
-    long countByTaskId(long taskId);
+    fun countByTaskId(taskId: Long?): Long
 }
