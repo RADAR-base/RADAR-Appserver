@@ -73,7 +73,7 @@ class S3StorageServiceTest {
 
     @BeforeEach
     fun setUp() {
-        given(minioInit.bucketName).willReturn("my-bucket")
+        given(minioInit.bucketNameOrThrow).willReturn("my-bucket")
         given(minioInit.client).willReturn(minioClient)
         given(minioClient.putObject(any<PutObjectArgs>())).willReturn(null)
     }

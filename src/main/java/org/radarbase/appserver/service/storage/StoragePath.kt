@@ -53,7 +53,7 @@ import java.util.*
  * </pre>
  */
 
-data class StoragePath(val pathInBucket: String, val pathInTopicDirectory: String) {
+data class StoragePath(val pathInBucket: String, val pathInTopicDir: String) {
 
     companion object {
         fun builder() = Builder()

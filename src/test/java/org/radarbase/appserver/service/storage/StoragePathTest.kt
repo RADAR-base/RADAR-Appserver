@@ -26,7 +26,7 @@ class StoragePathTest {
             .subjectId(SUBJECT_ID)
             .topicId(TOPIC_ID)
             .build()
-        assertTrue(path.fullPath.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
+        assertTrue(path.pathInBucket.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
         assertTrue(path.pathInTopicDir.matches(SIMPLE_LOCALFILE_PATTERN.toRegex()))
     }
 
@@ -39,7 +39,7 @@ class StoragePathTest {
             .topicId(TOPIC_ID)
             .collectPerDay(true)
             .build()
-        assertTrue(path.fullPath.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
+        assertTrue(path.pathInBucket.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
         assertTrue(path.pathInTopicDir.matches("[0-9]+/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
     }
 
@@ -52,7 +52,7 @@ class StoragePathTest {
             .subjectId(SUBJECT_ID)
             .topicId(TOPIC_ID)
             .build()
-        assertTrue(path.fullPath.matches("$PREFIX/$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
+        assertTrue(path.pathInBucket.matches("$PREFIX/$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
         assertTrue(path.pathInTopicDir.matches(SIMPLE_LOCALFILE_PATTERN.toRegex()))
     }
 
@@ -64,7 +64,7 @@ class StoragePathTest {
             .subjectId(SUBJECT_ID)
             .topicId(TOPIC_ID)
             .build()
-        assertTrue(path.fullPath.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
+        assertTrue(path.pathInBucket.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
         assertTrue(path.pathInTopicDir.matches(SIMPLE_LOCALFILE_PATTERN.toRegex()))
     }
 
@@ -78,7 +78,7 @@ class StoragePathTest {
             .topicId(TOPIC_ID)
             .collectPerDay(true)
             .build()
-        assertTrue(path.fullPath.matches("$PREFIX/$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
+        assertTrue(path.pathInBucket.matches("$PREFIX/$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
         assertTrue(path.pathInTopicDir.matches("[0-9]+/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
     }
 
@@ -90,7 +90,7 @@ class StoragePathTest {
             .subjectId(SUBJECT_ID)
             .topicId(TOPIC_ID)
             .build()
-        assertTrue(path.fullPath.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
+        assertTrue(path.pathInBucket.matches("$PROJECT_ID/$SUBJECT_ID/$TOPIC_ID/[0-9]+_[a-z0-9-]+\\.txt".toRegex()))
         assertTrue(path.pathInTopicDir.matches(SIMPLE_LOCALFILE_PATTERN.toRegex()))
     }
 

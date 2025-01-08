@@ -29,13 +29,13 @@ import org.radarbase.appserver.entity.User
 import java.time.Instant
 import java.util.*
 
-class RandomRepeatQuestionnaireHandler {
+class RandomRepeatQuestionnaireHandler: ProtocolHandler {
 
     private val defaultTaskCompletionWindow = 86_400_000L
     private val timeCalculatorService = TimeCalculatorService()
     private val taskGeneratorService = TaskGeneratorService()
 
-    fun handle(
+    override fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
         user: User
