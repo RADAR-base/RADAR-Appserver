@@ -18,14 +18,12 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.scheduler.quartz
 
-package org.radarbase.appserver.service.scheduler.quartz;
+interface QuartzNamingStrategy {
+    fun getTriggerName(userName: String?, messageId: String?): String?
 
-public interface QuartzNamingStrategy {
+    fun getJobKeyName(userName: String?, messageId: String?): String?
 
-  String getTriggerName(String userName, String messageId);
-
-  String getJobKeyName(String userName, String messageId);
-
-  String getMessageId(String key);
+    fun getMessageId(key: String): String?
 }

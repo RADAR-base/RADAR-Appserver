@@ -18,18 +18,18 @@
  *  *
  *
  */
-
-package org.radarbase.appserver.service.scheduler;
+package org.radarbase.appserver.service.scheduler
 
 /**
  * Class for scheduling periodic jobs for notifying admins in case of any unwanted state.
  *
  * @author yatharthranjan
  */
-public class AdminEmailNotifierScheduler {
+class AdminEmailNotifierScheduler
 
-  // TODO: Add a scheduler that checks everyday if a user is inactive for a long time (lastOpened >
-  // 30 days) and send a warning email to the study/project admin.
-  // TODO: We can also add the functionality to remind the users to open the app by sending a push
-  // notification.
-}
+
+// TODO: Add a scheduler that checks everyday if a user is inactive for a long time (lastOpened >
+// 30 days) and send a warning email to the study/project admin.
+// TODO: We can also add the functionality to remind the users to open the app by sending a push
+// notification.
+
