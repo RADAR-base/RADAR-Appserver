@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface DataMessageStateEventRepository : JpaRepository<DataMessageStateEvent, Long> {
-    fun findByDataMessageId(dataMessageId: Long): List<DataMessageStateEvent>git
+    fun findByDataMessageId(dataMessageId: Long): List<DataMessageStateEvent>
 
     fun countByDataMessageId(dataMessageId: Long): Long
 }
