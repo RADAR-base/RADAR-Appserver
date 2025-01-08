@@ -173,6 +173,7 @@ class ProjectEndpointAuthTest {
             AUTH_HEADER!!.setBearerAuth(oAuthHelper.getAccessToken())
         }
 
+        @JvmStatic
         fun createURLWithPort(port: Int, uri: String): String {
             return "http://localhost:$port$uri"
         }
