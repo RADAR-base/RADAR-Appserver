@@ -70,7 +70,7 @@ class SchedulerServiceImpl : SchedulerService {
     }
 
     @Async
-    override fun scheduleJobs(jobDetailTriggerMap: Map<JobDetail?, Set<Trigger>>?) {
+    override fun scheduleJobs(jobDetailTriggerMap: Map<JobDetail, Set<Trigger>>) {
         scheduler.scheduleJobs(jobDetailTriggerMap, true)
     }
 

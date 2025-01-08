@@ -21,9 +21,9 @@
 package org.radarbase.appserver.service.scheduler.quartz
 
 interface QuartzNamingStrategy {
-    fun getTriggerName(userName: String?, messageId: String?): String?
+    fun getTriggerName(userName: String?, messageId: String?): String
 
-    fun getJobKeyName(userName: String?, messageId: String?): String?
+    fun getJobKeyName(userName: String?, messageId: String?): String
 
     fun getMessageId(key: String): String?
 }

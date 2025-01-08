@@ -32,7 +32,7 @@ import org.quartz.*
 interface SchedulerService {
     fun scheduleJob(jobDetail: JobDetail?, trigger: Trigger?)
 
-    fun scheduleJobs(jobDetailTriggerMap: Map<JobDetail?, Set<Trigger>>?)
+    fun scheduleJobs(jobDetailTriggerMap: Map<JobDetail, Set<Trigger>>)
 
     fun checkJobExists(jobKey: JobKey?): Boolean
 

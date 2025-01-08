@@ -24,11 +24,11 @@ import org.springframework.stereotype.Component
 
 @Component
 class SimpleQuartzNamingStrategy : QuartzNamingStrategy {
-    override fun getTriggerName(userName: String?, messageId: String?): String? {
+    override fun getTriggerName(userName: String?, messageId: String?): String {
         return "$TRIGGER_PREFIX$userName-$messageId"
     }
 
-    override fun getJobKeyName(userName: String?, messageId: String?): String? {
+    override fun getJobKeyName(userName: String?, messageId: String?): String {
         return "$JOB_PREFIX$userName-$messageId"
     }
 

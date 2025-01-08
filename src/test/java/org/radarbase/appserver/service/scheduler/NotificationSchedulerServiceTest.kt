@@ -128,8 +128,8 @@ class NotificationSchedulerServiceTest {
     @Test
     fun `delete scheduled notification`() {
         val jobDetail: JobDetailFactoryBean? = MessageSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION)
-        val triggerFactoryBean = MessageSchedulerService.getTriggerForMessage(notification, jobDetail?.`object`)
-        scheduler.scheduleJob(jobDetail?.`object`, triggerFactoryBean.`object`)
+        val triggerFactoryBean = MessageSchedulerService.getTriggerForMessage(notification, jobDetail!!.`object`!!)
+        scheduler.scheduleJob(jobDetail.`object`, triggerFactoryBean.`object`)
 
         schedulerService.deleteScheduled(notification)
         assertFalse(scheduler.checkExists(JobKey(JOB_DETAIL_ID)))
