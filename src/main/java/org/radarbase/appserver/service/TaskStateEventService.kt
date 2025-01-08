@@ -45,7 +45,7 @@ class TaskStateEventService(
     @Transactional
     fun addTaskStateEvent(taskStateEvent: TaskStateEvent) {
         taskStateEventRepository.save(taskStateEvent)
-        taskService.updateTaskStatus(taskStateEvent.task, taskStateEvent.state)
+        taskService.updateTaskStatus(taskStateEvent.task!!, taskStateEvent.state!! )
         if (taskStateEvent.state == TaskState.COMPLETED) {
             notificationService.deleteNotificationsByTaskId(taskStateEvent.task)
         }

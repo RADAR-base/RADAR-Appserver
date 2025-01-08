@@ -18,10 +18,10 @@
  *  *
  *
  */
+package org.radarbase.appserver.service
 
-package org.radarbase.appserver.service;
-
-public class ManagementPortalService {
-
-  // TODO WIP - Add MP client and get subjects and projects info if missing in any request.
+enum class MessageType {
+    NOTIFICATION,
+    DATA,
+    UNKNOWN
 }
