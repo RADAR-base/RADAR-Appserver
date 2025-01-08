@@ -18,21 +18,21 @@
  *  *
  *
  */
+package org.radarbase.appserver.config
 
-package org.radarbase.appserver.config;
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.quartz.SpringBeanJobFactory
 
-import org.radarbase.fcm.config.FcmServerConfig;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-
+/**
+ * Config class to get the Quartz scheduler for Autowiring.
+ *
+ * @author yatharthranjan
+ */
 @Configuration
-@EnableJpaAuditing
-@EnableConfigurationProperties({FcmServerConfig.class, S3StorageProperties.class})
-@EnableTransactionManagement
-@EnableAsync
-@EnableScheduling
-public class ApplicationConfig {}
+class SchedulerConfig {
+    @Bean
+    fun springBeanJobFactory(): SpringBeanJobFactory {
+        return SpringBeanJobFactory()
+    }
+}
