@@ -3,6 +3,7 @@ package org.radarbase.appserver.service.questionnaire.protocol;
 import org.radarbase.appserver.dto.protocol.Assessment;
 import org.radarbase.appserver.dto.protocol.NotificationProtocol;
 import org.radarbase.appserver.dto.protocol.ReminderTimePeriod;
+import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Notification;
 import org.radarbase.appserver.entity.Task;
@@ -41,8 +42,10 @@ public class SimpleReminderHandler implements ProtocolHandler {
         return tasks.parallelStream()
                 .flatMap(task -> {
                             ReminderTimePeriod reminders = assessment.getProtocol().getReminders();
-                            return IntStream.range(0, reminders.getRepeat()).mapToObj(i -> {
-                                Instant timestamp = timeCalculatorService.advanceRepeat(task.getTimestamp().toInstant(), reminders, timezone);
+                            TimePeriod offset = new TimePeriod(reminders.getUnit(), reminders.getAmount());
+                            return IntStream.range(1, reminders.getRepeat() + 1).mapToObj(i -> {
+                                offset.setAmount(i * reminders.getAmount());
+                                Instant timestamp = timeCalculatorService.advanceRepeat(task.getTimestamp().toInstant(), offset, timezone);   
                                 Notification notification = this.taskNotificationGeneratorService.createNotification(
                                         task, timestamp, title, body, emailEnabled);
                                 notification.setUser(user);
