@@ -222,7 +222,7 @@ class FcmDataMessageController(private val dataMessageService: FcmDataMessageSer
     fun deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
         @PathVariable projectId: String, @PathVariable subjectId: String, @PathVariable id: Long
     ): ResponseEntity<Any> {
-        this.dataMessageService.deleteDataMessageByProjectIdandSubjectIdAndDataMessageId(
+        this.dataMessageService.deleteDataMessageByProjectIdAndSubjectIdAndDataMessageId(
             projectId, subjectId, id
         )
         return ResponseEntity.ok().build()
