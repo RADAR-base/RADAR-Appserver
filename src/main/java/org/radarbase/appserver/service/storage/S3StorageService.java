@@ -55,7 +55,7 @@ public class S3StorageService implements StorageService {
                 .projectId(projectId)
                 .subjectId(subjectId)
                 .topicId(topicId)
-                .collectPerDay(s3StorageProperties.getPath().isCollectPerDay())
+                .collectPerDay(s3StorageProperties.getPath().getCollectPerDay())
                 .filename(file.getOriginalFilename())
                 .build();
 

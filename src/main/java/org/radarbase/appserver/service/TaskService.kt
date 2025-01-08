@@ -88,12 +88,12 @@ class TaskService(
     }
 
     @Transactional
-    fun getTasksBySpecification(spec: Specification<Task>): List<Task> {
+    fun getTasksBySpecification(spec: Specification<Task>?): List<Task> {
         return taskRepository.findAll(spec)
     }
 
     @Transactional
-    fun deleteTasksBySpecification(spec: Specification<Task>) {
+    fun deleteTasksBySpecification(spec: Specification<Task>?) {
         val tasks = taskRepository.findAll(spec)
         taskRepository.deleteAll(tasks)
     }
@@ -121,14 +121,14 @@ class TaskService(
     }
 
     @Transactional
-    fun addTasks(tasks: MutableList<Task?>, user: User): MutableList<Task?> {
-        val newTasks = tasks.filter { task ->
+    fun addTasks(tasks: List<Task>?, user: User): List<Task> {
+        val newTasks = tasks?.filter { task ->
                 !this.taskRepository.existsByUserIdAndNameAndTimestamp(
                     user.id,
-                    task!!.name,
+                    task.name,
                     task.timestamp
                 )
-            }
+            } ?: return emptyList()
 
         val saved = this.taskRepository.saveAllAndFlush(newTasks)
         saved.forEach(Consumer { t -> addTaskStateEvent(t, TaskState.ADDED, t!!.createdAt!!.toInstant()) })
