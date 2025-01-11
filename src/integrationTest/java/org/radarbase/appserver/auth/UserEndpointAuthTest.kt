@@ -15,6 +15,10 @@
 
 package org.radarbase.appserver.auth
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
@@ -26,13 +30,16 @@ import org.radarbase.appserver.dto.fcm.FcmUsers
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.ResourceAccessException
+import org.springframework.web.client.RestTemplate
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -179,7 +186,7 @@ class UserEndpointAuthTest {
             createURLWithPort(port, ProjectEndpointAuthTest.PROJECT_PATH + "/test" + USER_PATH),
             HttpMethod.GET,
             userDtoHttpEntity,
-            FcmUsers::class.java
+            String::class.java
         )
 
         assertEquals(HttpStatus.FORBIDDEN, responseEntity.statusCode)

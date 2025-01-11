@@ -154,8 +154,8 @@ dependencies {
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation "io.ktor:ktor-client-cio:$ktorVersion"
+//    implementation("io.ktor:ktor-client-core:$ktorVersion")
+//    implementation "io.ktor:ktor-client-cio:$ktorVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     testImplementation 'org.mockito.kotlin:mockito-kotlin:3.2.0'
 //    testImplementation 'org.mockito:mockito-inline:5.2.0'

@@ -23,7 +23,6 @@ package org.radarbase.appserver.auth.common
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.*
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -34,7 +33,7 @@ import org.springframework.web.util.UriComponentsBuilder
 class MPOAuthHelper : OAuthHelper {
     companion object {
         private val mapper = ObjectMapper()
-        private const val MP_URL = "http://stage.radar-base.net/managementportal/"
+        private const val MP_URL = "http://localhost:8081/managementportal/"
         private const val MP_CLIENT = "ManagementPortalapp"
         private const val REST_CLIENT = "pRMT"
         private const val USER = "sub-1"
@@ -51,7 +50,7 @@ class MPOAuthHelper : OAuthHelper {
             .pathSegment("oauth", "token")
             .toUriString()
 
-        private val restTemplate = RestTemplate(HttpComponentsClientHttpRequestFactory()).apply {
+        private val restTemplate = RestTemplate().apply {
             messageConverters.add(MappingJackson2HttpMessageConverter())
         }
 

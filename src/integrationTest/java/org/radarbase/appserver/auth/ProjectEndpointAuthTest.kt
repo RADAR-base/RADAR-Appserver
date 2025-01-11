@@ -46,28 +46,28 @@ class ProjectEndpointAuthTest {
     @Test
     fun unauthorisedCreateProject() {
         val projectDto = ProjectDto(null, "radar", null, null)
-        val projectEntity = HttpEntity<ProjectDto>(projectDto, HEADERS)
+        val projectEntity = HttpEntity<ProjectDto?>(projectDto, HEADERS)
 
         var responseEntity: ResponseEntity<ProjectDto?>? = null
         try {
             responseEntity =
-                restTemplate.exchange<ProjectDto>(
+                restTemplate.exchange<ProjectDto?>(
                     createURLWithPort(port, PROJECT_PATH),
                     HttpMethod.POST,
                     projectEntity,
                     ProjectDto::class.java
                 )
-        } catch (e: ResourceAccessException) {
+        } catch (_: ResourceAccessException) {
             Assertions.assertEquals(responseEntity, null)
         }
     }
 
     @Test
     fun unauthorisedViewProjects() {
-        val projectEntity = HttpEntity<Nothing>(null, HEADERS)
+        val projectEntity = HttpEntity<ProjectDto?>(null, HEADERS)
 
         val responseEntity: ResponseEntity<ProjectDto?> =
-            restTemplate.exchange(
+            restTemplate.exchange<ProjectDto?>(
                 createURLWithPort(port, PROJECT_PATH), HttpMethod.GET, projectEntity, ProjectDto::class.java
             )
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.statusCode)
@@ -75,44 +75,43 @@ class ProjectEndpointAuthTest {
 
     @Test
     fun unauthorisedViewSingleProject() {
-        val projectEntity = HttpEntity<Nothing>(null, HEADERS)
+        val projectEntity = HttpEntity<ProjectDto?>(null, HEADERS)
 
-        val responseEntity: ResponseEntity<ProjectDto?> = restTemplate.exchange<ProjectDto>(
-            createURLWithPort(port, "/projects/radar"),
-            HttpMethod.GET,
-            projectEntity,
-            ProjectDto::class.java
-        )
+        val responseEntity: ResponseEntity<ProjectDto?> =
+            restTemplate.exchange<ProjectDto?>(
+                createURLWithPort(port, "/projects/radar"),
+                HttpMethod.GET,
+                projectEntity,
+                ProjectDto::class.java
+            )
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.statusCode)
     }
 
     @Test
     fun forbiddenViewProjects() {
-        val projectEntity = HttpEntity<Nothing>(null, AUTH_HEADER)
+        val projectEntity = HttpEntity<ProjectDto?>(null, AUTH_HEADER)
 
-        val responseEntity: ResponseEntity<ProjectDto> = restTemplate.exchange<ProjectDto>(
-            createURLWithPort(port, PROJECT_PATH),
-            HttpMethod.GET,
-            projectEntity,
-            ProjectDto::class.java
-        )
+        val responseEntity: ResponseEntity<ProjectDto?> =
+            restTemplate.exchange<ProjectDto?>(
+                createURLWithPort(port, PROJECT_PATH), HttpMethod.GET, projectEntity, ProjectDto::class.java
+            )
 
         // Only Admins can view the list of all projects
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode())
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, responseEntity.statusCode)
     }
 
     @Test
     @Order(1)
     fun createSingleProjectWithAuth() {
         val projectDto = ProjectDto(null, "radar", null, null)
-        val projectEntity = HttpEntity<ProjectDto>(projectDto, AUTH_HEADER)
+        val projectEntity = HttpEntity<ProjectDto?>(projectDto, AUTH_HEADER)
 
         val responseEntity: ResponseEntity<ProjectDto> = restTemplate.exchange<ProjectDto?>(
-                createURLWithPort(port, PROJECT_PATH),
-                HttpMethod.POST,
-                projectEntity,
-                ProjectDto::class.java
-            )
+            createURLWithPort(port, PROJECT_PATH),
+            HttpMethod.POST,
+            projectEntity,
+            ProjectDto::class.java
+        )
 
         if (responseEntity.statusCode == HttpStatus.EXPECTATION_FAILED) {
             // The auth was successful but expectation failed if the project already exits.
@@ -124,49 +123,51 @@ class ProjectEndpointAuthTest {
 
     @Order(2)
     @Test
-    fun  getSingleProjectWithAuth() {
-            val projectEntity = HttpEntity<Nothing>(null, AUTH_HEADER)
+    fun singleProjectWithAuth() {
+        val projectEntity =
+            HttpEntity<ProjectDto?>(null, AUTH_HEADER)
 
-            val responseEntity: ResponseEntity<ProjectDto?> = restTemplate.exchange<ProjectDto?>(
-                    createURLWithPort(port, "/projects/radar"),
-                    HttpMethod.GET,
-                    projectEntity,
-                    ProjectDto::class.java
-                )
-
-            Assertions.assertEquals(
-                HttpStatus.OK,
-                responseEntity.getStatusCode()
+        val responseEntity: ResponseEntity<ProjectDto?> =
+            restTemplate.exchange<ProjectDto?>(
+                createURLWithPort(port, "/projects/radar"),
+                HttpMethod.GET,
+                projectEntity,
+                ProjectDto::class.java
             )
-        }
+        Assertions.assertEquals(
+            HttpStatus.OK,
+            responseEntity.statusCode
+        )
+    }
 
     @Order(3)
     @Test
-    fun getForbiddenProjectWithAuth() {
-            val projectEntity = HttpEntity<Nothing>(null, AUTH_HEADER)
+    fun forbiddenProjectWithAuth() {
+        val projectEntity =
+            HttpEntity<ProjectDto?>(null, AUTH_HEADER)
 
-            val responseEntity: ResponseEntity<ProjectDto?> =
-                restTemplate.exchange<ProjectDto?>(
-                    createURLWithPort(port, "/projects/test"),
-                    HttpMethod.GET,
-                    projectEntity,
-                    ProjectDto::class.java
-                )
-
-            // Access denied as the user has only access to the project that it is part of.
-            Assertions.assertEquals(
-                HttpStatus.FORBIDDEN,
-                responseEntity.statusCode
+        val responseEntity: ResponseEntity<ProjectDto?> =
+            restTemplate.exchange<ProjectDto?>(
+                createURLWithPort(port, "/projects/test"),
+                HttpMethod.GET,
+                projectEntity,
+                ProjectDto::class.java
             )
-        }
+
+        // Access denied as the user has only access to the project that it is part of.
+        Assertions.assertEquals(
+            HttpStatus.FORBIDDEN,
+            responseEntity.statusCode
+        )
+    }
 
     companion object {
         const val PROJECT_PATH: String = "/projects"
         private val HEADERS = HttpHeaders()
         private var AUTH_HEADER: HttpHeaders? = null
 
-        @BeforeAll
         @JvmStatic
+        @BeforeAll
         fun init() {
             val oAuthHelper: OAuthHelper = MPOAuthHelper()
             AUTH_HEADER = HttpHeaders()
