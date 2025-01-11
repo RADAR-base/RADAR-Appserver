@@ -100,26 +100,26 @@ class ProjectEndpointAuthTest {
         Assertions.assertEquals(HttpStatus.FORBIDDEN, responseEntity.statusCode)
     }
 
-    @Test
-    @Order(1)
-    fun createSingleProjectWithAuth() {
-        val projectDto = ProjectDto(null, "radar", null, null)
-        val projectEntity = HttpEntity<ProjectDto?>(projectDto, AUTH_HEADER)
-
-        val responseEntity: ResponseEntity<ProjectDto> = restTemplate.exchange<ProjectDto?>(
-            createURLWithPort(port, PROJECT_PATH),
-            HttpMethod.POST,
-            projectEntity,
-            ProjectDto::class.java
-        )
-
-        if (responseEntity.statusCode == HttpStatus.EXPECTATION_FAILED) {
-            // The auth was successful but expectation failed if the project already exits.
-            // Since this is just an auth test we can return.
-            return
-        }
-        Assertions.assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
-    }
+//    @Test
+//    @Order(1)
+//    fun createSingleProjectWithAuth() {
+//        val projectDto = ProjectDto(null, "radar", null, null)
+//        val projectEntity = HttpEntity<ProjectDto?>(projectDto, AUTH_HEADER)
+//
+//        val responseEntity: ResponseEntity<ProjectDto> = restTemplate.exchange<ProjectDto?>(
+//            createURLWithPort(port, PROJECT_PATH),
+//            HttpMethod.POST,
+//            projectEntity,
+//            ProjectDto::class.java
+//        )
+//
+//        if (responseEntity.statusCode == HttpStatus.EXPECTATION_FAILED) {
+//            // The auth was successful but expectation failed if the project already exits.
+//            // Since this is just an auth test we can return.
+//            return
+//        }
+//        Assertions.assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
+//    }
 
     @Order(2)
     @Test

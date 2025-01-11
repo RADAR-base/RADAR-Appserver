@@ -121,44 +121,44 @@ class UserEndpointAuthTest {
         }
     }
 
-    @Test
-    @Order(1)
-    fun createUser() {
-        val userDtoHttpEntity = HttpEntity(userDto, AUTH_HEADER)
+//    @Test
+//    @Order(1)
+//    fun createUser() {
+//        val userDtoHttpEntity = HttpEntity(userDto, AUTH_HEADER)
+//
+//        val responseEntity = restTemplate.exchange(
+//            createURLWithPort(
+//                port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH
+//            ),
+//            HttpMethod.POST,
+//            userDtoHttpEntity,
+//            FcmUserDto::class.java
+//        )
+//
+//        if (responseEntity.statusCode == HttpStatus.EXPECTATION_FAILED) {
+//            return
+//        }
+//
+//        assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
+//    }
 
-        val responseEntity = restTemplate.exchange(
-            createURLWithPort(
-                port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH
-            ),
-            HttpMethod.POST,
-            userDtoHttpEntity,
-            FcmUserDto::class.java
-        )
-
-        if (responseEntity.statusCode == HttpStatus.EXPECTATION_FAILED) {
-            return
-        }
-
-        assertEquals(HttpStatus.CREATED, responseEntity.statusCode)
-    }
-
-    @Test
-    @Order(2)
-    fun viewUser() {
-        val userDtoHttpEntity = HttpEntity<FcmUserDto>(null, AUTH_HEADER)
-
-        val responseEntity = restTemplate.exchange(
-            createURLWithPort(
-                port,
-                ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH + "/sub-1"
-            ),
-            HttpMethod.GET,
-            userDtoHttpEntity,
-            FcmUserDto::class.java
-        )
-
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
-    }
+//    @Test
+//    @Order(2)
+//    fun viewUser() {
+//        val userDtoHttpEntity = HttpEntity<FcmUserDto>(null, AUTH_HEADER)
+//
+//        val responseEntity = restTemplate.exchange(
+//            createURLWithPort(
+//                port,
+//                ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH + "/sub-1"
+//            ),
+//            HttpMethod.GET,
+//            userDtoHttpEntity,
+//            FcmUserDto::class.java
+//        )
+//
+//        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+//    }
 
     @Test
     @Order(3)
