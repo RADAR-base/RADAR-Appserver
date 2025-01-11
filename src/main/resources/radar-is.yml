@@ -1,3 +1,3 @@
 resourceName: res_AppServer
 publicKeyEndpoints:
-  - https://stage.radar-base.net/managementportal/oauth/token_key
+  - http://localhost:8081/managementportal/oauth/token_key

@@ -21,12 +21,12 @@
 
 package org.radarbase.appserver.service
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.*
-import io.ktor.http.*
+//import io.ktor.client.*
+//import io.ktor.client.call.*
+//import io.ktor.client.engine.cio.*
+//import io.ktor.client.plugins.defaultRequest
+//import io.ktor.client.request.*
+//import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -68,16 +68,16 @@ class GithubClient(
      * This client sets default request headers, specifies request timeout, and
      * enables automatic redirection following.
      */
-    @Transient
-    private val client = HttpClient(CIO) {
-        defaultRequest {
-            header(HttpHeaders.Accept, GITHUB_API_ACCEPT_HEADER)
-        }
-        engine {
-            requestTimeout = httpTimeout * 1000L
-        }
-        followRedirects = true
-    }
+//    @Transient
+//    private val client = HttpClient(CIO) {
+//        defaultRequest {
+//            header(HttpHeaders.Accept, GITHUB_API_ACCEPT_HEADER)
+//        }
+//        engine {
+//            requestTimeout = httpTimeout * 1000L
+//        }
+//        followRedirects = true
+//    }
 
     /**
      * Retrieves the content from a specified GitHub URL. This method attempts to make an authenticated request
@@ -88,32 +88,32 @@ class GithubClient(
      * @return The content retrieved from the specified GitHub URL as a String.
      * @throws ResponseStatusException If the response indicates an error or the content size is too large.
      */
-    fun getGithubContent(url: String, authenticated: Boolean = true): String = runBlocking {
-        val request = client.prepareGet(getValidGithubUri(url)) {
-            if (authenticated && authorizationHeader.isNotEmpty()) {
-                header(HttpHeaders.Authorization, authorizationHeader)
-            }
-        }
-        val response = request.execute()
-        if (response.status.value in 200..299) {
-            val contentLengthHeader = response.headers[HttpHeaders.ContentLength]?.toIntOrNull()
-            contentLengthHeader?.let { checkContentLength(it) }
+//    fun getGithubContent(url: String, authenticated: Boolean = true): String = runBlocking {
+//        val request = client.prepareGet(getValidGithubUri(url)) {
+//            if (authenticated && authorizationHeader.isNotEmpty()) {
+//                header(HttpHeaders.Authorization, authorizationHeader)
+//            }
+//        }
+//        val response = request.execute()
+//        if (response.status.value in 200..299) {
+//            val contentLengthHeader = response.headers[HttpHeaders.ContentLength]?.toIntOrNull()
+//            contentLengthHeader?.let { checkContentLength(it) }
+//
+//            val contentStream: ByteArray = response.body<ByteArray>()
+//            checkContentLength(contentStream.size)
+//            return@runBlocking String(contentStream)
+//        } else if (response.status.value == 401 && authenticated) {
+//            logger.warn("Unauthorized access to Github content from URL {}, retrying..", url)
+//            return@runBlocking getGithubContent(url, false)
+//        } else {
+//            logger.error("Error getting Github content from URL {} : {}", url, response)
+//            throw ResponseStatusException(
+//                HttpStatus.valueOf(response.status.value), "Github content could not be retrieved"
+//            )
+//        }
+//    }
 
-            val contentStream: ByteArray = response.body<ByteArray>()
-            checkContentLength(contentStream.size)
-            return@runBlocking String(contentStream)
-        } else if (response.status.value == 401 && authenticated) {
-            logger.warn("Unauthorized access to Github content from URL {}, retrying..", url)
-            return@runBlocking getGithubContent(url, false)
-        } else {
-            logger.error("Error getting Github content from URL {} : {}", url, response)
-            throw ResponseStatusException(
-                HttpStatus.valueOf(response.status.value), "Github content could not be retrieved"
-            )
-        }
-    }
-
-    fun getGithubContent(url: String): String = getGithubContent(url, true)
+    fun getGithubContent(url: String): String = getGithubContent(url)
 
     /**
      * Validates the given content length against a predefined maximum content length.
