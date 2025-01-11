@@ -1,6 +1,7 @@
 package org.radarbase.appserver.service.questionnaire.protocol
 
 import org.radarbase.appserver.dto.protocol.Assessment
+import org.radarbase.appserver.dto.protocol.TimePeriod
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.Notification
 import org.radarbase.appserver.entity.Task
@@ -10,9 +11,7 @@ import org.radarbase.appserver.service.questionnaire.notification.TaskNotificati
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.function.IntFunction
 import java.util.stream.Collectors
-import java.util.stream.IntStream
 
 class SimpleReminderHandler : ProtocolHandler {
     @Transient
@@ -68,8 +67,12 @@ class SimpleReminderHandler : ProtocolHandler {
                 val reminders = assessment.protocol?.reminders  ?: return@flatMap null
                 val repeatReminders = reminders.repeat ?: return@flatMap null
 
-                (0 until repeatReminders).map { _: Int ->
-                    val timestamp = timeCalculatorService.advanceRepeat(task.timestamp!!.toInstant(), reminders, timezone)
+                val offset = TimePeriod(reminders.unit, reminders.amount)
+
+                (1 .. repeatReminders).map { repeat : Int ->
+                    offset.amount = reminders.amount!! * repeat
+
+                    val timestamp = timeCalculatorService.advanceRepeat(task.timestamp!!.toInstant(), offset, timezone)
                     taskNotificationGeneratorService.createNotification(
                         task, timestamp, title, body, emailEnabled
                     ).also {
