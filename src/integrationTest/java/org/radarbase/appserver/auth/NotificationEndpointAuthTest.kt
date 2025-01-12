@@ -114,7 +114,7 @@ class NotificationEndpointAuthTest {
                 FcmNotifications::class.java
             )
 
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.getStatusCode())
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.statusCode)
     }
 
     @Test
@@ -134,7 +134,7 @@ class NotificationEndpointAuthTest {
                 FcmNotifications::class.java
             )
 
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.getStatusCode())
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.statusCode)
     }
 
     @Test
@@ -163,84 +163,84 @@ class NotificationEndpointAuthTest {
         }
     }
 
-//    @Test
-//    @Order(1)
-//    fun createNotificationForUser() {
-//        val notificationDtoHttpEntity =
-//            HttpEntity<FcmNotificationDto?>(fcmNotificationDto, AUTH_HEADER)
-//
-//        val notificationDtoResponseEntity: ResponseEntity<FcmNotificationDto?> =
-//            restTemplate.exchange<FcmNotificationDto?>(
-//                createURLWithPort(
-//                    port,
-//                    (ProjectEndpointAuthTest.PROJECT_PATH
-//                            + UserEndpointAuthTest.DEFAULT_PROJECT
-//                            + UserEndpointAuthTest.USER_PATH
-//                            + DEFAULT_USER
-//                            + NOTIFICATION_PATH)
-//                ),
-//                HttpMethod.POST,
-//                notificationDtoHttpEntity,
-//                FcmNotificationDto::class.java
-//            )
-//
-//        Assertions.assertEquals(HttpStatus.CREATED, notificationDtoResponseEntity.getStatusCode())
-//    }
+    @Test
+    @Order(1)
+    fun createNotificationForUser() {
+        val notificationDtoHttpEntity =
+            HttpEntity<FcmNotificationDto?>(fcmNotificationDto, AUTH_HEADER)
 
-//    @Test
-//    @Order(2)
-//    fun createBatchNotificationsForUser() {
-//        fcmNotificationDto.title = "new title"
-//        fcmNotificationDto.fcmMessageId = "xxxyyyy"
-//        val notificationDtoHttpEntity =
-//            HttpEntity<FcmNotifications?>(
-//                FcmNotifications()
-//                    .withNotifications(
-//                        listOf<FcmNotificationDto>(fcmNotificationDto)
-//                    ),
-//                AUTH_HEADER
-//            )
-//
-//        val notificationDtoResponseEntity: ResponseEntity<FcmNotifications?> =
-//            restTemplate.exchange<FcmNotifications?>(
-//                createURLWithPort(
-//                    port,
-//                    (ProjectEndpointAuthTest.PROJECT_PATH
-//                            + UserEndpointAuthTest.DEFAULT_PROJECT
-//                            + UserEndpointAuthTest.USER_PATH
-//                            + DEFAULT_USER
-//                            + NOTIFICATION_PATH
-//                            + "/batch")
-//                ),
-//                HttpMethod.POST,
-//                notificationDtoHttpEntity,
-//                FcmNotifications::class.java
-//            )
-//
-//        Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.getStatusCode())
-//    }
+        val notificationDtoResponseEntity: ResponseEntity<FcmNotificationDto?> =
+            restTemplate.exchange<FcmNotificationDto?>(
+                createURLWithPort(
+                    port,
+                    (ProjectEndpointAuthTest.PROJECT_PATH
+                            + UserEndpointAuthTest.DEFAULT_PROJECT
+                            + UserEndpointAuthTest.USER_PATH
+                            + DEFAULT_USER
+                            + NOTIFICATION_PATH)
+                ),
+                HttpMethod.POST,
+                notificationDtoHttpEntity,
+                FcmNotificationDto::class.java
+            )
 
-//    @Test
-//    fun viewNotificationsForUser() {
-//        val notificationDtoHttpEntity = HttpEntity<FcmNotifications?>(null, AUTH_HEADER)
-//
-//        val notificationDtoResponseEntity: ResponseEntity<FcmNotifications?> =
-//            restTemplate.exchange<FcmNotifications?>(
-//                createURLWithPort(
-//                    port,
-//                    (ProjectEndpointAuthTest.PROJECT_PATH
-//                            + UserEndpointAuthTest.DEFAULT_PROJECT
-//                            + UserEndpointAuthTest.USER_PATH
-//                            + DEFAULT_USER
-//                            + NOTIFICATION_PATH)
-//                ),
-//                HttpMethod.GET,
-//                notificationDtoHttpEntity,
-//                FcmNotifications::class.java
-//            )
-//
-//        Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.getStatusCode())
-//    }
+        Assertions.assertEquals(HttpStatus.CREATED, notificationDtoResponseEntity.statusCode)
+    }
+
+    @Test
+    @Order(2)
+    fun createBatchNotificationsForUser() {
+        fcmNotificationDto.title = "new title"
+        fcmNotificationDto.fcmMessageId = "xxxyyyy"
+        val notificationDtoHttpEntity =
+            HttpEntity<FcmNotifications?>(
+                FcmNotifications()
+                    .withNotifications(
+                        listOf<FcmNotificationDto>(fcmNotificationDto)
+                    ),
+                AUTH_HEADER
+            )
+
+        val notificationDtoResponseEntity: ResponseEntity<FcmNotifications?> =
+            restTemplate.exchange<FcmNotifications?>(
+                createURLWithPort(
+                    port,
+                    (ProjectEndpointAuthTest.PROJECT_PATH
+                            + UserEndpointAuthTest.DEFAULT_PROJECT
+                            + UserEndpointAuthTest.USER_PATH
+                            + DEFAULT_USER
+                            + NOTIFICATION_PATH
+                            + "/batch")
+                ),
+                HttpMethod.POST,
+                notificationDtoHttpEntity,
+                FcmNotifications::class.java
+            )
+
+        Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.statusCode)
+    }
+
+    @Test
+    fun viewNotificationsForUser() {
+        val notificationDtoHttpEntity = HttpEntity<FcmNotifications?>(null, AUTH_HEADER)
+
+        val notificationDtoResponseEntity: ResponseEntity<FcmNotifications?> =
+            restTemplate.exchange<FcmNotifications?>(
+                createURLWithPort(
+                    port,
+                    (ProjectEndpointAuthTest.PROJECT_PATH
+                            + UserEndpointAuthTest.DEFAULT_PROJECT
+                            + UserEndpointAuthTest.USER_PATH
+                            + DEFAULT_USER
+                            + NOTIFICATION_PATH)
+                ),
+                HttpMethod.GET,
+                notificationDtoHttpEntity,
+                FcmNotifications::class.java
+            )
+
+        Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.statusCode)
+    }
 
     @Test
     fun viewNotificationsForProject() {
@@ -259,7 +259,7 @@ class NotificationEndpointAuthTest {
                 FcmNotifications::class.java
             )
 
-        Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.getStatusCode())
+        Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.statusCode)
     }
 
     @Test
@@ -281,7 +281,7 @@ class NotificationEndpointAuthTest {
                 FcmNotifications::class.java
             )
 
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, notificationDtoResponseEntity.getStatusCode())
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, notificationDtoResponseEntity.statusCode)
     }
 
     @Test
@@ -298,7 +298,7 @@ class NotificationEndpointAuthTest {
                 FcmNotifications::class.java
             )
 
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.getStatusCode())
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.statusCode)
     }
 
     companion object {

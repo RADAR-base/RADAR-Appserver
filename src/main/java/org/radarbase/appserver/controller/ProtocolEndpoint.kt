@@ -61,7 +61,7 @@ class ProtocolEndpoint (private val protocolGenerator: ProtocolGenerator) {
     fun getProtocolUsingProjectIdAndSubjectId(
         @PathVariable @Valid projectId: String, @PathVariable @Valid subjectId: String
     ): Protocol {
-        return this.protocolGenerator.getProtocolForSubject(subjectId)
+        return this.protocolGenerator.getProtocolForSubject(subjectId) ?: Protocol()
     }
 
     @GetMapping(

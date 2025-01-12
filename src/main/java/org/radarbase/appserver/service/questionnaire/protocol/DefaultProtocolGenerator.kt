@@ -118,9 +118,9 @@ class DefaultProtocolGenerator(
      * @throws IOException If an error occurs while retrieving protocols or handling cached values.
      */
     @Throws(IOException::class)
-    private fun forceGetProtocolForSubject(subjectId: String): Protocol {
+    private fun forceGetProtocolForSubject(subjectId: String): Protocol? {
         try {
-            return cachedProtocolMap.get(true)[subjectId]!!
+            return cachedProtocolMap.get(true)[subjectId]
         } catch (ex: IOException) {
             logger.warn("Cannot retrieve Protocols, using cached values if available.", ex)
             return cachedProtocolMap.getCachedMap()[subjectId]!!
@@ -142,7 +142,7 @@ class DefaultProtocolGenerator(
      * @return The protocol corresponding to the given subject.
      * @throws IOException If an error occurs during protocol retrieval and no cached value is available.
      */
-    override fun getProtocolForSubject(subjectId: String): Protocol {
+    override fun getProtocolForSubject(subjectId: String): Protocol? {
         try {
             val protocol = cachedProtocolMap[subjectId]
             if (protocol == null) {

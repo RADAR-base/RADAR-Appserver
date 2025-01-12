@@ -53,5 +53,5 @@ interface ProtocolGenerator {
      * @param subjectId The identifier of the subject for which the protocol is to be retrieved.
      * @return The protocol corresponding to the specified subject.
      */
-    fun getProtocolForSubject(subjectId: String): Protocol
+    fun getProtocolForSubject(subjectId: String): Protocol?
 }

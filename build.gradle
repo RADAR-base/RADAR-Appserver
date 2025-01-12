@@ -81,7 +81,7 @@ ext {
     jacksonKotlinVersion = '2.15.4'
     dateTimeVersion = '0.6.1'
     mapstructVersion = '1.6.3'
-    ktorVersion = '3.0.3'
+    ktorVersion = '2.3.0'
     coroutinesVersion = '1.10.1'
 }
 
@@ -154,8 +154,8 @@ dependencies {
     implementation "org.mapstruct:mapstruct:$mapstructVersion"
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     kapt "org.mapstruct:mapstruct-processor:$mapstructVersion"
-//    implementation("io.ktor:ktor-client-core:$ktorVersion")
-//    implementation "io.ktor:ktor-client-cio:$ktorVersion"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation "io.ktor:ktor-client-cio:$ktorVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     testImplementation 'org.mockito.kotlin:mockito-kotlin:3.2.0'
 //    testImplementation 'org.mockito:mockito-inline:5.2.0'

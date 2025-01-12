@@ -101,9 +101,9 @@ class DefaultProtocolGeneratorTest {
     @Test
     fun `get protocol for subject`() {
         val protocol = protocolGenerator.getProtocolForSubject("user1")
-        assertEquals("Test", protocol.name)
-        assertEquals("1.0", protocol.version)
-        assertEquals("PHQ8", protocol.protocols?.first()?.name)
+        assertEquals("Test", protocol?.name)
+        assertEquals("1.0", protocol?.version)
+        assertEquals("PHQ8", protocol?.protocols?.first()?.name)
     }
 }
 

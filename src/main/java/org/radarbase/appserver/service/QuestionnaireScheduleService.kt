@@ -119,12 +119,10 @@ class QuestionnaireScheduleService(
     @Transactional
     fun generateScheduleForUser(user: User): Schedule {
         val subjectId: String? = user.subjectId
-
         checkNotNull(subjectId) { "Subject ID cannot be null in questionnaire scheduler service." }
 
         val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
         val newSchedule: Schedule
-
         if (protocol == null) {
             newSchedule = Schedule()
         } else {
@@ -158,10 +156,10 @@ class QuestionnaireScheduleService(
     ): Schedule {
 
         val user: User = subjectAndProjectExistsElseThrow(subjectId, projectId)
-        val protocol: Protocol = protocolGenerator.getProtocolForSubject(subjectId)
+        val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
 
         checkInvalidDetails<NotFoundException>(
-            { !protocol.hasAssessment(assessment.name) },
+            {  protocol == null || !protocol.hasAssessment(assessment.name) },
             { "Assessment not found in protocol. Add assessment to protocol first" }
         )
 
