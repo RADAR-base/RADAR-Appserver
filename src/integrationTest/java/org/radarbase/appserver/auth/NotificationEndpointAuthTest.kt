@@ -22,7 +22,7 @@ package org.radarbase.appserver.auth
 
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
-import org.radarbase.appserver.auth.ProjectEndpointAuthTest.createURLWithPort
+import org.radarbase.appserver.auth.ProjectEndpointAuthTest.Companion.createURLWithPort
 import org.radarbase.appserver.auth.common.MPOAuthHelper
 import org.radarbase.appserver.auth.common.OAuthHelper
 import org.radarbase.appserver.dto.ProjectDto

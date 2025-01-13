@@ -118,7 +118,7 @@ class ProjectService(
             )
         }
 
-        return projectMapper.entityToDto(projectRepository.save<Project>(projectMapper.dtoToEntity(projectDTO)))
+        return projectMapper.entityToDto(projectRepository.saveAndFlush<Project>(projectMapper.dtoToEntity(projectDTO)))
     }
 
     /**
