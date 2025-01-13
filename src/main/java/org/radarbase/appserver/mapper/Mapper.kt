@@ -29,7 +29,6 @@ import java.util.stream.Collectors
  *
  * @param <E> the entity object class
  * @param <D> the DTO object class
- * TODO - Use MapStruct for mapping entities and DTOs (http://mapstruct.org/)
  */
 interface Mapper<D, E> {
     fun dtoToEntity(dto: D): E

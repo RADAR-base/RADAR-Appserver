@@ -67,7 +67,7 @@ class ProjectServiceTest {
             updatedAt = Date()
         }
 
-        Mockito.`when`(projectRepository.save(projectNew)).thenReturn(projectNew.apply { id = 2L })
+        Mockito.`when`(projectRepository.saveAndFlush(projectNew)).thenReturn(projectNew.apply { id = 2L })
 
         val projectUpdated = Project().apply {
             projectId = "$PROJECT_ID-updated"
