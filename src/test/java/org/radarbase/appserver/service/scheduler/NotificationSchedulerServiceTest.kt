@@ -107,7 +107,7 @@ class NotificationSchedulerServiceTest {
     @Test
     fun `update scheduled notification`() {
         val jobDetail = MessageSchedulerService.getJobDetailForMessage(notification, MessageType.NOTIFICATION)
-        val triggerFactoryBean = MessageSchedulerService.getTriggerForMessage(notification, jobDetail.`object`)
+        val triggerFactoryBean = MessageSchedulerService.getTriggerForMessage(notification, jobDetail.`object`!!)
         scheduler.scheduleJob(jobDetail.`object`, triggerFactoryBean.`object`)
 
         val updatedNotification = Notification.NotificationBuilder(notification)

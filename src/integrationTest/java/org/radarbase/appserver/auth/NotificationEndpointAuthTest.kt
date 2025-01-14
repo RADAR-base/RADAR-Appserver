@@ -29,11 +29,14 @@ import org.radarbase.appserver.dto.ProjectDto
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.dto.fcm.FcmNotifications
 import org.radarbase.appserver.dto.fcm.FcmUserDto
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.*
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.jdbc.JdbcTestUtils
 import org.springframework.web.client.ResourceAccessException
 import java.time.Duration
 import java.time.Instant
@@ -315,5 +318,12 @@ class NotificationEndpointAuthTest {
             AUTH_HEADER = HttpHeaders()
             AUTH_HEADER!!.setBearerAuth(oAuthHelper.getAccessToken())
         }
+
+        @AfterAll
+        @JvmStatic
+        fun clearDatabase(@Autowired jdbcTemplate: JdbcTemplate) {
+            JdbcTestUtils.deleteFromTables(jdbcTemplate, "notifications", "users", "projects")
+        }
+
     }
 }

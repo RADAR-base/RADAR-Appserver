@@ -26,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.appserver.auth.common.MPOAuthHelper
 import org.radarbase.appserver.auth.common.OAuthHelper
 import org.radarbase.appserver.dto.ProjectDto
-import org.radarbase.appserver.dto.ProjectDtos
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort

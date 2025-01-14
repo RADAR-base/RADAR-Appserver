@@ -46,23 +46,6 @@ import org.springframework.web.client.RestTemplate
 @TestMethodOrder(OrderAnnotation::class)
 class UserEndpointAuthTest {
 
-    companion object {
-        const val USER_PATH = "/users"
-        const val DEFAULT_PROJECT = "/radar"
-        private val HEADERS = HttpHeaders()
-        private lateinit var AUTH_HEADER: HttpHeaders
-        private val restTemplate = TestRestTemplate()
-
-        @JvmStatic
-        @BeforeAll
-        fun init() {
-            val oAuthHelper = MPOAuthHelper()
-            AUTH_HEADER = HttpHeaders().apply {
-                setBearerAuth(oAuthHelper.getAccessToken())
-            }
-        }
-    }
-
     private val userDto = FcmUserDto().apply {
         projectId = "radar"
         language = "en"
@@ -206,5 +189,22 @@ class UserEndpointAuthTest {
 
     private fun createURLWithPort(port: Int, path: String): String {
         return "http://localhost:$port$path"
+    }
+
+    companion object {
+        const val USER_PATH = "/users"
+        const val DEFAULT_PROJECT = "/radar"
+        private val HEADERS = HttpHeaders()
+        private lateinit var AUTH_HEADER: HttpHeaders
+        private val restTemplate = TestRestTemplate()
+
+        @JvmStatic
+        @BeforeAll
+        fun init() {
+            val oAuthHelper = MPOAuthHelper()
+            AUTH_HEADER = HttpHeaders().apply {
+                setBearerAuth(oAuthHelper.getAccessToken())
+            }
+        }
     }
 }
