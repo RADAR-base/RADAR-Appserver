@@ -33,7 +33,7 @@ bootJar {
 
 ext {
     springBootVersion = '3.2.10'
-    springVersion = '6.0.6'
+    springVersion = '6.1.14'
     springOauth2Version = "2.5.2.RELEASE"
     springOauth2AutoconfigureVersion = "2.6.8"
     springDocVersion = '2.2.0'
