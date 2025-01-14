@@ -4,7 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.0'
     id 'org.springframework.boot' version '3.2.10'
     id 'org.openjfx.javafxplugin' version '0.0.13'
-    id("com.github.ben-manes.versions") version "0.46.0"
+    id("com.github.ben-manes.versions") version "0.51.0"
 }
 
 apply plugin: 'checkstyle'
