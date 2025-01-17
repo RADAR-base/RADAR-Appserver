@@ -61,11 +61,11 @@ class SchedulerServiceImpl : SchedulerService {
     }
 
     @Async
-    override fun scheduleJob(jobDetail: JobDetail?, trigger: Trigger?) {
+    override fun scheduleJob(jobDetail: JobDetail, trigger: Trigger) {
         scheduler.scheduleJob(jobDetail, trigger)
     }
 
-    override fun checkJobExists(jobKey: JobKey?): Boolean {
+    override fun checkJobExists(jobKey: JobKey): Boolean {
         return scheduler.checkExists(jobKey)
     }
 
@@ -76,7 +76,7 @@ class SchedulerServiceImpl : SchedulerService {
 
     @Async
     override fun updateScheduledJob(
-        jobKey: JobKey?, triggerKey: TriggerKey?, jobDataMap: JobDataMap, associatedObject: Any?
+        jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?
     ) {
         require(scheduler.checkExists(jobKey)) { "The Specified Job Key does not exist : $jobKey" }
 
@@ -101,11 +101,11 @@ class SchedulerServiceImpl : SchedulerService {
     @Async
     override fun deleteScheduledJobs(jobKeys: List<JobKey>) {
         // The scheduler.deleteJobs method does not unschedule jobs so using a deleteJob.
-        jobKeys.forEach(Consumer { jobKey: JobKey? -> this.deleteScheduledJob(jobKey) })
+        jobKeys.forEach(this::deleteScheduledJob)
     }
 
     @Async
-    override fun deleteScheduledJob(jobKey: JobKey?) {
+    override fun deleteScheduledJob(jobKey: JobKey) {
         if (scheduler.checkExists(jobKey)) {
             scheduler.deleteJob(jobKey)
         }

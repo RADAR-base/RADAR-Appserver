@@ -32,6 +32,7 @@ import org.radarbase.appserver.service.MessageType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.time.Instant
 
@@ -49,12 +50,11 @@ class QuartzMessageJobListener(
     }
 
     /**
-     * Called by the `[Scheduler]` when a `[JobDetail]` is about to
-     * be executed (an associated `[Trigger]` has occurred).
+     * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.JobDetail]` is about to
+     * be executed (an associated `[org.quartz.Trigger]` has occurred).
      *
      *
-     * This method will not be invoked if the execution of the Job was vetoed by a `{
-     * TriggerListener}`.
+     * This method will not be invoked if the execution of the Job was vetoed by a `TriggerListener`.
      *
      * @see .jobExecutionVetoed
      */
@@ -63,9 +63,8 @@ class QuartzMessageJobListener(
     }
 
     /**
-     * Called by the `[Scheduler]` when a `[JobDetail]` was about to
-     * be executed (an associated `[Trigger]` has occurred), but a `{
-     * TriggerListener}` vetoed it's execution.
+     * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.JobDetail]` was about to
+     * be executed (an associated `[org.quartz.Trigger]` has occurred), but a `TriggerListener` vetoed its execution.
      *
      * @see .jobToBeExecuted
      */
@@ -74,26 +73,25 @@ class QuartzMessageJobListener(
     }
 
     /**
-     * Called by the `[Scheduler]` after a `[JobDetail]` has been
+     * Called by the `[org.quartz.Scheduler]` after a `[org.quartz.JobDetail]` has been
      * executed, and be for the associated `Trigger`'s `triggered(xx)` method
      * has been called.
      */
     override fun jobWasExecuted(context: JobExecutionContext, jobException: JobExecutionException?) {
-        val jobDataMap = context.getMergedJobDataMap()
+        val jobDataMap = context.mergedJobDataMap
         val messageId = jobDataMap.getLongValue("messageId")
         val messageType = jobDataMap.getString("messageType")
         if (messageType == null) {
-            QuartzMessageJobListener.log.warn("The message type does not exist.")
+            log.warn("The message type does not exist.")
             return
         }
 
         val type = MessageType.valueOf(messageType)
         when (type) {
             MessageType.NOTIFICATION -> {
-                val notification =
-                    notificationRepository.findById(messageId)
-                if (notification.isEmpty()) {
-                    QuartzMessageJobListener.log.warn("The notification does not exist in database and yet was scheduled.")
+                val notification = notificationRepository.findByIdOrNull(messageId)
+                if (notification == null) {
+                    log.warn("The notification does not exist in database and yet was scheduled.")
                     return
                 }
                 if (jobException != null) {
@@ -102,25 +100,24 @@ class QuartzMessageJobListener(
                     additionalInfo.put("error_description", jobException.toString())
                     val notificationStateEventError =
                         NotificationStateEventDto(
-                            this, notification.get(), MessageState.ERRORED, additionalInfo, Instant.now()
+                            this, notification, MessageState.ERRORED, additionalInfo, Instant.now()
                         )
                     messageStateEventPublisher.publishEvent(notificationStateEventError)
 
-                    QuartzMessageJobListener.log.warn("The job could not be executed.", jobException)
+                    log.warn("The job could not be executed.", jobException)
                     return
                 }
 
                 val notificationStateEvent =
                     NotificationStateEventDto(
-                        this, notification.get(), MessageState.EXECUTED, null, Instant.now()
+                        this, notification, MessageState.EXECUTED, null, Instant.now()
                     )
                 messageStateEventPublisher.publishEvent(notificationStateEvent)
             }
 
             MessageType.DATA -> {
-                val dataMessage =
-                    dataMessageRepository.findById(messageId)
-                if (dataMessage.isEmpty()) {
+                val dataMessage = dataMessageRepository.findByIdOrNull(messageId)
+                if (dataMessage == null) {
                     log.warn("The data message does not exist in database and yet was scheduled.")
                     return
                 }
@@ -129,9 +126,8 @@ class QuartzMessageJobListener(
                     val additionalInfo: MutableMap<String, String> = hashMapOf()
                     additionalInfo.put("error", jobException.message!!)
                     additionalInfo.put("error_description", jobException.toString())
-                    val dataMessageStateEventError =
-                        DataMessageStateEventDto(
-                            this, dataMessage.get(), MessageState.ERRORED, additionalInfo, Instant.now()
+                    val dataMessageStateEventError = DataMessageStateEventDto(
+                            this, dataMessage, MessageState.ERRORED, additionalInfo, Instant.now()
                         )
                     messageStateEventPublisher.publishEvent(dataMessageStateEventError)
 
@@ -141,7 +137,7 @@ class QuartzMessageJobListener(
 
                 val dataMessageStateEvent =
                     DataMessageStateEventDto(
-                        this, dataMessage.get(), MessageState.EXECUTED, null, Instant.now()
+                        this, dataMessage, MessageState.EXECUTED, null, Instant.now()
                     )
                 messageStateEventPublisher.publishEvent(dataMessageStateEvent)
             }

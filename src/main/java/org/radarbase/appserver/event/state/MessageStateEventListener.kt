@@ -77,7 +77,7 @@ class MessageStateEventListener(
         }
         try {
             return objectMapper.writeValueAsString(additionalInfoMap)
-        } catch (exc: JsonProcessingException) {
+        } catch (_: JsonProcessingException) {
             logger.warn("error processing event's additional info: {}", additionalInfoMap)
             return null
         }

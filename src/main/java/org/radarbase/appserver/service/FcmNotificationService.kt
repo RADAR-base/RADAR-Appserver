@@ -162,7 +162,7 @@ class FcmNotificationService(
             )
 
         if (notification == null) {
-            val notificationSaved = this.notificationRepository.saveAndFlush<Notification>(
+            val notificationSaved = this.notificationRepository.saveAndFlush(
                 NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build()
             )
             user.usermetrics!!.lastOpened = Instant.now()
@@ -227,7 +227,6 @@ class FcmNotificationService(
         }
     }
 
-
     @Transactional
     fun updateNotification(
         notificationDto: FcmNotificationDto, subjectId: String?, projectId: String?
@@ -241,7 +240,7 @@ class FcmNotificationService(
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 
         val notification = checkPresence(this.notificationRepository.findByIdOrNull(notificationId)) {
-            throw NotFoundException("Notification does not exist. Please create first")
+            throw NotFoundException("Notification does not exist. Please create one first")
         }
 
         val newNotification = NotificationBuilder(notification)
@@ -318,7 +317,7 @@ class FcmNotificationService(
 
         if (this.notificationRepository.existsByIdAndUserId(id, userId)) {
             this.schedulerService.deleteScheduled(
-                this.notificationRepository.findByIdAndUserId(id, userId!!)
+                this.notificationRepository.findByIdAndUserId(id, userId!!)!!
             )
             this.notificationRepository.deleteByIdAndUserId(id, userId)
         } else throw InvalidNotificationDetailsException(

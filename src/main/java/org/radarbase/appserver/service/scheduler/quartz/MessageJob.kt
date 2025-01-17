@@ -48,7 +48,7 @@ class MessageJob(
 ) : Job {
     /**
      * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.Trigger]
-    ` *  fires that is associated with the `Job`.
+    `*  fires that is associated with the `Job`.
      *
      *
      * The implementation may wish to set a [result][JobExecutionContext.setResult]
@@ -57,7 +57,7 @@ class MessageJob(
      * or `[org.quartz.TriggerListener]s` that are watching the job's execution.
      *
      * @param context context containing jobs details and data added when creating the job.
-     * @throws RuntimeException if there is an CustomExceptionHandler while executing the job.
+     * @throws JobExecutionException if an error occurred while executing.
      */
     @Throws(JobExecutionException::class)
     override fun execute(context: JobExecutionContext) {

@@ -32,6 +32,7 @@ import org.radarbase.appserver.service.scheduler.quartz.SimpleQuartzNamingStrate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.time.Instant
 
@@ -49,7 +50,7 @@ class QuartzMessageSchedulerListener(
     override fun jobScheduled(trigger: Trigger) {
         val jobDetail: JobDetail
         try {
-            jobDetail = scheduler.getJobDetail(trigger.getJobKey())
+            jobDetail = scheduler.getJobDetail(trigger.jobKey)
         } catch (exc: SchedulerException) {
             log.warn(
                 "Encountered error while getting job information from Trigger: ",
@@ -64,27 +65,26 @@ class QuartzMessageSchedulerListener(
 
         when (type) {
             MessageType.NOTIFICATION -> {
-                val notification =
-                    notificationRepository.findById(messageId)
-                if (notification.isEmpty) {
+                val notification = notificationRepository.findByIdOrNull(messageId)
+                if (notification == null) {
                     log.warn("The notification does not exist in database and yet was scheduled.")
                     return
                 }
                 val notificationStateEvent =
                     NotificationStateEventDto(
-                        this, notification.get(), MessageState.SCHEDULED, null, Instant.now()
+                        this, notification, MessageState.SCHEDULED, null, Instant.now()
                     )
                 messageStateEventPublisher.publishEvent(notificationStateEvent)
             }
 
             MessageType.DATA -> {
-                val dataMessage = dataMessageRepository.findById(messageId)
-                if (dataMessage.isEmpty) {
+                val dataMessage = dataMessageRepository.findByIdOrNull(messageId)
+                if (dataMessage == null) {
                     log.warn("The data message does not exist in database and yet was scheduled.")
                     return
                 }
                 val dataMessageStateEvent = DataMessageStateEventDto(
-                        this, dataMessage.get(), MessageState.SCHEDULED, null, Instant.now()
+                        this, dataMessage, MessageState.SCHEDULED, null, Instant.now()
                     )
                 messageStateEventPublisher.publishEvent(dataMessageStateEvent)
             }
@@ -102,21 +102,20 @@ class QuartzMessageSchedulerListener(
     override fun jobUnscheduled(triggerKey: TriggerKey) {
         val notificationId: Long
         try {
-            notificationId = NAMING_STRATEGY.getMessageId(triggerKey.getName())!!.toLong()
+            notificationId = NAMING_STRATEGY.getMessageId(triggerKey.name)!!.toLong()
         } catch (_: NumberFormatException) {
             log.warn("The message id could not be established from unscheduled trigger.")
             return
         }
-        val notification =
-            notificationRepository.findById(notificationId)
+        val notification = notificationRepository.findByIdOrNull(notificationId)
 
-        if (notification.isEmpty) {
+        if (notification == null) {
             log.warn("The notification does not exist in database and yet was unscheduled.")
             return
         }
         val notificationStateEvent =
             NotificationStateEventDto(
-                this, notification.get(), MessageState.CANCELLED, null, Instant.now()
+                this, notification, MessageState.CANCELLED, null, Instant.now()
             )
         messageStateEventPublisher.publishEvent(notificationStateEvent)
     }
@@ -275,7 +274,7 @@ class QuartzMessageSchedulerListener(
     }
 
     companion object {
-        val NAMING_STRATEGY: QuartzNamingStrategy = SimpleQuartzNamingStrategy()
+        private val NAMING_STRATEGY: QuartzNamingStrategy = SimpleQuartzNamingStrategy()
         private val log: Logger = LoggerFactory.getLogger(QuartzMessageSchedulerListener::class.java)
     }
 }

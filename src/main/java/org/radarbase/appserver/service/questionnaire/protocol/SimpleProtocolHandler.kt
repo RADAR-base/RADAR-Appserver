@@ -64,7 +64,6 @@ class SimpleProtocolHandler : ProtocolHandler {
             }
             val timestampFormat = requireNotNull(referenceTimestamp.format) {
                 "Reference timestamp format is null when handling SimpleProtocolHandler."
-
             }
             when (timestampFormat) {
                 DATE -> LocalDate.parse(timestamp).atStartOfDay(timezoneId).toInstant()

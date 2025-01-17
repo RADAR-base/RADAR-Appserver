@@ -30,17 +30,17 @@ import org.quartz.*
  * @author yatharthranjan
  */
 interface SchedulerService {
-    fun scheduleJob(jobDetail: JobDetail?, trigger: Trigger?)
+    fun scheduleJob(jobDetail: JobDetail, trigger: Trigger)
 
     fun scheduleJobs(jobDetailTriggerMap: Map<JobDetail, Set<Trigger>>)
 
-    fun checkJobExists(jobKey: JobKey?): Boolean
+    fun checkJobExists(jobKey: JobKey): Boolean
 
     fun updateScheduledJob(
-        jobKey: JobKey?, triggerKey: TriggerKey?, jobDataMap: JobDataMap, associatedObject: Any?
+        jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?
     )
 
     fun deleteScheduledJobs(jobKeys: List<JobKey>)
 
-    fun deleteScheduledJob(jobKey: JobKey?)
+    fun deleteScheduledJob(jobKey: JobKey)
 }

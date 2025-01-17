@@ -36,7 +36,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 import java.time.Instant
-import java.util.function.Consumer
 
 /**
  * [Service] for interacting with the [Task] [jakarta.persistence.Entity] using
@@ -110,7 +109,7 @@ class TaskService(
         val alreadyExists = this.taskRepository.existsByUserIdAndNameAndTimestamp(user!!.id, task.name, task.timestamp)
 
         if (!alreadyExists) {
-            val saved = this.taskRepository.saveAndFlush<Task>(task)
+            val saved = this.taskRepository.saveAndFlush(task)
             user.usermetrics!!.lastOpened = Instant.now()
             this.userRepository.save(user)
             addTaskStateEvent(saved, TaskState.ADDED, saved.createdAt!!.toInstant())
@@ -131,7 +130,9 @@ class TaskService(
             } ?: return emptyList()
 
         val saved = this.taskRepository.saveAllAndFlush(newTasks)
-        saved.forEach(Consumer { t -> addTaskStateEvent(t, TaskState.ADDED, t!!.createdAt!!.toInstant()) })
+        saved.forEach{ t ->
+            addTaskStateEvent(t, TaskState.ADDED, t!!.createdAt!!.toInstant())
+        }
 
         return saved
     }

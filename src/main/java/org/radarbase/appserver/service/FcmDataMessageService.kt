@@ -38,15 +38,12 @@ import org.radarbase.appserver.repository.UserRepository
 import org.radarbase.appserver.service.scheduler.MessageSchedulerService
 import org.radarbase.appserver.util.checkInvalidDetails
 import org.radarbase.appserver.util.checkPresence
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.function.Consumer
-import java.util.stream.Collectors
 
 /**
  * [Service] for interacting with the [DataMessage] [jakarta.persistence.Entity]
@@ -55,6 +52,7 @@ import java.util.stream.Collectors
  * @author yatharthranjan
  */
 @Service
+@Suppress("unused")
 class FcmDataMessageService(
     private val dataMessageRepository: DataMessageRepository,
     private val userRepository: UserRepository,

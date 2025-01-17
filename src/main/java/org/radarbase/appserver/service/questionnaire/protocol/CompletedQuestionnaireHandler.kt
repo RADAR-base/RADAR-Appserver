@@ -23,12 +23,14 @@ import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.Task
 import org.radarbase.appserver.entity.User
 import org.radarbase.appserver.event.state.TaskState
+import org.radarbase.appserver.util.OpenClass
 import org.radarbase.appserver.util.checkPresence
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 import java.util.TimeZone
 
-open class CompletedQuestionnaireHandler(
+@OpenClass
+class CompletedQuestionnaireHandler(
     private val prevTasks: List<Task>,
     private val prevTimezone: String
 ) : ProtocolHandler {
@@ -49,7 +51,7 @@ open class CompletedQuestionnaireHandler(
     }
 
     @Transactional
-    open fun markTasksAsCompleted(
+    fun markTasksAsCompleted(
         currentTasks: List<Task>,
         previousTasks: List<Task>,
         currentTimezone: String,
