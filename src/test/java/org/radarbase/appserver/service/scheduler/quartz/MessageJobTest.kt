@@ -104,14 +104,14 @@ class MessageJobTest {
         setNotificationType(MessageType.NOTIFICATION)
         messageJob.execute(jobExecutionContext)
         verify(notificationTransmitter, times(2)).send(notification)
-        verify(dataMessageTransmitter, never()).send(any())
+        verify(dataMessageTransmitter, never()).send(any<DataMessage>())
     }
 
     @Test
     fun `execute data message should send data message twice`() {
         setNotificationType(MessageType.DATA)
         messageJob.execute(jobExecutionContext)
-        verify(notificationTransmitter, never()).send(any())
+        verify(notificationTransmitter, never()).send(any<Notification>())
         verify(dataMessageTransmitter, times(2)).send(dataMessage)
     }
 

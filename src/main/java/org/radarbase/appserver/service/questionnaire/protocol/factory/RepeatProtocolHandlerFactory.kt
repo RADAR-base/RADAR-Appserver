@@ -23,6 +23,7 @@ package org.radarbase.appserver.service.questionnaire.protocol.factory
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleRepeatProtocolHandler
 
+@Suppress("unused")
 object RepeatProtocolHandlerFactory {
     fun getRepeatProtocolHandler(protocolHandlerType: RepeatProtocolHandlerType): ProtocolHandler {
         return SimpleRepeatProtocolHandler()

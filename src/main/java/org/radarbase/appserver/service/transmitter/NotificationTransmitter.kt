@@ -25,5 +25,5 @@ import org.radarbase.appserver.exception.MessageTransmitException
 
 interface NotificationTransmitter {
     @Throws(MessageTransmitException::class)
-    fun send(notification: Notification)
+    fun send(notification: Notification?)
 }

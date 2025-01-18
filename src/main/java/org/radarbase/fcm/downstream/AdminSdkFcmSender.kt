@@ -188,7 +188,7 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
 
         if (message is FcmNotificationMessage) {
             val notificationMessage = message
-            val apnsData: Map<String, Any?> = HashMap<String, Any?>(notificationMessage.data)
+            val apnsData: Map<String?, Any?> = HashMap(notificationMessage.data ?: emptyMap<String, String>())
 
             val apsAlertBuilder = ApsAlert.builder()
             val title = getString(notificationMessage.notification!!["title"])
@@ -232,7 +232,7 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
                 .putHeader("apns-push-type", "alert")
         } else if (message is FcmDataMessage) {
             val dataMessage = message
-            val apnsData: Map<String, Any?> = HashMap<String, Any?>(dataMessage.data)
+            val apnsData: Map<String?, Any?> = HashMap(dataMessage.data ?: emptyMap<String, String>())
 
             return config
                 .putAllCustomData(apnsData)

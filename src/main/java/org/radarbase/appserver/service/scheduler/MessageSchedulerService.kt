@@ -97,7 +97,7 @@ class MessageSchedulerService<T : Message>(
 
 
     fun deleteScheduled(message: T) {
-        val key = JobKey(NAMING_STRATEGY.getJobKeyName(message!!.user!!.subjectId!!, message.id.toString()))
+        val key = JobKey(NAMING_STRATEGY.getJobKeyName(message.user!!.subjectId!!, message.id.toString()))
         schedulerService.deleteScheduledJob(key)
     }
 

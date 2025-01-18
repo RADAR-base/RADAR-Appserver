@@ -48,7 +48,10 @@ class FcmTransmitter(
 ) : NotificationTransmitter, DataMessageTransmitter {
 
     @Throws(FcmMessageTransmitException::class)
-    override fun send(notification: Notification) {
+    override fun send(notification: Notification?) {
+        requireNotNull(notification) {
+            "Notification to send should not be null"
+        }
         try {
             fcmSender.send(createMessageFromNotification(notification))
         } catch (exc: FirebaseMessagingException) {
@@ -59,7 +62,11 @@ class FcmTransmitter(
     }
 
     @Throws(FcmMessageTransmitException::class)
-    override fun send(dataMessage: DataMessage) {
+    override fun send(dataMessage: DataMessage?) {
+        requireNotNull(dataMessage) {
+            "DataMessage to send should not be null"
+        }
+
         try {
             fcmSender.send(createMessageFromDataMessage(dataMessage))
         } catch (exc: FirebaseMessagingException) {

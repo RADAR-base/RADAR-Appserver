@@ -40,7 +40,11 @@ class EmailNotificationTransmitter(
     private val from: String? = null
 
     @Throws(EmailMessageTransmitException::class)
-    override fun send(notification: Notification) {
+    override fun send(notification: Notification?) {
+        requireNotNull(notification) {
+            "Notification to send should not be null"
+        }
+
         if (notification.emailEnabled) {
             try {
                 if (notification.user!!.emailAddress.isNullOrBlank()) {
