@@ -27,13 +27,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 class FcmDataMessage : FcmDownstreamMessage() {
 
     @JsonProperty
-    var data: Map<String, String>? = null
+    var data: Map<String?, String?>? = null
 
     class Builder : FcmDownstreamMessage.Builder<Builder>() {
 
-        private var data: Map<String, String>? = null
+        private var data: Map<String?, String?>? = null
 
-        fun data(data: Map<String, String>?) = apply {
+        fun data(data: Map<String?, String?>?) = apply {
             this.data = data
         }
 

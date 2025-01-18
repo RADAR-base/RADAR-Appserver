@@ -22,8 +22,6 @@ package org.radarbase.fcm.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import lombok.Getter
-import lombok.experimental.SuperBuilder
 
 /** @author yatharthranjan
  */
@@ -34,17 +32,17 @@ class FcmNotificationMessage : FcmDownstreamMessage() {
     var notification: Map<String, Any>? = null
 
     @JsonProperty
-    var data: Map<String, String>? = null
+    var data: Map<String?, String?>? = null
 
     class Builder : FcmDownstreamMessage.Builder<Builder>() {
         private var notification: Map<String, Any>? = null
-        private var data: Map<String, String>? = null
+        private var data: Map<String?, String?>? = null
 
         fun notification(notification: Map<String, Any>?) = apply {
             this.notification = notification
         }
 
-        fun data(data: Map<String, String>?) = apply {
+        fun data(data: Map<String?, String?>?) = apply {
             this.data = data
         }
 

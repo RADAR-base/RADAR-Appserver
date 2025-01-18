@@ -18,12 +18,12 @@
  *  *
  *
  */
+package org.radarbase.appserver.service.transmitter
 
-package org.radarbase.appserver.service.transmitter;
+import org.radarbase.appserver.entity.Notification
+import org.radarbase.appserver.exception.MessageTransmitException
 
-import org.radarbase.appserver.entity.DataMessage;
-import org.radarbase.appserver.exception.MessageTransmitException;
-
-public interface DataMessageTransmitter {
-    void send(DataMessage dataMessage) throws MessageTransmitException;
+interface NotificationTransmitter {
+    @Throws(MessageTransmitException::class)
+    fun send(notification: Notification)
 }
