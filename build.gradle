@@ -2,9 +2,10 @@ plugins {
     id 'pmd'
     id 'io.gatling.gradle' version '3.9.2.1'
     id 'com.github.johnrengelman.shadow' version '8.1.0'
-    id 'org.springframework.boot' version '3.2.10'
+    id 'org.springframework.boot' version '3.2.11'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id("com.github.ben-manes.versions") version "0.46.0"
+    id 'io.sentry.jvm.gradle' version '4.11.0'
 }
 
 apply plugin: 'checkstyle'
@@ -32,7 +33,7 @@ bootJar {
 }
 
 ext {
-    springBootVersion = '3.2.10'
+    springBootVersion = '3.2.11'
     springVersion = '6.0.6'
     springOauth2Version = "2.5.2.RELEASE"
     springOauth2AutoconfigureVersion = "2.6.8"
