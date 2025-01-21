@@ -103,7 +103,7 @@ dependencies {
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 
-    implementation('org.liquibase.ext:liquibase-hibernate6:4.20.0')
+    implementation('org.liquibase.ext:liquibase-hibernate6:4.29.2')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit', module: 'junit'
