@@ -24,6 +24,6 @@ jobs:
         uses: thehyve/report-vulnerability@master
         if: success() || failure()
         with:
-          report-file: snky.json
+          report-file: snyk.json
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
