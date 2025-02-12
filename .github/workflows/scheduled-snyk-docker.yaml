@@ -12,20 +12,14 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Run Snyk to check for vulnerabilities
+        continue-on-error: true
         uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: radarbase/radar-appserver
-          args: |
-            --file=Dockerfile
-            --all-projects
-            --org=radar-base
-            --fail-on=upgradable
-            --severity-threshold=high
-            --json-file-output=snyk.json
-            --policy-path=$PWD/.snyk
-
+          args: --file=Dockerfile --all-projects --org=radar-base --fail-on=upgradable --severity-threshold=high --policy-path=$PWD/.snyk
+          json: true
       - name: Report new vulnerabilities
         uses: thehyve/report-vulnerability@master
         if: success() || failure()
