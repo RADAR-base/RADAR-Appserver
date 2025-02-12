@@ -18,7 +18,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: radarbase/radar-appserver
-          args: --file=Dockerfile --all-projects --org=radar-base --fail-on=upgradable --severity-threshold=high --policy-path=$PWD/.snyk
+          args: --file=Dockerfile --org=radar-base --fail-on=upgradable --severity-threshold=high --policy-path=$PWD/.snyk
           json: true
       - name: Report new vulnerabilities
         uses: thehyve/report-vulnerability@master
