@@ -1,7 +1,10 @@
 name: Snyk test
 
 on:
- - pull_request
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
   security:
@@ -9,9 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Run Snyk to check for JDK vulnerabilities
+      - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle-jdk17@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --all-projects --configuration-matching="^runtimeClasspath$" --fail-on=upgradable --org=radar-base --policy-path=.snyk --severity-threshold=high
+          args: >-
+            --all-projects
+            --configuration-matching="^runtimeClasspath$"
+            --severity-threshold=high
+            --fail-on=upgradable
+            --org=radar-base
+            --policy-path=.snyk
