@@ -1,10 +1,11 @@
-name: Snyk test
+name: Snyk test on PR commits
 
 on:
   pull_request:
     branches:
       - main
       - dev
+      - release-*
 
 jobs:
   security:
