@@ -59,12 +59,18 @@
     </filter>
   </appender>
 
+  <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+    <minimumEventLevel>${SENTRY_LOG_LEVEL:-ERROR}</minimumEventLevel>
+  </appender>
 
   <!-- LOG everything at INFO level -->
   <root level="info">
     <appender-ref ref="RollingFile" />
     <appender-ref ref="Console" />
     <appender-ref ref="RollingFile-Error" />
+    <springProfile name="sentry">
+      <appender-ref ref="Sentry"/>
+    </springProfile>
   </root>
 
 </configuration>
