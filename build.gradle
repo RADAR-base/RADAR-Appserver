@@ -1,18 +1,28 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'pmd'
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'scala'
+    id 'checkstyle'
     id 'io.gatling.gradle' version '3.9.2.1'
     id 'com.github.johnrengelman.shadow' version '8.1.0'
-    id 'org.springframework.boot' version '3.2.11'
+    id 'org.springframework.boot' version '3.3.3'
     id 'org.openjfx.javafxplugin' version '0.0.13'
-    id("com.github.ben-manes.versions") version "0.46.0"
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.github.ben-manes.versions' version "0.46.0"
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
+    id "org.jetbrains.kotlin.kapt" version "1.9.25"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.25"
+    id "org.jetbrains.kotlin.plugin.spring" version "1.9.25"
+    id "org.jetbrains.kotlin.plugin.jpa" version "1.9.25"
+    id "org.jetbrains.kotlin.plugin.noarg" version "1.9.25"
     id 'io.sentry.jvm.gradle' version '4.11.0'
 }
-
-apply plugin: 'checkstyle'
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'scala'
 
 group = 'org.radarbase'
 version = '2.4.3'
@@ -23,17 +33,41 @@ java {
     }
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
+kapt {
+    keepJavacAnnotationProcessors = true
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
+springBoot {
+    mainClass.set('org.radarbase.appserver.AppserverApplicationKt')
+}
+
 bootJar {
-    mainClass = 'org.radarbase.appserver.AppserverApplication'
+    mainClass = 'org.radarbase.appserver.AppserverApplicationKt'
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 ext {
-    springBootVersion = '3.2.11'
+    springBootVersion = '3.3.3'
     springVersion = '6.0.6'
     springOauth2Version = "2.5.2.RELEASE"
     springOauth2AutoconfigureVersion = "2.6.8"
@@ -44,9 +78,20 @@ ext {
     springSecurityVersion = '6.0.5'
     hibernateValidatorVersion = '8.0.0.Final'
     minioVersion = '8.5.10'
+    kotlinVersion = '1.9.25'
+    jacksonKotlinVersion = '2.15.4'
+    dateTimeVersion = '0.6.1'
+    ktorVersion = '2.3.0'
+    coroutinesVersion = '1.10.1'
+    mockitoKotlinVersion = '3.2.0'
 }
 
 sourceSets {
+    main {
+        kotlin {
+            srcDirs += 'src/main/java'
+        }
+    }
     integrationTest {
         java {
             compileClasspath += main.output + test.output + test.compileClasspath
@@ -68,7 +113,9 @@ dependencies {
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springOauth2AutoconfigureVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
     runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
-    implementation("io.minio:minio:$minioVersion")
+    implementation("io.minio:minio:$minioVersion") {
+        exclude group: 'org.jetbrains.kotlin'
+    }
 
     // Open API spec
     implementation(group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: springDocVersion)
@@ -82,6 +129,7 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
+    kapt("org.springframework:spring-context-indexer:$springVersion")
     annotationProcessor "org.springframework:spring-context-indexer:$springVersion"
 
     // FCM Admin SDK
@@ -101,6 +149,16 @@ dependencies {
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion)
 
+    //Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.25")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation "io.ktor:ktor-client-cio:$ktorVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
+
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 
     implementation('org.liquibase.ext:liquibase-hibernate6:4.20.0')
@@ -117,6 +175,17 @@ dependencies {
     testImplementation group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.8.2'
 
     gatlingImplementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+}
+
+noArg {
+    annotation("org.radarbase.appserver.util.GenerateZeroArgs")
+}
+
+allOpen {
+    annotation("org.radarbase.appserver.util.OpenClass")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
 }
 
 javafx {
@@ -138,12 +207,20 @@ javadoc {
 }
 
 wrapper {
-    gradleVersion '8.0.2'
+    gradleVersion '8.5'
 }
 
 test {
     useJUnitPlatform() {
         excludeEngines 'junit-vintage'
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+        apiVersion = KotlinVersion.KOTLIN_1_9
+        languageVersion = KotlinVersion.KOTLIN_1_9
     }
 }
 
