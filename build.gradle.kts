@@ -1,6 +1,9 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     eclipse
@@ -8,10 +11,10 @@ plugins {
     java
 //    scala
 //    id("io.gatling.gradle") version Versions.gatlingVersion
-    id("com.github.johnrengelman.shadow") version Versions.shadowVersion // Check the updated co-ordintaes
+//    id("com.github.johnrengelman.shadow") version Versions.shadowVersion // Check the updated co-ordintaes
     id("org.springframework.boot") version Versions.springBootVersion
     id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
-    id("com.github.ben-manes.versions") version Versions.benMenesVersion 
+    id("com.github.ben-manes.versions") version Versions.benMenesVersion
     kotlin("jvm") version Versions.kotlinVersion
     kotlin("kapt") version Versions.kotlinVersion
     kotlin("plugin.allopen") version Versions.kotlinVersion
@@ -87,6 +90,25 @@ val integrationTestImplementation: Configuration by configurations.getting {
 val integrationTestRuntimeOnly: Configuration by configurations.getting
 
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
+
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+tasks.withType<KotlinJvmCompile>().configureEach {
+    jvmTargetValidationMode.set(JvmTargetValidationMode.ERROR)
+}
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -194,6 +216,10 @@ val integrationTest = task<Test>("integrationTest") {
 
 tasks.check { dependsOn(integrationTest) }
 
+tasks.named<Copy>("processIntegrationTestResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.test {
     testLogging {
         events("failed")
@@ -203,6 +229,48 @@ tasks.test {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>().configureEach {
-    jvmTargetValidationMode.set(JvmTargetValidationMode.ERROR)
+tasks.javadoc {
+    (options as CoreJavadocOptions).addBooleanOption("html5", true)
+    setDestinationDir(layout.projectDirectory.dir("src/main/resources/static/java-docs").asFile)
+
+}
+
+val bootJarProvider = tasks.named<BootJar>("bootJar")
+
+tasks.register<Copy>("unpack") {
+    dependsOn(bootJarProvider)
+    from(bootJarProvider.map { zipTree(it.outputs.files.singleFile) })
+    into(layout.buildDirectory.dir("dependency"))
+}
+
+tasks.register("downloadDependencies") {
+    description = "Pre download dependencies"
+
+    doLast {
+        configurations.compileClasspath.get().files
+        configurations.runtimeClasspath.get().files
+    }
+}
+
+tasks.register<Copy>("copyDependencies") {
+    from(configurations.runtimeClasspath)
+    into(layout.buildDirectory.dir("third-party"))
+}
+
+val isNonStable: (String) -> Boolean = { version: String ->
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any {
+        version.uppercase().contains(it)
+    }
+    val regex = Regex("^[0-9,.v-]+(-r)?$")
+    !stableKeyword && !(regex.matches(version))
+}
+
+tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
+    rejectVersionIf {
+        isNonStable(candidate.version)
+    }
+}
+
+tasks.wrapper {
+    gradleVersion = "8.5"
 }
