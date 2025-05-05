@@ -48,13 +48,6 @@ idea {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-    }
-}
-
 springBoot {
     mainClass.set("org.radarbase.appserver.AppserverApplicationKt")
 }
@@ -69,17 +62,9 @@ tasks.jar {
 }
 
 sourceSets {
-    main {
-        kotlin {
-            srcDirs("src/main/java")
-        }
-    }
-
     create("integrationTest") {
         compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
         runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-        kotlin.srcDir("src/integrationTest/java")
-        resources.srcDir("src/integrationTest/resources")
     }
 }
 
