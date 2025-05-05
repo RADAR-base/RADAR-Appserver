@@ -14,23 +14,23 @@ networks:
     internal: true
 
 services:
-  postgres:
-    extends:
-      file: ../postgres.yml
-      service: postgres
-    networks:
-      - db
-      - default
-    ports:
-      - "5432:5432"
-
-  spring-boot-admin:
-    extends:
-      file: ../spring-boot-admin.yml
-      service: spring-boot-admin
-    networks:
-      - admin
-      - default
+#  postgres:
+#    extends:
+#      file: ../postgres.yml
+#      service: postgres
+#    networks:
+#      - db
+#      - default
+#    ports:
+#      - "5432:5432"
+#
+#  spring-boot-admin:
+#    extends:
+#      file: ../spring-boot-admin.yml
+#      service: spring-boot-admin
+#    networks:
+#      - admin
+#      - default
 
   #---------------------------------------------------------------------------#
   # Management Portal                                                         #
