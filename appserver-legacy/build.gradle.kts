@@ -24,9 +24,6 @@ plugins {
     id("io.sentry.jvm.gradle") version Versions.sentryVersion
 }
 
-group = "org.radarbase"
-version = "2.4.3"
-
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
@@ -254,8 +251,4 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
     rejectVersionIf {
         isNonStable(candidate.version)
     }
-}
-
-tasks.wrapper {
-    gradleVersion = "8.5"
 }

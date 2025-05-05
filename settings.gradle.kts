@@ -1,7 +1,3 @@
-import org.gradle.kotlin.dsl.maven
-import org.gradle.kotlin.dsl.mavenCentral
-import org.gradle.kotlin.dsl.repositories
-
 pluginManagement {
     repositories {
         gradlePluginPortal()
