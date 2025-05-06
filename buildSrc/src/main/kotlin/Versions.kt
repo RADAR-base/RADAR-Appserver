@@ -26,4 +26,5 @@ object Versions {
 
     const val project = "2.4.3"
     const val wrapper = "8.5"
+    const val java = 17
 }

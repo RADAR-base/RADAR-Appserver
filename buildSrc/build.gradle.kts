@@ -23,10 +23,16 @@ kotlin {
 gradlePlugin {
     plugins {
         create("appserverConvention") {
-            id = "org.radarbase.radar-appserver-conventions"
+            id = "org.radarbase.appserver-conventions"
             implementationClass = "org.radarbase.appserver.convention.AppserverConventionPlugin"
             displayName = "RADAR-AppServer conventions"
             description = "Common conventions for RADAR-AppServer "
+        }
+        create("customSourceSetConvention") {
+            id = "org.radarbase.appserver-custom-source-sets"
+            implementationClass = "org.radarbase.appserver.convention.CustomSourceSetCreatorPlugin"
+            displayName = "RADAR-AppServer custom source sets"
+            description = "Custom source sets for RADAR-AppServer"
         }
     }
 }
