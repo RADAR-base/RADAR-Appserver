@@ -1,8 +1,10 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.kotlin.dsl.assign
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.radarbase.appserver.convention.customSourceSet
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -14,14 +16,16 @@ plugins {
 //    id("com.github.johnrengelman.shadow") version Versions.shadowVersion // Check the updated co-ordintaes
     id("org.springframework.boot") version Versions.springBootVersion
     id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
-    id("com.github.ben-manes.versions") version Versions.benMenesVersion
-    kotlin("jvm") version Versions.kotlinVersion
-    kotlin("kapt") version Versions.kotlinVersion
+//    id("com.github.ben-manes.versions")
+    id("org.radarbase.radar-dependency-management")
+    id("org.radarbase.radar-kotlin")
+    kotlin("kapt")
     kotlin("plugin.allopen") version Versions.kotlinVersion
     kotlin("plugin.noarg") version Versions.kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlinVersion
-    id("io.sentry.jvm.gradle") version Versions.sentryVersion
+    id("org.radarbase.appserver-custom-source-sets")
+//    id("io.sentry.jvm.gradle")
 }
 
 java {
@@ -58,38 +62,42 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-sourceSets {
-    create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-    }
-}
+//sourceSets {
+//    create("integrationTest") {
+//        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+//        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+//    }
+//}
 
-val integrationTestImplementation: Configuration by configurations.getting {
-    extendsFrom(configurations.testImplementation.get())
-}
+//val integrationTestImplementation: Configuration by configurations.getting {
+//    extendsFrom(configurations.testImplementation.get())
+//}
+//
+//val integrationTestRuntimeOnly: Configuration by configurations.getting
+//
+//configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
-val integrationTestRuntimeOnly: Configuration by configurations.getting
 
-configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
+//kotlin {
+//    compilerOptions {
+//        jvmTarget.set(JvmTarget.JVM_17)
+//        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
+//        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
+//    }
+//}
 
+//java {
+//    toolchain {
+//        languageVersion.set(JavaLanguageVersion.of(17))
+//    }
+//}
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
-    }
-}
+//tasks.withType<KotlinJvmCompile>().configureEach {
+//    jvmTargetValidationMode.set(JvmTargetValidationMode.ERROR)
+//}
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
-tasks.withType<KotlinJvmCompile>().configureEach {
-    jvmTargetValidationMode.set(JvmTargetValidationMode.ERROR)
+radarDependencies {
+    rejectMajorVersionUpdates.set(true)
 }
 
 dependencies {
@@ -179,28 +187,28 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
-val integrationTest = task<Test>("integrationTest") {
-    description = "Runs integration tests."
-    group = "verification"
+//val integrationTest = task<Test>("integrationTest") {
+//    description = "Runs integration tests."
+//    group = "verification"
+//
+//    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+//    classpath = sourceSets["integrationTest"].runtimeClasspath
+//    shouldRunAfter("test")
+//
+//    useJUnitPlatform {
+//        excludeEngines("junit-vintage")
+//    }
+//
+//    testLogging {
+//        events("passed")
+//    }
+//}
 
-    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
-    shouldRunAfter("test")
-
-    useJUnitPlatform {
-        excludeEngines("junit-vintage")
-    }
-
-    testLogging {
-        events("passed")
-    }
-}
-
-tasks.check { dependsOn(integrationTest) }
-
-tasks.named<Copy>("processIntegrationTestResources") {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
+//tasks.check { dependsOn(integrationTest) }
+//
+//tasks.named<Copy>("processIntegrationTestResources") {
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//}
 
 tasks.test {
     testLogging {
@@ -225,19 +233,19 @@ tasks.register<Copy>("unpack") {
     into(layout.buildDirectory.dir("dependency"))
 }
 
-tasks.register("downloadDependencies") {
-    description = "Pre download dependencies"
-
-    doLast {
-        configurations.compileClasspath.get().files
-        configurations.runtimeClasspath.get().files
-    }
-}
-
-tasks.register<Copy>("copyDependencies") {
-    from(configurations.runtimeClasspath)
-    into(layout.buildDirectory.dir("third-party"))
-}
+//tasks.register("downloadDependencies") {
+//    description = "Pre download dependencies"
+//
+//    doLast {
+//        configurations.compileClasspath.get().files
+//        configurations.runtimeClasspath.get().files
+//    }
+//}
+//
+//tasks.register<Copy>("copyDependencies") {
+//    from(configurations.runtimeClasspath)
+//    into(layout.buildDirectory.dir("third-party"))
+//}
 
 val isNonStable: (String) -> Boolean = { version: String ->
     val stableKeyword = listOf("RELEASE", "FINAL", "GA").any {
@@ -247,8 +255,9 @@ val isNonStable: (String) -> Boolean = { version: String ->
     !stableKeyword && !(regex.matches(version))
 }
 
-tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
-    rejectVersionIf {
-        isNonStable(candidate.version)
-    }
-}
+//tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
+//    rejectVersionIf {
+//        isNonStable(candidate.version)
+//    }
+//}
+
