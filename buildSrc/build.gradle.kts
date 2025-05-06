@@ -2,6 +2,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("jvm") version "1.9.10"
+    `kotlin-dsl`
+    `java-gradle-plugin`
 }
 
 repositories {
@@ -18,4 +20,13 @@ kotlin {
     }
 }
 
-
+gradlePlugin {
+    plugins {
+        create("appserverConvention") {
+            id = "org.radarbase.radar-appserver-conventions"
+            implementationClass = "org.radarbase.appserver.convention.AppserverConventionPlugin"
+            displayName = "RADAR-AppServer conventions"
+            description = "Common conventions for RADAR-AppServer "
+        }
+    }
+}

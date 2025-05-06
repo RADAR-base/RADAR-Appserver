@@ -1,4 +1,4 @@
-
+@Suppress("ConstPropertyName")
 object Versions {
     const val gatlingVersion = "3.9.2.1"
     const val shadowVersion = "8.1.1"
@@ -22,4 +22,8 @@ object Versions {
     const val mockitoKotlinVersion = "3.2.0"
     const val minioVersion = "8.5.10"
     const val junit5Version = "5.9.2"
+    const val radarCommonsVersion = "1.2.2"
+
+    const val project = "2.4.3"
+    const val wrapper = "8.5"
 }

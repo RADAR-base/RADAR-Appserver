@@ -1,7 +1,8 @@
-allprojects {
-    group = "org.radarbase"
-    version = "2.4.3"
+plugins {
+    id("org.radarbase.radar-appserver-conventions")
 }
-tasks.wrapper {
-    gradleVersion = "8.5"
+
+appserverProject {
+    version.set(Versions.project)
+    gradleWrapper.set(Versions.wrapper)
 }
