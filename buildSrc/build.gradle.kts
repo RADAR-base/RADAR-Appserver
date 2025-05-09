@@ -29,8 +29,8 @@ gradlePlugin {
             description = "Common conventions for RADAR-AppServer "
         }
         create("customSourceSetConvention") {
-            id = "org.radarbase.appserver-custom-source-sets"
-            implementationClass = "org.radarbase.appserver.convention.CustomSourceSetCreatorPlugin"
+            id = "org.radarbase.appserver.int-test-source-sets"
+            implementationClass = "org.radarbase.appserver.convention.IntegrationTestSourceSetPlugin"
             displayName = "RADAR-AppServer custom source sets"
             description = "Custom source sets for RADAR-AppServer"
         }

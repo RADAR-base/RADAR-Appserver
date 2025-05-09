@@ -1,10 +1,4 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.kotlin.dsl.assign
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-import org.radarbase.appserver.convention.customSourceSet
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -24,7 +18,7 @@ plugins {
     kotlin("plugin.noarg") version Versions.kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlinVersion
-    id("org.radarbase.appserver-custom-source-sets")
+    id("org.radarbase.appserver.int-test-source-sets")
 //    id("io.sentry.jvm.gradle")
 }
 
@@ -98,6 +92,19 @@ tasks.jar {
 
 radarDependencies {
     rejectMajorVersionUpdates.set(true)
+}
+
+radarKotlin {
+    javaVersion.set(Versions.java)
+    kotlinVersion.set(Versions.kotlinVersion)
+    kotlinApiVersion.set(Versions.kotlinVersion)
+    junitVersion.set(Versions.junit5Version)
+}
+
+integrationTestConfig {
+    sourceSetName = "IntegrationTest"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    hookIntoCheck = true
 }
 
 dependencies {
