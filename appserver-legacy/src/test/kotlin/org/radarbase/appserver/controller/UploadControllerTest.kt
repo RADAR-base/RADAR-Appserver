@@ -35,10 +35,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(UploadController::class)
 @AutoConfigureMockMvc(addFilters = false)
-@TestPropertySource(properties = [
-    "radar.file-upload.enabled=true",
-    "security.radar.managementportal.enabled=false"
-])
+@TestPropertySource(
+    properties = [
+        "radar.file-upload.enabled=true",
+        "security.radar.managementportal.enabled=false",
+    ],
+)
 class UploadControllerTest {
 
     @Autowired
@@ -56,7 +58,10 @@ class UploadControllerTest {
     }
 
     private val multipartFile = MockMultipartFile(
-        "file", "my-file.txt", "text/plain", file
+        "file",
+        "my-file.txt",
+        "text/plain",
+        file,
     )
 
     @BeforeEach
@@ -70,7 +75,7 @@ class UploadControllerTest {
         val uri = "/projects/$PROJECT_ID/users/$SUBJECT_ID/files/topics/$TOPIC_ID/upload"
 
         mockMvc.perform(
-            multipart(uri).file(multipartFile)
+            multipart(uri).file(multipartFile),
         )
             .andExpect(status().isCreated)
             .andExpect(header().exists("Location"))

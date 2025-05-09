@@ -37,13 +37,15 @@ class GithubEndpoint(private val githubService: GithubService) {
 
     @Authorized(permission = AuthConfig.AuthPermissions.READ, entity = AuthConfig.AuthEntities.SUBJECT)
     @GetMapping(
-        ("/" +
-                PathsUtil.GITHUB_PATH
-                + "/" +
-                PathsUtil.GITHUB_CONTENT_PATH)
+        (
+            "/" +
+                PathsUtil.GITHUB_PATH +
+                "/" +
+                PathsUtil.GITHUB_CONTENT_PATH
+            ),
     )
     fun getGithubContent(
-        @RequestParam url: String
+        @RequestParam url: String,
     ): ResponseEntity<String> {
         return try {
             ResponseEntity.ok().body<String>(this.githubService.getGithubContent(url))

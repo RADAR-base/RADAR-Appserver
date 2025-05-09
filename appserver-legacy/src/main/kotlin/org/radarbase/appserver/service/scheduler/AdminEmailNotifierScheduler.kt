@@ -26,5 +26,3 @@ package org.radarbase.appserver.service.scheduler
  * @author yatharthranjan
  */
 class AdminEmailNotifierScheduler
-
-

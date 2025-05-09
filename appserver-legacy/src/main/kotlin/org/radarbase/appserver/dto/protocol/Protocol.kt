@@ -27,7 +27,7 @@ data class Protocol(
     var schemaVersion: String? = null,
     var name: String? = null,
     var healthIssues: List<String>? = null,
-    var protocols: List<Assessment>? = null
+    var protocols: List<Assessment>? = null,
 ) {
     fun hasAssessment(assessment: String?): Boolean {
         return protocols?.any { it.name == assessment } == true

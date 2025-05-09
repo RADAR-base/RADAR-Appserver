@@ -31,7 +31,7 @@ import java.time.Instant
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-class UserMapper: Mapper<FcmUserDto, User> {
+class UserMapper : Mapper<FcmUserDto, User> {
     override fun dtoToEntity(dto: FcmUserDto): User = User().apply {
         this.fcmToken = dto.fcmToken
         this.subjectId = dto.subjectId
@@ -50,7 +50,7 @@ class UserMapper: Mapper<FcmUserDto, User> {
             val lastOpened: Instant = fcmUserDto.lastOpened ?: Instant.now()
             return UserMetrics(
                 lastOpened,
-                fcmUserDto.lastDelivered
+                fcmUserDto.lastDelivered,
             )
         }
     }

@@ -29,7 +29,7 @@ import org.radarbase.appserver.entity.User
 import java.time.Instant
 import java.util.*
 
-class RandomRepeatQuestionnaireHandler: ProtocolHandler {
+class RandomRepeatQuestionnaireHandler : ProtocolHandler {
 
     private val defaultTaskCompletionWindow = 86_400_000L
     private val timeCalculatorService = TimeCalculatorService()
@@ -38,9 +38,8 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
     override fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
-
         val referenceTimestamps = assessmentSchedule.referenceTimestamps ?: return assessmentSchedule.apply {
             tasks = emptyList()
         }
@@ -48,7 +47,7 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
         val tasks = generateTasks(
             assessment,
             referenceTimestamps,
-            user
+            user,
         )
         assessmentSchedule.tasks = tasks
         return assessmentSchedule
@@ -57,7 +56,7 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
     private fun generateTasks(
         assessment: Assessment,
         referenceTimestamps: List<Instant>,
-        user: User
+        user: User,
     ): List<Task> {
         val timezone = TimeZone.getTimeZone(user.timezone)
         val repeatQuestionnaire = assessment.protocol?.repeatQuestionnaire
@@ -81,7 +80,7 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
 
     private fun getRandomAmountInRange(range: Array<Int>): Int {
         val (lowerLimit, upperLimit) = range
-        return (lowerLimit .. upperLimit).random()
+        return (lowerLimit..upperLimit).random()
     }
 
     private fun calculateCompletionWindow(completionWindow: TimePeriod?): Long {

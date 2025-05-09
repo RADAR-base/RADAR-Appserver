@@ -25,5 +25,5 @@ import jakarta.validation.constraints.Size
 
 data class FcmUsers(
     @field:Size(max = 1500)
-    var users: List<FcmUserDto>
+    var users: List<FcmUserDto>,
 )

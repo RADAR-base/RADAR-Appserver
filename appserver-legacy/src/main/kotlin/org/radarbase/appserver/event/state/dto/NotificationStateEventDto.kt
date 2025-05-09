@@ -38,8 +38,8 @@ class NotificationStateEventDto(
     val notification: Notification,
     state: MessageState,
     additionalInfo: Map<String, String>?,
-    time: Instant
-): MessageStateEventDto(source, state, additionalInfo, time) {
+    time: Instant,
+) : MessageStateEventDto(source, state, additionalInfo, time) {
 
     override fun toString(): String {
         return "NotificationStateEventDto(source=$source, notification=$notification) ${super.toString()}"

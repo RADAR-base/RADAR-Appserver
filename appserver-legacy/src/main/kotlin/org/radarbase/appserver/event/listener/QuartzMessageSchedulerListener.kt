@@ -20,7 +20,13 @@
  */
 package org.radarbase.appserver.event.listener
 
-import org.quartz.*
+import org.quartz.JobDetail
+import org.quartz.JobKey
+import org.quartz.Scheduler
+import org.quartz.SchedulerException
+import org.quartz.SchedulerListener
+import org.quartz.Trigger
+import org.quartz.TriggerKey
 import org.radarbase.appserver.event.state.MessageState
 import org.radarbase.appserver.event.state.dto.DataMessageStateEventDto
 import org.radarbase.appserver.event.state.dto.NotificationStateEventDto
@@ -41,7 +47,7 @@ class QuartzMessageSchedulerListener(
     @Transient private val messageStateEventPublisher: ApplicationEventPublisher,
     @Transient private val notificationRepository: NotificationRepository,
     @Transient private val dataMessageRepository: DataMessageRepository,
-    @Transient private val scheduler: Scheduler
+    @Transient private val scheduler: Scheduler,
 ) : SchedulerListener {
     /**
      * Called by the `[Scheduler]` when a `[JobDetail]` is
@@ -54,7 +60,7 @@ class QuartzMessageSchedulerListener(
         } catch (exc: SchedulerException) {
             log.warn(
                 "Encountered error while getting job information from Trigger: ",
-                exc
+                exc,
             )
             return
         }
@@ -72,7 +78,11 @@ class QuartzMessageSchedulerListener(
                 }
                 val notificationStateEvent =
                     NotificationStateEventDto(
-                        this, notification, MessageState.SCHEDULED, null, Instant.now()
+                        this,
+                        notification,
+                        MessageState.SCHEDULED,
+                        null,
+                        Instant.now(),
                     )
                 messageStateEventPublisher.publishEvent(notificationStateEvent)
             }
@@ -84,8 +94,12 @@ class QuartzMessageSchedulerListener(
                     return
                 }
                 val dataMessageStateEvent = DataMessageStateEventDto(
-                        this, dataMessage, MessageState.SCHEDULED, null, Instant.now()
-                    )
+                    this,
+                    dataMessage,
+                    MessageState.SCHEDULED,
+                    null,
+                    Instant.now(),
+                )
                 messageStateEventPublisher.publishEvent(dataMessageStateEvent)
             }
 
@@ -115,7 +129,11 @@ class QuartzMessageSchedulerListener(
         }
         val notificationStateEvent =
             NotificationStateEventDto(
-                this, notification, MessageState.CANCELLED, null, Instant.now()
+                this,
+                notification,
+                MessageState.CANCELLED,
+                null,
+                Instant.now(),
             )
         messageStateEventPublisher.publishEvent(notificationStateEvent)
     }

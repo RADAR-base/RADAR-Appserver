@@ -264,17 +264,22 @@ class FcmNotificationDto(notificationEntity: Notification? = null) : Serializabl
         FcmNotificationDto::sourceType,
     )
 
-
     override fun hashCode(): Int {
         return Objects.hash(
-            scheduledTime, delivered, title, body, ttlSeconds, type, appPackage, sourceType
+            scheduledTime,
+            delivered,
+            title,
+            body,
+            ttlSeconds,
+            type,
+            appPackage,
+            sourceType,
         )
     }
 
     override fun toString(): String {
         return "FcmNotificationDto(id=$id, scheduledTime=$scheduledTime, delivered=$delivered, title=$title, body=$body, ttlSeconds=$ttlSeconds, sourceId=$sourceId, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, type=$type, appPackage=$appPackage, sourceType=$sourceType, additionalData=$additionalData, priority=$priority, sound=$sound, badge=$badge, subtitle=$subtitle, icon=$icon, color=$color, bodyLocKey=$bodyLocKey, bodyLocArgs=$bodyLocArgs, titleLocKey=$titleLocKey, titleLocArgs=$titleLocArgs, androidChannelId=$androidChannelId, tag=$tag, clickAction=$clickAction, emailEnabled=$emailEnabled, emailTitle=$emailTitle, emailBody=$emailBody, mutableContent=$mutableContent, createdAt=$createdAt, updatedAt=$updatedAt)"
     }
-
 
     companion object {
         @Serial

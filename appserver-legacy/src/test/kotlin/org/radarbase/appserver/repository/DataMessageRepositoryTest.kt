@@ -22,7 +22,9 @@
 package org.radarbase.appserver.repository
 
 import jakarta.validation.ConstraintViolationException
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -150,7 +152,11 @@ class DataMessageRepositoryTest {
     @Test
     fun `when exists then return true`() {
         val exists = dataMessageRepository.existsByUserIdAndSourceIdAndScheduledTimeAndTtlSeconds(
-            user.id!!, DATA_MESSAGE_SOURCE_ID, scheduledTime, 86400)
+            user.id!!,
+            DATA_MESSAGE_SOURCE_ID,
+            scheduledTime,
+            86400,
+        )
 
         assertTrue(exists)
         assertTrue(dataMessageRepository.existsById(id!!))

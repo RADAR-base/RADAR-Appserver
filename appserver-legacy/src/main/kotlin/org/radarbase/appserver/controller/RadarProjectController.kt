@@ -22,8 +22,6 @@ package org.radarbase.appserver.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import jakarta.websocket.server.PathParam
-import lombok.extern.slf4j.Slf4j
 import org.radarbase.appserver.config.AuthConfig.AuthEntities
 import org.radarbase.appserver.config.AuthConfig.AuthPermissions
 import org.radarbase.appserver.dto.ProjectDto
@@ -32,17 +30,21 @@ import org.radarbase.appserver.service.ProjectService
 import org.radarbase.auth.token.RadarToken
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import radar.spring.auth.common.AuthAspect
 import radar.spring.auth.common.Authorization
 import radar.spring.auth.common.Authorized
 import radar.spring.auth.common.PermissionOn
 import radar.spring.auth.exception.AuthorizationFailedException
-import java.io.IOException
 import java.net.URI
-import java.net.URISyntaxException
 import java.util.*
-import java.util.stream.Collectors
 
 /**
  * Resource Endpoint for getting and adding projects. Each user [ ] needs to be associated to a project. A project may represent
@@ -56,7 +58,7 @@ import java.util.stream.Collectors
 @RestController
 class RadarProjectController(
     private val projectService: ProjectService,
-    private val authorization: Authorization<RadarToken>?
+    private val authorization: Authorization<RadarToken>?,
 ) {
     /**
      * Method for updating a project.
@@ -67,11 +69,11 @@ class RadarProjectController(
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
     @PostMapping(
         value = ["/${PathsUtil.PROJECT_PATH}"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE]
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun addProject(
         request: HttpServletRequest,
-        @Valid @RequestBody projectDto: ProjectDto
+        @Valid @RequestBody projectDto: ProjectDto,
     ): ResponseEntity<ProjectDto> {
         authorization?.let {
             val token = request.getAttribute(AuthAspect.TOKEN_KEY) as RadarToken
@@ -82,7 +84,7 @@ class RadarProjectController(
                     PermissionOn.PROJECT,
                     projectDto.projectId,
                     null,
-                    null
+                    null,
                 )
             ) {
                 val projectDtoNew = projectService.addProject(projectDto)
@@ -107,15 +109,15 @@ class RadarProjectController(
     @Authorized(
         permission = AuthPermissions.UPDATE,
         entity = AuthEntities.SUBJECT,
-        permissionOn = PermissionOn.PROJECT
+        permissionOn = PermissionOn.PROJECT,
     )
     @PutMapping(
         value = ["/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT],
-        consumes = [MediaType.APPLICATION_JSON_VALUE]
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
     )
     fun updateProject(
         @PathVariable("projectId") projectId: String,
-        @Valid @RequestBody projectDto: ProjectDto
+        @Valid @RequestBody projectDto: ProjectDto,
     ): ResponseEntity<ProjectDto> {
         val updatedProject = projectService.updateProject(projectDto)
         return ResponseEntity.ok(updatedProject)
@@ -134,20 +136,19 @@ class RadarProjectController(
                     PermissionOn.PROJECT,
                     project.projectId,
                     null,
-                    null
+                    null,
                 )
             }
             ResponseEntity.ok(ProjectDtos().withProjects(filteredProjects))
         } ?: ResponseEntity.ok(allProjects)
     }
 
-
     // TODO think about plain authorized
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
     @GetMapping("/" + PathsUtil.PROJECT_PATH + "/project")
     fun getProjectsUsingId(
         request: HttpServletRequest,
-        @RequestParam("id") id: Long
+        @RequestParam("id") id: Long,
     ): ResponseEntity<ProjectDto> {
         val projectDto = projectService.getProjectById(id)
         return authorization?.let {
@@ -159,7 +160,7 @@ class RadarProjectController(
                     PermissionOn.PROJECT,
                     projectDto.projectId,
                     null,
-                    null
+                    null,
                 )
             ) {
                 ResponseEntity.ok(projectDto)
@@ -169,11 +170,9 @@ class RadarProjectController(
         } ?: ResponseEntity.ok(projectDto)
     }
 
-
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.PROJECT)
     @GetMapping("/" + PathsUtil.PROJECT_PATH + "/" + PathsUtil.PROJECT_ID_CONSTANT)
     fun getProjectsUsingProjectId(@PathVariable projectId: String): ResponseEntity<ProjectDto> {
         return ResponseEntity.ok(projectService.getProjectByProjectId(projectId))
     }
-
 }

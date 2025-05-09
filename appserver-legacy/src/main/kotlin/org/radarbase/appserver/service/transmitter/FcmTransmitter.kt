@@ -44,7 +44,7 @@ class FcmTransmitter(
     @param:Qualifier("fcmSenderProps") val fcmSender: FcmSender,
     private val notificationService: FcmNotificationService,
     private val dataMessageService: FcmDataMessageService,
-    private val userService: UserService
+    private val userService: UserService,
 ) : NotificationTransmitter, DataMessageTransmitter {
 
     @Throws(FcmMessageTransmitException::class)
@@ -88,7 +88,7 @@ class FcmTransmitter(
         // More info on ErrorCode: https://firebase.google.com/docs/reference/fcm/rest/v1/ErrorCode
         when (errorCode) {
             ErrorCode.INVALID_ARGUMENT, ErrorCode.INTERNAL, ErrorCode.ABORTED, ErrorCode.CONFLICT, ErrorCode.CANCELLED, ErrorCode.DATA_LOSS, ErrorCode.NOT_FOUND, ErrorCode.OUT_OF_RANGE, ErrorCode.ALREADY_EXISTS, ErrorCode.DEADLINE_EXCEEDED, ErrorCode.PERMISSION_DENIED, ErrorCode.RESOURCE_EXHAUSTED, ErrorCode.FAILED_PRECONDITION, ErrorCode.UNAUTHENTICATED, ErrorCode.UNKNOWN -> {}
-            ErrorCode.UNAVAILABLE ->                 // TODO: Could schedule for retry.
+            ErrorCode.UNAVAILABLE -> // TODO: Could schedule for retry.
                 log.warn("The FCM service is unavailable.")
         }
     }
@@ -96,17 +96,19 @@ class FcmTransmitter(
     fun handleFCMErrorCode(errorCode: MessagingErrorCode, message: Message) {
         when (errorCode) {
             MessagingErrorCode.INTERNAL, MessagingErrorCode.QUOTA_EXCEEDED, MessagingErrorCode.INVALID_ARGUMENT, MessagingErrorCode.SENDER_ID_MISMATCH, MessagingErrorCode.THIRD_PARTY_AUTH_ERROR -> {}
-            MessagingErrorCode.UNAVAILABLE ->                 // TODO: Could schedule for retry.
+            MessagingErrorCode.UNAVAILABLE -> // TODO: Could schedule for retry.
                 log.warn("The FCM service is unavailable.")
 
             MessagingErrorCode.UNREGISTERED -> {
                 val userDto = FcmUserDto(message.user!!)
                 log.warn("The Device for user {} was unregistered.", userDto.subjectId)
                 notificationService.removeNotificationsForUser(
-                    userDto.projectId, userDto.subjectId
+                    userDto.projectId,
+                    userDto.subjectId,
                 )
                 dataMessageService.removeDataMessagesForUser(
-                    userDto.projectId, userDto.subjectId
+                    userDto.projectId,
+                    userDto.subjectId,
                 )
                 userService.checkFcmTokenExistsAndReplace(userDto)
             }
@@ -123,7 +125,8 @@ class FcmTransmitter(
         private fun createMessageFromNotification(notification: Notification): FcmNotificationMessage {
             val to =
                 Objects.requireNonNullElseGet<String>(
-                    notification.fcmTopic, notification.user!!::fcmToken
+                    notification.fcmTopic,
+                    notification.user!!::fcmToken,
                 )
             return FcmNotificationMessage.Builder()
                 .to(to)
@@ -141,7 +144,8 @@ class FcmTransmitter(
         private fun createMessageFromDataMessage(dataMessage: DataMessage): FcmDataMessage {
             val to =
                 Objects.requireNonNullElseGet<String>(
-                    dataMessage.fcmTopic, dataMessage.user!!::fcmToken
+                    dataMessage.fcmTopic,
+                    dataMessage.user!!::fcmToken,
                 )
             return FcmDataMessage.Builder()
                 .to(to)

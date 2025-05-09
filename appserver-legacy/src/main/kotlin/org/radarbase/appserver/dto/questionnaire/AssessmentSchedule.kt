@@ -26,7 +26,7 @@ data class AssessmentSchedule(
     var referenceTimestamps: List<Instant>? = null,
     var tasks: List<Task>? = null,
     var notifications: List<Notification>? = null,
-    var reminders: List<Notification>? = null
+    var reminders: List<Notification>? = null,
 ) {
     fun hasTasks(): Boolean {
         return !tasks.isNullOrEmpty()

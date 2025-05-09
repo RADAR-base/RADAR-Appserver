@@ -49,9 +49,9 @@ class AuthConfig {
 
     @Bean
     fun getAuthProperties(): ManagementPortalAuthProperties {
-            val validatorConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath()
-            return ManagementPortalAuthProperties(baseUrl!!, resourceName!!, validatorConfig.publicKeyEndpoints)
-        }
+        val validatorConfig = TokenVerifierPublicKeyConfig.readFromFileOrClasspath()
+        return ManagementPortalAuthProperties(baseUrl!!, resourceName!!, validatorConfig.publicKeyEndpoints)
+    }
 
     /**
      * First tries to load config from radar-is.yml config file. If any issues, then uses the default
@@ -62,7 +62,7 @@ class AuthConfig {
      */
     @Bean
     fun getAuthValidator(
-        @Autowired managementPortalAuthProperties: ManagementPortalAuthProperties
+        @Autowired managementPortalAuthProperties: ManagementPortalAuthProperties,
     ): AuthValidator<RadarToken> {
         return ManagementPortalAuthValidator(managementPortalAuthProperties)
     }
@@ -75,7 +75,7 @@ class AuthConfig {
     @Bean
     fun getAuthAspect(
         @Autowired authValidator: AuthValidator<RadarToken>,
-        @Autowired authorization: Authorization<RadarToken>
+        @Autowired authorization: Authorization<RadarToken>,
     ): AuthAspect<RadarToken> {
         return AuthAspect<RadarToken>(authValidator, authorization)
     }

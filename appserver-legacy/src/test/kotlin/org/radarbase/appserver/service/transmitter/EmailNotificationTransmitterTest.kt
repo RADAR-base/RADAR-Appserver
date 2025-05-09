@@ -4,7 +4,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.doThrow
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.radarbase.appserver.entity.Notification
 import org.radarbase.appserver.entity.User
 import org.radarbase.appserver.exception.EmailMessageTransmitException
@@ -19,7 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(
     classes = [EmailNotificationTransmitter::class],
-    properties = ["radar.notification.email.enabled=true"]
+    properties = ["radar.notification.email.enabled=true"],
 )
 class EmailNotificationTransmitterTest {
 
@@ -34,7 +39,7 @@ class EmailNotificationTransmitterTest {
         val validNotification = buildNotification()
         assertDoesNotThrow("Valid Notification should not throw an exception") {
             emailNotificationTransmitter.send(
-                validNotification
+                validNotification,
             )
         }
         verify(javaMailSender, times(1)).send(any<SimpleMailMessage>())
@@ -44,21 +49,17 @@ class EmailNotificationTransmitterTest {
     fun testExceptionNotThrownForMissingEmail() {
         val invalidNotification = buildNotification()
         `when`(invalidNotification.user?.emailAddress).thenReturn(null)
-        assertDoesNotThrow("Notification with User w/o an email address should not throw an exception")
-        { emailNotificationTransmitter.send(invalidNotification) }
+        assertDoesNotThrow("Notification with User w/o an email address should not throw an exception") { emailNotificationTransmitter.send(invalidNotification) }
 
         `when`(invalidNotification.user?.emailAddress).thenReturn("")
-        assertDoesNotThrow("Notification with User w/o an email address should not throw an exception")
-        { emailNotificationTransmitter.send(invalidNotification) }
+        assertDoesNotThrow("Notification with User w/o an email address should not throw an exception") { emailNotificationTransmitter.send(invalidNotification) }
     }
 
     @Test
     fun testExceptionThrownWithEmailFailure() {
         doThrow(mock(MailException::class.java)).`when`(javaMailSender).send(any<SimpleMailMessage>())
         val validNotification = buildNotification()
-        assertThrows<EmailMessageTransmitException>("Problems during sending of email notifications should throw an exception")
-        { emailNotificationTransmitter.send(validNotification) }
-
+        assertThrows<EmailMessageTransmitException>("Problems during sending of email notifications should throw an exception") { emailNotificationTransmitter.send(validNotification) }
     }
 
     private fun buildNotification(): Notification {

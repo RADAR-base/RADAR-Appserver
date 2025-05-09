@@ -45,7 +45,7 @@ data class Assessment(
     var order: Int = 0,
     var nQuestions: Int = 0,
     var showInCalendar: Boolean = true,
-    var isDemo: Boolean = false
+    var isDemo: Boolean = false,
 ) {
     var type: AssessmentType?
         get() {

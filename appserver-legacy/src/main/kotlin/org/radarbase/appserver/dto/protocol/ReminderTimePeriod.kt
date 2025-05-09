@@ -31,7 +31,7 @@ class ReminderTimePeriod(
 
     override fun equals(other: Any?): Boolean = equalTo(
         other,
-        ReminderTimePeriod::repeat
+        ReminderTimePeriod::repeat,
     )
 
     override fun hashCode(): Int {

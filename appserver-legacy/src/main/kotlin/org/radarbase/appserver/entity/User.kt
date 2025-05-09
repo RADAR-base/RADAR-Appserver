@@ -57,8 +57,8 @@ import java.util.Objects
     name = "users",
     uniqueConstraints = [
         UniqueConstraint(columnNames = ["subject_id", "project_id"]),
-        UniqueConstraint(columnNames = ["fcm_token"])
-    ]
+        UniqueConstraint(columnNames = ["fcm_token"]),
+    ],
 )
 @Entity
 class User(

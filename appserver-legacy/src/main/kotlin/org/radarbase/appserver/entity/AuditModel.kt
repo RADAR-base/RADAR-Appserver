@@ -1,7 +1,11 @@
 package org.radarbase.appserver.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.EntityListeners
+import jakarta.persistence.MappedSuperclass
+import jakarta.persistence.Temporal
+import jakarta.persistence.TemporalType
 import org.radarbase.appserver.util.equalTo
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -49,7 +53,7 @@ abstract class AuditModel {
     override fun equals(other: Any?): Boolean = equalTo(
         other,
         AuditModel::createdAt,
-        AuditModel::updatedAt
+        AuditModel::updatedAt,
     )
 
     override fun hashCode(): Int {

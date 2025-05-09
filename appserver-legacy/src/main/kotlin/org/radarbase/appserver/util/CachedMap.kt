@@ -30,16 +30,16 @@ import java.time.Instant
  *
  * This class is thread-safe if the given supplier is thread-safe.
  */
-class CachedMap<S: Any, T: Any> (
+class CachedMap<S : Any, T : Any> (
     private val supplier: ThrowingSupplier<Map<S, T>>,
     private val invalidateAfter: Duration,
-    private val retryAfter: Duration
+    private val retryAfter: Duration,
 ) {
 
     /**
      * Cache holding the result. Initialized with an empty map and a minimum timestamp.
      */
-    private val cache = NonNullableAtomicReference(Result(emptyMap<S, T>(), Instant.MIN))
+    private val cache = NonNullAtomicReference(Result(emptyMap<S, T>(), Instant.MIN))
 
     /**
      * Get the cached map, or retrieve a new one if the current one is old.
@@ -98,7 +98,7 @@ class CachedMap<S: Any, T: Any> (
     /**
      * Supplier that may throw an IOException, Otherwise similar to [java.util.function.Supplier].
      */
-    fun interface ThrowingSupplier<T: Any> {
+    fun interface ThrowingSupplier<T : Any> {
         @Throws(IOException::class)
         fun get(): T
     }
@@ -108,7 +108,7 @@ class CachedMap<S: Any, T: Any> (
      */
     private data class Result<S, T>(
         val map: Map<S, T>,
-        private val fetchTime: Instant = Instant.now()
+        private val fetchTime: Instant = Instant.now(),
     ) {
         fun isStale(freshDuration: Duration): Boolean =
             Duration.between(fetchTime, Instant.now()) > freshDuration

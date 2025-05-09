@@ -20,7 +20,12 @@
  */
 package org.radarbase.appserver.service.scheduler
 
-import org.quartz.*
+import org.quartz.JobDataMap
+import org.quartz.JobDetail
+import org.quartz.JobKey
+import org.quartz.SimpleTrigger
+import org.quartz.Trigger
+import org.quartz.TriggerKey
 import org.radarbase.appserver.entity.DataMessage
 import org.radarbase.appserver.entity.Message
 import org.radarbase.appserver.entity.Notification
@@ -42,7 +47,7 @@ import java.util.Date
 @Suppress("unused")
 class MessageSchedulerService<T : Message>(
     @param:Qualifier("fcmSenderProps") val fcmSender: FcmSender?,
-    val schedulerService: SchedulerService
+    val schedulerService: SchedulerService,
 ) {
     fun schedule(message: T) {
         val jobDetail = getJobDetailForMessage(message, getMessageType(message)).`object`
@@ -75,12 +80,14 @@ class MessageSchedulerService<T : Message>(
     fun updateScheduled(message: T) {
         val jobKeyString: String =
             NAMING_STRATEGY.getJobKeyName(
-                message.user!!.subjectId!!, message.id.toString()
+                message.user!!.subjectId!!,
+                message.id.toString(),
             )
         val jobKey = JobKey(jobKeyString)
         val triggerKeyString: String =
             NAMING_STRATEGY.getTriggerName(
-                message.user!!.subjectId!!, message.id.toString()
+                message.user!!.subjectId!!,
+                message.id.toString(),
             )
         val triggerKey = TriggerKey(triggerKeyString)
         val jobDataMap = JobDataMap()
@@ -94,7 +101,6 @@ class MessageSchedulerService<T : Message>(
         }
         schedulerService.deleteScheduledJobs(keys)
     }
-
 
     fun deleteScheduled(message: T) {
         val key = JobKey(NAMING_STRATEGY.getJobKeyName(message.user!!.subjectId!!, message.id.toString()))
@@ -119,8 +125,9 @@ class MessageSchedulerService<T : Message>(
                 this.setJobDetail(jobDetail)
                 this.setName(
                     NAMING_STRATEGY.getTriggerName(
-                        message.user!!.subjectId!!, message.id.toString()
-                    )
+                        message.user!!.subjectId!!,
+                        message.id.toString(),
+                    ),
                 )
                 this.setRepeatCount(0)
                 this.setRepeatInterval(0L)
@@ -137,20 +144,19 @@ class MessageSchedulerService<T : Message>(
                 setDurability(true)
                 this.setName(
                     NAMING_STRATEGY.getJobKeyName(
-                        message.user!!.subjectId!!, message.id.toString()
-                    )
+                        message.user!!.subjectId!!,
+                        message.id.toString(),
+                    ),
                 )
                 val map = hashMapOf(
                     "subjectId" to message.user!!.subjectId,
                     "projectId" to message.user!!.project!!.projectId,
                     "messageId" to message.id,
-                    "messageType" to messageType.toString()
+                    "messageType" to messageType.toString(),
                 )
                 setJobDataAsMap(map)
                 afterPropertiesSet()
             }
         }
     }
-
 }
-

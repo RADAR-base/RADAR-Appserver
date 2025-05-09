@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
 @Component
 @ConditionalOnExpression("\${radar.file-upload.enabled:false} and 's3' == '\${radar.storage.type:}'")
 class MinioClientInitializer(
-    private val s3StorageProperties: S3StorageProperties
+    private val s3StorageProperties: S3StorageProperties,
 ) {
     private var minioClient: MinioClient? = null
     private var bucketName: String? = null
@@ -51,7 +51,7 @@ class MinioClientInitializer(
             bucketName = s3StorageProperties.bucketName
 
             val bucketExists = minioClient!!.bucketExists(
-                BucketExistsArgs.builder().bucket(bucketName!!).build()
+                BucketExistsArgs.builder().bucket(bucketName!!).build(),
             )
 
             if (!bucketExists) {

@@ -37,45 +37,55 @@ import java.io.IOException
 @Suppress("unused")
 @CrossOrigin
 @RestController
-class ProtocolEndpoint (private val protocolGenerator: ProtocolGenerator) {
+class ProtocolEndpoint(private val protocolGenerator: ProtocolGenerator) {
 
+    @Suppress("annotation-wrapping")
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
     @GetMapping("/" + PathsUtil.PROTOCOL_PATH)
-    fun  getProtocols(): @Size(max = 100) Map<String, Protocol> {
+    fun getProtocols():
+        @Size(max = 100)
+        Map<String, Protocol> {
         return this.protocolGenerator.retrieveAllProtocols()
     }
 
     @GetMapping(
-        value = [("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.PROTOCOL_PATH)]
+        value = [
+            (
+                "/" +
+                    PathsUtil.PROJECT_PATH +
+                    "/" +
+                    PathsUtil.PROJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.USER_PATH +
+                    "/" +
+                    PathsUtil.SUBJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.PROTOCOL_PATH
+                ),
+        ],
     )
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.PROJECT)
     fun getProtocolUsingProjectIdAndSubjectId(
-        @PathVariable @Valid projectId: String, @PathVariable @Valid subjectId: String
+        @PathVariable @Valid projectId: String,
+        @PathVariable @Valid subjectId: String,
     ): Protocol {
         return this.protocolGenerator.getProtocolForSubject(subjectId) ?: Protocol()
     }
 
     @GetMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.PROTOCOL_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.PROTOCOL_PATH
+            ),
     )
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
     @Throws(IOException::class)
     fun getProtocolUsingProjectId(
-        @PathVariable projectId: @Valid String
+        @PathVariable projectId: @Valid String,
     ): Protocol {
         return this.protocolGenerator.getProtocol(projectId)
     }

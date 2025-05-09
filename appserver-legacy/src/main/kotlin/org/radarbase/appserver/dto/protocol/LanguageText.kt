@@ -29,7 +29,7 @@ data class LanguageText(
     var nl: String? = null,
     var da: String? = null,
     var de: String? = null,
-    var es: String? = null
+    var es: String? = null,
 ) {
     fun getText(languageCode: String?): String {
         return when (languageCode?.lowercase(Locale.getDefault())) {

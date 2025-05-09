@@ -25,7 +25,12 @@ import org.radarbase.appserver.config.AuthConfig.AuthPermissions
 import org.radarbase.appserver.dto.NotificationStateEventDto
 import org.radarbase.appserver.service.NotificationStateEventService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
 import radar.spring.auth.common.Authorized
 import radar.spring.auth.common.PermissionOn
 import javax.naming.SizeLimitExceededException
@@ -35,76 +40,93 @@ import javax.naming.SizeLimitExceededException
 class NotificationStateEventController(private val notificationStateEventService: NotificationStateEventService) {
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
     @GetMapping(
-        value = [("/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/"
-                + PathsUtil.NOTIFICATION_ID_CONSTANT
-                + "/"
-                + PathsUtil.NOTIFICATION_STATE_EVENTS_PATH)]
+        value = [
+            (
+                "/" +
+                    PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                    "/" +
+                    PathsUtil.NOTIFICATION_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.NOTIFICATION_STATE_EVENTS_PATH
+                ),
+        ],
     )
     fun getNotificationStateEventsByNotificationId(
-        @PathVariable notificationId: Long
+        @PathVariable notificationId: Long,
     ): ResponseEntity<List<NotificationStateEventDto>> {
         return ResponseEntity.ok(
-            notificationStateEventService.getNotificationStateEventsByNotificationId(notificationId)
+            notificationStateEventService.getNotificationStateEventsByNotificationId(notificationId),
         )
     }
 
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @GetMapping(
-        value = [("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/"
-                + PathsUtil.NOTIFICATION_ID_CONSTANT
-                + "/"
-                + PathsUtil.NOTIFICATION_STATE_EVENTS_PATH)]
+        value = [
+            (
+                "/" +
+                    PathsUtil.PROJECT_PATH +
+                    "/" +
+                    PathsUtil.PROJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.USER_PATH +
+                    "/" +
+                    PathsUtil.SUBJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                    "/" +
+                    PathsUtil.NOTIFICATION_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.NOTIFICATION_STATE_EVENTS_PATH
+                ),
+        ],
     )
     fun getNotificationStateEvents(
         @PathVariable projectId: String?,
         @PathVariable subjectId: String?,
-        @PathVariable notificationId: Long
+        @PathVariable notificationId: Long,
     ): ResponseEntity<List<NotificationStateEventDto>> {
         return ResponseEntity.ok(
             notificationStateEventService.getNotificationStateEvents(
-                projectId, subjectId, notificationId
-            )
+                projectId,
+                subjectId,
+                notificationId,
+            ),
         )
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PostMapping(
-        value = [("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/"
-                + PathsUtil.NOTIFICATION_ID_CONSTANT
-                + "/"
-                + PathsUtil.NOTIFICATION_STATE_EVENTS_PATH)]
+        value = [
+            (
+                "/" +
+                    PathsUtil.PROJECT_PATH +
+                    "/" +
+                    PathsUtil.PROJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.USER_PATH +
+                    "/" +
+                    PathsUtil.SUBJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                    "/" +
+                    PathsUtil.NOTIFICATION_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.NOTIFICATION_STATE_EVENTS_PATH
+                ),
+        ],
     )
     @Throws(SizeLimitExceededException::class)
     fun postNotificationStateEvent(
         @PathVariable projectId: String?,
         @PathVariable subjectId: String?,
         @PathVariable notificationId: Long,
-        @RequestBody notificationStateEventDto: NotificationStateEventDto
+        @RequestBody notificationStateEventDto: NotificationStateEventDto,
     ): ResponseEntity<List<NotificationStateEventDto>> {
         notificationStateEventService.publishNotificationStateEventExternal(
-            projectId, subjectId, notificationId, notificationStateEventDto
+            projectId,
+            subjectId,
+            notificationId,
+            notificationStateEventDto,
         )
         return getNotificationStateEvents(projectId, subjectId, notificationId)
     }

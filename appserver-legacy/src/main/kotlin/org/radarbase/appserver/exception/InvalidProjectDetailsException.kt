@@ -46,6 +46,6 @@ class InvalidProjectDetailsException : RuntimeException {
 
     constructor(
         projectDto: ProjectDto,
-        cause: Throwable
+        cause: Throwable,
     ) : super("Invalid details supplied for the project $projectDto", cause)
 }

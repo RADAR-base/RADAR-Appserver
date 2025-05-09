@@ -43,6 +43,5 @@ class FcmDataMessage : FcmDownstreamMessage() {
             message.data = this.data
             return message
         }
-
     }
 }

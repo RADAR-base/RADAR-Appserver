@@ -40,7 +40,7 @@ class ClinicalProtocolHandler : ProtocolHandler {
     override fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
         assessmentSchedule.name = assessment.name
         return assessmentSchedule

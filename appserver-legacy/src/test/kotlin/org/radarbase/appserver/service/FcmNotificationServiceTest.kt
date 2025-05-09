@@ -94,7 +94,7 @@ class FcmNotificationServiceTest {
             project = projectNew,
             fcmToken = FCM_TOKEN_1,
             enrolmentDate = Instant.now(),
-            usermetrics = userMetrics
+            usermetrics = userMetrics,
         )
 
         Mockito.`when`(userRepository.save(Mockito.any())).thenReturn(userNew)
@@ -126,11 +126,10 @@ class FcmNotificationServiceTest {
                     NOTIFICATION_TITLE_3,
                     NOTIFICATION_BODY,
                     null,
-                    86400
-                )
+                    86400,
+                ),
         )
             .thenReturn(false)
-
 
         val notification4 = Notification.NotificationBuilder()
             .body(NOTIFICATION_BODY)
@@ -161,8 +160,8 @@ class FcmNotificationServiceTest {
                     NOTIFICATION_TITLE_4,
                     NOTIFICATION_BODY,
                     null,
-                    86400
-                )
+                    86400,
+                ),
         )
             .thenReturn(false)
 
@@ -200,7 +199,7 @@ class FcmNotificationServiceTest {
             enrolmentDate = Instant.now(),
             usermetrics = UserMetrics(Instant.now(), Instant.now()),
             timezone = TIMEZONE,
-            language = "en"
+            language = "en",
         )
 
         Mockito.`when`(userRepository.findBySubjectId(user.subjectId)).thenReturn(user)
@@ -226,7 +225,6 @@ class FcmNotificationServiceTest {
 
         notification1.createdAt = Date()
         notification1.updatedAt = Date()
-
 
         val notification2 = Notification.NotificationBuilder()
             .user(user)
@@ -268,8 +266,8 @@ class FcmNotificationServiceTest {
                     NOTIFICATION_TITLE,
                     NOTIFICATION_BODY,
                     null,
-                    86400
-                )
+                    86400,
+                ),
         )
             .thenReturn(true)
 
@@ -282,8 +280,8 @@ class FcmNotificationServiceTest {
                     NOTIFICATION_TITLE_2,
                     NOTIFICATION_BODY,
                     null,
-                    86400
-                )
+                    86400,
+                ),
         )
             .thenReturn(true)
 
@@ -291,13 +289,12 @@ class FcmNotificationServiceTest {
             notificationRepository
                 .existsByIdAndUserId(
                     1L,
-                    1L
-                )
+                    1L,
+                ),
         )
             .thenReturn(true)
 
         Mockito.`when`(notificationRepository.findByIdAndUserId(1L, 1L)).thenReturn(notification1)
-
     }
 
     @Test
@@ -361,8 +358,9 @@ class FcmNotificationServiceTest {
         // A random notification should not exist
         assertFalse(
             notificationService.checkIfNotificationExists(
-                FcmNotificationDto().withScheduledTime(Instant.now()), USER_ID
-            )
+                FcmNotificationDto().withScheduledTime(Instant.now()),
+                USER_ID,
+            ),
         )
     }
 
@@ -406,7 +404,7 @@ class FcmNotificationServiceTest {
         }
 
         assertTrue(
-            ex.message!!.contains("The supplied Subject ID is invalid. No user found. Please Create a User First.")
+            ex.message!!.contains("The supplied Subject ID is invalid. No user found. Please Create a User First."),
         )
     }
 
@@ -439,7 +437,6 @@ class FcmNotificationServiceTest {
             .withTtlSeconds(86400)
             .withDelivered(false)
 
-
         val notificationDto2 = FcmNotificationDto()
             .withBody(NOTIFICATION_BODY + "2")
             .withTitle(NOTIFICATION_TITLE_4 + "3")
@@ -449,11 +446,10 @@ class FcmNotificationServiceTest {
             .withTtlSeconds(86400)
             .withDelivered(false)
 
-
         notificationService.addNotifications(
             FcmNotifications().withNotifications(listOf(notificationDto1, notificationDto2)),
             USER_ID,
-            PROJECT_ID
+            PROJECT_ID,
         )
 
         val savedNotifications = notificationService.getNotificationsBySubjectId(USER_ID)
@@ -539,7 +535,7 @@ class FcmNotificationServiceTest {
                 projectRepository,
                 schedulerService,
                 notificationConverter,
-                eventPublisher
+                eventPublisher,
             )
         }
     }

@@ -37,7 +37,7 @@ class DataMessageStateEventService(
     private val dataMessageStateEventRepository: DataMessageStateEventRepository,
     private val dataMessageService: FcmDataMessageService,
     private val dataMessageApplicationEventPublisher: ApplicationEventPublisher,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     @Transactional
     fun addDataMessageStateEvent(dataMessageStateEvent: DataMessageStateEvent) {
@@ -46,10 +46,14 @@ class DataMessageStateEventService(
 
     @Transactional(readOnly = true)
     fun getDataMessageStateEvents(
-        projectId: String?, subjectId: String?, dataMessageId: Long
+        projectId: String?,
+        subjectId: String?,
+        dataMessageId: Long,
     ): List<DataMessageStateEventDto> {
         dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-            projectId, subjectId, dataMessageId
+            projectId,
+            subjectId,
+            dataMessageId,
         )
         val stateEvents: List<DataMessageStateEvent> =
             dataMessageStateEventRepository.findByDataMessageId(dataMessageId)
@@ -59,14 +63,14 @@ class DataMessageStateEventService(
                 stateEvent.dataMessage!!.id,
                 stateEvent.state,
                 stateEvent.time,
-                stateEvent.associatedInfo
+                stateEvent.associatedInfo,
             )
         }
     }
 
     @Transactional(readOnly = true)
     fun getDataMessageStateEventsByDataMessageId(
-        dataMessageId: Long
+        dataMessageId: Long,
     ): List<DataMessageStateEventDto> {
         val stateEvents: List<DataMessageStateEvent> =
             dataMessageStateEventRepository.findByDataMessageId(dataMessageId)
@@ -76,7 +80,7 @@ class DataMessageStateEventService(
                 stateEvent.dataMessage!!.id,
                 stateEvent.state,
                 stateEvent.time,
-                stateEvent.associatedInfo
+                stateEvent.associatedInfo,
             )
         }
     }
@@ -86,12 +90,14 @@ class DataMessageStateEventService(
         projectId: String?,
         subjectId: String?,
         dataMessageId: Long,
-        dataMessageStateEventDto: DataMessageStateEventDto
+        dataMessageStateEventDto: DataMessageStateEventDto,
     ) {
         checkState(dataMessageId, dataMessageStateEventDto.state)
         val dataMessage =
             dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-                projectId, subjectId, dataMessageId
+                projectId,
+                subjectId,
+                dataMessageId,
             )
 
         var additionalInfo: Map<String, String>? = null
@@ -101,10 +107,11 @@ class DataMessageStateEventService(
                     objectMapper.readValue<Map<String, String>>(
                         dataMessageStateEventDto.associatedInfo,
                         object : TypeReference<Map<String, String>>() {
-                        })
+                        },
+                    )
             } catch (exc: IOException) {
                 throw IllegalStateException(
-                    "Cannot convert additionalInfo to Map<String, String>. Please check its format."
+                    "Cannot convert additionalInfo to Map<String, String>. Please check its format.",
                 )
             }
         }
@@ -115,18 +122,19 @@ class DataMessageStateEventService(
                 dataMessage,
                 dataMessageStateEventDto.state!!,
                 additionalInfo,
-                dataMessageStateEventDto.time!!
+                dataMessageStateEventDto.time!!,
             )
         dataMessageApplicationEventPublisher.publishEvent(stateEvent)
     }
 
-    @Throws( IllegalStateException::class)
+    @Throws(IllegalStateException::class)
     private fun checkState(dataMessageId: Long, state: MessageState?) {
         if (EXTERNAL_EVENTS.contains(state)) {
             if (dataMessageStateEventRepository.countByDataMessageId(dataMessageId)
-                >= MAX_NUMBER_OF_STATES) {
+                >= MAX_NUMBER_OF_STATES
+            ) {
                 throw IllegalStateException(
-                    ("The max limit of state changes($MAX_NUMBER_OF_STATES) has been reached. Cannot add new states.")
+                    ("The max limit of state changes($MAX_NUMBER_OF_STATES) has been reached. Cannot add new states."),
                 )
             }
         } else {
@@ -140,7 +148,7 @@ class DataMessageStateEventService(
             MessageState.DISMISSED,
             MessageState.OPENED,
             MessageState.UNKNOWN,
-            MessageState.ERRORED
+            MessageState.ERRORED,
         )
         private const val MAX_NUMBER_OF_STATES = 20
     }

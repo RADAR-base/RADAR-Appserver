@@ -110,8 +110,8 @@ class FcmNotificationControllerTest {
                 eq(notificationDto2),
                 eq(USER_ID),
                 eq(PROJECT_ID),
-                eq(SCHEDULE_FALSE)
-            )
+                eq(SCHEDULE_FALSE),
+            ),
         )
             .willReturn(notificationDto2)
 
@@ -138,8 +138,8 @@ class FcmNotificationControllerTest {
                 eq(fcmNotifications),
                 eq(USER_ID),
                 eq(PROJECT_ID),
-                eq(SCHEDULE_TRUE)
-            )
+                eq(SCHEDULE_TRUE),
+            ),
         )
             .willReturn(fcmNotifications)
 
@@ -148,8 +148,8 @@ class FcmNotificationControllerTest {
                 eq(fcmNotifications),
                 eq(USER_ID),
                 eq(PROJECT_ID),
-                eq(SCHEDULE_FALSE)
-            )
+                eq(SCHEDULE_FALSE),
+            ),
         )
             .willReturn(fcmNotifications)
 
@@ -166,7 +166,6 @@ class FcmNotificationControllerTest {
             null
         }.`when`(notificationService).removeNotificationsForUser(any(String::class.java), any(String::class.java))
     }
-
 
     @Test
     fun getAllNotifications() {
@@ -196,9 +195,9 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.get(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}"
-                )
-            )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}",
+                ),
+            ),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH).value(hasSize<Any>(1)))
@@ -210,8 +209,8 @@ class FcmNotificationControllerTest {
     fun getNotificationsUsingProjectId() {
         mockMvc.perform(
             MockMvcRequestBuilders.get(
-                URI.create("/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}")
-            )
+                URI.create("/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}"),
+            ),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH).value(hasSize<Any>(1)))
@@ -237,11 +236,11 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}"
-                )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}",
+                ),
             )
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(notificationDto2))
+                .content(objectMapper.writeValueAsBytes(notificationDto2)),
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.title").value(TITLE_2))
@@ -267,11 +266,11 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}?schedule=false"
-                )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}?schedule=false",
+                ),
             )
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(notificationDto2))
+                .content(objectMapper.writeValueAsBytes(notificationDto2)),
         )
             .andExpect { status().isCreated }
             .andExpect { jsonPath("$.title").value(TITLE_2) }
@@ -284,9 +283,9 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/2/schedule"
-                )
-            )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/2/schedule",
+                ),
+            ),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.title").value(TITLE_2))
@@ -329,11 +328,11 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/batch"
-                )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/batch",
+                ),
             )
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(fcmNotifications))
+                .content(objectMapper.writeValueAsBytes(fcmNotifications)),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH).value(hasSize<Any>(2)))
@@ -376,11 +375,11 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/batch?schedule=false"
-                )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/batch?schedule=false",
+                ),
             )
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(fcmNotifications))
+                .content(objectMapper.writeValueAsBytes(fcmNotifications)),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH).value(hasSize<Any>(2)))
@@ -393,9 +392,9 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/schedule"
-                )
-            )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}/schedule",
+                ),
+            ),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(NOTIFICATIONS_JSON_PATH).value(hasSize<Any>(2)))
@@ -408,12 +407,11 @@ class FcmNotificationControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.delete(
                 URI.create(
-                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}"
-                )
-            )
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_NOTIFICATION_PATH}",
+                ),
+            ),
         )
     }
-
 
     companion object {
         const val FCM_MESSAGE_ID = "123456"

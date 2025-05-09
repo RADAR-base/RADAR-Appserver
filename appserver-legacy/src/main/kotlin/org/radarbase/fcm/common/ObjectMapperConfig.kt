@@ -20,7 +20,7 @@ class ObjectMapperConfig {
             registerModule(
                 KotlinModule.Builder()
                     .configure(KotlinFeature.NullIsSameAsDefault, true)
-                    .build()
+                    .build(),
             )
             registerModule(JavaTimeModule())
         }

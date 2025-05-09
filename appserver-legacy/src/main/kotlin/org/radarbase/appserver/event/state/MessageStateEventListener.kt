@@ -40,7 +40,7 @@ import org.springframework.transaction.event.TransactionalEventListener
 class MessageStateEventListener(
     @Transient private val objectMapper: ObjectMapper,
     @Transient private val notificationStateEventService: NotificationStateEventService,
-    @Transient private val dataMessageStateEventService: DataMessageStateEventService
+    @Transient private val dataMessageStateEventService: DataMessageStateEventService,
 ) {
     /**
      * Handle an application event.
@@ -54,7 +54,10 @@ class MessageStateEventListener(
         val info = convertMapToString(event.additionalInfo)
         logger.debug("ID: {}, STATE: {}.", event.notification.id, event.state)
         val eventEntity = NotificationStateEvent(
-            event.notification, event.state, event.time, info
+            event.notification,
+            event.state,
+            event.time,
+            info,
         )
         notificationStateEventService.addNotificationStateEvent(eventEntity)
     }
@@ -66,7 +69,10 @@ class MessageStateEventListener(
         val info = convertMapToString(event.additionalInfo)
         logger.debug("ID: {}, STATE: {}", event.dataMessage.id, event.state)
         val eventEntity = DataMessageStateEvent(
-            event.dataMessage, event.state, event.time, info
+            event.dataMessage,
+            event.state,
+            event.time,
+            info,
         )
         dataMessageStateEventService.addDataMessageStateEvent(eventEntity)
     }

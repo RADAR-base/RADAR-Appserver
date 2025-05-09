@@ -22,7 +22,16 @@ package org.radarbase.fcm.downstream
 
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.google.firebase.messaging.*
+import com.google.firebase.messaging.AndroidConfig
+import com.google.firebase.messaging.AndroidNotification
+import com.google.firebase.messaging.ApnsConfig
+import com.google.firebase.messaging.Aps
+import com.google.firebase.messaging.ApsAlert
+import com.google.firebase.messaging.FcmOptions
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingException
+import com.google.firebase.messaging.Message
+import com.google.firebase.messaging.Notification
 import org.radarbase.fcm.model.FcmDataMessage
 import org.radarbase.fcm.model.FcmDownstreamMessage
 import org.radarbase.fcm.model.FcmNotificationMessage
@@ -69,34 +78,38 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
                     AndroidConfig.builder()
                         .setCollapseKey(downstreamMessage.collapseKey)
                         .setPriority(
-                            if (priority == null) AndroidConfig.Priority.HIGH else AndroidConfig.Priority.valueOf(
-                                priority
-                            )
+                            if (priority == null) {
+                                AndroidConfig.Priority.HIGH
+                            } else {
+                                AndroidConfig.Priority.valueOf(
+                                    priority,
+                                )
+                            },
                         )
                         .setTtl(ttl.toMillis())
                         .setNotification(getAndroidNotification(notificationMessage))
                         .putAllData(notificationMessage.data)
-                        .build()
+                        .build(),
                 )
                 .setApnsConfig(
                     getApnsConfigBuilder(notificationMessage, ttl)!!
                         .putHeader("apns-push-type", "alert")
-                        .build()
+                        .build(),
                 )
                 .putAllData(notificationMessage.data)
                 .setCondition(notificationMessage.condition)
                 .setNotification(
                     Notification.builder()
                         .setBody(
-                            notificationMessage.notification!!.getOrDefault("body", "").toString()
+                            notificationMessage.notification!!.getOrDefault("body", "").toString(),
                         )
                         .setTitle(
-                            notificationMessage.notification!!.getOrDefault("title", "").toString()
+                            notificationMessage.notification!!.getOrDefault("title", "").toString(),
                         )
                         .setImage(
-                            notificationMessage.notification!!.getOrDefault("image_url", "").toString()
+                            notificationMessage.notification!!.getOrDefault("image_url", "").toString(),
                         )
-                        .build()
+                        .build(),
                 )
         } else if (downstreamMessage is FcmDataMessage) {
             val dataMessage = downstreamMessage
@@ -105,20 +118,24 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
                     AndroidConfig.builder()
                         .setCollapseKey(downstreamMessage.collapseKey)
                         .setPriority(
-                            if (priority == null) AndroidConfig.Priority.NORMAL else AndroidConfig.Priority.valueOf(
-                                priority
-                            )
+                            if (priority == null) {
+                                AndroidConfig.Priority.NORMAL
+                            } else {
+                                AndroidConfig.Priority.valueOf(
+                                    priority,
+                                )
+                            },
                         )
                         .setTtl(ttl.toMillis())
                         .putAllData(dataMessage.data)
-                        .build()
+                        .build(),
                 )
                 .setApnsConfig(getApnsConfigBuilder(dataMessage, ttl)!!.build())
                 .setCondition(dataMessage.condition)
                 .putAllData(dataMessage.data)
         } else {
             throw IllegalArgumentException(
-                "The Message type is not known." + downstreamMessage.javaClass
+                "The Message type is not known." + downstreamMessage.javaClass,
             )
         }
 
@@ -131,10 +148,10 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
             AndroidNotification.builder()
                 .setBody(notificationMessage.notification!!.getOrDefault("body", "").toString())
                 .setTitle(
-                    notificationMessage.notification!!.getOrDefault("title", "").toString()
+                    notificationMessage.notification!!.getOrDefault("title", "").toString(),
                 )
                 .setChannelId(
-                    getString(notificationMessage.notification!!["android_channel_id"])
+                    getString(notificationMessage.notification!!["android_channel_id"]),
                 )
                 .setColor(getString(notificationMessage.notification!!["color"]))
                 .setTag(getString(notificationMessage.notification!!["tag"]))
@@ -148,20 +165,20 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
         if (bodyLocKey != null) {
             builder
                 .setBodyLocalizationKey(
-                    getString(notificationMessage.notification!!["body_loc_key"])
+                    getString(notificationMessage.notification!!["body_loc_key"]),
                 )
                 .addBodyLocalizationArg(
-                    getString(notificationMessage.notification!!["body_loc_args"])
+                    getString(notificationMessage.notification!!["body_loc_args"]),
                 )
         }
 
         if (titleLocKey != null) {
             builder
                 .addTitleLocalizationArg(
-                    getString(notificationMessage.notification!!["title_loc_args"])
+                    getString(notificationMessage.notification!!["title_loc_args"]),
                 )
                 .setTitleLocalizationKey(
-                    getString(notificationMessage.notification!!["title_loc_key"])
+                    getString(notificationMessage.notification!!["title_loc_key"]),
                 )
         }
 
@@ -183,7 +200,7 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
         // expressed in seconds (UTC).
         config.putHeader(
             "apns-expiration",
-            Instant.now().plus(ttl).epochSecond.toString()
+            Instant.now().plus(ttl).epochSecond.toString(),
         )
 
         if (message is FcmNotificationMessage) {

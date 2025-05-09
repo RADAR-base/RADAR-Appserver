@@ -28,7 +28,7 @@ data class Schedule(
     var assessmentSchedules: MutableList<AssessmentSchedule> = mutableListOf(),
     var user: User? = null,
     var version: String = "0.0.0",
-    var timezone: String? = user?.timezone
+    var timezone: String? = user?.timezone,
 ) {
     constructor(user: User) : this(mutableListOf(), user, "0.0.0", user.timezone)
 
@@ -36,18 +36,18 @@ data class Schedule(
         assessmentSchedules.toMutableList(),
         user,
         "0.0.0",
-        user.timezone
+        user.timezone,
     )
 
     constructor(
         assessmentSchedules: List<AssessmentSchedule>,
         user: User,
-        version: String?
+        version: String?,
     ) : this(
         assessmentSchedules.toMutableList(),
         user,
         version ?: "0.0.0",
-        user.timezone
+        user.timezone,
     )
 
     fun addAssessmentSchedule(assessmentSchedule: AssessmentSchedule): Schedule = apply {

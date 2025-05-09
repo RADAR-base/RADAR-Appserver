@@ -49,7 +49,6 @@ import java.net.URI
 import java.time.Duration
 import java.time.Instant
 
-
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(FcmDataMessageController::class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -144,11 +143,10 @@ class FcmDataMessageControllerTest {
         }.`when`(dataMessageService).removeDataMessagesForUser(any(), any())
     }
 
-
     @Test
     fun getAllDataMessages() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get(URI.create("/${PathsUtil.MESSAGING_DATA_PATH}"))
+            MockMvcRequestBuilders.get(URI.create("/${PathsUtil.MESSAGING_DATA_PATH}")),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize<Any>(1)))
@@ -158,7 +156,7 @@ class FcmDataMessageControllerTest {
     @Test
     fun getDataMessageUsingId() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get(URI.create("/${PathsUtil.MESSAGING_DATA_PATH}/1"))
+            MockMvcRequestBuilders.get(URI.create("/${PathsUtil.MESSAGING_DATA_PATH}/1")),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.fcmMessageId", `is`(FCM_MESSAGE_ID)))
@@ -173,9 +171,11 @@ class FcmDataMessageControllerTest {
     @Test
     fun getDataMessagesUsingProjectIdAndSubjectId() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get(URI.create(
-                "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}"
-            ))
+            MockMvcRequestBuilders.get(
+                URI.create(
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}",
+                ),
+            ),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize<Any>(1)))
@@ -185,9 +185,11 @@ class FcmDataMessageControllerTest {
     @Test
     fun getDataMessagesUsingProjectId() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get(URI.create(
-                "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.MESSAGING_DATA_PATH}"
-            ))
+            MockMvcRequestBuilders.get(
+                URI.create(
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.MESSAGING_DATA_PATH}",
+                ),
+            ),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize<Any>(1)))
@@ -207,11 +209,13 @@ class FcmDataMessageControllerTest {
         }
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post(URI.create(
-                "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}"
-            ))
+            MockMvcRequestBuilders.post(
+                URI.create(
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}",
+                ),
+            )
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(dataMessageDto2))
+                .content(objectMapper.writeValueAsBytes(dataMessageDto2)),
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.fcmMessageId", `is`(FCM_MESSAGE_ID + "7")))
@@ -245,11 +249,13 @@ class FcmDataMessageControllerTest {
         }
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post(URI.create(
-                "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}/batch"
-            ))
+            MockMvcRequestBuilders.post(
+                URI.create(
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}/batch",
+                ),
+            )
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(fcmDataMessages))
+                .content(objectMapper.writeValueAsBytes(fcmDataMessages)),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(DATA_MESSAGES_JSON_PATH, hasSize<Any>(2)))
@@ -259,11 +265,11 @@ class FcmDataMessageControllerTest {
     @Test
     fun deleteDataMessagesForUser() {
         mockMvc.perform(
-            MockMvcRequestBuilders.delete(URI.create(
-                "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}"
-            ))
+            MockMvcRequestBuilders.delete(
+                URI.create(
+                    "/${PathsUtil.PROJECT_PATH}/$PROJECT_ID/${PathsUtil.USER_PATH}/$USER_ID/${PathsUtil.MESSAGING_DATA_PATH}",
+                ),
+            ),
         )
     }
-
 }
-

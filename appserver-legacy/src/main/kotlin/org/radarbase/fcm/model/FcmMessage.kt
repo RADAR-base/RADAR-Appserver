@@ -22,4 +22,4 @@ package org.radarbase.fcm.model
 
 /** @author yatharthranjan
  */
-interface FcmMessage 
+interface FcmMessage

@@ -138,21 +138,24 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) : Serializable {
         if (this === other) return true
         if (other !is FcmDataMessageDto) return false
         val that = other
-        return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime
-                && appPackage == that.appPackage
-                && sourceType == that.sourceType
+        return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime &&
+            appPackage == that.appPackage &&
+            sourceType == that.sourceType
     }
 
     override fun hashCode(): Int {
         return Objects.hash(
-            scheduledTime, delivered, ttlSeconds, appPackage, sourceType
+            scheduledTime,
+            delivered,
+            ttlSeconds,
+            appPackage,
+            sourceType,
         )
     }
 
     override fun toString(): String {
         return "FcmDataMessageDto(id=$id, scheduledTime=$scheduledTime, delivered=$delivered, ttlSeconds=$ttlSeconds, sourceId=$sourceId, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, appPackage=$appPackage, sourceType=$sourceType, dataMap=$dataMap, priority=$priority, mutableContent=$mutableContent, createdAt=$createdAt, updatedAt=$updatedAt)"
     }
-
 
     companion object {
         private const val serialVersionUID = 3L

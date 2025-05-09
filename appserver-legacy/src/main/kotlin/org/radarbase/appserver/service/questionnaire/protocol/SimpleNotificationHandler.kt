@@ -33,7 +33,7 @@ class SimpleNotificationHandler : ProtocolHandler {
     override fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
         val notificationProtocol = assessment.protocol?.notification
         val estimatedCompletionTime = assessment.estimatedCompletionTime
@@ -48,13 +48,13 @@ class SimpleNotificationHandler : ProtocolHandler {
         val title = this.taskNotificationGeneratorService.getTitleText(
             user.language,
             notificationProtocol.title,
-            NotificationType.NOW
+            NotificationType.NOW,
         )
         val body = this.taskNotificationGeneratorService.getBodyText(
             user.language,
             notificationProtocol.body,
             NotificationType.NOW,
-            estimatedCompletionTime
+            estimatedCompletionTime,
         )
 
         generateNotifications(assessmentScheduleTasks, user, title, body, notificationProtocol.email.enabled).also { notifications ->
@@ -65,8 +65,11 @@ class SimpleNotificationHandler : ProtocolHandler {
     }
 
     fun generateNotifications(
-        tasks: List<Task>, user: User,
-        title: String, body: String, emailEnabled: Boolean
+        tasks: List<Task>,
+        user: User,
+        title: String,
+        body: String,
+        emailEnabled: Boolean,
     ): List<Notification> {
         return tasks.parallelStream()
             .map { task: Task ->
@@ -76,7 +79,7 @@ class SimpleNotificationHandler : ProtocolHandler {
                         taskTimeStamp.toInstant(),
                         title,
                         body,
-                        emailEnabled
+                        emailEnabled,
                     ).apply {
                         this.user = user
                     }
@@ -88,7 +91,7 @@ class SimpleNotificationHandler : ProtocolHandler {
 
                 scheduledTime != null && Instant.now().isBefore(
                     scheduledTime
-                        .plus(ttlSeconds.toLong(), ChronoUnit.SECONDS)
+                        .plus(ttlSeconds.toLong(), ChronoUnit.SECONDS),
                 )
             }.collect(Collectors.toList())
     }

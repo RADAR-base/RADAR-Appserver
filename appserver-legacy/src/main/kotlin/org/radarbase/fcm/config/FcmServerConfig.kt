@@ -28,7 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @author yatharthranjan
  */
 @ConfigurationProperties(value = "fcmserver")
-data class FcmServerConfig (
+data class FcmServerConfig(
     var fcmsender: String? = null,
-    var credentials: String? = null
-    )
+    var credentials: String? = null,
+)

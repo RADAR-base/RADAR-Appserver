@@ -41,7 +41,7 @@ class TaskGeneratorService {
             showInCalendar(assessment.showInCalendar)
             isDemo(assessment.isDemo)
             nQuestions(assessment.nQuestions)
-            .isClinical(isClinical)
+                .isClinical(isClinical)
         }.build()
     }
 }

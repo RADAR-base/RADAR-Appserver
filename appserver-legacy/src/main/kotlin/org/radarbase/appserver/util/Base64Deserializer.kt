@@ -27,13 +27,13 @@ import java.util.*
 class Base64Deserializer : JsonDeserializer<String>(), ContextualDeserializer {
     override fun createContextual(
         context: DeserializationContext,
-        property: BeanProperty
+        property: BeanProperty,
     ): JsonDeserializer<*> {
         if (!String::class.java.isAssignableFrom(property.type.rawClass)) {
             throw context.invalidTypeIdException(
                 property.type,
                 "String",
-                "Base64 decoding is only applied to String fields."
+                "Base64 decoding is only applied to String fields.",
             )
         }
         return this
@@ -54,7 +54,7 @@ class Base64Deserializer : JsonDeserializer<String>(), ContextualDeserializer {
                 parser,
                 "Value for '$fieldName' is not a base64 encoded JSON",
                 value,
-                wrapperClass
+                wrapperClass,
             )
         }
     }

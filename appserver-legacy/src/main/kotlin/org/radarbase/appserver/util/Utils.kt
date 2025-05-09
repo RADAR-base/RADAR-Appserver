@@ -33,7 +33,6 @@ import kotlin.contracts.contract
  */
 @OptIn(ExperimentalContracts::class)
 inline fun <T : Any> checkPresence(value: T?, messageProvider: () -> String): T {
-
     contract {
         returns() implies (value != null)
     }
@@ -57,12 +56,12 @@ inline fun <T : Any> checkPresence(value: T?, messageProvider: () -> String): T 
 inline fun checkInvalidProjectDetails(
     projectDTO: ProjectDto,
     invalidation: () -> Boolean,
-    messageProvider: () -> String
+    messageProvider: () -> String,
 ) {
     if (invalidation()) {
         throw InvalidProjectDetailsException(
             projectDTO,
-            IllegalArgumentException(messageProvider())
+            IllegalArgumentException(messageProvider()),
         )
     }
 }
@@ -78,11 +77,11 @@ inline fun checkInvalidProjectDetails(
  */
 inline fun <reified E : Exception> checkInvalidDetails(
     invalidation: () -> Boolean,
-    messageProvider: () -> String
+    messageProvider: () -> String,
 ) {
     if (invalidation()) {
         throw E::class.java.getDeclaredConstructor(
-            String::class.java
+            String::class.java,
         ).newInstance(messageProvider())
     }
 }

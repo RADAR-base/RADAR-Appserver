@@ -36,7 +36,9 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
     private val taskGeneratorService = TaskGeneratorService()
 
     override fun handle(
-        assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User
+        assessmentSchedule: AssessmentSchedule,
+        assessment: Assessment,
+        user: User,
     ): AssessmentSchedule {
         val referenceTimestamp = assessmentSchedule.referenceTimestamps ?: return assessmentSchedule.also {
             it.tasks = emptyList()
@@ -47,7 +49,9 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
     }
 
     private fun generateTasks(
-        assessment: Assessment, referenceTimestamps: List<Instant>, user: User
+        assessment: Assessment,
+        referenceTimestamps: List<Instant>,
+        user: User,
     ): List<Task> {
         val timezone = TimeZone.getTimeZone(user.timezone)
         val repeatQuestionnaire: RepeatQuestionnaire? = assessment.protocol?.repeatQuestionnaire

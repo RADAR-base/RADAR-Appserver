@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component
 @Component
 @ConditionalOnProperty(value = ["radar.notification.email.enabled"], havingValue = "true")
 class EmailNotificationTransmitter(
-    private val emailSender: JavaMailSender
+    private val emailSender: JavaMailSender,
 ) : NotificationTransmitter {
     @Value("\${radar.notification.email.from}")
     @Transient
@@ -50,7 +50,7 @@ class EmailNotificationTransmitter(
                 if (notification.user!!.emailAddress.isNullOrBlank()) {
                     logger.warn(
                         "Could not transmit a notification via email because subject {} has no email address.",
-                        notification.user!!.subjectId
+                        notification.user!!.subjectId,
                     )
                     return
                 }

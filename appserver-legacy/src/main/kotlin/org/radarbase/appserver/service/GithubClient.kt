@@ -21,12 +21,13 @@
 
 package org.radarbase.appserver.service
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.request.header
+import io.ktor.client.request.prepareGet
+import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -56,7 +57,7 @@ class GithubClient(
     private val maxContentLength: Int,
 
     @Value("\${security.github.client.timeout:10}") httpTimeout: Int,
-    @Value("\${security.github.client.token:}") githubToken: String
+    @Value("\${security.github.client.token:}") githubToken: String,
 ) {
 
     @Transient
@@ -108,7 +109,8 @@ class GithubClient(
         } else {
             logger.error("Error getting Github content from URL {} : {}", url, response)
             throw ResponseStatusException(
-                HttpStatus.valueOf(response.status.value), "Github content could not be retrieved"
+                HttpStatus.valueOf(response.status.value),
+                "Github content could not be retrieved",
             )
         }
     }
@@ -124,7 +126,8 @@ class GithubClient(
     private fun checkContentLength(contentLength: Int) {
         if (contentLength > maxContentLength) {
             throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST, "Github content is too large"
+                HttpStatus.BAD_REQUEST,
+                "Github content is too large",
             )
         }
     }

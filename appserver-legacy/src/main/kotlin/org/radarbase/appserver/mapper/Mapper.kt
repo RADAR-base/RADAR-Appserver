@@ -34,5 +34,5 @@ interface Mapper<D, E> {
     fun dtoToEntity(dto: D): E
     fun entityToDto(entity: E): D
     fun entitiesToDtos(entities: Collection<E>): List<D> = entities.parallelStream().map(::entityToDto).collect(Collectors.toList())
-    fun dtosToEntities(dtos: Collection<D>): List<E> = dtos.parallelStream().map ( ::dtoToEntity).collect(Collectors.toList())
+    fun dtosToEntities(dtos: Collection<D>): List<E> = dtos.parallelStream().map(::dtoToEntity).collect(Collectors.toList())
 }

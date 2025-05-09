@@ -25,6 +25,8 @@ import org.radarbase.appserver.dto.fcm.FcmUserDto
 
 interface ScheduleNotificationHandler {
     fun handleScheduleNotification(
-        notificationDto: FcmNotificationDto, userDto: FcmUserDto, projectId: String?
+        notificationDto: FcmNotificationDto,
+        userDto: FcmUserDto,
+        projectId: String?,
     )
 }

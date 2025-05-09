@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicReference
  * @param T the type of the value, constrained to be non-nullable.
  * @param initialValue the initial value to be set in the atomic reference.
  */
-class NonNullableAtomicReference<T : Any>(initialValue: T) {
+class NonNullAtomicReference<T : Any>(initialValue: T) {
 
     private val reference = AtomicReference(initialValue)
 

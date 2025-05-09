@@ -94,10 +94,12 @@ data class StoragePath(val pathInBucket: String, val pathInTopicDir: String) {
             topic = topicId
         }
 
-        fun dayFolderPattern(pattern: String) = apply { folderPattern = pattern
+        fun dayFolderPattern(pattern: String) = apply {
+            folderPattern = pattern
         }
 
-        fun fileTimestampPattern(pattern: String) = apply { filePattern = pattern
+        fun fileTimestampPattern(pattern: String) = apply {
+            filePattern = pattern
         }
 
         fun build(): StoragePath {

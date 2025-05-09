@@ -159,7 +159,13 @@ class NotificationRepositoryTest {
     @Test
     fun `when exists then return true`() {
         val exists = notificationRepository.existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-            user.id!!, NOTIFICATION_SOURCE_ID, scheduledTime, NOTIFICATION_TITLE, NOTIFICATION_BODY, null, 86400
+            user.id!!,
+            NOTIFICATION_SOURCE_ID,
+            scheduledTime,
+            NOTIFICATION_TITLE,
+            NOTIFICATION_BODY,
+            null,
+            86400,
         )
 
         assertTrue(exists)
@@ -180,4 +186,3 @@ class NotificationRepositoryTest {
         assertNull(notification)
     }
 }
-

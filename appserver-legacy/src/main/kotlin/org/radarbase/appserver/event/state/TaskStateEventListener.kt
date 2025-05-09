@@ -35,7 +35,7 @@ import org.springframework.transaction.event.TransactionalEventListener
 @Component
 class TaskStateEventListener(
     @field:Transient private val objectMapper: ObjectMapper,
-    @field:Transient private val taskStateEventService: TaskStateEventService
+    @field:Transient private val taskStateEventService: TaskStateEventService,
 ) {
     /**
      * Handle an application event.
@@ -50,7 +50,10 @@ class TaskStateEventListener(
         val info = convertMapToString(event.additionalInfo)
         logger.debug("ID: {}, STATE: {}", event.task?.id, event.state)
         val eventEntity = TaskStateEvent(
-            event.task, event.state, event.time, info
+            event.task,
+            event.state,
+            event.time,
+            info,
         )
         taskStateEventService.addTaskStateEvent(eventEntity)
     }

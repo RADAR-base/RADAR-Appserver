@@ -20,7 +20,16 @@
  */
 package org.radarbase.appserver.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.CollectionTable
+import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Inheritance
+import jakarta.persistence.InheritanceType
+import jakarta.persistence.MapKeyColumn
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import org.springframework.lang.Nullable
 import java.io.Serial
 import java.time.Instant
@@ -37,10 +46,14 @@ import java.util.*
  */
 @Entity
 @Table(
-    name = "data_messages", uniqueConstraints = [UniqueConstraint(
-        columnNames = ["user_id", "source_id", "scheduled_time", "ttl_seconds", "delivered", "dry_run"
-        ]
-    )]
+    name = "data_messages",
+    uniqueConstraints = [
+        UniqueConstraint(
+            columnNames = [
+                "user_id", "source_id", "scheduled_time", "ttl_seconds", "delivered", "dry_run",
+            ],
+        ),
+    ],
 )
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 class DataMessage : Message() {
@@ -102,64 +115,63 @@ class DataMessage : Message() {
 
         fun id(id: Long?): DataMessageBuilder = apply {
             this.id = id
-            }
+        }
 
         fun user(user: User?): DataMessageBuilder = apply {
             this.user = user
-            }
+        }
 
         fun sourceId(sourceId: String?): DataMessageBuilder = apply {
             this.sourceId = sourceId
-            }
+        }
 
         fun scheduledTime(scheduledTime: Instant?): DataMessageBuilder = apply {
             this.scheduledTime = scheduledTime
-            }
+        }
 
         fun ttlSeconds(ttlSeconds: Int): DataMessageBuilder = apply {
             this.ttlSeconds = ttlSeconds
-            }
+        }
 
         fun fcmMessageId(fcmMessageId: String?): DataMessageBuilder = apply {
             this.fcmMessageId = fcmMessageId
-            }
+        }
 
         fun fcmTopic(fcmTopic: String?): DataMessageBuilder = apply {
             this.fcmTopic = fcmTopic
-            }
+        }
 
         fun fcmCondition(fcmCondition: String?): DataMessageBuilder = apply {
             this.fcmCondition = fcmCondition
-            }
+        }
 
         fun delivered(delivered: Boolean): DataMessageBuilder = apply {
             this.delivered = delivered
-            }
+        }
 
         fun appPackage(appPackage: String?): DataMessageBuilder = apply {
             this.appPackage = appPackage
-            }
+        }
 
         fun sourceType(sourceType: String?): DataMessageBuilder = apply {
             this.sourceType = sourceType
-            }
+        }
 
         fun dryRun(dryRun: Boolean): DataMessageBuilder = apply {
             this.dryRun = dryRun
-            }
+        }
 
         fun priority(priority: String?): DataMessageBuilder = apply {
             this.priority = priority
-            }
+        }
 
         fun mutableContent(mutableContent: Boolean): DataMessageBuilder = apply {
             this.mutableContent = mutableContent
-            }
-
+        }
 
         fun dataMap(dataMap: MutableMap<String?, String?>?): DataMessageBuilder = apply {
             this.dataMap = dataMap
-            }
+        }
 
         fun build(): DataMessage {
             val dataMessage = DataMessage()
@@ -183,8 +195,6 @@ class DataMessage : Message() {
             return dataMessage
         }
     }
-
-
 
     override fun toString(): String {
         return "DataMessage(dataMap=$dataMap)"

@@ -27,7 +27,15 @@ import org.radarbase.appserver.dto.fcm.FcmDataMessageDto
 import org.radarbase.appserver.dto.fcm.FcmDataMessages
 import org.radarbase.appserver.service.FcmDataMessageService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import radar.spring.auth.common.Authorized
 import radar.spring.auth.common.PermissionOn
 import java.net.URI
@@ -64,142 +72,163 @@ class FcmDataMessageController(private val dataMessageService: FcmDataMessageSer
         @RequestParam(value = "ttlSeconds", required = false) @Valid ttlSeconds: Int,
         @RequestParam(value = "startTime", required = false) @Valid startTime: LocalDateTime,
         @RequestParam(value = "endTime", required = false) @Valid endTime: LocalDateTime,
-        @RequestParam(value = "limit", required = false) @Valid limit: Int
+        @RequestParam(value = "limit", required = false) @Valid limit: Int,
     ): ResponseEntity<FcmDataMessages> {
         return ResponseEntity.ok(
             this.dataMessageService.getFilteredDataMessages(
-                type, delivered, ttlSeconds, startTime, endTime, limit
-            )
+                type,
+                delivered,
+                ttlSeconds,
+                startTime,
+                endTime,
+                limit,
+            ),
         )
     }
 
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @GetMapping(
-        value = [("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_DATA_PATH)]
+        value = [
+            (
+                "/" +
+                    PathsUtil.PROJECT_PATH +
+                    "/" +
+                    PathsUtil.PROJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.USER_PATH +
+                    "/" +
+                    PathsUtil.SUBJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.MESSAGING_DATA_PATH
+                ),
+        ],
     )
     fun getDataMessagesUsingProjectIdAndSubjectId(
-        @PathVariable @Valid projectId: String, @PathVariable @Valid subjectId: String
+        @PathVariable @Valid projectId: String,
+        @PathVariable @Valid subjectId: String,
     ): ResponseEntity<FcmDataMessages> {
         return ResponseEntity.ok<FcmDataMessages>(
-            this.dataMessageService.getDataMessagesByProjectIdAndSubjectId(projectId, subjectId)
+            this.dataMessageService.getDataMessagesByProjectIdAndSubjectId(projectId, subjectId),
         )
     }
 
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.PROJECT)
     @GetMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_DATA_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_DATA_PATH
+            ),
     )
     fun getDataMessagesUsingProjectId(
-        @PathVariable @Valid projectId: String
+        @PathVariable @Valid projectId: String,
     ): ResponseEntity<FcmDataMessages> {
         return ResponseEntity.ok<FcmDataMessages>(this.dataMessageService.getDataMessagesByProjectId(projectId))
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_DATA_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_DATA_PATH
+            ),
     )
     @Throws(URISyntaxException::class)
     fun addSingleDataMessage(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
-        @RequestBody @Valid dataMessage: FcmDataMessageDto
+        @RequestBody @Valid dataMessage: FcmDataMessageDto,
     ): ResponseEntity<FcmDataMessageDto> {
         val dataMessageDto =
             this.dataMessageService.addDataMessage(dataMessage, subjectId, projectId)
         return ResponseEntity.created(
-            URI("/" + PathsUtil.MESSAGING_DATA_PATH + "/" + dataMessageDto.id)
+            URI("/" + PathsUtil.MESSAGING_DATA_PATH + "/" + dataMessageDto.id),
         )
             .body(dataMessageDto)
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_DATA_PATH
-                + "/batch")
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_DATA_PATH +
+                "/batch"
+            ),
     )
     fun addBatchDataMessages(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
-        @RequestBody @Valid dataMessages: FcmDataMessages
+        @RequestBody @Valid dataMessages: FcmDataMessages,
     ): ResponseEntity<FcmDataMessages> {
         return ResponseEntity.ok(
-            this.dataMessageService.addDataMessages(dataMessages, subjectId, projectId)
+            this.dataMessageService.addDataMessages(dataMessages, subjectId, projectId),
         )
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PutMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_DATA_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_DATA_PATH
+            ),
     )
     fun updateDataMessage(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
-        @RequestBody @Valid dataMessage: FcmDataMessageDto
+        @RequestBody @Valid dataMessage: FcmDataMessageDto,
     ): ResponseEntity<FcmDataMessageDto> {
         return ResponseEntity.ok(
-            this.dataMessageService.updateDataMessage(dataMessage, subjectId, projectId)
+            this.dataMessageService.updateDataMessage(dataMessage, subjectId, projectId),
         )
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @DeleteMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_DATA_PATH
-                + "/"
-                + PathsUtil.ALL_KEYWORD)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_DATA_PATH +
+                "/" +
+                PathsUtil.ALL_KEYWORD
+            ),
     )
     fun deleteDataMessagesForUser(
-        @PathVariable projectId: String, @PathVariable subjectId: String
+        @PathVariable projectId: String,
+        @PathVariable subjectId: String,
     ): ResponseEntity<Any> {
         this.dataMessageService.removeDataMessagesForUser(projectId, subjectId)
         return ResponseEntity.ok().build()
@@ -207,23 +236,29 @@ class FcmDataMessageController(private val dataMessageService: FcmDataMessageSer
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @DeleteMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_DATA_PATH
-                + "/{id}")
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_DATA_PATH +
+                "/{id}"
+            ),
     )
     fun deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
-        @PathVariable projectId: String, @PathVariable subjectId: String, @PathVariable id: Long
+        @PathVariable projectId: String,
+        @PathVariable subjectId: String,
+        @PathVariable id: Long,
     ): ResponseEntity<Any> {
         this.dataMessageService.deleteDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-            projectId, subjectId, id
+            projectId,
+            subjectId,
+            id,
         )
         return ResponseEntity.ok().build()
     }

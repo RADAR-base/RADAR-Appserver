@@ -26,10 +26,10 @@ import org.radarbase.appserver.event.state.MessageState
 import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class DataMessageStateEventDto (
+data class DataMessageStateEventDto(
     var id: Long? = null,
     var dataMessageId: Long? = null,
     var state: MessageState? = null,
     var time: Instant? = null,
-    var associatedInfo: String? = null
+    var associatedInfo: String? = null,
 )

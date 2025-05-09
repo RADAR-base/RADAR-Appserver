@@ -20,4 +20,4 @@
  */
 package org.radarbase.appserver.service
 
-interface DataMessageService 
+interface DataMessageService

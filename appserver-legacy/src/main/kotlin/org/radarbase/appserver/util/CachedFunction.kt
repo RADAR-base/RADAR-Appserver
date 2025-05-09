@@ -47,7 +47,6 @@ class CachedFunction<I : Any, O : Any>(
     val maxEntries: Int = 0,
 ) : CustomThrowingFunction<I, O> {
 
-
     private val cachedMap: MutableMap<I, LockedResult> = LinkedHashMap<I, LockedResult>(16, 0.75f, false)
 
     /**
@@ -184,6 +183,5 @@ class CachedFunction<I : Any, O : Any>(
     companion object {
 
         private val logger: Logger = LoggerFactory.getLogger(CachedFunction::class.java)
-
     }
 }

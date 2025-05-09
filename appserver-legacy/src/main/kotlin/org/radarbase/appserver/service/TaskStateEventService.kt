@@ -39,13 +39,13 @@ class TaskStateEventService(
     private val taskService: TaskService,
     private val notificationService: FcmNotificationService,
     private val taskApplicationEventPublisher: ApplicationEventPublisher,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
 
     @Transactional
     fun addTaskStateEvent(taskStateEvent: TaskStateEvent) {
         taskStateEventRepository.save(taskStateEvent)
-        taskService.updateTaskStatus(taskStateEvent.task!!, taskStateEvent.state!! )
+        taskService.updateTaskStatus(taskStateEvent.task!!, taskStateEvent.state!!)
         if (taskStateEvent.state == TaskState.COMPLETED) {
             notificationService.deleteNotificationsByTaskId(taskStateEvent.task)
         }
@@ -53,7 +53,9 @@ class TaskStateEventService(
 
     @Transactional(readOnly = true)
     fun getTaskStateEvents(
-        projectId: String?, subjectId: String?, taskId: Long
+        projectId: String?,
+        subjectId: String?,
+        taskId: Long,
     ): List<TaskStateEventDto> {
         val task = taskService.getTaskById(taskId)
         val stateEvents = taskStateEventRepository.findByTaskId(taskId)
@@ -63,14 +65,14 @@ class TaskStateEventService(
                 taskId = task.id,
                 state = ns.state,
                 time = ns.time,
-                associatedInfo = ns.associatedInfo
+                associatedInfo = ns.associatedInfo,
             )
         }
     }
 
     @Transactional(readOnly = true)
     fun getTaskStateEventsByTaskId(
-        taskId: Long
+        taskId: Long,
     ): List<TaskStateEventDto> {
         val stateEvents: List<TaskStateEvent> = taskStateEventRepository.findByTaskId(taskId)
         return stateEvents.map { ns ->
@@ -79,7 +81,7 @@ class TaskStateEventService(
                 taskId = ns.task?.id,
                 state = ns.state,
                 time = ns.time,
-                associatedInfo = ns.associatedInfo
+                associatedInfo = ns.associatedInfo,
             )
         }
     }
@@ -90,7 +92,7 @@ class TaskStateEventService(
         projectId: String,
         subjectId: String,
         taskId: Long,
-        taskStateEventDto: TaskStateEventDto
+        taskStateEventDto: TaskStateEventDto,
     ) {
         val taskState = requireNotNull(taskStateEventDto.state) { "State is missing" }
         checkState(taskId, taskState)
@@ -100,12 +102,12 @@ class TaskStateEventService(
             try {
                 objectMapper.readValue(
                     taskStateEventDto.associatedInfo,
-                    object : TypeReference<Map<String, String>>() {}
+                    object : TypeReference<Map<String, String>>() {},
                 )
             } catch (exc: IOException) {
                 throw IllegalStateException(
                     "Cannot convert additionalInfo to Map<String, String>. Please check its format.",
-                    exc
+                    exc,
                 )
             }
         } else {
@@ -117,7 +119,7 @@ class TaskStateEventService(
             task,
             taskStateEventDto.state,
             additionalInfo,
-            taskStateEventDto.time
+            taskStateEventDto.time,
         )
         taskApplicationEventPublisher.publishEvent(stateEvent)
     }
@@ -127,12 +129,12 @@ class TaskStateEventService(
         if (state in EXTERNAL_EVENTS) {
             if (taskStateEventRepository.countByTaskId(taskId) >= MAX_NUMBER_OF_STATES) {
                 throw SizeLimitExceededException(
-                    "The max limit of state changes($MAX_NUMBER_OF_STATES) has been reached. Cannot add new states."
+                    "The max limit of state changes($MAX_NUMBER_OF_STATES) has been reached. Cannot add new states.",
                 )
             }
         } else {
             throw IllegalStateException(
-                "The state $state is not an external state and cannot be updated by this endpoint."
+                "The state $state is not an external state and cannot be updated by this endpoint.",
             )
         }
     }
@@ -141,7 +143,7 @@ class TaskStateEventService(
         private val EXTERNAL_EVENTS: Set<TaskState> = setOf(
             TaskState.COMPLETED,
             TaskState.UNKNOWN,
-            TaskState.ERRORED
+            TaskState.ERRORED,
         )
 
         private const val MAX_NUMBER_OF_STATES = 20

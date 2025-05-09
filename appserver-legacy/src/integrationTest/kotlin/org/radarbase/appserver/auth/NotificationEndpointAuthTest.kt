@@ -71,30 +71,32 @@ class NotificationEndpointAuthTest {
             "http://localhost:" + port + ProjectEndpointAuthTest.PROJECT_PATH,
             HttpMethod.POST,
             projectEntity,
-            ProjectDto::class.java
+            ProjectDto::class.java,
         )
 
         val userDto: FcmUserDto? =
-                FcmUserDto().apply {
-                    projectId = "radar"
-                    this.language = "en"
-                    enrolmentDate = Instant.now()
-                    fcmToken = "xxx"
-                    subjectId = "sub-1"
-                    timezone = "Europe/London"
-                }
+            FcmUserDto().apply {
+                projectId = "radar"
+                this.language = "en"
+                enrolmentDate = Instant.now()
+                fcmToken = "xxx"
+                subjectId = "sub-1"
+                timezone = "Europe/London"
+            }
         val userDtoHttpEntity = HttpEntity<FcmUserDto?>(userDto, AUTH_HEADER)
 
         restTemplate.exchange<FcmUserDto?>(
             createURLWithPort(
                 port,
-                (ProjectEndpointAuthTest.PROJECT_PATH
-                        + UserEndpointAuthTest.DEFAULT_PROJECT
-                        + UserEndpointAuthTest.USER_PATH)
+                (
+                    ProjectEndpointAuthTest.PROJECT_PATH +
+                        UserEndpointAuthTest.DEFAULT_PROJECT +
+                        UserEndpointAuthTest.USER_PATH
+                    ),
             ),
             HttpMethod.POST,
             userDtoHttpEntity,
-            FcmUserDto::class.java
+            FcmUserDto::class.java,
         )
     }
 
@@ -106,15 +108,17 @@ class NotificationEndpointAuthTest {
             restTemplate.exchange<FcmNotifications?>(
                 createURLWithPort(
                     port,
-                    (ProjectEndpointAuthTest.PROJECT_PATH
-                            + UserEndpointAuthTest.DEFAULT_PROJECT
-                            + UserEndpointAuthTest.USER_PATH
-                            + DEFAULT_USER
-                            + "/messaging/notifications")
+                    (
+                        ProjectEndpointAuthTest.PROJECT_PATH +
+                            UserEndpointAuthTest.DEFAULT_PROJECT +
+                            UserEndpointAuthTest.USER_PATH +
+                            DEFAULT_USER +
+                            "/messaging/notifications"
+                        ),
                 ),
                 HttpMethod.GET,
                 notificationDtoHttpEntity,
-                FcmNotifications::class.java
+                FcmNotifications::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.statusCode)
@@ -128,13 +132,15 @@ class NotificationEndpointAuthTest {
             restTemplate.exchange<FcmNotifications?>(
                 createURLWithPort(
                     port,
-                    (ProjectEndpointAuthTest.PROJECT_PATH
-                            + UserEndpointAuthTest.DEFAULT_PROJECT
-                            + "/messaging/notifications")
+                    (
+                        ProjectEndpointAuthTest.PROJECT_PATH +
+                            UserEndpointAuthTest.DEFAULT_PROJECT +
+                            "/messaging/notifications"
+                        ),
                 ),
                 HttpMethod.GET,
                 notificationDtoHttpEntity,
-                FcmNotifications::class.java
+                FcmNotifications::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.statusCode)
@@ -151,15 +157,17 @@ class NotificationEndpointAuthTest {
                 restTemplate.exchange<FcmNotificationDto?>(
                     createURLWithPort(
                         port,
-                        (ProjectEndpointAuthTest.PROJECT_PATH
-                                + UserEndpointAuthTest.DEFAULT_PROJECT
-                                + UserEndpointAuthTest.USER_PATH
-                                + DEFAULT_USER
-                                + NOTIFICATION_PATH)
+                        (
+                            ProjectEndpointAuthTest.PROJECT_PATH +
+                                UserEndpointAuthTest.DEFAULT_PROJECT +
+                                UserEndpointAuthTest.USER_PATH +
+                                DEFAULT_USER +
+                                NOTIFICATION_PATH
+                            ),
                     ),
                     HttpMethod.POST,
                     notificationDtoHttpEntity,
-                    FcmNotificationDto::class.java
+                    FcmNotificationDto::class.java,
                 )
         } catch (e: ResourceAccessException) {
             Assertions.assertEquals(notificationDtoResponseEntity, null)
@@ -176,15 +184,17 @@ class NotificationEndpointAuthTest {
             restTemplate.exchange<FcmNotificationDto?>(
                 createURLWithPort(
                     port,
-                    (ProjectEndpointAuthTest.PROJECT_PATH
-                            + UserEndpointAuthTest.DEFAULT_PROJECT
-                            + UserEndpointAuthTest.USER_PATH
-                            + DEFAULT_USER
-                            + NOTIFICATION_PATH)
+                    (
+                        ProjectEndpointAuthTest.PROJECT_PATH +
+                            UserEndpointAuthTest.DEFAULT_PROJECT +
+                            UserEndpointAuthTest.USER_PATH +
+                            DEFAULT_USER +
+                            NOTIFICATION_PATH
+                        ),
                 ),
                 HttpMethod.POST,
                 notificationDtoHttpEntity,
-                FcmNotificationDto::class.java
+                FcmNotificationDto::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.CREATED, notificationDtoResponseEntity.statusCode)
@@ -199,25 +209,27 @@ class NotificationEndpointAuthTest {
             HttpEntity<FcmNotifications?>(
                 FcmNotifications()
                     .withNotifications(
-                        listOf<FcmNotificationDto>(fcmNotificationDto)
+                        listOf<FcmNotificationDto>(fcmNotificationDto),
                     ),
-                AUTH_HEADER
+                AUTH_HEADER,
             )
 
         val notificationDtoResponseEntity: ResponseEntity<FcmNotifications?> =
             restTemplate.exchange<FcmNotifications?>(
                 createURLWithPort(
                     port,
-                    (ProjectEndpointAuthTest.PROJECT_PATH
-                            + UserEndpointAuthTest.DEFAULT_PROJECT
-                            + UserEndpointAuthTest.USER_PATH
-                            + DEFAULT_USER
-                            + NOTIFICATION_PATH
-                            + "/batch")
+                    (
+                        ProjectEndpointAuthTest.PROJECT_PATH +
+                            UserEndpointAuthTest.DEFAULT_PROJECT +
+                            UserEndpointAuthTest.USER_PATH +
+                            DEFAULT_USER +
+                            NOTIFICATION_PATH +
+                            "/batch"
+                        ),
                 ),
                 HttpMethod.POST,
                 notificationDtoHttpEntity,
-                FcmNotifications::class.java
+                FcmNotifications::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.statusCode)
@@ -231,15 +243,17 @@ class NotificationEndpointAuthTest {
             restTemplate.exchange<FcmNotifications?>(
                 createURLWithPort(
                     port,
-                    (ProjectEndpointAuthTest.PROJECT_PATH
-                            + UserEndpointAuthTest.DEFAULT_PROJECT
-                            + UserEndpointAuthTest.USER_PATH
-                            + DEFAULT_USER
-                            + NOTIFICATION_PATH)
+                    (
+                        ProjectEndpointAuthTest.PROJECT_PATH +
+                            UserEndpointAuthTest.DEFAULT_PROJECT +
+                            UserEndpointAuthTest.USER_PATH +
+                            DEFAULT_USER +
+                            NOTIFICATION_PATH
+                        ),
                 ),
                 HttpMethod.GET,
                 notificationDtoHttpEntity,
-                FcmNotifications::class.java
+                FcmNotifications::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.statusCode)
@@ -253,13 +267,15 @@ class NotificationEndpointAuthTest {
             restTemplate.exchange<FcmNotifications?>(
                 createURLWithPort(
                     port,
-                    (ProjectEndpointAuthTest.PROJECT_PATH
-                            + UserEndpointAuthTest.DEFAULT_PROJECT
-                            + NOTIFICATION_PATH)
+                    (
+                        ProjectEndpointAuthTest.PROJECT_PATH +
+                            UserEndpointAuthTest.DEFAULT_PROJECT +
+                            NOTIFICATION_PATH
+                        ),
                 ),
                 HttpMethod.GET,
                 notificationDtoHttpEntity,
-                FcmNotifications::class.java
+                FcmNotifications::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.OK, notificationDtoResponseEntity.statusCode)
@@ -273,15 +289,17 @@ class NotificationEndpointAuthTest {
             restTemplate.exchange<FcmNotifications?>(
                 createURLWithPort(
                     port,
-                    (ProjectEndpointAuthTest.PROJECT_PATH
-                            + UserEndpointAuthTest.DEFAULT_PROJECT
-                            + UserEndpointAuthTest.USER_PATH
-                            + "/sub-2"
-                            + NOTIFICATION_PATH)
+                    (
+                        ProjectEndpointAuthTest.PROJECT_PATH +
+                            UserEndpointAuthTest.DEFAULT_PROJECT +
+                            UserEndpointAuthTest.USER_PATH +
+                            "/sub-2" +
+                            NOTIFICATION_PATH
+                        ),
                 ),
                 HttpMethod.GET,
                 notificationDtoHttpEntity,
-                FcmNotifications::class.java
+                FcmNotifications::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.FORBIDDEN, notificationDtoResponseEntity.statusCode)
@@ -294,11 +312,12 @@ class NotificationEndpointAuthTest {
         val notificationDtoResponseEntity: ResponseEntity<FcmNotifications?> =
             restTemplate.exchange<FcmNotifications?>(
                 createURLWithPort(
-                    port, ProjectEndpointAuthTest.PROJECT_PATH + "/test" + NOTIFICATION_PATH
+                    port,
+                    ProjectEndpointAuthTest.PROJECT_PATH + "/test" + NOTIFICATION_PATH,
                 ),
                 HttpMethod.GET,
                 notificationDtoHttpEntity,
-                FcmNotifications::class.java
+                FcmNotifications::class.java,
             )
 
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, notificationDtoResponseEntity.statusCode)
@@ -324,6 +343,5 @@ class NotificationEndpointAuthTest {
         fun clearDatabase(@Autowired jdbcTemplate: JdbcTemplate) {
             JdbcTestUtils.deleteFromTables(jdbcTemplate, "notifications", "users", "projects")
         }
-
     }
 }

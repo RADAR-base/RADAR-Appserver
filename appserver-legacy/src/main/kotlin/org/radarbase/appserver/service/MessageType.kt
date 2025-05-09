@@ -23,5 +23,5 @@ package org.radarbase.appserver.service
 enum class MessageType {
     NOTIFICATION,
     DATA,
-    UNKNOWN
+    UNKNOWN,
 }

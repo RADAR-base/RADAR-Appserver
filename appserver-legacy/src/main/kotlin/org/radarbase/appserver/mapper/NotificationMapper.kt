@@ -54,4 +54,3 @@ class NotificationMapper : Mapper<FcmNotificationDto, Notification> {
         return FcmNotificationDto(entity)
     }
 }
-

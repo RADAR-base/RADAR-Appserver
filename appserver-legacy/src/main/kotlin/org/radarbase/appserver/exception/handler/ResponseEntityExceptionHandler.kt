@@ -1,6 +1,13 @@
 package org.radarbase.appserver.exception.handler
 
-import org.radarbase.appserver.exception.*
+import org.radarbase.appserver.exception.AlreadyExistsException
+import org.radarbase.appserver.exception.FileStorageException
+import org.radarbase.appserver.exception.InvalidFileDetailsException
+import org.radarbase.appserver.exception.InvalidNotificationDetailsException
+import org.radarbase.appserver.exception.InvalidPathDetailsException
+import org.radarbase.appserver.exception.InvalidProjectDetailsException
+import org.radarbase.appserver.exception.InvalidUserDetailsException
+import org.radarbase.appserver.exception.NotFoundException
 import org.radarbase.appserver.exception.entity.ErrorDetails
 import org.radarbase.appserver.exception.entity.ErrorDetailsWithCause
 import org.springframework.http.HttpStatus
@@ -27,7 +34,7 @@ class ResponseEntityExceptionHandler {
                 status.value(),
                 ex.cause!!.message,
                 ex.message,
-                request.getDescription(false)
+                request.getDescription(false),
             )
         }
         return ResponseEntity(error, status)
@@ -97,14 +104,14 @@ class ResponseEntityExceptionHandler {
                 status.value(),
                 cause,
                 ex.message,
-                request.getDescription(false)
+                request.getDescription(false),
             )
         } else {
             ErrorDetails(
                 Instant.now(),
                 status.value(),
                 ex.message,
-                request.getDescription(false)
+                request.getDescription(false),
             )
         }
         return ResponseEntity(error, status)
@@ -116,7 +123,7 @@ class ResponseEntityExceptionHandler {
             Instant.now(),
             status.value(),
             ex.message,
-            request.getDescription(false)
+            request.getDescription(false),
         )
         return ResponseEntity(error, status)
     }

@@ -36,19 +36,21 @@ import java.util.*
 
 @Table(
     name = "notifications",
-    uniqueConstraints = [UniqueConstraint(
-        columnNames = [
-            "user_id",
-            "source_id",
-            "scheduled_time",
-            "title",
-            "body",
-            "type",
-            "ttl_seconds",
-            "delivered",
-            "dry_run"
-        ]
-    )]
+    uniqueConstraints = [
+        UniqueConstraint(
+            columnNames = [
+                "user_id",
+                "source_id",
+                "scheduled_time",
+                "title",
+                "body",
+                "type",
+                "ttl_seconds",
+                "delivered",
+                "dry_run",
+            ],
+        ),
+    ],
 )
 @Entity
 class Notification : Message() {
@@ -220,7 +222,6 @@ class Notification : Message() {
         @Transient
         private var emailBody: String? = notification?.emailBody
 
-
         fun id(id: Long?): NotificationBuilder = apply {
             this.id = id
             return this
@@ -290,7 +291,6 @@ class Notification : Message() {
             this.mutableContent = mutableContent
             return this
         }
-
 
         fun title(title: String?): NotificationBuilder = apply {
             this.title = title
@@ -443,10 +443,10 @@ class Notification : Message() {
             return false
         }
         val that = other
-        return super.equals(other)
-                && title == that.title
-                && body == that.body
-                && type == that.type
+        return super.equals(other) &&
+            title == that.title &&
+            body == that.body &&
+            type == that.type
     }
 
     override fun hashCode(): Int {
@@ -454,14 +454,13 @@ class Notification : Message() {
             super.hashCode(),
             title,
             body,
-            type
+            type,
         )
     }
 
     override fun toString(): String {
         return "Notification(title=$title, body=$body, type=$type, sound=$sound, badge=$badge, subtitle=$subtitle, icon=$icon, color=$color, bodyLocKey=$bodyLocKey, bodyLocArgs=$bodyLocArgs, titleLocKey=$titleLocKey, titleLocArgs=$titleLocArgs, androidChannelId=$androidChannelId, tag=$tag, clickAction=$clickAction, emailEnabled=$emailEnabled, emailTitle=$emailTitle, emailBody=$emailBody, additionalData=$additionalData, Message=${super.toString()})"
     }
-
 
     companion object {
         @Serial

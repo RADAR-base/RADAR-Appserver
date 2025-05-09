@@ -44,12 +44,12 @@ import java.time.Duration
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-class GithubService (
+class GithubService(
     @field:Transient private val githubClient: GithubClient,
 
     @Value("\${security.github.cache.duration:3600}") cacheTime: Int,
     @Value("\${security.github.cache.retryDuration:60}") retryTime: Int,
-    @Value("\${security.github.cache.size:10000}") maxSize: Int
+    @Value("\${security.github.cache.size:10000}") maxSize: Int,
 ) {
 
     @Transient
@@ -57,7 +57,7 @@ class GithubService (
         githubClient::getGithubContent,
         Duration.ofSeconds(cacheTime.toLong()),
         Duration.ofSeconds(retryTime.toLong()),
-        maxSize
+        maxSize,
     )
 
     /**

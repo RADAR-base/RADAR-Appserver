@@ -76,5 +76,5 @@ data class FcmUserDto(
         timezone = user.timezone,
         fcmToken = user.fcmToken,
         language = user.language,
-        attributes = user.attributes
-    )}
+        attributes = user.attributes,
+    ) }

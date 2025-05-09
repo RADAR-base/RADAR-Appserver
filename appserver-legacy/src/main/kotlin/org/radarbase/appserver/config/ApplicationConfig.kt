@@ -34,4 +34,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @EnableTransactionManagement
 @EnableAsync
 @EnableScheduling
-class ApplicationConfig 
+class ApplicationConfig

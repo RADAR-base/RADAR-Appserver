@@ -24,5 +24,5 @@ package org.radarbase.appserver.service.questionnaire.protocol.factory
 enum class RepeatProtocolHandlerType {
     SIMPLE,
     DAYOFWEEK,
-    OTHER
+    OTHER,
 }

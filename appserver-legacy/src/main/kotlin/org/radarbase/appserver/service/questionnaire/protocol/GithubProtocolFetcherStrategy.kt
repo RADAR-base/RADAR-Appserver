@@ -79,7 +79,7 @@ class GithubProtocolFetcherStrategy(
     @field:Transient
     private val projectRepository: ProjectRepository,
     @field:Transient
-    private val githubService: GithubService
+    private val githubService: GithubService,
 ) : ProtocolFetcherStrategy {
 
     @Transient
@@ -95,14 +95,12 @@ class GithubProtocolFetcherStrategy(
     private val projectProtocolUriMap =
         CachedMap(::retrieveProtocolDirectories, Duration.ofHours(3), Duration.ofMinutes(4))
 
-
     @PostConstruct
     fun validateConfiguration() {
         require(!protocolRepo.isNullOrBlank() && !protocolFileName.isNullOrBlank() && !protocolBranch.isNullOrBlank()) {
             "Protocol Repo, File name, and Branch must be configured."
         }
     }
-
 
     /**
      * Fetches protocol configurations for all users stored in the user repository and associates each
@@ -135,7 +133,7 @@ class GithubProtocolFetcherStrategy(
     private fun fetchProtocolForSingleUser(
         user: User,
         projectId: String,
-        protocolPaths: Set<String>
+        protocolPaths: Set<String>,
     ): ProtocolCacheEntry {
         val attributes: Map<String?, String?>? = user.attributes ?: emptyMap()
 
@@ -250,7 +248,7 @@ class GithubProtocolFetcherStrategy(
 
         try {
             val treeContent = githubService.getGithubContentWithoutCache(
-                "$GITHUB_API_URI$protocolRepo/branches/$protocolBranch"
+                "$GITHUB_API_URI$protocolRepo/branches/$protocolBranch",
             ).run {
                 this@GithubProtocolFetcherStrategy.getArrayNode(this)
             }.run {

@@ -20,7 +20,11 @@
  */
 package org.radarbase.appserver.service.scheduler.quartz
 
-import org.quartz.*
+import org.quartz.JobDataMap
+import org.quartz.JobDetail
+import org.quartz.JobKey
+import org.quartz.Trigger
+import org.quartz.TriggerKey
 
 /**
  * Generic Service for implementing an interface to the [Scheduler].
@@ -37,7 +41,10 @@ interface SchedulerService {
     fun checkJobExists(jobKey: JobKey): Boolean
 
     fun updateScheduledJob(
-        jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?
+        jobKey: JobKey,
+        triggerKey: TriggerKey,
+        jobDataMap: JobDataMap,
+        associatedObject: Any?,
     )
 
     fun deleteScheduledJobs(jobKeys: List<JobKey>)

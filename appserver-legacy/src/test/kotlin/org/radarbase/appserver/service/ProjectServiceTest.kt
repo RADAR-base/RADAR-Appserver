@@ -83,7 +83,6 @@ class ProjectServiceTest {
     fun getAllProjects() {
         val projectDtos: ProjectDtos = projectService.getAllProjects()
 
-
         println("Checkpoint project: $projectDtos")
         assertEquals(PROJECT_ID, projectDtos.projects[0].projectId)
         assertEquals(1L, projectDtos.projects[0].id)

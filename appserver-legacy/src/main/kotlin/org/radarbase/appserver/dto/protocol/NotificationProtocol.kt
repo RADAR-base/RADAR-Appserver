@@ -32,5 +32,5 @@ data class NotificationProtocol(
     @field:JsonProperty("text")
     var body: LanguageText? = null,
     @field:JsonProperty("email")
-    var email: EmailNotificationProtocol = EmailNotificationProtocol()
+    var email: EmailNotificationProtocol = EmailNotificationProtocol(),
 )

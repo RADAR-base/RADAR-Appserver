@@ -32,7 +32,7 @@ data class AssessmentProtocol(
     var repeatQuestionnaire: RepeatQuestionnaire? = null,
     var referenceTimestamp: ReferenceTimestamp? = null,
     var clinicalProtocol: ClinicalProtocol? = null,
-    var notification: NotificationProtocol = NotificationProtocol()
+    var notification: NotificationProtocol = NotificationProtocol(),
 ) {
     @JsonDeserialize(using = ReferenceTimestampDeserializer::class)
     fun setReferenceTimestamp(responseObject: Any?) {

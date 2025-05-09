@@ -34,9 +34,9 @@ class TaskSpecification(private val criteria: SearchCriteria) : Specification<Ta
     override fun toPredicate(
         root: Root<Task>,
         query: CriteriaQuery<*>?,
-        builder: CriteriaBuilder
+        builder: CriteriaBuilder,
     ): Predicate? {
-        return when(criteria.operation) {
+        return when (criteria.operation) {
             ">" -> builder.greaterThanOrEqualTo(root.get(criteria.key), criteria.value.toString())
             "<" -> builder.lessThanOrEqualTo(root.get(criteria.key), criteria.value.toString())
             ":" -> {

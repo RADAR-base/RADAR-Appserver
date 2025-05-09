@@ -32,7 +32,7 @@ class MessageStateEventDto(
     source: Any,
     var state: MessageState,
     var additionalInfo: Map<String, String>?,
-    var time: Instant
+    var time: Instant,
 ) : ApplicationEvent(source) {
 
     companion object {

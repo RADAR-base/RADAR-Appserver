@@ -33,10 +33,12 @@ import org.slf4j.LoggerFactory
 class SimpleScheduleNotificationHandler(
     private val notificationService: FcmNotificationService,
     private val projectService: ProjectService,
-    private val userService: UserService
+    private val userService: UserService,
 ) : ScheduleNotificationHandler {
     override fun handleScheduleNotification(
-        notificationDto: FcmNotificationDto, userDto: FcmUserDto, projectId: String?
+        notificationDto: FcmNotificationDto,
+        userDto: FcmUserDto,
+        projectId: String?,
     ) {
         try {
             notificationService.addNotification(notificationDto, userDto.subjectId, projectId)

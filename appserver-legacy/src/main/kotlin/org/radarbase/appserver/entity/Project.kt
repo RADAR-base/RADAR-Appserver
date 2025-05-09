@@ -21,7 +21,12 @@
 
 package org.radarbase.appserver.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import org.radarbase.appserver.util.equalTo
 import org.radarbase.appserver.util.stringRepresentation
@@ -67,6 +72,6 @@ class Project(
         Project::id,
         Project::projectId,
         Project::createdAt,
-        Project::updatedAt
+        Project::updatedAt,
     )
 }

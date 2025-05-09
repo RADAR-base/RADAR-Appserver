@@ -25,5 +25,5 @@ package org.radarbase.appserver.dto.protocol
  */
 data class ClinicalProtocol(
     var requiresInClinicCompletion: Boolean = false,
-    var repeatAfterClinicVisit: RepeatQuestionnaire? = null
+    var repeatAfterClinicVisit: RepeatQuestionnaire? = null,
 )

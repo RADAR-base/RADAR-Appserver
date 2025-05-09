@@ -15,10 +15,6 @@
 
 package org.radarbase.appserver.auth
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
@@ -30,16 +26,13 @@ import org.radarbase.appserver.dto.fcm.FcmUsers
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestTemplate
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -67,7 +60,7 @@ class UserEndpointAuthTest {
             createURLWithPort(port, ProjectEndpointAuthTest.PROJECT_PATH),
             HttpMethod.POST,
             projectEntity,
-            ProjectDto::class.java
+            ProjectDto::class.java,
         )
     }
 
@@ -77,10 +70,10 @@ class UserEndpointAuthTest {
 
         val responseEntity = restTemplate.exchange(
             createURLWithPort(port, ProjectEndpointAuthTest.PROJECT_PATH) +
-                    DEFAULT_PROJECT + USER_PATH + "/sub-1",
+                DEFAULT_PROJECT + USER_PATH + "/sub-1",
             HttpMethod.GET,
             userDtoHttpEntity,
-            FcmUserDto::class.java
+            FcmUserDto::class.java,
         )
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.statusCode)
@@ -93,11 +86,11 @@ class UserEndpointAuthTest {
         try {
             responseEntity = restTemplate.exchange(
                 createURLWithPort(
-                    port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH
+                    port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH,
                 ),
                 HttpMethod.POST,
                 userDtoHttpEntity,
-                FcmUserDto::class.java
+                FcmUserDto::class.java,
             )
         } catch (e: ResourceAccessException) {
             assertEquals(responseEntity, null)
@@ -111,11 +104,12 @@ class UserEndpointAuthTest {
 
         val responseEntity = restTemplate.exchange(
             createURLWithPort(
-                port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH
+                port,
+                ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH,
             ),
             HttpMethod.POST,
             userDtoHttpEntity,
-            FcmUserDto::class.java
+            FcmUserDto::class.java,
         )
 
         if (responseEntity.statusCode == HttpStatus.EXPECTATION_FAILED) {
@@ -133,11 +127,11 @@ class UserEndpointAuthTest {
         val responseEntity = restTemplate.exchange(
             createURLWithPort(
                 port,
-                ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH + "/sub-1"
+                ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH + "/sub-1",
             ),
             HttpMethod.GET,
             userDtoHttpEntity,
-            FcmUserDto::class.java
+            FcmUserDto::class.java,
         )
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
@@ -150,11 +144,12 @@ class UserEndpointAuthTest {
 
         val responseEntity = restTemplate.exchange(
             createURLWithPort(
-                port, ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH
+                port,
+                ProjectEndpointAuthTest.PROJECT_PATH + DEFAULT_PROJECT + USER_PATH,
             ),
             HttpMethod.GET,
             userDtoHttpEntity,
-            FcmUsers::class.java
+            FcmUsers::class.java,
         )
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)
@@ -169,7 +164,7 @@ class UserEndpointAuthTest {
             createURLWithPort(port, ProjectEndpointAuthTest.PROJECT_PATH + "/test" + USER_PATH),
             HttpMethod.GET,
             userDtoHttpEntity,
-            String::class.java
+            String::class.java,
         )
 
         assertEquals(HttpStatus.FORBIDDEN, responseEntity.statusCode)
@@ -181,7 +176,10 @@ class UserEndpointAuthTest {
         val userDtoHttpEntity = HttpEntity<FcmUsers>(null, AUTH_HEADER)
 
         val responseEntity = restTemplate.exchange(
-            createURLWithPort(port, USER_PATH), HttpMethod.GET, userDtoHttpEntity, FcmUsers::class.java
+            createURLWithPort(port, USER_PATH),
+            HttpMethod.GET,
+            userDtoHttpEntity,
+            FcmUsers::class.java,
         )
 
         assertEquals(HttpStatus.OK, responseEntity.statusCode)

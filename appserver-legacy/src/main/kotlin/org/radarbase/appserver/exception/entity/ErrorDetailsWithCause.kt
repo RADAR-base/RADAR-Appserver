@@ -7,5 +7,5 @@ class ErrorDetailsWithCause(
     status: Int,
     val cause: String?,
     message: String?,
-    path: String?
+    path: String?,
 ) : ErrorDetails(timestamp, status, message, path)

@@ -21,6 +21,8 @@
 
 package org.radarbase.appserver.service.scheduler.quartz
 
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -31,7 +33,6 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
-import org.junit.jupiter.api.Assertions.*
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionException
 import org.quartz.impl.JobDetailImpl

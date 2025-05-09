@@ -26,10 +26,10 @@ data class S3StorageProperties(
     var accessKey: String? = null,
     var secretKey: String? = null,
     var bucketName: String? = null,
-    var path: Path = Path()
+    var path: Path = Path(),
 ) {
     data class Path(
         var prefix: String? = null,
-        var collectPerDay: Boolean = false
+        var collectPerDay: Boolean = false,
     )
 }

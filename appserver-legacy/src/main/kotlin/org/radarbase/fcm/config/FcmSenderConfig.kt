@@ -18,7 +18,7 @@ import java.util.*
 @Configuration
 class FcmSenderConfig(
     @Transient private val serverConfig: FcmServerConfig,
-    @Transient private val beanFactory: BeanFactory
+    @Transient private val beanFactory: BeanFactory,
 ) {
     @Bean
     fun fcmSenderProps(): FcmSender {
@@ -29,8 +29,9 @@ class FcmSenderConfig(
         return when (sender) {
             "rest", "org.radarbase.fcm.downstream.AdminSdkFcmSender" -> AdminSdkFcmSender(
                 beanFactory.getBean<FirebaseOptions?>(
-                    "firebaseOptions", FirebaseOptions::class.java
-                )
+                    "firebaseOptions",
+                    FirebaseOptions::class.java,
+                ),
             )
 
             "disabled" -> DisabledFcmSender()

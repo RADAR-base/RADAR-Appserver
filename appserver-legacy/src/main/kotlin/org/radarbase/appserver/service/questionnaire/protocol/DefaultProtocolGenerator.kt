@@ -43,7 +43,7 @@ import java.time.Duration
 @Service
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 class DefaultProtocolGenerator(
-    @field:Transient private val protocolFetcherStrategy: ProtocolFetcherStrategy
+    @field:Transient private val protocolFetcherStrategy: ProtocolFetcherStrategy,
 ) : ProtocolGenerator {
     /**
      * Caches a mapping of user identifiers to their corresponding protocol configurations.
@@ -52,7 +52,7 @@ class DefaultProtocolGenerator(
     private var cachedProtocolMap: CachedMap<String, Protocol> = CachedMap<String, Protocol>(
         protocolFetcherStrategy::fetchProtocols,
         CACHE_INVALIDATE_DEFAULT,
-        CACHE_RETRY_DEFAULT
+        CACHE_RETRY_DEFAULT,
     )
 
     /**
@@ -62,9 +62,8 @@ class DefaultProtocolGenerator(
     private var cachedProjectProtocolMap: CachedMap<String, Protocol> = CachedMap<String, Protocol>(
         protocolFetcherStrategy::fetchProtocolsPerProject,
         CACHE_INVALIDATE_DEFAULT,
-        CACHE_RETRY_DEFAULT
+        CACHE_RETRY_DEFAULT,
     )
-
 
     /**
      * Retrieves all available protocols from the cache or previously fetched data.
@@ -97,14 +96,14 @@ class DefaultProtocolGenerator(
             logger.warn(
                 "Cannot retrieve Protocols for project {} : {}, Using cached values.",
                 projectId,
-                ex.toString()
+                ex.toString(),
             )
             return cachedProjectProtocolMap.getCachedMap()[projectId]!!
         } catch (ex: Exception) {
             logger.warn(
                 "Exception while fetching protocols for project {}",
                 projectId,
-                ex
+                ex,
             )
             throw IOException("Exception while fetching protocols for project $projectId", ex)
         }
@@ -128,7 +127,7 @@ class DefaultProtocolGenerator(
             logger.warn(
                 "Exception while fetching protocols for subject {}",
                 subjectId,
-                ex
+                ex,
             )
             throw IOException("Exception while fetching protocols for subject $subjectId", ex)
         }
@@ -153,7 +152,7 @@ class DefaultProtocolGenerator(
             logger.warn(
                 "Cannot retrieve Protocols for subject {} : {}, Using cached values.",
                 subjectId,
-                ex.toString()
+                ex.toString(),
             )
             return cachedProtocolMap.getCachedMap()[subjectId]!!
         } catch (_: NoSuchElementException) {
@@ -163,7 +162,7 @@ class DefaultProtocolGenerator(
             logger.warn(
                 "Exception while fetching protocols for subject {}",
                 subjectId,
-                ex
+                ex,
             )
             throw IOException("Exception while fetching protocols for subject $subjectId", ex)
         }
@@ -177,6 +176,7 @@ class DefaultProtocolGenerator(
          * and must be refreshed.
          */
         private val CACHE_INVALIDATE_DEFAULT: Duration = Duration.ofHours(1)
+
         /**
          * The default duration to retry caching operations.
          * Used when no specific retry interval is configured.

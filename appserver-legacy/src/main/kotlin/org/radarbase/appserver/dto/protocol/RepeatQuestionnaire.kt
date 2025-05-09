@@ -34,6 +34,5 @@ data class RepeatQuestionnaire(
     var unit: String? = null,
     var unitsFromZero: List<Int>? = null,
     var randomUnitsFromZeroBetween: List<Array<Int>>? = null,
-    var dayOfWeekMap: Map<String, RepeatQuestionnaire>? = null
+    var dayOfWeekMap: Map<String, RepeatQuestionnaire>? = null,
 )
-

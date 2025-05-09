@@ -33,14 +33,14 @@ class TaskStateEventDto(
     val task: Task?,
     val state: TaskState?,
     val additionalInfo: Map<String, String>?,
-    val time: Instant?
+    val time: Instant?,
 ) : ApplicationEvent(source) {
 
     override fun toString(): String = stringRepresentation(
         TaskStateEventDto::task,
         TaskStateEventDto::state,
         TaskStateEventDto::additionalInfo,
-        TaskStateEventDto::time
+        TaskStateEventDto::time,
     )
 
     companion object {

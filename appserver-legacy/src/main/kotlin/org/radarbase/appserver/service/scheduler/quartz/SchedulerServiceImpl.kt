@@ -20,7 +20,15 @@
  */
 package org.radarbase.appserver.service.scheduler.quartz
 
-import org.quartz.*
+import org.quartz.JobDataMap
+import org.quartz.JobDetail
+import org.quartz.JobKey
+import org.quartz.JobListener
+import org.quartz.Scheduler
+import org.quartz.SchedulerException
+import org.quartz.SchedulerListener
+import org.quartz.Trigger
+import org.quartz.TriggerKey
 import org.quartz.impl.triggers.SimpleTriggerImpl
 import org.radarbase.appserver.entity.Scheduled
 import org.slf4j.LoggerFactory
@@ -28,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.util.*
-import java.util.function.Consumer
 
 /**
  * An implementation of the [SchedulerService] providing async access to schedule,
@@ -76,7 +83,10 @@ class SchedulerServiceImpl : SchedulerService {
 
     @Async
     override fun updateScheduledJob(
-        jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?
+        jobKey: JobKey,
+        triggerKey: TriggerKey,
+        jobDataMap: JobDataMap,
+        associatedObject: Any?,
     ) {
         require(scheduler.checkExists(jobKey)) { "The Specified Job Key does not exist : $jobKey" }
 

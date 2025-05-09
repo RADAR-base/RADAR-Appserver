@@ -30,7 +30,8 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConditionalOnProperty(value = ["radar.notification.email.enabled"], havingValue = "false", matchIfMissing = true)
 @EnableAutoConfiguration(
-    exclude = [MailSenderAutoConfiguration::class, MailSenderValidatorAutoConfiguration::class
-    ]
+    exclude = [
+        MailSenderAutoConfiguration::class, MailSenderValidatorAutoConfiguration::class,
+    ],
 )
-class MailAutoconfigureExcludeConfig 
+class MailAutoconfigureExcludeConfig

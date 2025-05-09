@@ -24,7 +24,7 @@ package org.radarbase.appserver.search
 data class SearchCriteria(
     val key: String,
     val operation: String,
-    val value: Any
+    val value: Any,
 ) {
     /***
      * Only AND supported in first instance. Later we can add a new query param that can provide this value

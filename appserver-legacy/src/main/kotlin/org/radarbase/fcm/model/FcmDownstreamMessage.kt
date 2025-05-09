@@ -75,45 +75,45 @@ abstract class FcmDownstreamMessage : FcmMessage {
         protected var deliveryReceiptRequested: Boolean? = null
         protected var dryRun: Boolean? = null
 
-        fun to(to: String) = apply { 
+        fun to(to: String) = apply {
             this.to = to
         } as T
 
-        fun condition(condition: String?) = apply { 
-            this.condition = condition  
+        fun condition(condition: String?) = apply {
+            this.condition = condition
         } as T
 
         fun messageId(messageId: String) = apply {
-            this.messageId = messageId  
+            this.messageId = messageId
         } as T
 
         fun collapseKey(collapseKey: String?) = apply {
-            this.collapseKey = collapseKey  
+            this.collapseKey = collapseKey
         } as T
 
         fun priority(priority: String?) = apply {
-            this.priority = priority  
+            this.priority = priority
         } as T
 
         fun contentAvailable(contentAvailable: Boolean?) = apply {
-            this.contentAvailable = contentAvailable  
+            this.contentAvailable = contentAvailable
         } as T
 
         fun mutableContent(mutableContent: Boolean?) = apply {
-            this.mutableContent = mutableContent  
+            this.mutableContent = mutableContent
         } as T
 
         fun timeToLive(timeToLive: Int?) = apply {
-            this.timeToLive = timeToLive  
+            this.timeToLive = timeToLive
         } as T
 
         fun deliveryReceiptRequested(deliveryReceiptRequested: Boolean?) =
-            apply { 
-            this.deliveryReceiptRequested = deliveryReceiptRequested  
-        } as T
+            apply {
+                this.deliveryReceiptRequested = deliveryReceiptRequested
+            } as T
 
-        fun dryRun(dryRun: Boolean?) = apply { 
-            this.dryRun = dryRun  
+        fun dryRun(dryRun: Boolean?) = apply {
+            this.dryRun = dryRun
         } as T
 
         protected fun applyTo(message: FcmDownstreamMessage) {

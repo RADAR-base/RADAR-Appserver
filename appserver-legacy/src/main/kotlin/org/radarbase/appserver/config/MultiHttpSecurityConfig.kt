@@ -59,7 +59,7 @@ class MultiHttpSecurityConfig {
                 .password(adminPassword)
                 .roles("ADMIN")
                 .authorities("ROLE_SYS_ADMIN")
-                .build()
+                .build(),
         )
         return manager
     }

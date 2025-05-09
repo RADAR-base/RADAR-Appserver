@@ -62,7 +62,6 @@ class FcmNotifications {
         return Objects.hash(_notifications)
     }
 
-
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(FcmNotifications::class.java)
     }

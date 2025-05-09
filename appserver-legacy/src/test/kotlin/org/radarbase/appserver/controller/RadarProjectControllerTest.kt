@@ -93,7 +93,7 @@ class RadarProjectControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(URI("/projects"))
                 .content(objectMapper.writeValueAsString(projectDtoNew))
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON),
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath(PROJECT_ID_JSON_PATH, `is`("$PROJECT_ID-new")))
@@ -110,7 +110,7 @@ class RadarProjectControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.put(URI("/projects/$PROJECT_ID"))
                 .content(objectMapper.writeValueAsString(projectDtoUpdated))
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(PROJECT_ID_JSON_PATH, `is`("$PROJECT_ID-updated")))
@@ -120,7 +120,7 @@ class RadarProjectControllerTest {
     @Test
     fun getAllProjects() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get(URI("/projects"))
+            MockMvcRequestBuilders.get(URI("/projects")),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.projects[0].projectId", `is`(PROJECT_ID)))
@@ -130,7 +130,7 @@ class RadarProjectControllerTest {
     @Test
     fun getProjectsUsingId() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get(URI("/projects/project?id=1"))
+            MockMvcRequestBuilders.get(URI("/projects/project?id=1")),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(PROJECT_ID_JSON_PATH, `is`(PROJECT_ID)))
@@ -140,7 +140,7 @@ class RadarProjectControllerTest {
     @Test
     fun getProjectsUsingProjectId() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get(URI("/projects/$PROJECT_ID"))
+            MockMvcRequestBuilders.get(URI("/projects/$PROJECT_ID")),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(PROJECT_ID_JSON_PATH, `is`(PROJECT_ID)))

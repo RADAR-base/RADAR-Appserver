@@ -33,7 +33,7 @@ import kotlin.annotation.AnnotationTarget.CLASS
 @Constraint(validatedBy = [CheckExactlyOneNotNull.CheckExactlyOneNotNullValidator::class])
 @MustBeDocumented
 annotation class CheckExactlyOneNotNull(
-    val fieldNames: Array<String>
+    val fieldNames: Array<String>,
 ) {
     class CheckExactlyOneNotNullValidator : ConstraintValidator<CheckExactlyOneNotNull, Any> {
 

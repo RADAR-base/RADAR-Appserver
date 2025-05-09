@@ -27,7 +27,15 @@ import org.radarbase.appserver.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.dto.fcm.FcmNotifications
 import org.radarbase.appserver.service.FcmNotificationService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import radar.spring.auth.common.Authorized
 import radar.spring.auth.common.PermissionOn
 import java.net.URI
@@ -45,7 +53,7 @@ class FcmNotificationController(private val notificationService: FcmNotification
 
     @GetMapping("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH)
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.PROJECT)
-    fun  getAllNotifications(): ResponseEntity<FcmNotifications> {
+    fun getAllNotifications(): ResponseEntity<FcmNotifications> {
         return ResponseEntity.ok(this.notificationService.getAllNotifications())
     }
 
@@ -64,195 +72,220 @@ class FcmNotificationController(private val notificationService: FcmNotification
         @RequestParam(value = "ttlSeconds", required = false) @Valid ttlSeconds: Int,
         @RequestParam(value = "startTime", required = false) @Valid startTime: LocalDateTime?,
         @RequestParam(value = "endTime", required = false) @Valid endTime: LocalDateTime?,
-        @RequestParam(value = "limit", required = false) @Valid limit: Int
+        @RequestParam(value = "limit", required = false) @Valid limit: Int,
     ): ResponseEntity<FcmNotifications> {
         return ResponseEntity.ok(
             this.notificationService.getFilteredNotifications(
-                type, delivered, ttlSeconds, startTime, endTime, limit
-            )
+                type,
+                delivered,
+                ttlSeconds,
+                startTime,
+                endTime,
+                limit,
+            ),
         )
     }
 
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @GetMapping(
-        value = [("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH)]
+        value = [
+            (
+                "/" +
+                    PathsUtil.PROJECT_PATH +
+                    "/" +
+                    PathsUtil.PROJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.USER_PATH +
+                    "/" +
+                    PathsUtil.SUBJECT_ID_CONSTANT +
+                    "/" +
+                    PathsUtil.MESSAGING_NOTIFICATION_PATH
+                ),
+        ],
     )
     fun getNotificationsUsingProjectIdAndSubjectId(
-        @PathVariable @Valid projectId: String, @PathVariable @Valid subjectId: String
+        @PathVariable @Valid projectId: String,
+        @PathVariable @Valid subjectId: String,
     ): ResponseEntity<FcmNotifications> {
         return ResponseEntity.ok(
-            this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId)
+            this.notificationService.getNotificationsByProjectIdAndSubjectId(projectId, subjectId),
         )
     }
 
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.PROJECT)
     @GetMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH
+            ),
     )
     fun getNotificationsUsingProjectId(
-        @PathVariable @Valid projectId: String
+        @PathVariable @Valid projectId: String,
     ): ResponseEntity<FcmNotifications> {
         return ResponseEntity.ok(this.notificationService.getNotificationsByProjectId(projectId))
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH
+            ),
     )
     @Throws(URISyntaxException::class)
     fun addSingleNotification(
         @PathVariable projectId: String?,
         @PathVariable subjectId: String?,
         @RequestParam(required = false, defaultValue = "true") schedule: Boolean,
-        @RequestBody notification: @Valid FcmNotificationDto
+        @RequestBody notification: @Valid FcmNotificationDto,
     ): ResponseEntity<FcmNotificationDto> {
         val notificationDto =
             this.notificationService.addNotification(notification, subjectId, projectId, schedule)
         return ResponseEntity.created(
-            URI("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/" + notificationDto.id)
+            URI("/" + PathsUtil.MESSAGING_NOTIFICATION_PATH + "/" + notificationDto.id),
         )
             .body(notificationDto)
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/schedule")
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                "/schedule"
+            ),
     )
     @Throws(URISyntaxException::class)
     fun scheduleUserNotifications(
         @PathVariable projectId: String,
-        @PathVariable subjectId: String
+        @PathVariable subjectId: String,
     ): ResponseEntity<FcmNotifications> {
         return ResponseEntity.ok(
-            this.notificationService.scheduleAllUserNotifications(subjectId, projectId)
+            this.notificationService.scheduleAllUserNotifications(subjectId, projectId),
         )
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/"
-                + PathsUtil.NOTIFICATION_ID_CONSTANT
-                + "/schedule")
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                "/" +
+                PathsUtil.NOTIFICATION_ID_CONSTANT +
+                "/schedule"
+            ),
     )
     @Throws(URISyntaxException::class)
     fun scheduleUserNotification(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
-        @PathVariable notificationId: Long
+        @PathVariable notificationId: Long,
     ): ResponseEntity<FcmNotificationDto> {
         return ResponseEntity.ok(
-            this.notificationService.scheduleNotification(subjectId, projectId, notificationId)
+            this.notificationService.scheduleNotification(subjectId, projectId, notificationId),
         )
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/batch")
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                "/batch"
+            ),
     )
     fun addBatchNotifications(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
         @RequestParam(required = false, defaultValue = "true") schedule: Boolean,
-        @RequestBody @Valid notifications: FcmNotifications
+        @RequestBody @Valid notifications: FcmNotifications,
     ): ResponseEntity<FcmNotifications> {
         return ResponseEntity.ok(
-            this.notificationService.addNotifications(notifications, subjectId, projectId, schedule)
+            this.notificationService.addNotifications(notifications, subjectId, projectId, schedule),
         )
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PutMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH
+            ),
     )
     fun updateNotification(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
-        @RequestBody @Valid notification: FcmNotificationDto
+        @RequestBody @Valid notification: FcmNotificationDto,
     ): ResponseEntity<FcmNotificationDto> {
         return ResponseEntity.ok(
-            this.notificationService.updateNotification(notification, subjectId, projectId)
+            this.notificationService.updateNotification(notification, subjectId, projectId),
         )
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @DeleteMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/"
-                + PathsUtil.ALL_KEYWORD)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                "/" +
+                PathsUtil.ALL_KEYWORD
+            ),
     )
     fun deleteNotificationsForUser(
-        @PathVariable projectId: String, @PathVariable subjectId: String
+        @PathVariable projectId: String,
+        @PathVariable subjectId: String,
     ): ResponseEntity<*> {
         this.notificationService.removeNotificationsForUser(projectId, subjectId)
         return ResponseEntity.ok().build<Any?>()
@@ -260,49 +293,61 @@ class FcmNotificationController(private val notificationService: FcmNotification
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @DeleteMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/"
-                + PathsUtil.NOTIFICATION_ID_CONSTANT)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                "/" +
+                PathsUtil.NOTIFICATION_ID_CONSTANT
+            ),
     )
     fun deleteNotificationUsingProjectIdAndSubjectIdAndNotificationId(
-        @PathVariable projectId: String, @PathVariable subjectId: String, @PathVariable notificationId: Long
+        @PathVariable projectId: String,
+        @PathVariable subjectId: String,
+        @PathVariable notificationId: Long,
     ): ResponseEntity<Any> {
         this.notificationService.deleteNotificationByProjectIdAndSubjectIdAndNotificationId(
-            projectId, subjectId, notificationId
+            projectId,
+            subjectId,
+            notificationId,
         )
         return ResponseEntity.ok().build()
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @DeleteMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.MESSAGING_NOTIFICATION_PATH
-                + "/"
-                + PathsUtil.TASK_PATH
-                + "/{id}")
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.MESSAGING_NOTIFICATION_PATH +
+                "/" +
+                PathsUtil.TASK_PATH +
+                "/{id}"
+            ),
     )
     fun deleteNotificationUsingProjectIdAndSubjectIdAndTaskId(
-        @PathVariable projectId: String, @PathVariable subjectId: String, @PathVariable id: Long
+        @PathVariable projectId: String,
+        @PathVariable subjectId: String,
+        @PathVariable id: Long,
     ): ResponseEntity<Any> {
         this.notificationService.removeNotificationsForUserUsingTaskId(
-            projectId, subjectId, id
+            projectId,
+            subjectId,
+            id,
         )
         return ResponseEntity.ok().build()
     }

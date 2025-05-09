@@ -47,10 +47,12 @@ class CustomExceptionHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleConstraintViolationException(
-        ex: RuntimeException, request: WebRequest
+        ex: RuntimeException,
+        request: WebRequest,
     ): ResponseEntity<Any>? {
         val body = DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(
-            request, ErrorAttributeOptions.of(Include.STACK_TRACE)
+            request,
+            ErrorAttributeOptions.of(Include.STACK_TRACE),
         )
         body["message"] = "A Constraint was violated while Persisting. ${body["message"]}"
         body["status"] = HttpStatus.CONFLICT.value()
@@ -61,10 +63,11 @@ class CustomExceptionHandler : ResponseEntityExceptionHandler() {
         ex: MethodArgumentNotValidException,
         headers: HttpHeaders,
         status: HttpStatusCode,
-        request: WebRequest
+        request: WebRequest,
     ): ResponseEntity<Any>? {
         val body = DEFAULT_ERROR_ATTRIBUTES.getErrorAttributes(
-            request, ErrorAttributeOptions.of(Include.STACK_TRACE)
+            request,
+            ErrorAttributeOptions.of(Include.STACK_TRACE),
         )
         body["status"] = status
         return handleExceptionInternal(ex, body, headers, status, request)

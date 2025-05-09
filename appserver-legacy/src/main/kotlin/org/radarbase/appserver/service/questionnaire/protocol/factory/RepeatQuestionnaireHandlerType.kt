@@ -25,5 +25,5 @@ enum class RepeatQuestionnaireHandlerType {
     SIMPLE,
     DAYOFWEEKMAP,
     RANDOM,
-    OTHER
+    OTHER,
 }

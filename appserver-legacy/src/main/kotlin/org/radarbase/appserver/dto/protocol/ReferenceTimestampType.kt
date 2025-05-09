@@ -16,5 +16,5 @@ enum class ReferenceTimestampType {
     NOW,
 
     @JsonProperty("today")
-    TODAY
+    TODAY,
 }

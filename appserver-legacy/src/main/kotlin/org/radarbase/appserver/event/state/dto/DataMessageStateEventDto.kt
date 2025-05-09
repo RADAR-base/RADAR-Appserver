@@ -39,7 +39,7 @@ class DataMessageStateEventDto(
     val dataMessage: DataMessage,
     state: MessageState,
     additionalInfo: Map<String, String>?,
-    time: Instant
+    time: Instant,
 ) : MessageStateEventDto(source, state, additionalInfo, time) {
 
     override fun toString(): String {

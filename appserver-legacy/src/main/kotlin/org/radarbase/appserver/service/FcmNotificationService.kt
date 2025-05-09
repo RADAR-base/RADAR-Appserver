@@ -60,7 +60,7 @@ class FcmNotificationService(
     private val projectRepository: ProjectRepository,
     private val schedulerService: MessageSchedulerService<Notification>,
     private val notificationConverter: NotificationMapper,
-    private val notificationStateEventPublisher: ApplicationEventPublisher?
+    private val notificationStateEventPublisher: ApplicationEventPublisher?,
 ) : NotificationService {
 
     // TODO Add option to specify a scheduling provider (default will be fcm)
@@ -92,7 +92,8 @@ class FcmNotificationService(
 
     @Transactional(readOnly = true)
     fun getNotificationsByProjectIdAndSubjectId(
-        projectId: String?, subjectId: String?
+        projectId: String?,
+        subjectId: String?,
     ): FcmNotifications {
         return subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(user.id)
@@ -142,12 +143,15 @@ class FcmNotificationService(
         ttlSeconds: Int,
         startTime: LocalDateTime?,
         endTime: LocalDateTime?,
-        limit: Int
+        limit: Int,
     ): FcmNotifications? = null
 
     @Transactional
     fun addNotification(
-        notificationDto: FcmNotificationDto, subjectId: String?, projectId: String?, schedule: Boolean
+        notificationDto: FcmNotificationDto,
+        subjectId: String?,
+        projectId: String?,
+        schedule: Boolean,
     ): FcmNotificationDto {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notification: Notification? = notificationRepository
@@ -158,17 +162,19 @@ class FcmNotificationService(
                 notificationDto.title,
                 notificationDto.body,
                 notificationDto.type,
-                notificationDto.ttlSeconds
+                notificationDto.ttlSeconds,
             )
 
         if (notification == null) {
             val notificationSaved = this.notificationRepository.saveAndFlush(
-                NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build()
+                NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build(),
             )
             user.usermetrics!!.lastOpened = Instant.now()
             this.userRepository.save(user)
             addNotificationStateEvent(
-                notificationSaved, MessageState.ADDED, notificationSaved.createdAt!!.toInstant()
+                notificationSaved,
+                MessageState.ADDED,
+                notificationSaved.createdAt!!.toInstant(),
             )
             if (schedule) {
                 this.schedulerService.schedule(notificationSaved)
@@ -177,14 +183,16 @@ class FcmNotificationService(
         } else {
             throw NotificationAlreadyExistsException(
                 "The Notification Already exists. Please Use update endpoint",
-                notificationConverter.entityToDto(notification)
+                notificationConverter.entityToDto(notification),
             )
         }
     }
 
     @Transactional
     fun addNotification(
-        notificationDto: FcmNotificationDto, subjectId: String?, projectId: String?
+        notificationDto: FcmNotificationDto,
+        subjectId: String?,
+        projectId: String?,
     ): FcmNotificationDto {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notification: Notification? = notificationRepository
@@ -195,30 +203,34 @@ class FcmNotificationService(
                 notificationDto.title,
                 notificationDto.body,
                 notificationDto.type,
-                notificationDto.ttlSeconds
+                notificationDto.ttlSeconds,
             )
 
         if (notification == null) {
             val notificationSaved = this.notificationRepository.saveAndFlush<Notification>(
-                NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build()
+                NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build(),
             )
             user.usermetrics!!.lastOpened = Instant.now()
             this.userRepository.save(user)
             addNotificationStateEvent(
-                notificationSaved, MessageState.ADDED, notificationSaved.createdAt!!.toInstant()
+                notificationSaved,
+                MessageState.ADDED,
+                notificationSaved.createdAt!!.toInstant(),
             )
             this.schedulerService.schedule(notificationSaved)
             return notificationConverter.entityToDto(notificationSaved)
         } else {
             throw NotificationAlreadyExistsException(
                 "The Notification Already exists. Please Use update endpoint",
-                notificationConverter.entityToDto(notification)
+                notificationConverter.entityToDto(notification),
             )
         }
     }
 
     private fun addNotificationStateEvent(
-        notification: Notification, state: MessageState, time: Instant
+        notification: Notification,
+        state: MessageState,
+        time: Instant,
     ) {
         if (notificationStateEventPublisher != null) {
             val notificationStateEvent =
@@ -229,7 +241,9 @@ class FcmNotificationService(
 
     @Transactional
     fun updateNotification(
-        notificationDto: FcmNotificationDto, subjectId: String?, projectId: String?
+        notificationDto: FcmNotificationDto,
+        subjectId: String?,
+        projectId: String?,
     ): FcmNotificationDto {
         val notificationId = notificationDto.id
 
@@ -256,7 +270,9 @@ class FcmNotificationService(
         val notificationSaved = this.notificationRepository.saveAndFlush<Notification>(newNotification)
 
         addNotificationStateEvent(
-            notificationSaved, MessageState.UPDATED, notificationSaved.updatedAt!!.toInstant()
+            notificationSaved,
+            MessageState.UPDATED,
+            notificationSaved.updatedAt!!.toInstant(),
         )
         if (!notification.delivered) {
             this.schedulerService.updateScheduled(notificationSaved)
@@ -303,7 +319,7 @@ class FcmNotificationService(
             { notification == null },
             {
                 "Notification with the provided FCM message ID does not exist."
-            }
+            },
         )
         val newNotif = NotificationBuilder(notification).delivered(isDelivered).build()
         this.notificationRepository.save<Notification?>(newNotif)
@@ -317,12 +333,14 @@ class FcmNotificationService(
 
         if (this.notificationRepository.existsByIdAndUserId(id, userId)) {
             this.schedulerService.deleteScheduled(
-                this.notificationRepository.findByIdAndUserId(id, userId!!)!!
+                this.notificationRepository.findByIdAndUserId(id, userId!!)!!,
             )
             this.notificationRepository.deleteByIdAndUserId(id, userId)
-        } else throw InvalidNotificationDetailsException(
-            "Notification with the provided ID does not exist."
-        )
+        } else {
+            throw InvalidNotificationDetailsException(
+                "Notification with the provided ID does not exist.",
+            )
+        }
     }
 
     @Transactional
@@ -341,12 +359,11 @@ class FcmNotificationService(
 
         checkInvalidDetails<InvalidUserDetailsException>(
             { user == null },
-            { "The user with the given Fcm Token does not exist" }
+            { "The user with the given Fcm Token does not exist" },
         )
 
-
         this.schedulerService.deleteScheduledMultiple(
-            this.notificationRepository.findByUserId(user!!.id)
+            this.notificationRepository.findByUserId(user!!.id),
         )
 
         this.notificationRepository.deleteByUserId(user.id)
@@ -364,9 +381,11 @@ class FcmNotificationService(
 
     @Transactional
     fun addNotifications(
-        notificationDtos: FcmNotifications, subjectId: String?, projectId: String?, schedule: Boolean
+        notificationDtos: FcmNotifications,
+        subjectId: String?,
+        projectId: String?,
+        schedule: Boolean,
     ): FcmNotifications {
-
         val newNotifications: List<Notification> = subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(user.id).let { notifications ->
                 notificationDtos.notifications.map { dto: FcmNotificationDto ->
@@ -385,7 +404,7 @@ class FcmNotificationService(
             addNotificationStateEvent(
                 n,
                 MessageState.ADDED,
-                n.createdAt!!.toInstant()
+                n.createdAt!!.toInstant(),
             )
         }
 
@@ -408,7 +427,7 @@ class FcmNotificationService(
                     notification.title,
                     notification.body,
                     notification.type,
-                    notification.ttlSeconds
+                    notification.ttlSeconds,
                 ) == null
         }
 
@@ -417,7 +436,7 @@ class FcmNotificationService(
             addNotificationStateEvent(
                 n!!,
                 MessageState.ADDED,
-                n.createdAt!!.toInstant()
+                n.createdAt!!.toInstant(),
             )
         }
         this.schedulerService.scheduleMultiple(savedNotifications)
@@ -426,9 +445,10 @@ class FcmNotificationService(
 
     @Transactional
     fun addNotifications(
-        notificationDtos: FcmNotifications, subjectId: String?, projectId: String?
+        notificationDtos: FcmNotifications,
+        subjectId: String?,
+        projectId: String?,
     ): FcmNotifications {
-
         val newNotifications: List<Notification> = subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(user.id).let { notifications ->
                 notificationDtos.notifications.map { dto: FcmNotificationDto ->
@@ -447,7 +467,7 @@ class FcmNotificationService(
             addNotificationStateEvent(
                 n,
                 MessageState.ADDED,
-                n.createdAt!!.toInstant()
+                n.createdAt!!.toInstant(),
             )
         }
 
@@ -468,7 +488,9 @@ class FcmNotificationService(
 
     @Transactional(readOnly = true)
     fun getNotificationByProjectIdAndSubjectIdAndNotificationId(
-        projectId: String?, subjectId: String?, notificationId: Long
+        projectId: String?,
+        subjectId: String?,
+        notificationId: Long,
     ): Notification {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 

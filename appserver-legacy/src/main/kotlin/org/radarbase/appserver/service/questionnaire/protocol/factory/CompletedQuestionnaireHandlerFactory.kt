@@ -24,7 +24,6 @@ import org.radarbase.appserver.entity.Task
 import org.radarbase.appserver.service.questionnaire.protocol.CompletedQuestionnaireHandler
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
 
-
 object CompletedQuestionnaireHandlerFactory {
     fun getCompletedQuestionnaireHandler(prevTasks: List<Task>, prevTimezone: String): ProtocolHandler {
         return CompletedQuestionnaireHandler(prevTasks, prevTimezone)

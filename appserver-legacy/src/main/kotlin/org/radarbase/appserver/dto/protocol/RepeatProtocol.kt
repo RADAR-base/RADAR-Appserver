@@ -30,7 +30,7 @@ data class RepeatProtocol(
     var unit: String? = null,
     var amount: Int? = null,
     var randomAmountBetween: Array<Int>? = null,
-    var dayOfWeek: String? = null
+    var dayOfWeek: String? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {

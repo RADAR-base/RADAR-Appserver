@@ -30,7 +30,15 @@ import org.radarbase.appserver.service.QuestionnaireScheduleService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import radar.spring.auth.common.Authorized
 import java.net.URI
 import java.net.URISyntaxException
@@ -41,74 +49,79 @@ import java.util.*
 @RestController
 class QuestionnaireScheduleEndpoint @Autowired constructor(@field:Transient @field:Autowired private val scheduleService: QuestionnaireScheduleService) {
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH
+            ),
     )
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)
     @Throws(URISyntaxException::class)
     fun generateScheduleUsingProjectIdAndSubjectId(
         @PathVariable @Valid projectId: String,
-        @PathVariable @Valid subjectId: String
+        @PathVariable @Valid subjectId: String,
     ): ResponseEntity<Any> {
         this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, subjectId)
         return ResponseEntity.created(
-            URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")
+            URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/"),
         ).build()
     }
 
     @PutMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH
+            ),
     )
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)
     @Throws(URISyntaxException::class)
     fun generateScheduleUsingProtocol(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
-        @RequestBody assessment: @Valid Assessment
+        @RequestBody assessment: @Valid Assessment,
     ): ResponseEntity<Any> {
         return try {
             this.scheduleService.generateScheduleUsingProjectIdAndSubjectIdAndAssessment(
                 projectId,
                 subjectId,
-                assessment
+                assessment,
             )
             ResponseEntity.created(
-                URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/")
+                URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/"),
             ).build()
         } catch (e: URISyntaxException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
         }
     }
 
-
     @GetMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH
+            ),
     )
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT)
     fun getScheduleUsingProjectIdAndSubjectId(
@@ -117,7 +130,7 @@ class QuestionnaireScheduleEndpoint @Autowired constructor(@field:Transient @fie
         @RequestParam(required = false, defaultValue = "all") type: String,
         @RequestParam(required = false, defaultValue = "") search: String,
         @RequestParam(required = false) startTime: Instant? = null,
-        @RequestParam(required = false) endTime: Instant? = null
+        @RequestParam(required = false) endTime: Instant? = null,
     ): List<Task> {
         val assessmentType = AssessmentType.valueOf(type.uppercase(Locale.getDefault()))
         // TODO: Use search instead of startTime and endTime
@@ -126,7 +139,7 @@ class QuestionnaireScheduleEndpoint @Autowired constructor(@field:Transient @fie
                 projectId,
                 subjectId,
                 startTime,
-                endTime
+                endTime,
             )
         }
 
@@ -135,30 +148,32 @@ class QuestionnaireScheduleEndpoint @Autowired constructor(@field:Transient @fie
                 projectId,
                 subjectId,
                 assessmentType,
-                search
+                search,
             )
         }
         return this.scheduleService.getTasksUsingProjectIdAndSubjectId(projectId, subjectId)
     }
 
     @DeleteMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH
+            ),
     )
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)
     fun deleteScheduleForUser(
         @PathVariable projectId: String,
         @PathVariable subjectId: String,
         @RequestParam(required = false, defaultValue = "all") type: String,
-        @RequestParam(required = false, defaultValue = "") search: String
+        @RequestParam(required = false, defaultValue = "") search: String,
     ): ResponseEntity<Any> {
         val assessmentType = AssessmentType.valueOf(type.uppercase(Locale.getDefault()))
         this.scheduleService.removeScheduleForUserUsingSubjectIdAndType(projectId, subjectId, assessmentType, search)

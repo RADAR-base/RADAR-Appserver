@@ -55,7 +55,7 @@ class QuestionnaireScheduleService(
     private val scheduleGeneratorService: QuestionnaireScheduleGeneratorService,
     private val projectRepository: ProjectRepository,
     private val taskService: TaskService,
-    private val notificationService: FcmNotificationService
+    private val notificationService: FcmNotificationService,
 ) {
     private val subjectScheduleMap: MutableMap<String?, Schedule> = hashMapOf()
 
@@ -69,7 +69,7 @@ class QuestionnaireScheduleService(
         projectId: String?,
         subjectId: String?,
         type: AssessmentType?,
-        search: String?
+        search: String?,
     ): List<Task> {
         getSearchBuilder(projectId, subjectId, type, search).build().also { spec ->
             return this.taskService.getTasksBySpecification(spec)
@@ -89,7 +89,7 @@ class QuestionnaireScheduleService(
         subjectId: String?,
         projectId: String?,
         startTime: Instant?,
-        endTime: Instant?
+        endTime: Instant?,
     ): List<Task> {
         val user: User = subjectAndProjectExistsElseThrow(subjectId, projectId)
         val tasks: MutableList<Task> = this.getTasksForUser(user).toMutableList()
@@ -152,15 +152,14 @@ class QuestionnaireScheduleService(
     fun generateScheduleUsingProjectIdAndSubjectIdAndAssessment(
         projectId: String,
         subjectId: String,
-        assessment: Assessment
+        assessment: Assessment,
     ): Schedule {
-
         val user: User = subjectAndProjectExistsElseThrow(subjectId, projectId)
         val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
 
         checkInvalidDetails<NotFoundException>(
-            {  protocol == null || !protocol.hasAssessment(assessment.name) },
-            { "Assessment not found in protocol. Add assessment to protocol first" }
+            { protocol == null || !protocol.hasAssessment(assessment.name) },
+            { "Assessment not found in protocol. Add assessment to protocol first" },
         )
 
         val userTimeZone = user.timezone
@@ -171,7 +170,7 @@ class QuestionnaireScheduleService(
             assessment,
             user,
             emptyList(),
-            userTimeZone
+            userTimeZone,
         )
 
         schedule.addAssessmentSchedule(assessmentSchedule)
@@ -223,7 +222,7 @@ class QuestionnaireScheduleService(
         projectId: String?,
         subjectId: String?,
         type: AssessmentType?,
-        search: String?
+        search: String?,
     ): TaskSpecificationsBuilder {
         val builder = TaskSpecificationsBuilder()
 

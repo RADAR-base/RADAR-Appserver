@@ -20,7 +20,6 @@
  */
 package org.radarbase.appserver.repository
 
-import jakarta.validation.constraints.NotNull
 import org.radarbase.appserver.entity.Notification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -51,7 +50,7 @@ interface NotificationRepository : JpaRepository<Notification, Long> {
         title: String?,
         body: String?,
         type: String?,
-        ttlSeconds: Int
+        ttlSeconds: Int,
     ): Boolean
 
     fun findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
@@ -61,7 +60,7 @@ interface NotificationRepository : JpaRepository<Notification, Long> {
         title: String?,
         body: String?,
         type: String?,
-        ttlSeconds: Int
+        ttlSeconds: Int,
     ): Notification?
 
     fun existsByIdAndUserId(id: Long?, userId: Long?): Boolean

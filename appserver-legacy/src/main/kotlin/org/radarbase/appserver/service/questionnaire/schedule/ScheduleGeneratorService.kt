@@ -44,7 +44,7 @@ interface ScheduleGeneratorService {
     fun getCompletedQuestionnaireHandler(
         assessment: Assessment,
         prevTasks: List<Task>,
-        prevTimezone: String
+        prevTimezone: String,
     ): ProtocolHandler?
 
     fun generateScheduleForUser(user: User, protocol: Protocol, prevSchedule: Schedule): Schedule {
@@ -65,7 +65,7 @@ interface ScheduleGeneratorService {
         assessment: Assessment,
         user: User,
         previousTasks: List<Task>,
-        prevTimezone: String
+        prevTimezone: String,
     ): AssessmentSchedule {
         val protocolHandlerRunner = ProtocolHandlerRunner().apply {
             addProtocolHandler(getProtocolHandler(assessment))
@@ -74,7 +74,7 @@ interface ScheduleGeneratorService {
             addProtocolHandler(getNotificationHandler(assessment))
             addProtocolHandler(getReminderHandler(assessment))
             addProtocolHandler(
-                getCompletedQuestionnaireHandler(assessment, previousTasks, prevTimezone)
+                getCompletedQuestionnaireHandler(assessment, previousTasks, prevTimezone),
             )
         }
         return protocolHandlerRunner.runProtocolHandlers(assessment, user)

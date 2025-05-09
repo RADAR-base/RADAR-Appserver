@@ -21,5 +21,5 @@
 package org.radarbase.appserver.auth.common
 
 interface OAuthHelper {
-    fun  getAccessToken(): String
+    fun getAccessToken(): String
 }

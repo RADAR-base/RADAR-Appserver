@@ -40,7 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    classes = [GithubProtocolFetcherStrategy::class, DefaultProtocolGenerator::class]
+    classes = [GithubProtocolFetcherStrategy::class, DefaultProtocolGenerator::class],
 )
 class DefaultProtocolGeneratorTest {
 
@@ -106,4 +106,3 @@ class DefaultProtocolGeneratorTest {
         assertEquals("PHQ8", protocol?.protocols?.first()?.name)
     }
 }
-

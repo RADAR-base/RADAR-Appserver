@@ -40,7 +40,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.sql.SQLIntegrityConstraintViolationException
 import java.time.Instant
 
-
 @ExtendWith(SpringExtension::class)
 @DataJpaTest
 @EnableJpaAuditing
@@ -63,7 +62,7 @@ class UserRepositoryTest {
 
         val user = User(
             null, USER_ID, null, FCM_TOKEN_1, project,
-            Instant.now(), null, TIMEZONE, "en", null
+            Instant.now(), null, TIMEZONE, "en", null,
         )
 
         this.userId = entityManager.persistAndGetId(user) as Long
@@ -74,7 +73,7 @@ class UserRepositoryTest {
     fun `when insert with transient project then throw exception`() {
         val user1 = User(
             null, USER_ID, null, FCM_TOKEN_1, Project(),
-            Instant.now(), null, TIMEZONE, "en", null
+            Instant.now(), null, TIMEZONE, "en", null,
         )
 
         val ex = assertThrows<IllegalStateException> {
@@ -99,7 +98,7 @@ class UserRepositoryTest {
     fun `when find by subject id and project id then return user`() {
         assertEquals(
             userRepository.findBySubjectIdAndProjectId(USER_ID, this.projectId!!),
-            entityManager.find(User::class.java, this.userId)
+            entityManager.find(User::class.java, this.userId),
         )
     }
 
@@ -112,7 +111,7 @@ class UserRepositoryTest {
     fun `when insert with existing FCM token then throw exception`() {
         val user1 = User(
             null, "$USER_ID-2", null, FCM_TOKEN_1, this.project,
-            Instant.now(), null, TIMEZONE, "en", null
+            Instant.now(), null, TIMEZONE, "en", null,
         )
 
         val ex = assertThrows<PersistenceException> {
@@ -123,4 +122,3 @@ class UserRepositoryTest {
         assertEquals(SQLIntegrityConstraintViolationException::class.java, ex.cause!!::class.java)
     }
 }
-

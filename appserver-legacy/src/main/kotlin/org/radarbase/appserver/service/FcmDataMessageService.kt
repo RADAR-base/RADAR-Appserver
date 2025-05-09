@@ -59,7 +59,7 @@ class FcmDataMessageService(
     private val projectRepository: ProjectRepository,
     private val schedulerService: MessageSchedulerService<DataMessage>,
     private val dataMessageConverter: DataMessageMapper,
-    private val dataMessageStateEventPublisher: ApplicationEventPublisher?
+    private val dataMessageStateEventPublisher: ApplicationEventPublisher?,
 ) : DataMessageService {
 
     // TODO Add option to specify a scheduling provider (default will be fcm)
@@ -92,7 +92,8 @@ class FcmDataMessageService(
 
     @Transactional(readOnly = true)
     fun getDataMessagesByProjectIdAndSubjectId(
-        projectId: String, subjectId: String
+        projectId: String,
+        subjectId: String,
     ): FcmDataMessages {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 
@@ -137,12 +138,14 @@ class FcmDataMessageService(
         ttlSeconds: Int,
         startTime: LocalDateTime?,
         endTime: LocalDateTime?,
-        limit: Int
+        limit: Int,
     ): FcmDataMessages? = null
 
     @Transactional
     fun addDataMessage(
-        dataMessageDto: FcmDataMessageDto, subjectId: String?, projectId: String?
+        dataMessageDto: FcmDataMessageDto,
+        subjectId: String?,
+        projectId: String?,
     ): FcmDataMessageDto {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         if (!dataMessageRepository
@@ -150,29 +153,34 @@ class FcmDataMessageService(
                     user.id,
                     dataMessageDto.sourceId,
                     dataMessageDto.scheduledTime,
-                    dataMessageDto.ttlSeconds
+                    dataMessageDto.ttlSeconds,
                 )
         ) {
             val dataMessageSaved =
                 this.dataMessageRepository.saveAndFlush(
-                    DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build()
+                    DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build(),
                 )
             user.usermetrics!!.lastOpened = Instant.now()
             this.userRepository.save(user)
             addDataMessageStateEvent(
-                dataMessageSaved, MessageState.ADDED, dataMessageSaved.createdAt!!.toInstant()
+                dataMessageSaved,
+                MessageState.ADDED,
+                dataMessageSaved.createdAt!!.toInstant(),
             )
             this.schedulerService.schedule(dataMessageSaved)
             return dataMessageConverter.entityToDto(dataMessageSaved)
         } else {
             throw AlreadyExistsException(
-                "The Data Message Already exists. Please Use update endpoint", dataMessageDto
+                "The Data Message Already exists. Please Use update endpoint",
+                dataMessageDto,
             )
         }
     }
 
     private fun addDataMessageStateEvent(
-        dataMessage: DataMessage, state: MessageState, time: Instant
+        dataMessage: DataMessage,
+        state: MessageState,
+        time: Instant,
     ) {
         if (dataMessageStateEventPublisher != null) {
             val dataMessageStateEvent =
@@ -183,7 +191,9 @@ class FcmDataMessageService(
 
     @Transactional
     fun updateDataMessage(
-        dataMessageDto: FcmDataMessageDto, subjectId: String, projectId: String
+        dataMessageDto: FcmDataMessageDto,
+        subjectId: String,
+        projectId: String,
     ): FcmDataMessageDto {
         checkInvalidDetails<InvalidNotificationDetailsException> ({
             dataMessageDto.id == null
@@ -210,7 +220,9 @@ class FcmDataMessageService(
 
         val dataMessageSaved = this.dataMessageRepository.saveAndFlush(newDataMessage)
         addDataMessageStateEvent(
-            dataMessageSaved, MessageState.UPDATED, dataMessageSaved.updatedAt!!.toInstant()
+            dataMessageSaved,
+            MessageState.UPDATED,
+            dataMessageSaved.updatedAt!!.toInstant(),
         )
         if (!dataMessage.delivered) {
             this.schedulerService.updateScheduled(dataMessageSaved)
@@ -240,7 +252,6 @@ class FcmDataMessageService(
 
         val newDataMessage = DataMessageBuilder(dataMessage).delivered(isDelivered).build()
         this.dataMessageRepository.save<DataMessage?>(newDataMessage)
-
     }
 
     // TODO: Investigate if data messages/notifications can be marked in the state CANCELLED when deleted.
@@ -251,11 +262,11 @@ class FcmDataMessageService(
         if (this.dataMessageRepository.existsByIdAndUserId(id, user.id)) {
             this.dataMessageRepository.deleteByIdAndUserId(
                 id,
-                user.id
+                user.id,
             )
         } else {
             throw InvalidNotificationDetailsException(
-                "Data message with the provided ID does not exist."
+                "Data message with the provided ID does not exist.",
             )
         }
     }
@@ -275,7 +286,9 @@ class FcmDataMessageService(
 
     @Transactional
     fun addDataMessages(
-        dataMessageDtos: FcmDataMessages, subjectId: String, projectId: String
+        dataMessageDtos: FcmDataMessages,
+        subjectId: String,
+        projectId: String,
     ): FcmDataMessages {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val dataMessages = dataMessageRepository.findByUserId(user.id)
@@ -288,13 +301,13 @@ class FcmDataMessageService(
         val savedDataMessages: List<DataMessage> = this.dataMessageRepository.saveAll(newDataMessages)
         this.dataMessageRepository.flush()
 
-        savedDataMessages.forEach{ dm ->
-                addDataMessageStateEvent(
-                    dm,
-                    MessageState.ADDED,
-                    dm.createdAt!!.toInstant()
-                )
-            }
+        savedDataMessages.forEach { dm ->
+            addDataMessageStateEvent(
+                dm,
+                MessageState.ADDED,
+                dm.createdAt!!.toInstant(),
+            )
+        }
 
         this.schedulerService.scheduleMultiple(savedDataMessages)
         return FcmDataMessages()
@@ -305,7 +318,7 @@ class FcmDataMessageService(
         val project = this.projectRepository.findByProjectId(projectId)
         if (project == null || project.id == null) {
             throw NotFoundException(
-                "Project Id does not exist. Please create a project with the ID first"
+                "Project Id does not exist. Please create a project with the ID first",
             )
         }
 
@@ -319,7 +332,9 @@ class FcmDataMessageService(
 
     @Transactional(readOnly = true)
     fun getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-        projectId: String?, subjectId: String?, dataMessageId: Long
+        projectId: String?,
+        subjectId: String?,
+        dataMessageId: Long,
     ): DataMessage {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 

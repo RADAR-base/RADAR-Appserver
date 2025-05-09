@@ -46,7 +46,7 @@ class ProjectEndpointAuthTest {
 
     @Test
     fun unauthorisedCreateProject() {
-        val projectDto = ProjectDto( projectId = "radar")
+        val projectDto = ProjectDto(projectId = "radar")
         val projectEntity = HttpEntity<ProjectDto?>(projectDto, HEADERS)
 
         var responseEntity: ResponseEntity<ProjectDto>? = null
@@ -56,7 +56,7 @@ class ProjectEndpointAuthTest {
                     createURLWithPort(port, PROJECT_PATH),
                     HttpMethod.POST,
                     projectEntity,
-                    ProjectDto::class.java
+                    ProjectDto::class.java,
                 )
 
             assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.statusCode)
@@ -71,7 +71,10 @@ class ProjectEndpointAuthTest {
 
         val responseEntity: ResponseEntity<String> =
             restTemplate.exchange<String>(
-                createURLWithPort(port, PROJECT_PATH), HttpMethod.GET, projectEntity, String::class.java
+                createURLWithPort(port, PROJECT_PATH),
+                HttpMethod.GET,
+                projectEntity,
+                String::class.java,
             )
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.statusCode)
     }
@@ -85,7 +88,7 @@ class ProjectEndpointAuthTest {
                 createURLWithPort(port, "/projects/radar"),
                 HttpMethod.GET,
                 projectEntity,
-                ProjectDto::class.java
+                ProjectDto::class.java,
             )
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.statusCode)
     }
@@ -96,7 +99,10 @@ class ProjectEndpointAuthTest {
 
         val responseEntity: ResponseEntity<String> =
             restTemplate.exchange<String>(
-                createURLWithPort(port, PROJECT_PATH), HttpMethod.GET, projectEntity, String::class.java
+                createURLWithPort(port, PROJECT_PATH),
+                HttpMethod.GET,
+                projectEntity,
+                String::class.java,
             )
 
         // Only Admins can view the list of all projects
@@ -114,7 +120,7 @@ class ProjectEndpointAuthTest {
                 createURLWithPort(port, PROJECT_PATH),
                 HttpMethod.POST,
                 projectEntity,
-                ProjectDto::class.java
+                ProjectDto::class.java,
             )
 
         if (responseEntity.statusCode == HttpStatus.EXPECTATION_FAILED) {
@@ -128,42 +134,42 @@ class ProjectEndpointAuthTest {
     @Order(2)
     @Test
     fun getSingleProjectWithAuth() {
-            val projectEntity = HttpEntity<Nothing>(AUTH_HEADER)
+        val projectEntity = HttpEntity<Nothing>(AUTH_HEADER)
 
-            val responseEntity: ResponseEntity<ProjectDto> =
-                restTemplate.exchange<ProjectDto>(
-                    createURLWithPort(port, "/projects/radar"),
-                    HttpMethod.GET,
-                    projectEntity,
-                    ProjectDto::class.java
-                )
-
-            assertEquals(
-                HttpStatus.OK,
-                responseEntity.statusCode
+        val responseEntity: ResponseEntity<ProjectDto> =
+            restTemplate.exchange<ProjectDto>(
+                createURLWithPort(port, "/projects/radar"),
+                HttpMethod.GET,
+                projectEntity,
+                ProjectDto::class.java,
             )
-        }
+
+        assertEquals(
+            HttpStatus.OK,
+            responseEntity.statusCode,
+        )
+    }
 
     @Order(3)
     @Test
     fun getForbiddenProjectWithAuth() {
-            val projectEntity =
-                HttpEntity<ProjectDto?>(null, AUTH_HEADER)
+        val projectEntity =
+            HttpEntity<ProjectDto?>(null, AUTH_HEADER)
 
-            val responseEntity: ResponseEntity<ProjectDto?> =
-                restTemplate.exchange<ProjectDto?>(
-                    createURLWithPort(port, "/projects/test"),
-                    HttpMethod.GET,
-                    projectEntity,
-                    ProjectDto::class.java
-                )
+        val responseEntity: ResponseEntity<ProjectDto?> =
+            restTemplate.exchange<ProjectDto?>(
+                createURLWithPort(port, "/projects/test"),
+                HttpMethod.GET,
+                projectEntity,
+                ProjectDto::class.java,
+            )
 
-            // Access denied as the user has only access to the project that it is part of.
+        // Access denied as the user has only access to the project that it is part of.
         assertEquals(
             HttpStatus.FORBIDDEN,
-            responseEntity.statusCode
+            responseEntity.statusCode,
         )
-        }
+    }
 
     companion object {
         const val PROJECT_PATH: String = "/projects"

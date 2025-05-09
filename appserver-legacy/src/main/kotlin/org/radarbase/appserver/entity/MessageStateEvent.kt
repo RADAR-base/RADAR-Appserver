@@ -20,7 +20,10 @@
  */
 package org.radarbase.appserver.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.MappedSuperclass
 import jakarta.validation.constraints.NotNull
 import org.radarbase.appserver.event.state.MessageState
 import java.io.Serial
@@ -42,7 +45,7 @@ class MessageStateEvent(
     @Column(name = "associated_info", length = 1250)
     var associatedInfo: String? = null,
 
-    ) : Serializable {
+) : Serializable {
 
     companion object {
         @Serial

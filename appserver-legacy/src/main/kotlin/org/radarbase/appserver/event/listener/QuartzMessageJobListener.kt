@@ -40,7 +40,7 @@ import java.time.Instant
 class QuartzMessageJobListener(
     @Transient private val messageStateEventPublisher: ApplicationEventPublisher,
     @Transient private val notificationRepository: NotificationRepository,
-    @Transient private val dataMessageRepository: DataMessageRepository
+    @Transient private val dataMessageRepository: DataMessageRepository,
 ) : JobListener {
     /**
      * Get the name of the `JobListener`.
@@ -100,7 +100,11 @@ class QuartzMessageJobListener(
                     additionalInfo.put("error_description", jobException.toString())
                     val notificationStateEventError =
                         NotificationStateEventDto(
-                            this, notification, MessageState.ERRORED, additionalInfo, Instant.now()
+                            this,
+                            notification,
+                            MessageState.ERRORED,
+                            additionalInfo,
+                            Instant.now(),
                         )
                     messageStateEventPublisher.publishEvent(notificationStateEventError)
 
@@ -110,7 +114,11 @@ class QuartzMessageJobListener(
 
                 val notificationStateEvent =
                     NotificationStateEventDto(
-                        this, notification, MessageState.EXECUTED, null, Instant.now()
+                        this,
+                        notification,
+                        MessageState.EXECUTED,
+                        null,
+                        Instant.now(),
                     )
                 messageStateEventPublisher.publishEvent(notificationStateEvent)
             }
@@ -127,8 +135,12 @@ class QuartzMessageJobListener(
                     additionalInfo.put("error", jobException.message!!)
                     additionalInfo.put("error_description", jobException.toString())
                     val dataMessageStateEventError = DataMessageStateEventDto(
-                            this, dataMessage, MessageState.ERRORED, additionalInfo, Instant.now()
-                        )
+                        this,
+                        dataMessage,
+                        MessageState.ERRORED,
+                        additionalInfo,
+                        Instant.now(),
+                    )
                     messageStateEventPublisher.publishEvent(dataMessageStateEventError)
 
                     log.warn("The job could not be executed.", jobException)
@@ -137,7 +149,11 @@ class QuartzMessageJobListener(
 
                 val dataMessageStateEvent =
                     DataMessageStateEventDto(
-                        this, dataMessage, MessageState.EXECUTED, null, Instant.now()
+                        this,
+                        dataMessage,
+                        MessageState.EXECUTED,
+                        null,
+                        Instant.now(),
                     )
                 messageStateEventPublisher.publishEvent(dataMessageStateEvent)
             }

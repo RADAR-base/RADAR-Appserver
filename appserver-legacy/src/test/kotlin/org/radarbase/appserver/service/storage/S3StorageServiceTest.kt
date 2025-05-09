@@ -20,7 +20,7 @@ package org.radarbase.appserver.service.storage
 
 import io.minio.MinioClient
 import io.minio.PutObjectArgs
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -29,6 +29,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import org.radarbase.appserver.config.S3StorageProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -37,7 +38,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.web.multipart.MultipartFile
-import org.mockito.Mockito.verify
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(
@@ -46,8 +46,8 @@ import org.mockito.Mockito.verify
         "radar.file-upload.enabled=true",
         "radar.storage.type=s3",
         "radar.storage.s3.bucket-name=my-bucket",
-        "radar.storage.s3.path.prefix=my-sub-path"
-    ]
+        "radar.storage.s3.path.prefix=my-sub-path",
+    ],
 )
 @EnableConfigurationProperties(S3StorageProperties::class)
 class S3StorageServiceTest {
@@ -62,7 +62,10 @@ class S3StorageServiceTest {
     private lateinit var minioClient: MinioClient
 
     private val multipartFile = MockMultipartFile(
-        "file", "my-file.txt", "text/plain", "my-file-content".toByteArray()
+        "file",
+        "my-file.txt",
+        "text/plain",
+        "my-file-content".toByteArray(),
     )
 
     companion object {

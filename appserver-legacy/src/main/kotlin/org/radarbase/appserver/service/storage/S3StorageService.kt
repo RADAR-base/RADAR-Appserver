@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile
 @ConditionalOnExpression("\${radar.file-upload.enabled:false} && 's3' == '\${radar.storage.type:}'")
 class S3StorageService @Autowired constructor(
     private val s3StorageProperties: S3StorageProperties,
-    private val bucketClient: MinioClientInitializer
+    private val bucketClient: MinioClientInitializer,
 ) : StorageService {
 
     override fun store(file: MultipartFile?, projectId: String?, subjectId: String?, topicId: String?): String {
@@ -55,7 +55,7 @@ class S3StorageService @Autowired constructor(
                     .bucket(bucketClient.bucketNameOrThrow)
                     .`object`(filePath.pathInBucket)
                     .stream(file.inputStream, file.size, -1)
-                    .build()
+                    .build(),
             )
 
             return filePath.pathInBucket

@@ -21,8 +21,8 @@
 
 package org.radarbase.appserver.exception
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.radarbase.appserver.dto.fcm.FcmNotificationDto
 import java.io.Serial
 

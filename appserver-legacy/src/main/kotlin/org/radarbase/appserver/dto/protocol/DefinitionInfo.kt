@@ -21,8 +21,8 @@ import java.net.URI
 /** @author yatharthranjan
  */
 
-data class DefinitionInfo (
+data class DefinitionInfo(
     val repository: URI? = null,
     val name: String? = null,
-    val avsc: String? = null
+    val avsc: String? = null,
 )

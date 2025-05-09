@@ -36,7 +36,7 @@ class NotificationStateEventService(
     private val notificationStateEventRepository: NotificationStateEventRepository,
     private val notificationService: FcmNotificationService,
     private val notificationApplicationEventPublisher: ApplicationEventPublisher,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     @Transactional
     fun addNotificationStateEvent(notificationStateEvent: NotificationStateEvent) {
@@ -49,10 +49,14 @@ class NotificationStateEventService(
 
     @Transactional(readOnly = true)
     fun getNotificationStateEvents(
-        projectId: String?, subjectId: String?, notificationId: Long
+        projectId: String?,
+        subjectId: String?,
+        notificationId: Long,
     ): List<NotificationStateEventDto> {
         notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-            projectId, subjectId, notificationId
+            projectId,
+            subjectId,
+            notificationId,
         )
         val stateEvents: List<NotificationStateEvent> =
             notificationStateEventRepository.findByNotificationId(notificationId)
@@ -62,14 +66,14 @@ class NotificationStateEventService(
                 notificationState?.notification?.id,
                 notificationState?.state,
                 notificationState?.time,
-                notificationState?.associatedInfo
+                notificationState?.associatedInfo,
             )
         }
     }
 
     @Transactional(readOnly = true)
     fun getNotificationStateEventsByNotificationId(
-        notificationId: Long
+        notificationId: Long,
     ): List<NotificationStateEventDto> {
         val stateEvents = notificationStateEventRepository.findByNotificationId(notificationId)
         return stateEvents.map { notificationState: NotificationStateEvent? ->
@@ -78,7 +82,7 @@ class NotificationStateEventService(
                 notificationState?.notification?.id,
                 notificationState?.state,
                 notificationState?.time,
-                notificationState?.associatedInfo
+                notificationState?.associatedInfo,
             )
         }
     }
@@ -88,11 +92,13 @@ class NotificationStateEventService(
         projectId: String?,
         subjectId: String?,
         notificationId: Long,
-        notificationStateEventDto: NotificationStateEventDto
+        notificationStateEventDto: NotificationStateEventDto,
     ) {
         checkState(notificationId, notificationStateEventDto.state)
         val notification = notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-            projectId, subjectId, notificationId
+            projectId,
+            subjectId,
+            notificationId,
         )
 
         var additionalInfo: Map<String, String>? = null
@@ -101,21 +107,22 @@ class NotificationStateEventService(
                 additionalInfo = objectMapper.readValue<Map<String, String>>(
                     notificationStateEventDto.associatedInfo,
                     object : TypeReference<Map<String, String>>() {
-                    })
+                    },
+                )
             } catch (_: IOException) {
                 throw IllegalStateException(
-                    "Cannot convert additionalInfo to Map<String, String>. Please check its format."
+                    "Cannot convert additionalInfo to Map<String, String>. Please check its format.",
                 )
             }
         }
 
         val stateEvent = org.radarbase.appserver.event.state.dto.NotificationStateEventDto(
-                this,
-                notification,
-                notificationStateEventDto.state!!,
-                additionalInfo,
-                notificationStateEventDto.time!!
-            )
+            this,
+            notification,
+            notificationStateEventDto.state!!,
+            additionalInfo,
+            notificationStateEventDto.time!!,
+        )
         notificationApplicationEventPublisher.publishEvent(stateEvent)
     }
 
@@ -140,7 +147,7 @@ class NotificationStateEventService(
             MessageState.DISMISSED,
             MessageState.OPENED,
             MessageState.UNKNOWN,
-            MessageState.ERRORED
+            MessageState.ERRORED,
         )
     }
 }

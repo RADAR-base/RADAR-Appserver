@@ -21,12 +21,21 @@
 
 package org.radarbase.appserver.service.scheduler
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.mock
-import org.quartz.*
+import org.quartz.JobExecutionContext
+import org.quartz.JobExecutionException
+import org.quartz.JobKey
+import org.quartz.JobListener
+import org.quartz.Scheduler
+import org.quartz.TriggerKey
 import org.radarbase.appserver.config.SchedulerConfig
 import org.radarbase.appserver.entity.Notification
 import org.radarbase.appserver.entity.Project
@@ -54,8 +63,8 @@ import java.time.temporal.ChronoUnit
         DataSourceAutoConfiguration::class,
         QuartzAutoConfiguration::class,
         SchedulerConfig::class,
-        NotificationSchedulerServiceTest.SchedulerServiceTestConfig::class
-    ]
+        NotificationSchedulerServiceTest.SchedulerServiceTestConfig::class,
+    ],
 )
 class NotificationSchedulerServiceTest {
 
@@ -121,7 +130,7 @@ class NotificationSchedulerServiceTest {
         assertTrue(scheduler.checkExists(JobKey(JOB_DETAIL_ID)))
         assertEquals(
             updatedNotification.scheduledTime?.truncatedTo(ChronoUnit.MILLIS),
-            scheduler.getTrigger(TriggerKey("message-trigger-test-subject-1")).startTime.toInstant()
+            scheduler.getTrigger(TriggerKey("message-trigger-test-subject-1")).startTime.toInstant(),
         )
     }
 
@@ -165,6 +174,3 @@ class NotificationSchedulerServiceTest {
         }
     }
 }
-
-
-

@@ -30,7 +30,15 @@ import org.radarbase.appserver.exception.InvalidUserDetailsException
 import org.radarbase.appserver.service.UserService
 import org.radarbase.auth.token.RadarToken
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import radar.spring.auth.common.AuthAspect
 import radar.spring.auth.common.Authorization
 import radar.spring.auth.common.Authorized
@@ -51,24 +59,26 @@ import java.net.URISyntaxException
 @RestController
 class RadarUserController(
     private val userService: UserService,
-    private val authorization: Authorization<RadarToken>?
+    private val authorization: Authorization<RadarToken>?,
 ) {
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT)
     @PostMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH
+            ),
     )
     @Throws(URISyntaxException::class)
     fun addUserToProject(
         request: HttpServletRequest,
         @Valid @RequestBody userDto: FcmUserDto,
         @PathVariable projectId: String,
-        @RequestParam(required = false, defaultValue = "false") forceFcmToken: Boolean
+        @RequestParam(required = false, defaultValue = "false") forceFcmToken: Boolean,
     ): ResponseEntity<FcmUserDto> {
         userDto.projectId = projectId
         authorization?.let {
@@ -80,7 +90,7 @@ class RadarUserController(
                     PermissionOn.SUBJECT,
                     projectId,
                     userDto.subjectId,
-                    null
+                    null,
                 )
             ) {
                 if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(userDto)
@@ -98,20 +108,22 @@ class RadarUserController(
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @PutMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT
+            ),
     )
     fun updateUserInProject(
         @Valid @RequestBody userDto: FcmUserDto,
         @PathVariable subjectId: String,
         @PathVariable projectId: String,
-        @RequestParam(required = false, defaultValue = "false") forceFcmToken: Boolean
+        @RequestParam(required = false, defaultValue = "false") forceFcmToken: Boolean,
     ): ResponseEntity<FcmUserDto> {
         userDto.subjectId = subjectId
         userDto.projectId = projectId
@@ -134,7 +146,7 @@ class RadarUserController(
                     PermissionOn.SUBJECT,
                     user.projectId,
                     user.subjectId,
-                    null
+                    null,
                 )
             }
             ResponseEntity.ok(FcmUsers(filteredUsers))
@@ -145,7 +157,7 @@ class RadarUserController(
     @GetMapping("/" + PathsUtil.USER_PATH + "/user")
     fun getRadarUserUsingId(
         request: HttpServletRequest,
-        @RequestParam("id") id: Long?
+        @RequestParam("id") id: Long?,
     ): ResponseEntity<FcmUserDto> {
         id ?: throw InvalidUserDetailsException("The given id must not be null!")
         val userDto = userService.getUserById(id)
@@ -156,7 +168,7 @@ class RadarUserController(
     @GetMapping("/" + PathsUtil.USER_PATH + "/" + PathsUtil.SUBJECT_ID_CONSTANT)
     fun getRadarUserUsingSubjectId(
         request: HttpServletRequest,
-        @PathVariable subjectId: String
+        @PathVariable subjectId: String,
     ): ResponseEntity<FcmUserDto> {
         val userDto = userService.getUserBySubjectId(subjectId)
         return getFcmUserDtoResponseEntity(request, userDto)
@@ -172,7 +184,7 @@ class RadarUserController(
                     PermissionOn.SUBJECT,
                     userDto.projectId,
                     userDto.subjectId,
-                    null
+                    null,
                 )
             ) {
                 ResponseEntity.ok(userDto)
@@ -184,12 +196,14 @@ class RadarUserController(
 
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.PROJECT)
     @GetMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH
+            ),
     )
     fun getUsersUsingProjectId(@PathVariable projectId: String): ResponseEntity<FcmUsers> {
         return ResponseEntity.ok(userService.getUsersByProjectId(projectId))
@@ -197,36 +211,40 @@ class RadarUserController(
 
     @Authorized(permission = AuthPermissions.READ, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @GetMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT
+            ),
     )
     fun getUsersUsingProjectIdAndSubjectId(
         @PathVariable projectId: String,
-        @PathVariable subjectId: String
+        @PathVariable subjectId: String,
     ): ResponseEntity<FcmUserDto> {
         return ResponseEntity.ok(userService.getUserByProjectIdAndSubjectId(projectId, subjectId))
     }
 
     @Authorized(permission = AuthPermissions.UPDATE, entity = AuthEntities.SUBJECT, permissionOn = PermissionOn.SUBJECT)
     @DeleteMapping(
-        ("/"
-                + PathsUtil.PROJECT_PATH
-                + "/"
-                + PathsUtil.PROJECT_ID_CONSTANT
-                + "/"
-                + PathsUtil.USER_PATH
-                + "/"
-                + PathsUtil.SUBJECT_ID_CONSTANT)
+        (
+            "/" +
+                PathsUtil.PROJECT_PATH +
+                "/" +
+                PathsUtil.PROJECT_ID_CONSTANT +
+                "/" +
+                PathsUtil.USER_PATH +
+                "/" +
+                PathsUtil.SUBJECT_ID_CONSTANT
+            ),
     )
     fun deleteUserUsingProjectIdAndSubjectId(
         @PathVariable projectId: String,
-        @PathVariable subjectId: String
+        @PathVariable subjectId: String,
     ): ResponseEntity<Any> {
         userService.deleteUserByProjectIdAndSubjectId(projectId, subjectId)
         return ResponseEntity.ok().build()

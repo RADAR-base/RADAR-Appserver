@@ -60,7 +60,6 @@ class FcmDataMessages {
         return Objects.hash(_dataMessages)
     }
 
-
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(FcmDataMessages::class.java)
     }

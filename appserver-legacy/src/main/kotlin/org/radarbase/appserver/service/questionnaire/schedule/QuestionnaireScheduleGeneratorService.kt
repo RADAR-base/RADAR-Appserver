@@ -27,7 +27,15 @@ import org.radarbase.appserver.dto.protocol.RepeatProtocol
 import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire
 import org.radarbase.appserver.entity.Task
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
-import org.radarbase.appserver.service.questionnaire.protocol.factory.*
+import org.radarbase.appserver.service.questionnaire.protocol.factory.CompletedQuestionnaireHandlerFactory
+import org.radarbase.appserver.service.questionnaire.protocol.factory.NotificationHandlerFactory
+import org.radarbase.appserver.service.questionnaire.protocol.factory.ProtocolHandlerFactory
+import org.radarbase.appserver.service.questionnaire.protocol.factory.ProtocolHandlerType
+import org.radarbase.appserver.service.questionnaire.protocol.factory.ReminderHandlerFactory
+import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatProtocolHandlerFactory
+import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatProtocolHandlerType
+import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatQuestionnaireHandlerFactory
+import org.radarbase.appserver.service.questionnaire.protocol.factory.RepeatQuestionnaireHandlerType
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.IOException
@@ -82,15 +90,21 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     override fun getReminderHandler(assessment: Assessment): ProtocolHandler? {
         return if (assessment.type == CLINICAL) {
             null
-        } else ReminderHandlerFactory.reminderHandler
+        } else {
+            ReminderHandlerFactory.reminderHandler
+        }
     }
 
     override fun getCompletedQuestionnaireHandler(
-        assessment: Assessment, prevTasks: List<Task>, prevTimezone: String
+        assessment: Assessment,
+        prevTasks: List<Task>,
+        prevTimezone: String,
     ): ProtocolHandler? {
         return if (assessment.type == CLINICAL) {
             null
-        } else CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
+        } else {
+            CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
+        }
     }
 
     companion object {

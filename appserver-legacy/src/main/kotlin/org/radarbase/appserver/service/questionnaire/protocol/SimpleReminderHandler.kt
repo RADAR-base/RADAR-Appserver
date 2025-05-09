@@ -23,7 +23,7 @@ class SimpleReminderHandler : ProtocolHandler {
     override fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
         val timezone = TimeZone.getTimeZone(user.timezone)
         val protocol = assessment.protocol?.notification
@@ -42,7 +42,7 @@ class SimpleReminderHandler : ProtocolHandler {
             user.language,
             protocol.body,
             NotificationType.REMINDER,
-            estimatedCompletionTime
+            estimatedCompletionTime,
         )
 
         val notifications = generateReminders(
@@ -52,39 +52,50 @@ class SimpleReminderHandler : ProtocolHandler {
             user,
             title,
             body,
-            protocol.email.enabled
+            protocol.email.enabled,
         )
         assessmentSchedule.reminders = notifications
         return assessmentSchedule
     }
 
     fun generateReminders(
-        tasks: List<Task>, assessment: Assessment, timezone: TimeZone,
-        user: User, title: String, body: String, emailEnabled: Boolean
+        tasks: List<Task>,
+        assessment: Assessment,
+        timezone: TimeZone,
+        user: User,
+        title: String,
+        body: String,
+        emailEnabled: Boolean,
     ): List<Notification> {
         return tasks.parallelStream()
             .flatMap { task: Task ->
-                val reminders = assessment.protocol?.reminders  ?: return@flatMap null
+                val reminders = assessment.protocol?.reminders ?: return@flatMap null
                 val repeatReminders = reminders.repeat ?: return@flatMap null
 
                 val offset = TimePeriod(reminders.unit, reminders.amount)
 
-                (1 .. repeatReminders).map { repeat : Int ->
+                (1..repeatReminders).map { repeat: Int ->
                     offset.amount = reminders.amount!! * repeat
 
                     val timestamp = timeCalculatorService.advanceRepeat(task.timestamp!!.toInstant(), offset, timezone)
                     taskNotificationGeneratorService.createNotification(
-                        task, timestamp, title, body, emailEnabled
+                        task,
+                        timestamp,
+                        title,
+                        body,
+                        emailEnabled,
                     ).also {
                         it.user = user
                     }
                 }.stream()
             }
             .filter { notification ->
-                (Instant.now().isBefore(
-                    notification.scheduledTime!!
-                        .plus(notification.ttlSeconds.toLong(), ChronoUnit.SECONDS)
-                ))
+                (
+                    Instant.now().isBefore(
+                        notification.scheduledTime!!
+                            .plus(notification.ttlSeconds.toLong(), ChronoUnit.SECONDS),
+                    )
+                    )
             }.collect(Collectors.toList())
     }
 }

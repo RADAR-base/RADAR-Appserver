@@ -18,14 +18,13 @@ package org.radarbase.appserver.service.questionnaire.protocol
 
 import org.radarbase.appserver.dto.protocol.Assessment
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
-import org.radarbase.appserver.entity.Notification
 import org.radarbase.appserver.entity.User
 
 class DisabledNotificationHandler : ProtocolHandler {
     override fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
         return assessmentSchedule.also {
             it.notifications = emptyList()

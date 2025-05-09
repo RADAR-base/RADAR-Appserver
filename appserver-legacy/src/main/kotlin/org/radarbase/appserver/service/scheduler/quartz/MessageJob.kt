@@ -44,11 +44,11 @@ class MessageJob(
     @field:Transient private val notificationTransmitters: List<NotificationTransmitter>,
     @field:Transient private val dataMessageTransmitters: List<DataMessageTransmitter>,
     @field:Transient private val notificationService: FcmNotificationService,
-    @field:Transient private val dataMessageService: FcmDataMessageService
+    @field:Transient private val dataMessageService: FcmDataMessageService,
 ) : Job {
     /**
      * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.Trigger]
-    `*  fires that is associated with the `Job`.
+     `*  fires that is associated with the `Job`.
      *
      *
      * The implementation may wish to set a [result][JobExecutionContext.setResult]
@@ -71,7 +71,9 @@ class MessageJob(
             when (type) {
                 MessageType.NOTIFICATION -> {
                     val notification = notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-                        projectId, subjectId, messageId
+                        projectId,
+                        subjectId,
+                        messageId,
                     )
                     notificationTransmitters.forEach { transmitter ->
                         try {
@@ -84,7 +86,9 @@ class MessageJob(
 
                 MessageType.DATA -> {
                     val dataMessage = dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-                        projectId, subjectId, messageId
+                        projectId,
+                        subjectId,
+                        messageId,
                     )
                     dataMessageTransmitters.forEach { transmitter ->
                         try {

@@ -50,7 +50,7 @@ interface TaskRepository : JpaRepository<Task, Long>, JpaSpecificationExecutor<T
     fun existsByUserIdAndNameAndTimestamp(
         userId: Long?,
         name: String?,
-        timestamp: Timestamp?
+        timestamp: Timestamp?,
     ): Boolean
 
     fun findByIdAndUserId(id: Long, userId: Long): Task?

@@ -136,8 +136,9 @@ class UserService(
 
         val user: User = checkPresence(
             userRepository.findBySubjectIdAndProjectId(
-                subjectId, project.id
-            )
+                subjectId,
+                project.id,
+            ),
         ) { "User with subjectId $subjectId not found" }
 
         return userMapper.entityToDto(user)
@@ -181,21 +182,25 @@ class UserService(
         }
 
         val user: User? = userRepository.findBySubjectIdAndProjectId(
-            userDto.subjectId, requireNotNull(project.id) { "Project id must not be null" })
+            userDto.subjectId,
+            requireNotNull(project.id) { "Project id must not be null" },
+        )
 
         checkInvalidDetails<InvalidUserDetailsException>(
             { user != null },
             {
                 "User with subjectId ${userDto.subjectId} already exists with projectId ${userDto.projectId}. " +
-                        "Please use update endpoint if you need to update user"
-            })
+                    "Please use update endpoint if you need to update user"
+            },
+        )
 
         val email: String? = userDto.email
         if (sendEmailNotifications && (email == null || email.isEmpty())) {
             logger.warn(
                 "No email address was provided for new subject '{}'. The option to send notifications via email " +
-                        "('radar.notification.email.enabled') will not work for this subject. Consider to provide a valid email " +
-                        "address for subject", userDto.subjectId
+                    "('radar.notification.email.enabled') will not work for this subject. Consider to provide a valid email " +
+                    "address for subject",
+                userDto.subjectId,
             )
         }
 
@@ -233,14 +238,15 @@ class UserService(
 
         val user: User? = userRepository.findBySubjectIdAndProjectId(
             userDto.subjectId,
-            project.id)
+            project.id,
+        )
 
         checkInvalidDetails<InvalidUserDetailsException>(
             { user == null },
             {
                 "The user with specified subject ID ${userDto.subjectId} does not exist in project ID "
                 "${userDto.projectId} Please use CreateUser endpoint to create the user."
-            }
+            },
         )
 
         user!!.apply {
@@ -296,13 +302,14 @@ class UserService(
 
         val user = userRepository.findBySubjectIdAndProjectId(
             subjectId,
-            project.id)
+            project.id,
+        )
 
         checkInvalidDetails<InvalidUserDetailsException>(
             { user == null },
             {
                 "The user with specified subject ID $subjectId does not exist in project ID $projectId. Please specify a valid user for deleting."
-            }
+            },
         )
 
         this.userRepository.deleteById(user!!.id!!)

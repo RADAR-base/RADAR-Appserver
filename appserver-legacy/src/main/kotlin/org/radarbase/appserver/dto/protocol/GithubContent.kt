@@ -21,7 +21,6 @@
 package org.radarbase.appserver.dto.protocol
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import lombok.Data
 import org.radarbase.appserver.util.Base64Deserializer
 
 /**
@@ -32,7 +31,7 @@ import org.radarbase.appserver.util.Base64Deserializer
  *
  * @author yatharthranjan
  */
-data class GithubContent (
+data class GithubContent(
     @field:JsonDeserialize(using = Base64Deserializer::class)
     var content: String? = null,
 
@@ -44,5 +43,5 @@ data class GithubContent (
 
     var node_id: String? = null,
 
-    var encoding: String? = null
+    var encoding: String? = null,
 )

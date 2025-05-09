@@ -48,7 +48,7 @@ import java.time.Instant
 class TaskService(
     private val taskRepository: TaskRepository,
     private val userRepository: UserRepository,
-    private val eventPublisher: ApplicationEventPublisher?
+    private val eventPublisher: ApplicationEventPublisher?,
 ) {
     @Transactional(readOnly = true)
     fun getAllProjects(): List<Task> {
@@ -114,23 +114,26 @@ class TaskService(
             this.userRepository.save(user)
             addTaskStateEvent(saved, TaskState.ADDED, saved.createdAt!!.toInstant())
             return saved
-        } else throw AlreadyExistsException(
-            "The Task Already exists. Please Use update endpoint", task
-        )
+        } else {
+            throw AlreadyExistsException(
+                "The Task Already exists. Please Use update endpoint",
+                task,
+            )
+        }
     }
 
     @Transactional
     fun addTasks(tasks: List<Task>?, user: User): List<Task> {
         val newTasks = tasks?.filter { task ->
-                !this.taskRepository.existsByUserIdAndNameAndTimestamp(
-                    user.id,
-                    task.name,
-                    task.timestamp
-                )
-            } ?: return emptyList()
+            !this.taskRepository.existsByUserIdAndNameAndTimestamp(
+                user.id,
+                task.name,
+                task.timestamp,
+            )
+        } ?: return emptyList()
 
         val saved = this.taskRepository.saveAllAndFlush(newTasks)
-        saved.forEach{ t ->
+        saved.forEach { t ->
             addTaskStateEvent(t, TaskState.ADDED, t!!.createdAt!!.toInstant())
         }
 

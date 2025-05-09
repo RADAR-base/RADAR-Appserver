@@ -63,7 +63,6 @@ class UserServiceTest {
 
     @BeforeEach
     fun setUp() {
-
         val project = Project().apply {
             projectId = PROJECT_ID
             id = 1L
@@ -155,7 +154,6 @@ class UserServiceTest {
             language = "es"
             timezone = TIMEZONE
         }
-
 
         val userDto = userService.saveUserInProject(userDtoNew)
 

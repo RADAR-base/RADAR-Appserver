@@ -141,7 +141,7 @@ class RadarUserControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(URI("/projects/test-project/users"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDtoNew))
+                .content(objectMapper.writeValueAsString(userDtoNew)),
         )
             .andExpect { status().isCreated }
             .andExpect { jsonPath(FCM_TOKEN_JSON_PATH).value(FCM_TOKEN_2) }
@@ -161,7 +161,7 @@ class RadarUserControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.post(URI("/projects/test-project/users"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDtoSameToken))
+                .content(objectMapper.writeValueAsString(userDtoSameToken)),
         ).andExpect(status().isExpectationFailed)
     }
 
@@ -179,7 +179,7 @@ class RadarUserControllerTest {
         mockMvc.perform(
             MockMvcRequestBuilders.put(URI("/projects/test-project/users/test-user-updated"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDtoUpdated))
+                .content(objectMapper.writeValueAsString(userDtoUpdated)),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath(FCM_TOKEN_JSON_PATH).value(FCM_TOKEN_3))
@@ -207,13 +207,13 @@ class RadarUserControllerTest {
     }
 
     @Test
-    fun getRadarUserUsingSubjectId()  {
+    fun getRadarUserUsingSubjectId() {
         mockMvc
             .perform(MockMvcRequestBuilders.get(URI("/users/test-user")))
             .andExpect(status().isOk())
             .andExpect(jsonPath(FCM_TOKEN_JSON_PATH).value(FCM_TOKEN_1))
-        .andExpect(jsonPath(LANGUAGE_JSON_PATH).value("es"))
-        .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH).value(enrolmentDate.toString()))
+            .andExpect(jsonPath(LANGUAGE_JSON_PATH).value("es"))
+            .andExpect(jsonPath(ENROLMENT_DATE_JSON_PATH).value(enrolmentDate.toString()))
     }
 
     @Test
@@ -222,8 +222,7 @@ class RadarUserControllerTest {
             .perform(MockMvcRequestBuilders.get(URI("/projects/test-project/users")))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.users[0].fcmToken").value(FCM_TOKEN_1))
-        .andExpect(jsonPath("$.users[0].language").value("es"))
-        .andExpect(jsonPath("$.users[0].enrolmentDate").value(enrolmentDate.toString()))
+            .andExpect(jsonPath("$.users[0].language").value("es"))
+            .andExpect(jsonPath("$.users[0].enrolmentDate").value(enrolmentDate.toString()))
     }
-
 }

@@ -29,5 +29,5 @@ enum class AssessmentType {
     TRIGGERED,
 
     @JsonProperty("all")
-    ALL
+    ALL,
 }

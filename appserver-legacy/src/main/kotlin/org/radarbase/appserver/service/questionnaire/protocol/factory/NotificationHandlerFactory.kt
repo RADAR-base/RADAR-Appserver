@@ -27,7 +27,6 @@ import org.radarbase.appserver.service.questionnaire.protocol.ProtocolHandler
 import org.radarbase.appserver.service.questionnaire.protocol.SimpleNotificationHandler
 import java.io.IOException
 
-
 object NotificationHandlerFactory {
     @Throws(IOException::class)
     fun getNotificationHandler(protocol: NotificationProtocol): ProtocolHandler {

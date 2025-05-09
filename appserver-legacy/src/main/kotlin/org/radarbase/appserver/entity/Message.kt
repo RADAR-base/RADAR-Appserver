@@ -22,7 +22,15 @@
 package org.radarbase.appserver.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.MappedSuperclass
 import jakarta.validation.constraints.NotNull
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -95,7 +103,7 @@ class Message(
     var priority: String? = null,
 
     @Column(name = "mutable_content")
-    var mutableContent: Boolean = false
+    var mutableContent: Boolean = false,
 ) : AuditModel(), Serializable, Scheduled {
 
     override fun equals(other: Any?): Boolean = equalTo(
@@ -119,14 +127,13 @@ class Message(
             delivered,
             dryRun,
             appPackage,
-            sourceType
+            sourceType,
         )
     }
 
     override fun toString(): String {
         return "Message(id=$id, user=$user, task=$task, sourceId=$sourceId, scheduledTime=$scheduledTime, ttlSeconds=$ttlSeconds, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, delivered=$delivered, validated=$validated, appPackage=$appPackage, sourceType=$sourceType, dryRun=$dryRun, priority=$priority, mutableContent=$mutableContent)"
     }
-
 
     companion object {
         @Serial

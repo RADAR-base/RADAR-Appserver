@@ -50,6 +50,6 @@ class ProjectMapper : Mapper<ProjectDto, Project> {
         id = entity.id,
         projectId = entity.projectId,
         createdAt = entity.createdAt?.toInstant(),
-        updatedAt = entity.updatedAt?.toInstant()
+        updatedAt = entity.updatedAt?.toInstant(),
     )
 }

@@ -39,7 +39,7 @@ interface DataMessageRepository : JpaRepository<DataMessage, Long> {
         userId: Long?,
         sourceId: String?,
         scheduledTime: Instant?,
-        ttlSeconds: Int
+        ttlSeconds: Int,
     ): Boolean
 
     fun existsByIdAndUserId(id: Long?, userId: Long?): Boolean

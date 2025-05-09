@@ -102,7 +102,7 @@ class MPOAuthHelper : OAuthHelper {
 
         private fun getProperty(response: ResponseEntity<String>, property: String): String {
             if (response.statusCode.isError) {
-                throw IllegalStateException("The request was not successful: ${response.toString()}")
+                throw IllegalStateException("The request was not successful: $response")
             }
             return try {
                 val root: JsonNode = mapper.readTree(response.body)
@@ -115,4 +115,3 @@ class MPOAuthHelper : OAuthHelper {
 
     override fun getAccessToken(): String = ACCESS_TOKEN
 }
-

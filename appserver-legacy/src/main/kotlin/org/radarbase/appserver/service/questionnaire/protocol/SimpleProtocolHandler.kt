@@ -23,7 +23,7 @@ package org.radarbase.appserver.service.questionnaire.protocol
 
 import org.radarbase.appserver.dto.protocol.Assessment
 import org.radarbase.appserver.dto.protocol.ReferenceTimestamp
-import org.radarbase.appserver.dto.protocol.ReferenceTimestampType.*
+import org.radarbase.appserver.dto.protocol.ReferenceTimestampType
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.entity.User
 import java.time.Instant
@@ -52,9 +52,10 @@ class SimpleProtocolHandler : ProtocolHandler {
      * is not provided.
      */
     override fun handle(
-        assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User
+        assessmentSchedule: AssessmentSchedule,
+        assessment: Assessment,
+        user: User,
     ): AssessmentSchedule {
-
         val referenceTimestamp: ReferenceTimestamp? = assessment.protocol?.referenceTimestamp
         val timezone = TimeZone.getTimeZone(user.timezone)
         val timezoneId = timezone.toZoneId()
@@ -66,15 +67,15 @@ class SimpleProtocolHandler : ProtocolHandler {
                 "Reference timestamp format is null when handling SimpleProtocolHandler."
             }
             when (timestampFormat) {
-                DATE -> LocalDate.parse(timestamp).atStartOfDay(timezoneId).toInstant()
+                ReferenceTimestampType.DATE -> LocalDate.parse(timestamp).atStartOfDay(timezoneId).toInstant()
 
-                DATETIME -> LocalDateTime.parse(timestamp).atZone(timezoneId).toInstant()
+                ReferenceTimestampType.DATETIME -> LocalDateTime.parse(timestamp).atZone(timezoneId).toInstant()
 
-                DATETIMEUTC -> Instant.parse(timestamp)
+                ReferenceTimestampType.DATETIMEUTC -> Instant.parse(timestamp)
 
-                NOW -> Instant.now()
+                ReferenceTimestampType.NOW -> Instant.now()
 
-                TODAY -> timeCalculatorService.setDateTimeToMidnight(Instant.now(), timezone)
+                ReferenceTimestampType.TODAY -> timeCalculatorService.setDateTimeToMidnight(Instant.now(), timezone)
             }
         } else {
             val userEnrolmentDate = user.enrolmentDate
