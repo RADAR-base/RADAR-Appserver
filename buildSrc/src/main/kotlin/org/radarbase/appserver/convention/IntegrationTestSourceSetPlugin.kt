@@ -7,48 +7,57 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.*
-import java.util.*
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.register
+import java.util.Locale
 
-interface CustomSourceSetExtension {
+interface IntegrationTestExtension {
     val sourceSetName: Property<String>
     val duplicatesStrategy: Property<DuplicatesStrategy>
     val hookIntoCheck: Property<Boolean>
 }
 
-@Suppress("unused")
-fun Project.customSourceSet(config: CustomSourceSetExtension.() -> Unit) {
-    configure<CustomSourceSetExtension>(config)
+fun Project.integrationTestConfig(config: IntegrationTestExtension.() -> Unit) = config.run {
+        configure<IntegrationTestExtension>(config)
 }
 
-@Suppress("unused")
-class CustomSourceSetCreatorPlugin : Plugin<Project> {
-    override fun apply(project: Project) = project.run {
-        val extension = extensions.create<CustomSourceSetExtension>("integrationTestConfig")
+class IntegrationTestSourceSetPlugin : Plugin<Project> {
+    override fun apply(target: Project) = target.run {
+        val extension = extensions.create<IntegrationTestExtension>("integrationTestConfig").apply {
+            sourceSetName.convention("integrationTest")
+            hookIntoCheck.convention(true)
+        }
 
         afterEvaluate {
             val ssName = extension.sourceSetName.get()
             val sourceSets = extensions.getByType<SourceSetContainer>()
+
             sourceSets.create(ssName) {
-                compileClasspath += sourceSets["main"].output + sourceSets["test"].output
-                runtimeClasspath += sourceSets["main"].output + sourceSets["test"].output
+                compileClasspath += sourceSets["main"].output
+                runtimeClasspath += sourceSets["main"].output
             }
 
             val integrationTestImplementation = configurations.getByName("${ssName}Implementation")
             integrationTestImplementation.extendsFrom(configurations.getByName("testImplementation"))
+
             configurations.getByName("${ssName}RuntimeOnly")
-                .extendsFrom(configurations.getByName("runtimeOnly"))
+                .extendsFrom(configurations.getByName("testRuntimeOnly"))
 
             val integrationTestTask = tasks.register<Test>(ssName) {
-                description = "Runs $ssName tests."
+                description = "Runs ${ssName} tests."
                 group = "verification"
 
                 testClassesDirs = sourceSets[ssName].output.classesDirs
                 classpath = sourceSets[ssName].runtimeClasspath
                 shouldRunAfter("test")
 
+                outputs.upToDateWhen { false }
                 useJUnitPlatform { excludeEngines("junit-vintage") }
-                testLogging { events("passed", "skipped", "failed") }
+                testLogging { events("passed") }
             }
 
             if (extension.hookIntoCheck.get()) {
@@ -59,6 +68,6 @@ class CustomSourceSetCreatorPlugin : Plugin<Project> {
                 duplicatesStrategy = extension.duplicatesStrategy.get()
             }
         }
+
     }
 }
-
