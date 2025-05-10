@@ -70,4 +70,5 @@ radarKotlin {
     kotlinVersion.set(Versions.kotlinVersion)
 //    kotlinApiVersion.set(Versions.kotlinVersion)
     junitVersion.set(Versions.junit5Version)
+    log4j2Version.set(Versions.log4j2)
 }

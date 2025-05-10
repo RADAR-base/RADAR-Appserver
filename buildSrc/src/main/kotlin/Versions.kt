@@ -23,6 +23,7 @@ object Versions {
     const val mockitoKotlinVersion = "3.2.0"
     const val minioVersion = "8.5.10"
     const val junit5Version = "5.9.2"
+    const val log4j2 = "2.23.1"
     const val radarCommonsVersion = "1.2.2"
 
     const val project = "2.4.3"
