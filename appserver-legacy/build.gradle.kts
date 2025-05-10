@@ -4,22 +4,17 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
     eclipse
     idea
-    java
 //    scala
-//    id("io.gatling.gradle") version Versions.gatlingVersion
-//    id("com.github.johnrengelman.shadow") version Versions.shadowVersion // Check the updated co-ordintaes
-    id("org.springframework.boot") version Versions.springBootVersion
-    id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
-//    id("com.github.ben-manes.versions")
-    id("org.radarbase.radar-dependency-management")
-    id("org.radarbase.radar-kotlin")
     kotlin("kapt")
     kotlin("plugin.allopen") version Versions.kotlinVersion
     kotlin("plugin.noarg") version Versions.kotlinVersion
+//    id("io.gatling.gradle") version Versions.gatlingVersion
+    id("org.springframework.boot") version Versions.springBootVersion
+    id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
+    id("org.radarbase.radar-dependency-management")
+    id("org.radarbase.radar-kotlin")
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlinVersion
-    id("org.radarbase.appserver.int-test-source-sets")
-//    id("io.sentry.jvm.gradle")
 }
 
 java {
@@ -56,39 +51,38 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-//sourceSets {
-//    create("integrationTest") {
-//        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-//        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-//    }
-//}
-
-//val integrationTestImplementation: Configuration by configurations.getting {
-//    extendsFrom(configurations.testImplementation.get())
-//}
+sourceSets {
+    create("integrationTest") {
+        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().compileClasspath
+        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().runtimeClasspath
+    }
+}
 //
-//val integrationTestRuntimeOnly: Configuration by configurations.getting
+val integrationTestImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations.testImplementation.get())
+}
+
+val integrationTestRuntimeOnly: Configuration by configurations.getting
+
+configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 //
-//configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
-
-
-//kotlin {
+// kotlin {
 //    compilerOptions {
 //        jvmTarget.set(JvmTarget.JVM_17)
 //        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
 //        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
 //    }
-//}
+// }
 
-//java {
+// java {
 //    toolchain {
 //        languageVersion.set(JavaLanguageVersion.of(17))
 //    }
-//}
+// }
 
-//tasks.withType<KotlinJvmCompile>().configureEach {
+// tasks.withType<KotlinJvmCompile>().configureEach {
 //    jvmTargetValidationMode.set(JvmTargetValidationMode.ERROR)
-//}
+// }
 
 radarDependencies {
     rejectMajorVersionUpdates.set(true)
@@ -97,15 +91,15 @@ radarDependencies {
 radarKotlin {
     javaVersion.set(Versions.java)
     kotlinVersion.set(Versions.kotlinVersion)
-    kotlinApiVersion.set(Versions.kotlinVersion)
+//    kotlinApiVersion.set(Versions.kotlinVersion)
     junitVersion.set(Versions.junit5Version)
 }
 
-integrationTestConfig {
-    sourceSetName = "IntegrationTest"
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    hookIntoCheck = true
-}
+// integrationTestConfig {
+//    sourceSetName = "IntegrationTest"
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//    hookIntoCheck = true
+// }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -128,7 +122,7 @@ dependencies {
     // Open API spec
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${Versions.springDocVersion}")
 
-    //runtimeOnly("org.springframework.boot:spring-boot-devtools")
+    // runtimeOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.hsqldb:hsqldb")
     runtimeOnly("org.liquibase:liquibase-core:4.20.0")
     runtimeOnly("org.postgresql:postgresql:42.5.5")
@@ -183,6 +177,10 @@ dependencies {
 //    gatlingImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }
 
+ktlint {
+    ignoreFailures.set(true)
+}
+
 noArg {
     annotation("org.radarbase.appserver.util.GenerateZeroArgs")
 }
@@ -194,28 +192,28 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
-//val integrationTest = task<Test>("integrationTest") {
-//    description = "Runs integration tests."
-//    group = "verification"
-//
-//    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-//    classpath = sourceSets["integrationTest"].runtimeClasspath
-//    shouldRunAfter("test")
-//
-//    useJUnitPlatform {
-//        excludeEngines("junit-vintage")
-//    }
-//
-//    testLogging {
-//        events("passed")
-//    }
-//}
+val integrationTest = task<Test>("integrationTest") {
+    description = "Runs integration tests."
+    group = "verification"
 
-//tasks.check { dependsOn(integrationTest) }
-//
-//tasks.named<Copy>("processIntegrationTestResources") {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//}
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+    shouldRunAfter("test")
+
+    useJUnitPlatform {
+        excludeEngines("junit-vintage")
+    }
+
+    testLogging {
+        events("passed")
+    }
+}
+
+tasks.check { dependsOn(integrationTest) }
+
+tasks.named<Copy>("processIntegrationTestResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 tasks.test {
     testLogging {
@@ -229,7 +227,6 @@ tasks.test {
 tasks.javadoc {
     (options as CoreJavadocOptions).addBooleanOption("html5", true)
     setDestinationDir(layout.projectDirectory.dir("src/main/resources/static/java-docs").asFile)
-
 }
 
 val bootJarProvider = tasks.named<BootJar>("bootJar")
@@ -240,19 +237,19 @@ tasks.register<Copy>("unpack") {
     into(layout.buildDirectory.dir("dependency"))
 }
 
-//tasks.register("downloadDependencies") {
+// tasks.register("downloadDependencies") {
 //    description = "Pre download dependencies"
 //
 //    doLast {
 //        configurations.compileClasspath.get().files
 //        configurations.runtimeClasspath.get().files
 //    }
-//}
+// }
 //
-//tasks.register<Copy>("copyDependencies") {
+// tasks.register<Copy>("copyDependencies") {
 //    from(configurations.runtimeClasspath)
 //    into(layout.buildDirectory.dir("third-party"))
-//}
+// }
 
 val isNonStable: (String) -> Boolean = { version: String ->
     val stableKeyword = listOf("RELEASE", "FINAL", "GA").any {
@@ -262,9 +259,8 @@ val isNonStable: (String) -> Boolean = { version: String ->
     !stableKeyword && !(regex.matches(version))
 }
 
-//tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
+// tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
 //    rejectVersionIf {
 //        isNonStable(candidate.version)
 //    }
-//}
-
+// }

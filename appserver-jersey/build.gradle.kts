@@ -15,7 +15,6 @@ application {
     )
 }
 
-
 description = "RADAR Appserver for scheduling tasks and notifications."
 
 val integrationTestSourceSet = sourceSets.create("integrationTest") {
@@ -64,8 +63,6 @@ dependencies {
 //    integrationTestImplementation(platform("io.ktor:ktor-bom:${Versions.ktor}"))
 //    integrationTestImplementation("io.ktor:ktor-client-content-negotiation")
 //    integrationTestImplementation("io.ktor:ktor-serialization-kotlinx-json")
-
-
 }
 
 radarKotlin {
