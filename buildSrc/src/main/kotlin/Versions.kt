@@ -16,6 +16,7 @@ object Versions {
     const val lombokVersion = "1.18.26"
     const val springVersion = "6.0.6"
     const val radarSpringAuthVersion = "1.2.1"
+    const val radarJerseyVersion = "0.12.2"
     const val jacksonKotlinVersion = "2.15.4"
     const val ktorVersion = "2.3.0"
     const val coroutinesVersion = "1.10.1"
