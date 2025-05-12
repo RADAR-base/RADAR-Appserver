@@ -45,6 +45,10 @@ dependencies {
 //    implementation("org.radarbase:radar-commons:${Versions.radarCommons}")
 //    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
     implementation("org.radarbase:radar-jersey:${Versions.radarJerseyVersion}")
+    implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {
+        runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
+    }
+
 //    implementation("org.radarbase:managementportal-client:${Versions.radarAuth}")
 //    implementation("org.radarbase:lzfse-decode:${Versions.lzfse}")
 //    implementation("org.radarbase:radar-auth:${Versions.radarAuth}")

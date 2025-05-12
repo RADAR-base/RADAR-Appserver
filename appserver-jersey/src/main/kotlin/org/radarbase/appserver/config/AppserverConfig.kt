@@ -9,4 +9,5 @@ data class AppserverConfig (
     val fcm: FcmConfig = FcmConfig(),
     val github: GithubConfig = GithubConfig(),
     val quartz: SchedulerConfig = SchedulerConfig(),
+    val db: DbConfig = DbConfig(),
 )
