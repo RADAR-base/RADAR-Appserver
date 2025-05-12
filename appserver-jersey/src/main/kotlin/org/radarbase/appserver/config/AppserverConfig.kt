@@ -4,6 +4,7 @@ import org.radarbase.jersey.enhancer.EnhancerFactory
 
 data class AppserverConfig (
     val resourceConfig: Class<out EnhancerFactory>,
+    val server: ServerConfig,
     val auth: AuthConfig = AuthConfig(),
     val fcm: FcmConfig = FcmConfig(),
     val github: GithubConfig = GithubConfig(),
