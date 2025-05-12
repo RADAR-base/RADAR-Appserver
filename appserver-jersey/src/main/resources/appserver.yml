@@ -1,0 +1,8 @@
+#resourceConfig: --to be filled--
+
+server:
+  baseUri: http://0.0.0.0:8090/appserver
+
+auth:
+  managementPortalUrl: http://localhost:8081/managementportal
+  resourceName: res_appserver
