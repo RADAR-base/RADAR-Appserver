@@ -2,6 +2,7 @@ package org.radarbase.appserver.enhancer.factory
 
 import org.radarbase.appserver.config.AppserverConfig
 import org.radarbase.appserver.enhancer.AppserverResourceEnhancer
+import org.radarbase.appserver.entity.Project
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -10,7 +11,7 @@ import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
-class ManagementPortalEnhancerFactory(private val config: AppserverConfig) : EnhancerFactory {
+class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
         val authConfig = AuthConfig(
             managementPortal = MPConfig(
@@ -22,12 +23,20 @@ class ManagementPortalEnhancerFactory(private val config: AppserverConfig) : Enh
         )
 
         val dbConfig = DatabaseConfig(
-            managedClasses = listOf(),
+            managedClasses = listOf(
+                Project::class.qualifiedName!!,
+            ),
             url = config.db.jdbcUrl,
             driver = config.db.jdbcDriver,
             user = config.db.username,
             password = config.db.password,
-            dialect = config.db.hibernateDialect
+            dialect = config.db.hibernateDialect,
+            properties = mapOf(
+                "jakarta.persistence.schema-generation.database.action" to "drop-and-create",
+            ),
+            liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
+                enable = config.db.liquibase.enabled,
+            ),
         )
 
         return listOf(
