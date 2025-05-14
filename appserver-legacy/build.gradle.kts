@@ -3,7 +3,6 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     eclipse
-    idea
 //    scala
     kotlin("kapt")
     kotlin("plugin.allopen") version Versions.kotlinVersion
@@ -29,13 +28,6 @@ kotlin {
 
 kapt {
     keepJavacAnnotationProcessors = true
-}
-
-idea {
-    module {
-        isDownloadJavadoc = true
-        isDownloadSources = true
-    }
 }
 
 springBoot {

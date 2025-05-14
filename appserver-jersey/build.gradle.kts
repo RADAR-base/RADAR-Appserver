@@ -15,6 +15,7 @@ application {
     )
 }
 
+
 description = "RADAR Appserver for scheduling tasks and notifications."
 
 val integrationTestSourceSet = sourceSets.create("integrationTest") {
@@ -48,6 +49,8 @@ dependencies {
     implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {
         runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
     }
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommonsVersion}")
+    implementation("com.h2database:h2:${Versions.h2Version}")
 
 //    implementation("org.radarbase:managementportal-client:${Versions.radarAuth}")
 //    implementation("org.radarbase:lzfse-decode:${Versions.lzfse}")
