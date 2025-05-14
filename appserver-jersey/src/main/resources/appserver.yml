@@ -1,4 +1,4 @@
-#resourceConfig: --to be filled--
+resourceConfig: org.radarbase.appserver.enhancer.factory.ManagementPortalEnhancerFactory
 
 server:
   baseUri: http://0.0.0.0:8090/appserver
@@ -6,3 +6,8 @@ server:
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
   resourceName: res_appserver
+
+db:
+  jdbcDriver: org.h2.Driver
+  jdbcUrl: jdbc:h2:mem:dev
+  hibernateDialect: org.hibernate.dialect.H2Dialect

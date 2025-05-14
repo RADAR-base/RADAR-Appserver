@@ -25,6 +25,7 @@ object Versions {
     const val junit5Version = "5.9.2"
     const val log4j2 = "2.23.1"
     const val radarCommonsVersion = "1.2.2"
+    const val h2Version = "2.2.224"
     const val postgresqlVersion = "42.7.5"
 
     const val project = "2.4.3"
