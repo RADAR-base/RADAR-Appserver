@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass.set("org.radarbase.appserver.JerseyAppserverKt")
+    mainClass.set("org.radarbase.appserver.jersey.JerseyAppserverKt")
 
     applicationDefaultJvmArgs = listOf(
         "-Dcom.sun.management.jmxremote",

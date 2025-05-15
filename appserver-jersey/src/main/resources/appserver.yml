@@ -1,7 +1,7 @@
-resourceConfig: org.radarbase.appserver.enhancer.factory.AppserverResourceEnhancerFactory
+resourceConfig: org.radarbase.appserver.jersey.enhancer.factory.AppserverResourceEnhancerFactory
 
 server:
-  baseUri: http://0.0.0.0:8090/appserver
+  baseUri: http://0.0.0.0:8080/
 
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
