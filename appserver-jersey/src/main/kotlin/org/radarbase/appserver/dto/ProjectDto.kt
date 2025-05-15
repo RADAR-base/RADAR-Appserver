@@ -25,14 +25,14 @@ data class ProjectDto(
 
     @field:JsonFormat(
         shape  = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ssXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC"
     )
     var createdAt: Instant? = null,
 
     @field:JsonFormat(
         shape  = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ssXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC"
     )
     var updatedAt: Instant? = null,

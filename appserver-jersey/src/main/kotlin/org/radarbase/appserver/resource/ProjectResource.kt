@@ -1,6 +1,7 @@
 package org.radarbase.appserver.resource
 
 import jakarta.inject.Inject
+import jakarta.validation.Valid
 import jakarta.ws.rs.*
 import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
@@ -44,6 +45,24 @@ class ProjectResource @Inject constructor(
                 Response.created(URI("/projects")).entity(this).build()
             }
         }
+    }
+
+    @PUT
+    @Path("/{projectId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    fun updateProject(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid project: ProjectDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) = asyncService.runAsCoroutine(asyncResponse) {
+        projectService.updateProject(project).let(Response::ok).build()
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getProjectUsingId() {
+
     }
 
     companion object {

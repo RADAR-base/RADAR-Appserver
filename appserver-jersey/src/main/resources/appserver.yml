@@ -1,4 +1,4 @@
-resourceConfig: org.radarbase.appserver.enhancer.factory.ManagementPortalEnhancerFactory
+resourceConfig: org.radarbase.appserver.enhancer.factory.AppserverResourceEnhancerFactory
 
 server:
   baseUri: http://0.0.0.0:8090/appserver
