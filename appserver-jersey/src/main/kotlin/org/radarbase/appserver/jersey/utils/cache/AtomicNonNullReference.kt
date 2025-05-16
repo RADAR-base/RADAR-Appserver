@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference
  * @param initialValue the initial value to be set in the atomic reference.
  */
 @Suppress("unused")
-class NonNullAtomicReference<T : Any>(initialValue: T) {
+class AtomicNonNullReference<T : Any>(initialValue: T) {
 
     private val reference = AtomicReference(initialValue)
 
