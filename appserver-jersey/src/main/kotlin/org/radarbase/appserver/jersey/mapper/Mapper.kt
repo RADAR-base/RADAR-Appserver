@@ -1,7 +1,7 @@
 package org.radarbase.appserver.jersey.mapper
 
 import kotlinx.coroutines.Dispatchers
-import org.radarbase.kotlin.coroutines.forkJoin
+import org.radarbase.appserver.jersey.utils.mapParallel
 
 interface Mapper<D, E> {
     suspend fun dtoToEntity(dto: D): E
@@ -9,13 +9,13 @@ interface Mapper<D, E> {
 
     /** Convert all entities to DTOs in parallel coroutines. */
     suspend fun entitiesToDtos(entities: Iterable<E>): List<D> =
-        entities.forkJoin(Dispatchers.Default) { entity ->
+        entities.mapParallel(Dispatchers.Default) { entity ->
             entityToDto(entity)
         }
 
     /** Convert all DTOs to entities in parallel coroutines. */
     suspend fun dtosToEntities(dtos: Iterable<D>): List<E> =
-        dtos.forkJoin(Dispatchers.Default) { dto ->
+        dtos.mapParallel(Dispatchers.Default) { dto ->
             dtoToEntity(dto)
         }
 }

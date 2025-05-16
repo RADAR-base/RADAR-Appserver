@@ -1,10 +1,17 @@
 package org.radarbase.appserver.jersey.service.questionnaire
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
+import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
+import org.radarbase.appserver.jersey.dto.questionnaire.Schedule
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.service.questionnaire.protocol.ProtocolHandler
-import java.util.stream.Collectors
+import org.radarbase.appserver.jersey.utils.mapParallel
+import kotlin.collections.orEmpty
 
 interface ScheduleGeneratorService {
     fun getProtocolHandler(assessment: Assessment): ProtocolHandler?
@@ -23,19 +30,26 @@ interface ScheduleGeneratorService {
         prevTimezone: String,
     ): ProtocolHandler?
 
-    fun generateScheduleForUser(user: User, protocol: Protocol, prevSchedule: Schedule): Schedule {
-        val assessments: List<Assessment> = protocol.protocols ?: return Schedule()
-        val prevAssessmentSchedules: List<AssessmentSchedule> = prevSchedule.assessmentSchedules
-        val prevTimezone: String = prevSchedule.timezone ?: user.timezone!!
+    suspend fun generateScheduleForUser(
+        user: User,
+        protocol: Protocol,
+        prevSchedule: Schedule,
+    ): Schedule = coroutineScope {
+        val assessments = protocol.protocols ?: return@coroutineScope Schedule()
 
-        val assessmentSchedules: List<AssessmentSchedule> = assessments.parallelStream().map { assessment: Assessment ->
-            val prevTasks: List<Task> = prevAssessmentSchedules.firstOrNull { it.name == assessment.name }?.tasks
-                ?: emptyList()
+        val prevScheduledTaskByName: Map<String, List<Task>> = prevSchedule.assessmentSchedules
+            .associate { it.name to it.tasks }
+
+        val prevTimezone = prevSchedule.timezone ?: user.timezone!!
+
+        val assessmentSchedules = assessments.mapParallel(Dispatchers.Default) { assessment ->
+            val prevTasks = prevScheduledTaskByName[assessment.name].orEmpty()
             generateSingleAssessmentSchedule(assessment, user, prevTasks, prevTimezone)
-        }.collect(Collectors.toList())
+        }
 
-        return Schedule(assessmentSchedules, user, protocol.version)
+        Schedule(assessmentSchedules, user, protocol.version)
     }
+
 
     fun generateSingleAssessmentSchedule(
         assessment: Assessment,
