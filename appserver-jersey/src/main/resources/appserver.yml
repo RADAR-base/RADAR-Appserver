@@ -13,6 +13,12 @@ db:
   hibernateDialect: org.hibernate.dialect.H2Dialect
 
 github:
-  cacheDurationSec: 3600
-  retryDurationSec: 60
-  maxCacheSize: 10000
+  cache:
+    cacheDurationSec: 3600
+    retryDurationSec: 60
+    maxCacheSize: 10000
+  client:
+    maxContentLength: 1000000
+    timeoutSec: 10
+    githubToken:
+
