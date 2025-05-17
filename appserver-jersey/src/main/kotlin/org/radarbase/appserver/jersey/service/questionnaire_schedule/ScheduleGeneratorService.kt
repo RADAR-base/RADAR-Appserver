@@ -9,7 +9,7 @@ import org.radarbase.appserver.jersey.dto.protocol.Protocol
 import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.dto.questionnaire.Schedule
 import org.radarbase.appserver.jersey.entity.User
-import org.radarbase.appserver.jersey.service.questionnaire.protocol.ProtocolHandler
+import org.radarbase.appserver.jersey.service.protocol.ProtocolHandler
 import org.radarbase.appserver.jersey.utils.mapParallel
 import kotlin.collections.orEmpty
 
