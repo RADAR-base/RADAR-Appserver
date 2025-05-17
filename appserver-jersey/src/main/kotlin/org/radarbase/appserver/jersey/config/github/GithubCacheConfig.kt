@@ -7,5 +7,5 @@ data class GithubCacheConfig(
     val cacheDuration: Long? = null,
     @field:JsonProperty("retryDurationSec")
     val retryDuration: Long? = null,
-    val maxCacheSize: Long = 10000L,
+    val maxCacheSize: Int = 10000,
 )

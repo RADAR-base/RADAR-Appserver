@@ -1,6 +1,6 @@
 package org.radarbase.appserver.jersey.utils.cache
 
-import org.radarbase.appserver.jersey.utils.cache.util.AtomicNonNullReference
+import org.radarbase.appserver.jersey.utils.cache.deps.AtomicNonNullReference
 import java.io.IOException
 import java.time.Duration
 import java.time.Instant

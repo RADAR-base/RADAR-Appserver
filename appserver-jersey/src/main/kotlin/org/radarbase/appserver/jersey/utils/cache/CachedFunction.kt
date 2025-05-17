@@ -21,7 +21,9 @@
 
 package org.radarbase.appserver.jersey.utils.cache
 
-import org.radarbase.appserver.jersey.utils.cache.util.CustomThrowingFunction
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import org.radarbase.appserver.jersey.utils.cache.deps.CustomThrowingFunction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.ref.SoftReference
@@ -47,6 +49,8 @@ class CachedFunction<I : Any, O : Any>(
     val retryTime: Duration,
     val maxEntries: Int = 0,
 ) : CustomThrowingFunction<I, O> {
+    private val computingMutex: Mutex = Mutex()
+    private val extractingMutex: Mutex = Mutex()
 
     private val cachedMap: MutableMap<I, LockedResult> = LinkedHashMap<I, LockedResult>(16, 0.75f, false)
 
@@ -60,8 +64,8 @@ class CachedFunction<I : Any, O : Any>(
      * @throws Exception if computation of the value fails
      */
     @Throws(Exception::class)
-    override fun applyWithException(key: I): O {
-        return synchronized(cachedMap) {
+    override suspend fun applyWithException(key: I): O {
+        return extractingMutex.withLock {
             cachedMap.getOrPut(key) {
                 LockedResult(key)
             }
@@ -112,8 +116,7 @@ class CachedFunction<I : Any, O : Any>(
          * @throws Exception If an error occurs during the computation process.
          */
         @Throws(Exception::class)
-        @Synchronized
-        fun getOrCompute(): O {
+        suspend fun getOrCompute(): O = computingMutex.withLock {
             val result: Result<O>? = reference.get()
 
             if (result != null && !result.isExpired()) {

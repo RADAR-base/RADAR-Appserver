@@ -1,4 +1,4 @@
-package org.radarbase.appserver.jersey.utils.cache.util
+package org.radarbase.appserver.jersey.utils.cache.deps
 
 /**
  * Functional interface that represents a function which can throw checked exceptions.
@@ -18,5 +18,5 @@ fun interface CustomThrowingFunction<in T, out R> {
      * @throws Exception If an exception occurs during the application of the transformation.
      */
     @Throws(Exception::class)
-    fun applyWithException(key: T): R
+    suspend fun applyWithException(key: T): R
 }
