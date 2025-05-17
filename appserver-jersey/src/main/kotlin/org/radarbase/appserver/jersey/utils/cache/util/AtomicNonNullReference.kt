@@ -1,4 +1,4 @@
-package org.radarbase.appserver.jersey.utils.cache
+package org.radarbase.appserver.jersey.utils.cache.util
 
 import java.util.concurrent.atomic.AtomicReference
 
