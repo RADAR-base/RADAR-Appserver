@@ -11,6 +11,8 @@ import org.radarbase.appserver.jersey.mapper.ProjectMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.impl.ProjectRepositoryImpl
 import org.radarbase.appserver.jersey.service.ProjectService
+import org.radarbase.appserver.jersey.service.github.GithubClient
+import org.radarbase.appserver.jersey.service.github.GithubService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyResourceEnhancer {
@@ -39,6 +41,14 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(ProjectService::class.java)
             .to(ProjectService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(GithubClient::class.java)
+            .to(GithubClient::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(GithubService::class.java)
+            .to(GithubService::class.java)
             .`in`(Singleton::class.java)
     }
 
