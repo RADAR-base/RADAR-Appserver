@@ -1,6 +1,7 @@
 package org.radarbase.appserver.jersey.service.github.protocol.impl
 
 import io.ktor.utils.io.errors.IOException
+import jakarta.inject.Inject
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStrategy
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
@@ -18,13 +19,12 @@ import java.time.Duration
  * @param protocolFetcherStrategy A [ProtocolFetcherStrategy][org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStrategy] interface implementation used for
  * retrieving protocol configurations.
  */
-class DefaultProtocolGenerator(
+class DefaultProtocolGenerator @Inject constructor(
     private val protocolFetcherStrategy: ProtocolFetcherStrategy,
 ) : ProtocolGenerator {
     /**
      * Caches a mapping of user identifiers to their corresponding protocol configurations.
      */
-    @Transient
     private var cachedProtocolMap: CachedMap<String, Protocol> = CachedMap(
         protocolFetcherStrategy::fetchProtocols,
         CACHE_INVALIDATE_DEFAULT,

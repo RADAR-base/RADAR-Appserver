@@ -8,6 +8,7 @@ import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.entity.Project
+import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.ProjectMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
@@ -68,6 +69,7 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
     override fun ResourceConfig.enhance() {
         register(ValidationFeature::class.java)
+        register(UnhandledExceptionMapper::class.java)
     }
 
     companion object {

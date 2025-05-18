@@ -6,7 +6,7 @@ import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.dto.ProjectDtos
 import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer.Companion.PROJECT_MAPPER
 import org.radarbase.appserver.jersey.entity.Project
-import org.radarbase.appserver.jersey.exceptions.AlreadyExistsException
+import org.radarbase.appserver.jersey.exception.AlreadyExistsException
 import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.ProjectMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
@@ -29,14 +29,6 @@ class ProjectService @Inject constructor(
     private val projectRepository: ProjectRepository,
     @Named(PROJECT_MAPPER) private val projectMapper: Mapper<ProjectDto, Project>,
 ) {
-    init {
-        logger.info(
-            "Project Service: Repository: {} Mapper: {}",
-            projectRepository::class.simpleName,
-            projectRepository::class.simpleName,
-        )
-    }
-
     /**
      * Retrieves all projects from the repository.
      *
@@ -82,8 +74,8 @@ class ProjectService @Inject constructor(
      *
      * @param projectDTO the [ProjectDto] containing details of the project to create
      * @return the [ProjectDto] of the newly created project
-     * @throws org.radarbase.appserver.jersey.exceptions.InvalidProjectDetailsException if the input contains invalid data
-     * @throws org.radarbase.appserver.jersey.exceptions.AlreadyExistsException if the project is already present
+     * @throws org.radarbase.appserver.jersey.exception.InvalidProjectDetailsException if the input contains invalid data
+     * @throws AlreadyExistsException if the project is already present
      */
     suspend fun addProject(projectDTO: ProjectDto): ProjectDto {
         val projectId: String? = projectDTO.projectId
@@ -119,7 +111,7 @@ class ProjectService @Inject constructor(
      *
      * @param projectDto the [ProjectDto] containing updated details of the project
      * @return the updated [ProjectDto]
-     * @throws org.radarbase.appserver.jersey.exceptions.InvalidProjectDetailsException if the input contains invalid project data
+     * @throws org.radarbase.appserver.jersey.exception.InvalidProjectDetailsException if the input contains invalid project data
      * @throws org.radarbase.jersey.exception.HttpNotFoundException if the project to update does not exist
      */
     suspend fun updateProject(projectDto: ProjectDto): ProjectDto {
