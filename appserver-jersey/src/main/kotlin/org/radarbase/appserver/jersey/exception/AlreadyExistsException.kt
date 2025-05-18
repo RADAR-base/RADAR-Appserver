@@ -1,4 +1,4 @@
-package org.radarbase.appserver.jersey.exceptions
+package org.radarbase.appserver.jersey.exception
 
 import jakarta.ws.rs.core.Response
 import org.radarbase.jersey.exception.HttpApplicationException
