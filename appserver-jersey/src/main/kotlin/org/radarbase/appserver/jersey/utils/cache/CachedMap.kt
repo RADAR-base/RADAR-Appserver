@@ -23,23 +23,23 @@ class CachedMap<S : Any, T : Any> (
     private val cache = AtomicNonNullReference(Result(emptyMap<S, T>(), Instant.MIN))
 
     /**
-     * Get the cached map, or retrieve a new one if the current one is old.
+     * Get the cached map or retrieve a new one if the current one is old.
      *
      * @return map of data
      * @throws IOException if the data could not be retrieved.
      */
     @Throws(IOException::class)
-    fun get(): Map<S, T> = get(forceRefresh = false)
+    suspend fun get(): Map<S, T> = get(forceRefresh = false)
 
     /**
-     * Get the cached map, or retrieve a new one if the current one is old.
+     * Get the cached map or retrieve a new one if the current one is old.
      *
      * @param forceRefresh if true, the cache will be refreshed even if it is recent.
      * @return map of data
      * @throws IOException if the data could not be retrieved.
      */
     @Throws(IOException::class)
-    fun get(forceRefresh: Boolean): Map<S, T> {
+    suspend fun get(forceRefresh: Boolean): Map<S, T> {
         val currentResult: Result<S, T> = cache.get()
         if (!forceRefresh && !currentResult.isStale(invalidateAfter)) {
             return currentResult.map
@@ -66,7 +66,7 @@ class CachedMap<S : Any, T : Any> (
      * @throws IOException if the cache cannot be refreshed.
      */
     @Throws(IOException::class)
-    operator fun get(key: S): T? {
+    suspend operator fun get(key: S): T? {
         val currentResult: Result<S, T> = cache.get()
         val value: T? = currentResult.map[key]
         return if (value == null && currentResult.isStale(retryAfter)) {
@@ -81,7 +81,7 @@ class CachedMap<S : Any, T : Any> (
      */
     fun interface ThrowingSupplier<T : Any> {
         @Throws(IOException::class)
-        fun get(): T
+        suspend fun get(): T
     }
 
     /**

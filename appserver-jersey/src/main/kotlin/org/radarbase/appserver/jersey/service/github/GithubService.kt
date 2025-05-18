@@ -35,7 +35,7 @@ class GithubService @Inject constructor(
         }
     }
 
-    private val cachedGetContent: CachedFunction<String, String> = CachedFunction(
+    private val cachedGithubContent: CachedFunction<String, String> = CachedFunction(
         githubClient::getGithubContent,
         Duration.ofSeconds(cacheTime),
         Duration.ofSeconds(retryTime),
@@ -53,7 +53,7 @@ class GithubService @Inject constructor(
      */
     @Throws(IOException::class)
     suspend fun getGithubContent(url: String): String = try {
-        this.cachedGetContent.applyWithException(url)
+        this.cachedGithubContent.applyWithException(url)
     } catch (ex: IOException) {
         throw ex
     } catch (ex: WebApplicationException) {

@@ -49,8 +49,7 @@ class CachedFunction<I : Any, O : Any>(
     val retryTime: Duration,
     val maxEntries: Int = 0,
 ) : CustomThrowingFunction<I, O> {
-    private val computingMutex: Mutex = Mutex()
-    private val extractingMutex: Mutex = Mutex()
+    private val cacheLock: Mutex = Mutex()
 
     private val cachedMap: MutableMap<I, LockedResult> = LinkedHashMap<I, LockedResult>(16, 0.75f, false)
 
@@ -65,12 +64,12 @@ class CachedFunction<I : Any, O : Any>(
      */
     @Throws(Exception::class)
     override suspend fun applyWithException(key: I): O {
-        return extractingMutex.withLock {
+        return cacheLock.withLock {
             cachedMap.getOrPut(key) {
                 LockedResult(key)
+            }.also {
+                checkMaxSize()
             }
-        }.apply {
-            checkMaxSize()
         }.getOrCompute()
     }
 
@@ -107,6 +106,8 @@ class CachedFunction<I : Any, O : Any>(
         private val input: I,
         private var reference: SoftReference<Result<O>> = SoftReference(null),
     ) {
+        private val computeLock: Mutex = Mutex()
+
         /**
          * Retrieves a cached or precomputed result if available and valid. Otherwise, computes a new result,
          * caches it, and returns it. If the computation fails, an exception is thrown and the failure is cached
@@ -116,7 +117,7 @@ class CachedFunction<I : Any, O : Any>(
          * @throws Exception If an error occurs during the computation process.
          */
         @Throws(Exception::class)
-        suspend fun getOrCompute(): O = computingMutex.withLock {
+        suspend fun getOrCompute(): O = computeLock.withLock {
             val result: Result<O>? = reference.get()
 
             if (result != null && !result.isExpired()) {
