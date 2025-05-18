@@ -20,6 +20,8 @@ import org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStr
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
 import org.radarbase.appserver.jersey.service.github.protocol.impl.DefaultProtocolGenerator
 import org.radarbase.appserver.jersey.service.github.protocol.impl.GithubProtocolFetcherStrategy
+import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
+import org.radarbase.appserver.jersey.service.scheduling.factory.SchedulingServiceFactory
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyResourceEnhancer {
@@ -64,6 +66,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(DefaultProtocolGenerator::class.java)
             .to(ProtocolGenerator::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(SchedulingServiceFactory::class.java)
+            .to(SchedulingService::class.java)
             .`in`(Singleton::class.java)
     }
 
