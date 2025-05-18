@@ -1,5 +1,6 @@
 package org.radarbase.appserver.jersey.utils.cache
 
+import kotlinx.coroutines.runBlocking
 import org.radarbase.appserver.jersey.utils.cache.deps.AtomicNonNullReference
 import java.io.IOException
 import java.time.Duration
@@ -66,11 +67,13 @@ class CachedMap<S : Any, T : Any> (
      * @throws IOException if the cache cannot be refreshed.
      */
     @Throws(IOException::class)
-    suspend operator fun get(key: S): T? {
+    operator fun get(key: S): T? {
         val currentResult: Result<S, T> = cache.get()
         val value: T? = currentResult.map[key]
         return if (value == null && currentResult.isStale(retryAfter)) {
-            get(true)[key]
+            runBlocking {
+                get(true)[key]
+            }
         } else {
             value
         }
