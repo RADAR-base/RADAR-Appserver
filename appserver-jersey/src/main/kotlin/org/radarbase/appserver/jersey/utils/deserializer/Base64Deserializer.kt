@@ -1,4 +1,4 @@
-package org.radarbase.appserver.jersey.utils
+package org.radarbase.appserver.jersey.utils.deserializer
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.BeanProperty
