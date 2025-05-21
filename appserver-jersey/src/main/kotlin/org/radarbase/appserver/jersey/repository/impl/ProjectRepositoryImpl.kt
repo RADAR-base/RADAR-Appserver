@@ -9,7 +9,7 @@ import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.service.AsyncCoroutineService
 
 class ProjectRepositoryImpl(
-    @Context private val em: Provider<EntityManager>,
+    @Context em: Provider<EntityManager>,
     @Context asyncCoroutineService: AsyncCoroutineService,
 ) : ProjectRepository, HibernateRepository(em, asyncCoroutineService) {
     override suspend fun get(id: Long): Project? = transact {

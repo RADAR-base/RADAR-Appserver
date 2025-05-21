@@ -5,6 +5,9 @@ import org.radarbase.appserver.jersey.entity.User
 interface UserRepository {
     suspend fun get(id: Long): User?
     suspend fun getBySubjectId(subjectId: String): User?
+    suspend fun getByProjectId(projectId: Long): User?
+    suspend fun getBySubjectIdAndProjectId(subjectId: String, projectId: Long): User?
+    suspend fun getByFcmToken(fcmToken: String): User?
     suspend fun exists(id: Long): Boolean
     suspend fun existsBySubjectId(subjectId: String): Boolean
     suspend fun add(user: User): User

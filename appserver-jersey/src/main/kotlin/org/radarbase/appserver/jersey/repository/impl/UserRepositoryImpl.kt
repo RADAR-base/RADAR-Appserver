@@ -28,6 +28,60 @@ class UserRepositoryImpl(
 
     override suspend fun existsBySubjectId(subjectId: String): Boolean = getBySubjectId(subjectId) != null
 
+    override suspend fun getByProjectId(projectId: Long): User? = transact {
+        val project = createQuery(
+            "SELECT p FROM Project p WHERE p.id = :projectId",
+            Project::class.java,
+        ).setParameter("projectId", projectId)
+            .resultList
+            .firstOrNull()
+            ?: return@transact null
+
+        createQuery(
+            "SELECT u FROM User u WHERE u.project = :project",
+            User::class.java,
+        ).setParameter("project", project)
+            .resultList
+            .firstOrNull()
+    }
+
+    override suspend fun getBySubjectIdAndProjectId(
+        subjectId: String,
+        projectId: Long,
+    ): User? = transact {
+        val project = createQuery(
+            "SELECT p FROM Project p WHERE p.id = :projectId",
+            Project::class.java,
+        ).setParameter("projectId", projectId)
+            .resultList
+            .firstOrNull()
+            ?: return@transact null
+
+        createQuery(
+            """
+            SELECT u 
+              FROM User u 
+             WHERE u.subjectId = :subjectId
+               AND u.project   = :project
+            """.trimIndent(),
+            User::class.java,
+        )
+            .setParameter("subjectId", subjectId)
+            .setParameter("project", project)
+            .resultList
+            .firstOrNull()
+    }
+
+    override suspend fun getByFcmToken(fcmToken: String): User? = transact {
+        createQuery(
+            "SELECT u FROM User u WHERE u.fcmToken = :fcmToken",
+            User::class.java,
+        )
+            .setParameter("fcmToken", fcmToken)
+            .resultList
+            .firstOrNull()
+    }
+
     override suspend fun add(user: User): User = transact {
         user.apply(::persist)
     }
