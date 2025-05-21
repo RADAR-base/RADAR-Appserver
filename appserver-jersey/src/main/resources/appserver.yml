@@ -22,3 +22,10 @@ github:
     timeoutSec: 10
     githubToken:
 
+protocol:
+  githubProtocolRepo: RADAR-base/RADAR-aRMT-protocols
+  protocolFileName: protocol.json
+  githubBranch: master
+
+email:
+  enabled: false
