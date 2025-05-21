@@ -7,10 +7,13 @@ import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
+import org.radarbase.appserver.jersey.dto.fcm.FcmUserDto
 import org.radarbase.appserver.jersey.entity.Project
+import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.ProjectMapper
+import org.radarbase.appserver.jersey.mapper.UserMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.repository.impl.ProjectRepositoryImpl
@@ -52,6 +55,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
         bind(ProjectMapper::class.java)
             .to(object : TypeLiteral<Mapper<ProjectDto, Project>>() {}.type)
             .named(PROJECT_MAPPER)
+            .`in`(Singleton::class.java)
+
+        bind(UserMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
             .`in`(Singleton::class.java)
 
         bind(ProjectService::class.java)
