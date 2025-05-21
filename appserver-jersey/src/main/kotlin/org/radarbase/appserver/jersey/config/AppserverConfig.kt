@@ -12,7 +12,7 @@ data class AppserverConfig(
     val github: GithubConfig = GithubConfig(),
     val quartz: SchedulerConfig = SchedulerConfig(),
     val db: DbConfig = DbConfig(),
-    val emailConfig: EmailConfig = EmailConfig(),
+    val email: EmailConfig = EmailConfig(),
     val protocol: QuestionnaireProtocolConfig = QuestionnaireProtocolConfig(),
 ) : Validation {
     override fun validate() {
