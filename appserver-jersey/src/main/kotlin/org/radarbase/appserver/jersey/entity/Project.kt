@@ -18,6 +18,7 @@ package org.radarbase.appserver.jersey.entity
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
+import org.radarbase.appserver.jersey.utils.stringRepresentation
 import java.util.Objects
 
 /**
@@ -52,9 +53,10 @@ class Project(
         return projectId == other.projectId
     }
 
-    override fun toString(): String {
-        return "Project(id=$id, projectId=$projectId)"
-    }
-
-
+    override fun toString(): String = stringRepresentation(
+        Project::id,
+        Project::projectId,
+        Project::createdAt,
+        Project::updatedAt,
+    )
 }
