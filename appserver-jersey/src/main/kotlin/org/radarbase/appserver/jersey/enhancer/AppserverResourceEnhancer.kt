@@ -12,7 +12,9 @@ import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.ProjectMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
+import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.repository.impl.ProjectRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.UserRepositoryImpl
 import org.radarbase.appserver.jersey.service.ProjectService
 import org.radarbase.appserver.jersey.service.github.GithubClient
 import org.radarbase.appserver.jersey.service.github.GithubService
@@ -41,6 +43,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(ProjectRepositoryImpl::class.java)
             .to(ProjectRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(UserRepositoryImpl::class.java)
+            .to(UserRepository::class.java)
             .`in`(Singleton::class.java)
 
         bind(ProjectMapper::class.java)
