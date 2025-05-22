@@ -19,6 +19,7 @@ import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.repository.impl.ProjectRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.UserRepositoryImpl
 import org.radarbase.appserver.jersey.service.ProjectService
+import org.radarbase.appserver.jersey.service.UserService
 import org.radarbase.appserver.jersey.service.github.GithubClient
 import org.radarbase.appserver.jersey.service.github.GithubService
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStrategy
@@ -63,6 +64,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(ProjectService::class.java)
             .to(ProjectService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(UserService::class.java)
+            .to(UserService::class.java)
             .`in`(Singleton::class.java)
 
         bind(GithubClient::class.java)
