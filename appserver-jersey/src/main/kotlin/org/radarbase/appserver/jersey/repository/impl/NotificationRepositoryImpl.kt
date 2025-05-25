@@ -21,7 +21,7 @@ class NotificationRepositoryImpl(
     override suspend fun exists(id: Long): Boolean = transact {
         val count = createQuery(
             "SELECT COUNT(n) FROM Notification n WHERE n.id = :id",
-            Long::class.java
+            Long::class.java,
         )
             .setParameter("id", id)
             .singleResult
@@ -99,16 +99,14 @@ class NotificationRepositoryImpl(
         ttlSeconds: Int,
     ): Notification? = transact {
         createQuery(
-            """
-            SELECT n FROM Notification n
+            """SELECT n FROM Notification n
             WHERE n.user.id = :userId
               AND n.sourceId = :sourceId
               AND n.scheduledTime = :scheduledTime
               AND n.title = :title
               AND n.body = :body
               AND n.type = :type
-              AND n.ttlSeconds = :ttlSeconds
-            """,
+              AND n.ttlSeconds = :ttlSeconds""",
             Notification::class.java,
         ).setParameter("userId", userId)
             .setParameter("sourceId", sourceId)
@@ -131,8 +129,7 @@ class NotificationRepositoryImpl(
         ttlSeconds: Int,
     ): Boolean = transact {
         val count = createQuery(
-            """
-            SELECT COUNT(n)
+            """SELECT COUNT(n)
             FROM Notification n
             WHERE n.user.id = :userId
               AND n.sourceId = :sourceId
@@ -140,8 +137,7 @@ class NotificationRepositoryImpl(
               AND n.title = :title
               AND n.body = :body
               AND n.type = :type
-              AND n.ttlSeconds = :ttlSeconds
-            """,
+              AND n.ttlSeconds = :ttlSeconds""",
             Long::class.java,
         ).setParameter("userId", userId)
             .setParameter("sourceId", sourceId)
@@ -154,8 +150,17 @@ class NotificationRepositoryImpl(
         count > 0
     }
 
-    override suspend fun existsByIdAndUserId(id: Long, userId: Long): Boolean =
-        findByIdAndUserId(id, userId) != null
+    override suspend fun existsByIdAndUserId(id: Long, userId: Long): Boolean = transact {
+        createQuery(
+            """SELECT COUNT(n) 
+                FROM Notification n 
+                WHERE n.id = :id 
+                AND n.user.id = :userId""".trimIndent(),
+            Long::class.java,
+        ).setParameter("id", id)
+            .setParameter("userId", userId)
+            .singleResult > 0
+    }
 
     override suspend fun existsByTaskId(taskId: Long): Boolean = transact {
         val count = createQuery(

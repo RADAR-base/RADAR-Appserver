@@ -23,7 +23,14 @@ class UserRepositoryImpl(
         ).setParameter("subjectId", subjectId).resultList.firstOrNull()
     }
 
-    override suspend fun exists(id: Long): Boolean = find(id) != null
+    override suspend fun exists(id: Long): Boolean = transact {
+        createQuery(
+            """SELECT COUNT(u)
+                FROM User u 
+                WHERE u.id = :id""".trimIndent(),
+            Long::class.java,
+        ).setParameter("id", id).singleResult > 0
+    }
 
     override suspend fun existsBySubjectId(subjectId: String): Boolean = findBySubjectId(subjectId) != null
 
@@ -44,8 +51,7 @@ class UserRepositoryImpl(
             """SELECT u 
                         FROM User u 
                         WHERE u.subjectId = :subjectId 
-                        AND u.project.id = :projectId
-                        """.trimIndent(),
+                        AND u.project.id = :projectId""".trimIndent(),
             User::class.java,
         )
             .setParameter("subjectId", subjectId)
@@ -74,7 +80,7 @@ class UserRepositoryImpl(
     }
 
     override suspend fun delete(entity: User): Unit = transact {
-            remove(merge(entity))
+        remove(merge(entity))
     }
 
     override suspend fun findAll(): List<User> = transact {

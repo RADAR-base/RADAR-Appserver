@@ -23,9 +23,27 @@ class ProjectRepositoryImpl(
         ).setParameter("projectId", projectId).resultList.firstOrNull()
     }
 
-    override suspend fun exists(id: Long): Boolean = find(id) != null
+    override suspend fun exists(id: Long): Boolean = transact {
+        createQuery(
+            """SELECT COUNT(p)
+                FROM Project p 
+                WHERE p.id = :id""".trimIndent(),
+            Long::class.java,
+        ).setParameter(
+            "id", id,
+        ).singleResult > 0
+    }
 
-    override suspend fun existsByProjectId(projectId: String): Boolean = findByProjectId(projectId) != null
+    override suspend fun existsByProjectId(projectId: String): Boolean = transact {
+        createQuery(
+            """SELECT COUNT(p) 
+                FROM Project p 
+                WHERE p.projectId = :projectId""".trimIndent(),
+            Long::class.java,
+        ).setParameter(
+            "projectId", projectId,
+        ).singleResult > 0
+    }
 
     override suspend fun add(entity: Project): Project = transact {
         entity.apply(::persist)
@@ -36,7 +54,7 @@ class ProjectRepositoryImpl(
     override suspend fun update(entity: Project): Project? = transact {
         merge(entity)
     }
-    
+
     override suspend fun findAll(): List<Project> = transact {
         createQuery("SELECT p FROM Project p", Project::class.java).resultList
     }

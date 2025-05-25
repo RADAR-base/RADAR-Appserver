@@ -17,7 +17,14 @@ class DataMessageRepositoryImpl(
         find(DataMessage::class.java, id)
     }
 
-    override suspend fun exists(id: Long): Boolean = find(id) != null
+    override suspend fun exists(id: Long): Boolean = transact {
+        createQuery(
+            """SELECT COUNT(d)
+                FROM DataMessage d 
+                WHERE d.id = :id """.trimIndent(),
+            Long::class.java,
+        ).setParameter("id", id).singleResult > 0
+    }
 
     override suspend fun add(entity: DataMessage): DataMessage = transact {
         entity.apply(::persist)
@@ -72,14 +79,12 @@ class DataMessageRepositoryImpl(
         ttlSeconds: Int,
     ): Boolean = transact {
         createQuery(
-            """
-            SELECT COUNT(d) 
+            """SELECT COUNT(d) 
             FROM DataMessage d 
             WHERE d.user.id = :userId 
             AND d.sourceId = :sourceId 
             AND d.scheduledTime = :scheduledTime 
-            AND d.ttlSeconds = :ttlSeconds
-    """,
+            AND d.ttlSeconds = :ttlSeconds""",
             Long::class.java,
         )
             .setParameter("userId", userId)
@@ -90,7 +95,18 @@ class DataMessageRepositoryImpl(
 
     }
 
-    override suspend fun existsByIdAndUserId(id: Long, userId: Long): Boolean = findByIdAndUserId(id, userId) != null
+    override suspend fun existsByIdAndUserId(id: Long, userId: Long): Boolean = transact {
+        createQuery(
+            """SELECT COUNT(d)
+                FROM DataMessage d 
+                WHERE d.id = :id
+                AND d.user.id = :userId""".trimIndent(),
+            Long::class.java,
+        )
+            .setParameter("id", id)
+            .setParameter("userId", userId)
+            .singleResult > 0
+    }
 
     override suspend fun deleteByUserId(userId: Long): Unit = transact {
         createQuery("DELETE FROM DataMessage d WHERE d.user.id = :userId")
