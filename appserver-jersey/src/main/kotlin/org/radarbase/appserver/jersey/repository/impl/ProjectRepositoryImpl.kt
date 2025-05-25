@@ -27,12 +27,14 @@ class ProjectRepositoryImpl(
 
     override suspend fun existsByProjectId(projectId: String): Boolean = findByProjectId(projectId) != null
 
-    override suspend fun add(project: Project): Project = transact {
-        project.apply(::persist)
+    override suspend fun add(entity: Project): Project = transact {
+        entity.apply(::persist)
     }
 
-    override suspend fun update(project: Project): Project? = transact {
-        merge(project)
+    override suspend fun delete(entity: Project) = Unit // Not needed
+
+    override suspend fun update(entity: Project): Project? = transact {
+        merge(entity)
     }
     
     override suspend fun findAll(): List<Project> = transact {

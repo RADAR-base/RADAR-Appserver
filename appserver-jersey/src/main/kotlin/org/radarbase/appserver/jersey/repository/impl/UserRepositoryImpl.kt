@@ -65,16 +65,16 @@ class UserRepositoryImpl(
             .firstOrNull()
     }
 
-    override suspend fun add(user: User): User = transact {
-        user.apply(::persist)
+    override suspend fun add(entity: User): User = transact {
+        entity.apply(::persist)
     }
 
-    override suspend fun update(user: User): User? = transact {
-        merge(user)
+    override suspend fun update(entity: User): User? = transact {
+        merge(entity)
     }
 
-    override suspend fun delete(user: User): Unit = transact {
-            remove(merge(user))
+    override suspend fun delete(entity: User): Unit = transact {
+            remove(merge(entity))
     }
 
     override suspend fun findAll(): List<User> = transact {
