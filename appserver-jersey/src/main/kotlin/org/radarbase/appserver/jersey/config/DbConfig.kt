@@ -1,11 +1,15 @@
 package org.radarbase.appserver.jersey.config
 
 import org.radarbase.appserver.jersey.entity.Project
+import org.radarbase.appserver.jersey.entity.User
+import org.radarbase.appserver.jersey.entity.UserMetrics
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 
 data class DbConfig(
     val classes: List<String> = listOf(
         Project::class.qualifiedName!!,
+        User::class.qualifiedName!!,
+        UserMetrics::class.qualifiedName!!,
     ),
     val jdbcDriver: String? = null,
     val jdbcUrl: String? = null,
