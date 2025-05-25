@@ -12,7 +12,7 @@ import java.time.Instant
 class DataMessageRepositoryImpl(
     @Context em: Provider<EntityManager>,
     @Context asyncCoroutineService: AsyncCoroutineService,
-) : DataMessageRepository, HibernateRepository(em, asyncCoroutineService) {
+) : HibernateRepository(em, asyncCoroutineService), DataMessageRepository {
     override suspend fun find(id: Long): DataMessage? = transact {
         find(DataMessage::class.java, id)
     }
