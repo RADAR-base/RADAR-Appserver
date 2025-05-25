@@ -1,6 +1,11 @@
 plugins {
     application
     id("org.radarbase.radar-kotlin") version Versions.radarCommonsVersion
+    kotlin("plugin.allopen")
+    kotlin("plugin.noarg")
+    id("org.jetbrains.kotlin.plugin.spring")
+    id("org.jetbrains.kotlin.plugin.jpa")
+
 }
 
 application {
@@ -39,6 +44,12 @@ val integrationTest by tasks.registering(Test::class) {
 
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
+allOpen {
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+}
+
 dependencies {
 //    implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
@@ -49,8 +60,11 @@ dependencies {
     implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {
         runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
     }
-    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommonsVersion}")
     implementation("com.h2database:h2:${Versions.h2Version}")
+
+    implementation("io.ktor:ktor-client-core:${Versions.ktorVersion}")
+    implementation("io.ktor:ktor-client-cio:${Versions.ktorVersion}")
+    implementation("org.glassfish.jersey.ext:jersey-bean-validation:3.1.10")
 
 //    implementation("org.radarbase:managementportal-client:${Versions.radarAuth}")
 //    implementation("org.radarbase:lzfse-decode:${Versions.lzfse}")

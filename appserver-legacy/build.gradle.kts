@@ -5,15 +5,15 @@ plugins {
     eclipse
 //    scala
     kotlin("kapt")
-    kotlin("plugin.allopen") version Versions.kotlinVersion
-    kotlin("plugin.noarg") version Versions.kotlinVersion
+    kotlin("plugin.allopen")
+    kotlin("plugin.noarg")
 //    id("io.gatling.gradle") version Versions.gatlingVersion
     id("org.springframework.boot") version Versions.springBootVersion
     id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
     id("org.radarbase.radar-dependency-management")
     id("org.radarbase.radar-kotlin")
-    id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlinVersion
-    id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlinVersion
+    id("org.jetbrains.kotlin.plugin.spring")
+    id("org.jetbrains.kotlin.plugin.jpa")
 }
 
 java {
