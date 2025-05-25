@@ -12,47 +12,38 @@ class ProjectRepositoryImpl(
     @Context em: Provider<EntityManager>,
     @Context asyncCoroutineService: AsyncCoroutineService,
 ) : ProjectRepository, HibernateRepository(em, asyncCoroutineService) {
-    override suspend fun get(id: Long): Project? = transact {
+    override suspend fun find(id: Long): Project? = transact {
         find(Project::class.java, id)
     }
 
-    override suspend fun getByProjectId(projectId: String): Project? = transact {
+    override suspend fun findByProjectId(projectId: String): Project? = transact {
         createQuery(
             "SELECT p FROM Project p WHERE p.projectId = :projectId",
             Project::class.java,
         ).setParameter("projectId", projectId).resultList.firstOrNull()
     }
 
-    override suspend fun exists(id: Long): Boolean = get(id) != null
+    override suspend fun exists(id: Long): Boolean = find(id) != null
 
-    override suspend fun existsByProjectId(projectId: String): Boolean = getByProjectId(projectId) != null
+    override suspend fun existsByProjectId(projectId: String): Boolean = findByProjectId(projectId) != null
 
     override suspend fun add(project: Project): Project = transact {
         project.apply(::persist)
     }
 
-    override suspend fun update(project: Project) = transact {
-        createQuery("SELECT p FROM Project p WHERE p.id = :id", Project::class.java).apply {
-                setParameter(
-                    "id",
-                    project.id,
-                )
-            }.resultList.firstOrNull()?.apply {
-                projectId = project.projectId
-                merge(this)
-            }
+    override suspend fun update(project: Project): Project? = transact {
+        find(Project::class.java, project.id)?.let {
+            merge(project)
+        }
     }
 
     override suspend fun delete(id: Long): Unit = transact {
-        createQuery("SELECT p FROM Project p WHERE p.id = :id", Project::class.java).apply {
-                setParameter(
-                    "id",
-                    id,
-                )
-            }.resultList.firstOrNull()?.apply { remove(merge(this)) }
+        find(Project::class.java, id)?.let {
+            remove(it)
+        }
     }
 
-    override suspend fun all(): List<Project> = transact {
+    override suspend fun findAll(): List<Project> = transact {
         createQuery("SELECT p FROM Project p", Project::class.java).resultList
     }
 }

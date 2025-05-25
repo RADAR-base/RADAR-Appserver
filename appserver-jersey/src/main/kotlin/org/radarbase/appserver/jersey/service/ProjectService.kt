@@ -35,7 +35,11 @@ class ProjectService @Inject constructor(
      * @return [ProjectDtos] object containing a list of all projects as DTOs.
      */
     suspend fun getAllProjects(): ProjectDtos {
-        return ProjectDtos(projectMapper.entitiesToDtos(projectRepository.all()).toMutableList())
+        return projectRepository.findAll().let {
+            projectMapper.entitiesToDtos(it).run {
+                ProjectDtos(this.toMutableList())
+            }
+        }
     }
 
     /**
@@ -46,7 +50,7 @@ class ProjectService @Inject constructor(
      * @throws org.radarbase.jersey.exception.HttpNotFoundException if no project with the given ID exists
      */
     suspend fun getProjectById(id: Long): ProjectDto {
-        val project: Project = checkPresence(projectRepository.get(id), "project_not_found") {
+        val project: Project = checkPresence(projectRepository.find(id), "project_not_found") {
             "Project with id $id not found"
         }
 
@@ -62,7 +66,7 @@ class ProjectService @Inject constructor(
      */
     suspend fun getProjectByProjectId(projectId: String): ProjectDto {
         val project = checkPresence(
-            projectRepository.getByProjectId(projectId),
+            projectRepository.findByProjectId(projectId),
             "project_not_found",
         ) { "Project with projectId $projectId not found" }
 
@@ -101,7 +105,11 @@ class ProjectService @Inject constructor(
             )
         }
 
-        return projectMapper.entityToDto(projectRepository.add(projectMapper.dtoToEntity(projectDTO))).also {
+        return projectMapper.dtoToEntity(projectDTO).run {
+            projectRepository.add(this)
+        }.let {
+            projectMapper.entityToDto(it)
+        }.also {
             logger.info("Project $projectId added to project")
         }
     }
