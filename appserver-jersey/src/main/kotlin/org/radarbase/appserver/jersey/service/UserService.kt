@@ -1,12 +1,15 @@
 package org.radarbase.appserver.jersey.service
 
 import jakarta.inject.Inject
+import jakarta.inject.Named
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.fcm.FcmUserDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmUsers
+import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer.Companion.USER_MAPPER
 import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.exception.InvalidUserDetailsException
+import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.UserMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
@@ -19,7 +22,7 @@ import java.time.Instant
 
 @Suppress("unused")
 class UserService @Inject constructor(
-    val userMapper: UserMapper,
+    @Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
     val userRepository: UserRepository,
     val projectRepository: ProjectRepository,
 //    val scheduleService: QuestionnaireScheduleService,
@@ -33,7 +36,7 @@ class UserService @Inject constructor(
      * @return a list of [FcmUsers].
      */
     suspend fun getAllRadarUsers(): FcmUsers {
-        return FcmUsers(userMapper.entitiesToDtos(userRepository.all()))
+        return FcmUsers(userMapper.entitiesToDtos(userRepository.findAll()))
     }
 
     /**
@@ -44,7 +47,7 @@ class UserService @Inject constructor(
      * @throws [HttpNotFoundException] if no user with the given id exists
      */
     suspend fun getUserById(id: Long): FcmUserDto {
-        val user: User = checkPresence(userRepository.get(id), "user_not_found") {
+        val user: User = checkPresence(userRepository.find(id), "user_not_found") {
             "User with id $id not found"
         }
         return userMapper.entityToDto(user)
@@ -59,7 +62,7 @@ class UserService @Inject constructor(
      */
     suspend fun getUserBySubjectId(subjectId: String): FcmUserDto {
         val user =
-            checkPresence(userRepository.getBySubjectId(subjectId), "user_not_found") {
+            checkPresence(userRepository.findBySubjectId(subjectId), "user_not_found") {
                 "User with subjectId $subjectId not found"
             }
         return userMapper.entityToDto(user)
@@ -74,11 +77,11 @@ class UserService @Inject constructor(
      */
     suspend fun getUsersByProjectId(projectId: String): FcmUsers {
         val project: Project =
-            checkPresence(projectRepository.getByProjectId(projectId), "project_not_found") {
+            checkPresence(projectRepository.findByProjectId(projectId), "project_not_found") {
                 "Project with id $projectId not found"
             }
 
-        val users: List<User> = userRepository.getByProjectId(
+        val users: List<User> = userRepository.findByProjectId(
             requireNotNull(project.id) { "Project id for project ${project.projectId} is null when fetching users by projectId" },
         )
 
@@ -100,12 +103,12 @@ class UserService @Inject constructor(
     suspend fun getUserByProjectIdAndSubjectId(projectId: String, subjectId: String): FcmUserDto {
         val project: Project =
             checkPresence(
-                projectRepository.getByProjectId(projectId),
+                projectRepository.findByProjectId(projectId),
                 "project_not_found",
             ) { "Project with id $projectId not found" }
 
         return checkPresence(
-            userRepository.getBySubjectIdAndProjectId(
+            userRepository.findBySubjectIdAndProjectId(
                 subjectId,
                 requireNotNull(project.id) { "Project id for project ${project.projectId} is null when fetching users by projectId" },
             ),
@@ -123,7 +126,7 @@ class UserService @Inject constructor(
      */
     suspend fun checkFcmTokenExistsAndReplace(userDto: FcmUserDto) {
         userDto.fcmToken?.also { fcmToken ->
-            val user: User? = userRepository.getByFcmToken(fcmToken)
+            val user: User? = userRepository.findByFcmToken(fcmToken)
             user?.apply {
                 if (!subjectId.equals(userDto.subjectId)) {
                     user.fcmToken = FCM_TOKEN_PREFIX + Instant.now().toString()
@@ -151,7 +154,7 @@ class UserService @Inject constructor(
         logger.debug("Saving user: {}", userDto)
 
         val project: Project = checkPresence(
-            projectRepository.getByProjectId(
+            projectRepository.findByProjectId(
                 checkNotNull(userDto.projectId) { "Project ID must not be null" },
             ),
             "project_not_found",
@@ -159,7 +162,7 @@ class UserService @Inject constructor(
             "Project with id ${userDto.projectId} not found. Please create the project first."
         }
 
-        val user: User? = userRepository.getBySubjectIdAndProjectId(
+        val user: User? = userRepository.findBySubjectIdAndProjectId(
             requireNotNull(userDto.subjectId) { "Subject id must not be null" },
             requireNotNull(project.id) { "Project id must not be null" },
         )
@@ -167,14 +170,17 @@ class UserService @Inject constructor(
         checkInvalidDetails<InvalidUserDetailsException>(
             { user != null },
             {
-                "User with subjectId ${userDto.subjectId} already exists with projectId ${userDto.projectId}. " + "Please use update endpoint if you need to update user"
+                "User with subjectId ${userDto.subjectId} already exists with projectId ${userDto.projectId}. " +
+                    "Please use update endpoint if you need to update user"
             },
         )
 
         val email: String? = userDto.email
         if (sendEmailNotifications && (email == null || email.isEmpty())) {
             logger.warn(
-                "No email address was provided for new subject '{}'. The option to send notifications via email " + "('radar.notification.email.enabled') will not work for this subject. Consider to provide a valid email " + "address for subject",
+                "No email address was provided for new subject '{}'. The option to send notifications via email " +
+                    "('email.enabled') will not work for this subject. Consider to provide a valid email " +
+                    "address for subject",
                 userDto.subjectId,
             )
         }
@@ -208,7 +214,7 @@ class UserService @Inject constructor(
     suspend fun updateUser(userDto: FcmUserDto): FcmUserDto {
 //        TODO update to use Id instead of subjectId
         val project: Project = checkPresence(
-            projectRepository.getByProjectId(
+            projectRepository.findByProjectId(
                 checkNotNull(userDto.projectId) { "Project ID must not be null" },
             ),
             "project_not_found",
@@ -216,7 +222,7 @@ class UserService @Inject constructor(
             "Project with id ${userDto.projectId} not found. Please create the project first."
         }
 
-        val user: User? = userRepository.getBySubjectIdAndProjectId(
+        val user: User? = userRepository.findBySubjectIdAndProjectId(
             requireNotNull(userDto.subjectId) { "Subject id must not be null" },
             requireNotNull(project.id) { "Project id must not be null" },
         )
@@ -225,7 +231,7 @@ class UserService @Inject constructor(
             { user == null },
             {
                 "The user with specified subject ID ${userDto.subjectId} does not exist in project ID "
-                "${userDto.projectId} Please use CreateUser endpoint to create the user."
+                "${userDto.projectId} Please use post endpoint to create the user."
             },
         )
 
@@ -256,7 +262,7 @@ class UserService @Inject constructor(
 
     suspend fun updateLastDelivered(fcmToken: String?, lastDelivered: Instant?) {
         val user: User = checkPresence(
-            userRepository.getByFcmToken(
+            userRepository.findByFcmToken(
                 requireNotNull(fcmToken) {
                     "FCM token cannot be null when updating last delivered time for user"
                 },
@@ -282,11 +288,11 @@ class UserService @Inject constructor(
      * @throws InvalidUserDetailsException If the user with the specified subjectId does not exist in the project.
      */
     suspend fun deleteUserByProjectIdAndSubjectId(projectId: String, subjectId: String) {
-        val project: Project = checkPresence(projectRepository.getByProjectId(projectId), "project_not_found") {
+        val project: Project = checkPresence(projectRepository.findByProjectId(projectId), "project_not_found") {
             "Project with id $projectId not found"
         }
 
-        val user = userRepository.getBySubjectIdAndProjectId(
+        val user = userRepository.findBySubjectIdAndProjectId(
             subjectId,
             requireNotNull(project.id) { "Project id for project ${project.projectId} is null when fetching users by projectId" },
         )
@@ -298,7 +304,7 @@ class UserService @Inject constructor(
             },
         )
 
-        this.userRepository.delete(user!!.id!!)
+        this.userRepository.delete(user!!)
     }
 
     companion object {

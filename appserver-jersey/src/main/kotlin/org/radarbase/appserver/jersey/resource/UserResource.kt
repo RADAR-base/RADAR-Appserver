@@ -3,6 +3,8 @@ package org.radarbase.appserver.jersey.resource
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
+import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.PUT
@@ -26,14 +28,14 @@ class UserResource @Inject constructor(
 ) {
 
     @POST
-    @Path("/projects/{projectId}/users")
+    @Path("projects/{projectId}/users")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun addUserToProject(
-        @Valid @PathParam("projectId") projectId: String,
-        @Suspended asyncResponse: AsyncResponse,
         @Valid userDto: FcmUserDto,
-        @QueryParam("forceFcmToken") forceFcmToken: Boolean = false,
+        @Valid @PathParam("projectId") projectId: String,
+        @QueryParam("forceFcmToken") @DefaultValue("false") forceFcmToken: Boolean,
+        @Suspended asyncResponse: AsyncResponse,
     ) = asyncService.runAsCoroutine(asyncResponse) {
         userDto.projectId = projectId
         if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(userDto)
@@ -42,7 +44,7 @@ class UserResource @Inject constructor(
     }
 
     @PUT
-    @Path("/projects/{projectId}/users/{subjectId}")
+    @Path("projects/{projectId}/users/{subjectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun updateUserInProject(
@@ -62,7 +64,7 @@ class UserResource @Inject constructor(
     }
 
     @GET
-    @Path("/users")
+    @Path("users")
     @Produces(MediaType.APPLICATION_JSON)
     fun getAllUsers(
         @Suspended asyncResponse: AsyncResponse,
@@ -73,7 +75,7 @@ class UserResource @Inject constructor(
     }
 
     @GET
-    @Path("/users/user")
+    @Path("users/user")
     @Produces(MediaType.APPLICATION_JSON)
     fun getUserById(
         @QueryParam("id") id: Long,
@@ -85,7 +87,7 @@ class UserResource @Inject constructor(
     }
 
     @GET
-    @Path("/users/user/{subjectId}")
+    @Path("users/{subjectId}")
     @Produces(MediaType.APPLICATION_JSON)
     fun getUserBySubjectId(
         @PathParam("subjectId") subjectId: String,
@@ -98,7 +100,7 @@ class UserResource @Inject constructor(
 
 
     @GET
-    @Path("/projects/{projectId}/users")
+    @Path("projects/{projectId}/users")
     @Produces(MediaType.APPLICATION_JSON)
     fun getUsersUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
@@ -110,7 +112,7 @@ class UserResource @Inject constructor(
     }
 
     @GET
-    @Path("/projects/{projectId}/users/{subjectId}")
+    @Path("projects/{projectId}/users/{subjectId}")
     @Produces(MediaType.APPLICATION_JSON)
     fun getUsersUsingProjectIdAndSubjectId(
         @Valid @PathParam("projectId") projectId: String,
@@ -119,6 +121,19 @@ class UserResource @Inject constructor(
     ) = asyncService.runAsCoroutine(asyncResponse) {
         userService.getUserByProjectIdAndSubjectId(projectId, subjectId).let {
             Response.ok(it).build()
+        }
+    }
+
+    @DELETE
+    @Path("projects/{projectId}/users/{subjectId}")
+    fun deleteUserUsingProjectIdAndSubjectId(
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse) {
+            userService.deleteUserByProjectIdAndSubjectId(projectId, subjectId)
+            Response.ok().build()
         }
     }
 }

@@ -101,8 +101,8 @@ class User(
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "attributes_map")
-    @MapKeyColumn(name = "key", nullable = true)
-    @Column(name = "value")
+    @MapKeyColumn(name = "attribute_key", nullable = true)
+    @Column(name = "attribute_value")
     var attributes: Map<String?, String?>? = HashMap(),
 ) : AuditModel() {
 
