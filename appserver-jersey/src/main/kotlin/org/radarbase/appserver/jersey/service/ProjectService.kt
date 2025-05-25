@@ -129,13 +129,25 @@ class ProjectService @Inject constructor(
             { "The 'id' of the project must be supplied for updating project" },
         )
 
-        val savedProject = projectRepository.update(projectMapper.dtoToEntity(projectDto))
+        val project = projectRepository.find(projectDto.id!!) ?: throw HttpNotFoundException(
+            "project_not_found",
+            "Project with id ${projectDto.id} does not exists. Please create project first",
+        )
+
+        project.apply {
+            projectId = projectDto.projectId
+        }
+
+        val savedProject = projectRepository.update(project)
             ?: throw HttpNotFoundException(
                 "project_not_found",
                 "Project with id ${projectDto.id} does not exists. Please create project first",
             )
 
-        return projectMapper.entityToDto(savedProject)
+        println("Project updated successfully: $savedProject")
+        return projectMapper.entityToDto(savedProject).also {
+            println("Sending: $it")
+        }
     }
 
     companion object {
