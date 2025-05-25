@@ -32,17 +32,9 @@ class ProjectRepositoryImpl(
     }
 
     override suspend fun update(project: Project): Project? = transact {
-        find(Project::class.java, project.id)?.let {
-            merge(project)
-        }
+        merge(project)
     }
-
-    override suspend fun delete(id: Long): Unit = transact {
-        find(Project::class.java, id)?.let {
-            remove(it)
-        }
-    }
-
+    
     override suspend fun findAll(): List<Project> = transact {
         createQuery("SELECT p FROM Project p", Project::class.java).resultList
     }

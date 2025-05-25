@@ -13,13 +13,14 @@ import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.LoggerFactory
 import java.net.URI
 
-@Path("/projects")
+@Path("")
 class ProjectResource @Inject constructor(
     private val projectService: ProjectService,
     private val asyncService: AsyncCoroutineService,
 ) {
 
     @GET
+    @Path("/projects")
     @Produces(MediaType.APPLICATION_JSON)
     fun getAllProjects(
         @Suspended asyncResponse: AsyncResponse,
@@ -32,6 +33,7 @@ class ProjectResource @Inject constructor(
     }
 
     @POST
+    @Path("/projects")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun addProject(
@@ -46,7 +48,7 @@ class ProjectResource @Inject constructor(
     }
 
     @PUT
-    @Path("/{projectId}")
+    @Path("/projects/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun updateProject(
@@ -58,7 +60,7 @@ class ProjectResource @Inject constructor(
     }
 
     @GET
-    @Path("/project")
+    @Path("/projects/project")
     @Produces(MediaType.APPLICATION_JSON)
     fun getProjectUsingId(
         @QueryParam("id") id: Long,
@@ -72,7 +74,7 @@ class ProjectResource @Inject constructor(
     }
 
     @GET
-    @Path("/project/{projectId}")
+    @Path("/projects/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     fun getProjectByProjectId(
         @Valid @PathParam("projectId") projectId: String,
@@ -84,7 +86,7 @@ class ProjectResource @Inject constructor(
             }
         }
     }
-
+    
     companion object {
         private val logger = LoggerFactory.getLogger(ProjectResource::class.java)
     }

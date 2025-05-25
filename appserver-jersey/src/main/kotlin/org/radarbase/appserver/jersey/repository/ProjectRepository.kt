@@ -9,6 +9,5 @@ interface ProjectRepository {
     suspend fun existsByProjectId(projectId: String): Boolean
     suspend fun add(project: Project): Project
     suspend fun update(project: Project): Project?
-    suspend fun delete(id: Long)
     suspend fun findAll(): List<Project>
 }
