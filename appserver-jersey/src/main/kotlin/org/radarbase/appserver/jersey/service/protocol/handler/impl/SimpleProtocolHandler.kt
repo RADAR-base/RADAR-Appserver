@@ -12,7 +12,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.TimeZone
 
-
 /**
  * A handler for processing simple protocols. This implementation defines the logic to update
  * the [AssessmentSchedule] based on the protocol's reference timestamp.
@@ -20,7 +19,6 @@ import java.util.TimeZone
  * The `SimpleProtocolHandler` utilizes [TimeCalculatorService] for timestamp calculations
  */
 class SimpleProtocolHandler : ProtocolHandler {
-
     private val timeCalculatorService = TimeCalculatorService()
 
     /**
@@ -34,9 +32,10 @@ class SimpleProtocolHandler : ProtocolHandler {
      * is not provided.
      */
     override fun handle(
-        assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User
+        assessmentSchedule: AssessmentSchedule,
+        assessment: Assessment,
+        user: User,
     ): AssessmentSchedule {
-
         val referenceTimestamp: ReferenceTimestamp? = assessment.protocol?.referenceTimestamp
         val timezone = TimeZone.getTimeZone(user.timezone)
         val timezoneId = timezone.toZoneId()
