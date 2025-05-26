@@ -2,7 +2,6 @@ package org.radarbase.appserver.jersey.enhancer.factory
 
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer
-import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -23,9 +22,7 @@ class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : En
         )
 
         val dbConfig = DatabaseConfig(
-            managedClasses = listOf(
-                Project::class.qualifiedName!!,
-            ),
+            managedClasses = config.db.classes,
             url = config.db.jdbcUrl,
             driver = config.db.jdbcDriver,
             user = config.db.username,

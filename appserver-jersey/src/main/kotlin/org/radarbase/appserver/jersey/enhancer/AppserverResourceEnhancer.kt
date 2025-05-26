@@ -26,6 +26,8 @@ import org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStr
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
 import org.radarbase.appserver.jersey.service.github.protocol.impl.DefaultProtocolGenerator
 import org.radarbase.appserver.jersey.service.github.protocol.impl.GithubProtocolFetcherStrategy
+import org.radarbase.appserver.jersey.service.questionnaire_schedule.QuestionnaireScheduleGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.service.scheduling.factory.SchedulingServiceFactory
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
@@ -60,6 +62,7 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(UserMapper::class.java)
             .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
+            .named(USER_MAPPER)
             .`in`(Singleton::class.java)
 
         bind(ProjectService::class.java)
@@ -86,6 +89,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(ProtocolGenerator::class.java)
             .`in`(Singleton::class.java)
 
+        bind(QuestionnaireScheduleGeneratorService::class.java)
+            .to(ScheduleGeneratorService::class.java)
+            .`in`(Singleton::class.java)
+
         bindFactory(SchedulingServiceFactory::class.java)
             .to(SchedulingService::class.java)
             .`in`(Singleton::class.java)
@@ -98,5 +105,6 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
     companion object {
         const val PROJECT_MAPPER = "project_mapper"
+        const val USER_MAPPER = "user_mapper"
     }
 }
