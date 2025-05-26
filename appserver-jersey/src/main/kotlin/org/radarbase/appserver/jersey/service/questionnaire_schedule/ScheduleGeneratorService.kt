@@ -1,15 +1,14 @@
-package org.radarbase.appserver.jersey.service.questionnaire
+package org.radarbase.appserver.jersey.service.questionnaire_schedule
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
 import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.dto.questionnaire.Schedule
+import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
-import org.radarbase.appserver.jersey.service.protocol.ProtocolHandler
+import org.radarbase.appserver.jersey.service.protocol.handler.ProtocolHandler
 import org.radarbase.appserver.jersey.utils.mapParallel
 import kotlin.collections.orEmpty
 
@@ -37,7 +36,7 @@ interface ScheduleGeneratorService {
     ): Schedule = coroutineScope {
         val assessments = protocol.protocols ?: return@coroutineScope Schedule()
 
-        val prevScheduledTaskByName: Map<String, List<Task>> = prevSchedule.assessmentSchedules
+        val prevScheduledTaskByName: Map<String?, List<Task>?> = prevSchedule.assessmentSchedules
             .associate { it.name to it.tasks }
 
         val prevTimezone = prevSchedule.timezone ?: user.timezone!!
@@ -50,8 +49,7 @@ interface ScheduleGeneratorService {
         Schedule(assessmentSchedules, user, protocol.version)
     }
 
-
-    fun generateSingleAssessmentSchedule(
+    suspend fun generateSingleAssessmentSchedule(
         assessment: Assessment,
         user: User,
         previousTasks: List<Task>,
