@@ -1,12 +1,16 @@
-package org.radarbase.appserver.jersey.service.protocol.task
+package org.radarbase.appserver.jersey.service.questionnaire_schedule.notification
+
+import org.radarbase.appserver.jersey.dto.protocol.LanguageText
+import org.radarbase.appserver.jersey.entity.Notification
+import org.radarbase.appserver.jersey.entity.Task
+import java.time.Instant
 
 class TaskNotificationGeneratorService {
-
     fun createNotification(
         task: Task, notificationTimestamp: Instant,
         title: String?, body: String?, emailEnabled: Boolean
     ): Notification {
-        return NotificationBuilder().apply {
+        return Notification.NotificationBuilder().apply {
             scheduledTime(notificationTimestamp)
             ttlSeconds(calculateTtlSeconds(task, notificationTimestamp))
             type(task.name)

@@ -1,4 +1,4 @@
-package org.radarbase.appserver.jersey.service.protocol.task
+package org.radarbase.appserver.jersey.service.questionnaire_schedule.task
 
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
 import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
