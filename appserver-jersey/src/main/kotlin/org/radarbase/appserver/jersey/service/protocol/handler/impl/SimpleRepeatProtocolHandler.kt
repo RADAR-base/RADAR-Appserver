@@ -14,7 +14,7 @@ import java.util.TimeZone
 class SimpleRepeatProtocolHandler : ProtocolHandler {
     private val timeCalculatorService = TimeCalculatorService()
 
-    override fun handle(
+    override suspend fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
         user: User

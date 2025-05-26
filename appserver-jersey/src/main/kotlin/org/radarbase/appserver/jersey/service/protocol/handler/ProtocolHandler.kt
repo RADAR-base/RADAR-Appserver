@@ -17,5 +17,5 @@ interface ProtocolHandler {
      * @param user The user whose information, such as timezone and enrolment date, is utilized in the processing.
      * @return The updated [AssessmentSchedule] containing the results of the handling process.
      */
-    fun handle(assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User): AssessmentSchedule
+    suspend fun handle(assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User): AssessmentSchedule
 }

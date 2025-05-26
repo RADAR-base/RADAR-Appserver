@@ -31,7 +31,7 @@ class SimpleProtocolHandler : ProtocolHandler {
      * @throws IllegalArgumentException If the user's enrolment date is null when the reference timestamp
      * is not provided.
      */
-    override fun handle(
+    override suspend fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
         user: User,
