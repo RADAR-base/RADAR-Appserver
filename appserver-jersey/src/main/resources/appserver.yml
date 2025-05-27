@@ -33,3 +33,6 @@ email:
 fcm:
   fcmsender: org.radarbase.appserver.jersey.fcm.downstream.AdminSdkFcmSender
   credentials:
+
+eventBus:
+  numThreads: 3

@@ -13,6 +13,7 @@ data class AppserverConfig(
     val quartz: SchedulerConfig = SchedulerConfig(),
     val db: DbConfig = DbConfig(),
     val email: EmailConfig = EmailConfig(),
+    val eventBus: EventBusConfig = EventBusConfig(),
     val protocol: QuestionnaireProtocolConfig = QuestionnaireProtocolConfig(),
 ) : Validation {
     override fun validate() {
