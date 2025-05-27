@@ -12,7 +12,11 @@ import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmUserDto
 import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
+import org.radarbase.appserver.jersey.event.AppserverEventBus
+import org.radarbase.appserver.jersey.event.listener.MessageStateEventListener
+import org.radarbase.appserver.jersey.event.listener.TaskStateEventListener
 import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
+import org.radarbase.appserver.jersey.factory.event.EventBusFactory
 import org.radarbase.appserver.jersey.factory.fcm.FcmSenderFactory
 import org.radarbase.appserver.jersey.factory.fcm.FirebaseOptionsFactory
 import org.radarbase.appserver.jersey.fcm.downstream.FcmSender
@@ -145,6 +149,18 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(DataMessageTransmitter::class.java)
             .to(NotificationTransmitter::class.java)
             .to(FcmTransmitter::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskStateEventListener::class.java)
+            .to(TaskStateEventListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(MessageStateEventListener::class.java)
+            .to(MessageStateEventListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(EventBusFactory::class.java)
+            .to(AppserverEventBus::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(SchedulingServiceFactory::class.java)
