@@ -59,6 +59,7 @@ import org.radarbase.appserver.jersey.repository.impl.TaskRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.TaskStateEventRepositoryImpl
 import org.radarbase.appserver.jersey.service.TaskService
 import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
+import org.radarbase.appserver.jersey.service.quartz.SchedulerServiceImpl
 import org.radarbase.appserver.jersey.service.quartz.SimpleQuartzNamingStrategy
 import org.radarbase.appserver.jersey.service.transmitter.DataMessageTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.FcmTransmitter
@@ -170,6 +171,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(SimpleQuartzNamingStrategy::class.java)
             .to(QuartzNamingStrategy::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(SchedulerServiceImpl::class.java)
+            .to(SchedulingService::class.java)
             .`in`(Singleton::class.java)
 
         bind(FcmTransmitter::class.java)
