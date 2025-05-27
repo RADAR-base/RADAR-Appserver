@@ -35,6 +35,9 @@ import org.radarbase.appserver.jersey.service.questionnaire_schedule.Questionnai
 import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.factory.scheduling.SchedulingServiceFactory
+import org.radarbase.appserver.jersey.service.transmitter.DataMessageTransmitter
+import org.radarbase.appserver.jersey.service.transmitter.FcmTransmitter
+import org.radarbase.appserver.jersey.service.transmitter.NotificationTransmitter
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyResourceEnhancer {
@@ -100,6 +103,12 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(QuestionnaireScheduleGeneratorService::class.java)
             .to(ScheduleGeneratorService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(FcmTransmitter::class.java)
+            .to(DataMessageTransmitter::class.java)
+            .to(NotificationTransmitter::class.java)
+            .to(FcmTransmitter::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(SchedulingServiceFactory::class.java)
