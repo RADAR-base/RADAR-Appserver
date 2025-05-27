@@ -1,4 +1,4 @@
-package org.radarbase.appserver.jersey.event.state
+package org.radarbase.appserver.jersey.event.listener
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
