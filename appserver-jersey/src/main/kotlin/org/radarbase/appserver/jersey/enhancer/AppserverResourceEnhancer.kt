@@ -1,16 +1,21 @@
 package org.radarbase.appserver.jersey.enhancer
 
+import com.google.firebase.FirebaseOptions
 import jakarta.inject.Singleton
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.jersey.config.AppserverConfig
+import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmUserDto
 import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
+import org.radarbase.appserver.jersey.factory.fcm.FcmSenderFactory
+import org.radarbase.appserver.jersey.factory.fcm.FirebaseOptionsFactory
+import org.radarbase.appserver.jersey.fcm.downstream.FcmSender
 import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.ProjectMapper
 import org.radarbase.appserver.jersey.mapper.UserMapper
@@ -29,7 +34,7 @@ import org.radarbase.appserver.jersey.service.github.protocol.impl.GithubProtoco
 import org.radarbase.appserver.jersey.service.questionnaire_schedule.QuestionnaireScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
-import org.radarbase.appserver.jersey.service.scheduling.factory.SchedulingServiceFactory
+import org.radarbase.appserver.jersey.factory.scheduling.SchedulingServiceFactory
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyResourceEnhancer {
@@ -45,6 +50,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
     override fun AbstractBinder.enhance() {
         bind(config)
             .to(AppserverConfig::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(config.fcm)
+            .to(FcmServerConfig::class.java)
             .`in`(Singleton::class.java)
 
         bind(ProjectRepositoryImpl::class.java)
@@ -95,6 +104,14 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bindFactory(SchedulingServiceFactory::class.java)
             .to(SchedulingService::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(FirebaseOptionsFactory::class.java)
+            .to(FirebaseOptions::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(FcmSenderFactory::class.java)
+            .to(FcmSender::class.java)
             .`in`(Singleton::class.java)
     }
 
