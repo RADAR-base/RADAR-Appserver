@@ -11,7 +11,10 @@ import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmDataMessageDto
+import org.radarbase.appserver.jersey.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmUserDto
+import org.radarbase.appserver.jersey.entity.DataMessage
+import org.radarbase.appserver.jersey.entity.Notification
 import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.event.listener.MessageStateEventListener
@@ -41,6 +44,7 @@ import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGen
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.factory.scheduling.SchedulingServiceFactory
 import org.radarbase.appserver.jersey.mapper.DataMessageMapper
+import org.radarbase.appserver.jersey.mapper.NotificationMapper
 import org.radarbase.appserver.jersey.repository.DataMessageRepository
 import org.radarbase.appserver.jersey.repository.DataMessageStateEventRepository
 import org.radarbase.appserver.jersey.repository.NotificationRepository
@@ -121,8 +125,13 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .`in`(Singleton::class.java)
 
         bind(DataMessageMapper::class.java)
-            .to(object : TypeLiteral<Mapper<FcmDataMessageDto, User>>() {}.type)
+            .to(object : TypeLiteral<Mapper<FcmDataMessageDto, DataMessage>>() {}.type)
             .named(DATA_MESSAGE_MAPPER)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
+            .named(NOTIFICATION_MAPPER)
             .`in`(Singleton::class.java)
 
         bind(ProjectService::class.java)
@@ -197,5 +206,6 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
         const val PROJECT_MAPPER = "project_mapper"
         const val USER_MAPPER = "user_mapper"
         const val DATA_MESSAGE_MAPPER = "data_message_mapper"
+        const val NOTIFICATION_MAPPER = "notification_mapper"
     }
 }
