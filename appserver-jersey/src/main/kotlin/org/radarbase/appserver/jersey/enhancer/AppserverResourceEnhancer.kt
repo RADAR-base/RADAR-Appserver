@@ -1,5 +1,6 @@
 package org.radarbase.appserver.jersey.enhancer
 
+import com.google.common.eventbus.EventBus
 import com.google.firebase.FirebaseOptions
 import jakarta.inject.Singleton
 import org.glassfish.hk2.api.TypeLiteral
@@ -9,10 +10,10 @@ import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
+import org.radarbase.appserver.jersey.dto.fcm.FcmDataMessageDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmUserDto
 import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
-import org.radarbase.appserver.jersey.event.AppserverEventBus
 import org.radarbase.appserver.jersey.event.listener.MessageStateEventListener
 import org.radarbase.appserver.jersey.event.listener.TaskStateEventListener
 import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
@@ -39,6 +40,7 @@ import org.radarbase.appserver.jersey.service.questionnaire_schedule.Questionnai
 import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.factory.scheduling.SchedulingServiceFactory
+import org.radarbase.appserver.jersey.mapper.DataMessageMapper
 import org.radarbase.appserver.jersey.repository.DataMessageRepository
 import org.radarbase.appserver.jersey.repository.DataMessageStateEventRepository
 import org.radarbase.appserver.jersey.repository.NotificationRepository
@@ -51,6 +53,7 @@ import org.radarbase.appserver.jersey.repository.impl.NotificationRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.TaskRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.TaskStateEventRepositoryImpl
+import org.radarbase.appserver.jersey.service.TaskService
 import org.radarbase.appserver.jersey.service.transmitter.DataMessageTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.FcmTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.NotificationTransmitter
@@ -117,12 +120,21 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .named(USER_MAPPER)
             .`in`(Singleton::class.java)
 
+        bind(DataMessageMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmDataMessageDto, User>>() {}.type)
+            .named(DATA_MESSAGE_MAPPER)
+            .`in`(Singleton::class.java)
+
         bind(ProjectService::class.java)
             .to(ProjectService::class.java)
             .`in`(Singleton::class.java)
 
         bind(UserService::class.java)
             .to(UserService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskService::class.java)
+            .to(TaskService::class.java)
             .`in`(Singleton::class.java)
 
         bind(GithubClient::class.java)
@@ -160,7 +172,7 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .`in`(Singleton::class.java)
 
         bindFactory(EventBusFactory::class.java)
-            .to(AppserverEventBus::class.java)
+            .to(EventBus::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(SchedulingServiceFactory::class.java)
@@ -184,5 +196,6 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
     companion object {
         const val PROJECT_MAPPER = "project_mapper"
         const val USER_MAPPER = "user_mapper"
+        const val DATA_MESSAGE_MAPPER = "data_message_mapper"
     }
 }
