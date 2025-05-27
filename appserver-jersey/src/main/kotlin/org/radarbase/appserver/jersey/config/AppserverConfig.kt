@@ -8,7 +8,7 @@ data class AppserverConfig(
     val resourceConfig: Class<out EnhancerFactory>,
     val server: ServerConfig,
     val auth: AuthConfig = AuthConfig(),
-    val fcm: FcmConfig = FcmConfig(),
+    val fcm: FcmServerConfig = FcmServerConfig(),
     val github: GithubConfig = GithubConfig(),
     val quartz: SchedulerConfig = SchedulerConfig(),
     val db: DbConfig = DbConfig(),

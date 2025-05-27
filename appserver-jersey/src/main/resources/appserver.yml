@@ -29,3 +29,7 @@ protocol:
 
 email:
   enabled: false
+
+fcm:
+  fcmsender: org.radarbase.appserver.jersey.fcm.downstream.AdminSdkFcmSender
+  credentials:
