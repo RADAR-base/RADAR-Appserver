@@ -35,6 +35,18 @@ import org.radarbase.appserver.jersey.service.questionnaire_schedule.Questionnai
 import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.factory.scheduling.SchedulingServiceFactory
+import org.radarbase.appserver.jersey.repository.DataMessageRepository
+import org.radarbase.appserver.jersey.repository.DataMessageStateEventRepository
+import org.radarbase.appserver.jersey.repository.NotificationRepository
+import org.radarbase.appserver.jersey.repository.NotificationStateEventRepository
+import org.radarbase.appserver.jersey.repository.TaskRepository
+import org.radarbase.appserver.jersey.repository.TaskStateEventRepository
+import org.radarbase.appserver.jersey.repository.impl.DataMessageRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.DataMessageStateEventRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.NotificationRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.NotificationStateEventRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.TaskRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.TaskStateEventRepositoryImpl
 import org.radarbase.appserver.jersey.service.transmitter.DataMessageTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.FcmTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.NotificationTransmitter
@@ -65,6 +77,30 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(UserRepositoryImpl::class.java)
             .to(UserRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(DataMessageRepository::class.java)
+            .to(DataMessageRepositoryImpl::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationRepository::class.java)
+            .to(NotificationRepositoryImpl::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskRepository::class.java)
+            .to(TaskRepositoryImpl::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(DataMessageStateEventRepository::class.java)
+            .to(DataMessageStateEventRepositoryImpl::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationStateEventRepository::class.java)
+            .to(NotificationStateEventRepositoryImpl::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskStateEventRepository::class.java)
+            .to(TaskStateEventRepositoryImpl::class.java)
             .`in`(Singleton::class.java)
 
         bind(ProjectMapper::class.java)
