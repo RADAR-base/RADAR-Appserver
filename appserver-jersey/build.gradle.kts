@@ -66,6 +66,18 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:${Versions.ktorVersion}")
     implementation("org.glassfish.jersey.ext:jersey-bean-validation:3.1.10")
 
+    implementation("com.google.firebase:firebase-admin:9.3.0") {
+        constraints {
+            implementation("com.google.protobuf:protobuf-java:3.25.5") {
+                because("Provided version of protobuf has security vulnerabilities")
+            }
+            implementation("com.google.protobuf:protobuf-java-util:3.25.5") {
+                because("Provided version of protobuf has security vulnerabilities")
+            }
+        }
+    }
+    implementation("com.google.guava:guava:32.1.3-jre")
+
 //    implementation("org.radarbase:managementportal-client:${Versions.radarAuth}")
 //    implementation("org.radarbase:lzfse-decode:${Versions.lzfse}")
 //    implementation("org.radarbase:radar-auth:${Versions.radarAuth}")
