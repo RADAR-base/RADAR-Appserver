@@ -22,7 +22,7 @@
 package org.radarbase.appserver.jersey.utils
 
 import org.radarbase.appserver.jersey.dto.ProjectDto
-import org.radarbase.appserver.jersey.exceptions.InvalidProjectDetailsException
+import org.radarbase.appserver.jersey.exception.InvalidProjectDetailsException
 import org.radarbase.jersey.exception.HttpNotFoundException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract

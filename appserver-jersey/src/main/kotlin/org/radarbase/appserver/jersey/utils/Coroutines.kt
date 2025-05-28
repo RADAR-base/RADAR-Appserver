@@ -26,3 +26,17 @@ suspend inline fun <T, R> Iterable<T>.mapParallel(
         async(context) { transform(t) }
     }.awaitAll()
 }
+
+/**
+ * Like flatMap but runs each transform in parallel.
+ */
+suspend inline fun <T, R> Iterable<T>.flatMapParallel(
+    context: CoroutineContext = Dispatchers.Default,
+    crossinline transform: suspend (T) -> List<R>,
+): List<R> = coroutineScope {
+    map { t ->
+        async(context) { transform(t) }
+    }.awaitAll()
+        .flatten()
+}
+
