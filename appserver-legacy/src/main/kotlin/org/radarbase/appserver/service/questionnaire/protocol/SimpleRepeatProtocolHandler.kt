@@ -46,9 +46,11 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
             "Reference timestamp is null when handling SimpleRepeatProtocolHandler."
         }
 
-        val referenceTimestamps = generateReferenceTimestamps(assessment, referenceTimestamp, timezone)
-        assessmentSchedule.referenceTimestamps = referenceTimestamps
-        return assessmentSchedule
+        return generateReferenceTimestamps(assessment, referenceTimestamp, timezone).let { refTimeStamps ->
+            assessmentSchedule.apply {
+                referenceTimestamps = refTimeStamps
+            }
+        }
     }
 
     private fun generateReferenceTimestamps(

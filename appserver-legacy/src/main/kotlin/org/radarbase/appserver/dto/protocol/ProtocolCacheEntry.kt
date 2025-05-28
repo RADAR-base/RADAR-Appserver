@@ -20,7 +20,4 @@
  */
 package org.radarbase.appserver.dto.protocol
 
-import lombok.Data
-
-@Data
-class ProtocolCacheEntry(val id: String, val protocol: Protocol?)
+data class ProtocolCacheEntry(val id: String, val protocol: Protocol?)
