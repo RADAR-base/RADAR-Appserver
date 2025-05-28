@@ -113,7 +113,7 @@ class GithubProtocolFetcherStrategy @Inject constructor(
     ): ProtocolCacheEntry {
         val attributes: Map<String?, String?>? = user.attributes ?: emptyMap()
 
-        val pathMap: Map<String, String> = protocolPaths.filter {
+        val attributeMap: Map<String, String> = protocolPaths.filter {
             it.contains(projectId)
         }.map {
             convertPathToAttributeMap(it, projectId).filter { entry ->
@@ -122,7 +122,7 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         }.maxByOrNull { it.size } ?: emptyMap()
 
         return try {
-            val attributePath = convertAttributeMapToPath(pathMap, projectId)
+            val attributePath = convertAttributeMapToPath(attributeMap, projectId)
             projectProtocolUriMap.get()[attributePath]?.let {
                 ProtocolCacheEntry(user.subjectId!!, getProtocolFromUrl(it))
             } ?: ProtocolCacheEntry(user.subjectId!!, null)
@@ -141,11 +141,12 @@ class GithubProtocolFetcherStrategy @Inject constructor(
     override suspend fun fetchProtocolsPerProject(): Map<String, Protocol> {
         val protocolPaths = getProtocolPaths()
 
-        return projectRepository.all().mapParallel(Dispatchers.Default) { project ->
+        return projectRepository.findAll().mapParallel(Dispatchers.Default) { project ->
             val projectId = project.projectId!!
-            val protocol = protocolPaths.firstOrNull { it.contains(projectId) }?.let { path ->
+            val protocol = protocolPaths.lastOrNull { it.contains(projectId) }?.let { path ->
                 try {
-                    getProtocolFromUrl(projectProtocolUriMap.get()[path] ?: return@let null)
+                    val uri = projectProtocolUriMap.get()[path] ?: return@let null
+                    getProtocolFromUrl(uri)
                 } catch (_: Exception) {
                     null
                 }
