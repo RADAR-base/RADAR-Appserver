@@ -77,6 +77,7 @@ dependencies {
         }
     }
     implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("org.quartz-scheduler:quartz:2.5.0")
 
 //    implementation("org.radarbase:managementportal-client:${Versions.radarAuth}")
 //    implementation("org.radarbase:lzfse-decode:${Versions.lzfse}")
