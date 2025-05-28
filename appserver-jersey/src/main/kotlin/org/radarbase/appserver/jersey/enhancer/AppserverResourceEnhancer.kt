@@ -19,6 +19,8 @@ import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.event.listener.MessageStateEventListener
 import org.radarbase.appserver.jersey.event.listener.TaskStateEventListener
+import org.radarbase.appserver.jersey.event.listener.quartz.QuartzMessageJobListener
+import org.radarbase.appserver.jersey.event.listener.quartz.QuartzMessageSchedulerListener
 import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.jersey.factory.event.EventBusFactory
 import org.radarbase.appserver.jersey.factory.fcm.FcmSenderFactory
@@ -167,6 +169,14 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(QuestionnaireScheduleGeneratorService::class.java)
             .to(ScheduleGeneratorService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(QuartzMessageSchedulerListener::class.java)
+            .to(QuartzMessageSchedulerListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(QuartzMessageJobListener::class.java)
+            .to(QuartzMessageJobListener::class.java)
             .`in`(Singleton::class.java)
 
         bind(SimpleQuartzNamingStrategy::class.java)
