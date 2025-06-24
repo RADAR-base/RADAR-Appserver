@@ -21,6 +21,15 @@ import java.net.URI
 data class ServerConfig(
     /** Base URL to serve data with. This will determine the base path and the port. */
     val baseUri: URI = URI.create("http://0.0.0.0:8090/kafka/"),
+    /**
+     * Maximum time in seconds to wait for a request to complete.
+     * This timeout is applied to the co-routine context, not to the Grizzly server.
+     */
+    val requestTimeout: Int = 30,
+    /**
+     * Whether JMX should be enabled. Disable if not needed, for higher performance.
+     */
+    val isJmxEnabled: Boolean = false,
 ) : Validation {
     override fun validate() {
         check(baseUri.toString().isNotBlank()) { "Base URL must not be blank." }

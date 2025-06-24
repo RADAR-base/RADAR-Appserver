@@ -2,6 +2,8 @@ resourceConfig: org.radarbase.appserver.jersey.enhancer.factory.AppserverResourc
 
 server:
   baseUri: http://0.0.0.0:8090/
+  requestTimeout: 30
+  isJmxEnabled: false
 
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
