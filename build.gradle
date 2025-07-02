@@ -44,6 +44,7 @@ ext {
     hibernateValidatorVersion = '8.0.0.Final'
     minioVersion = '8.5.10'
     nettyVersion = '4.1.118.Final'
+    sentryOpenTelemetryAgentVersion = '8.1.0'
 }
 
 sourceSets {
@@ -87,7 +88,6 @@ dependencies {
     runtimeOnly('org.liquibase:liquibase-core:4.20.0')
     runtimeOnly(group: 'org.postgresql', name: 'postgresql', version: '42.5.5')
 
-
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
@@ -109,6 +109,8 @@ dependencies {
     // AOP
     runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion)
+
+    runtimeOnly group: 'io.sentry', name: 'sentry-opentelemetry-agent', version: sentryOpenTelemetryAgentVersion
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
 
