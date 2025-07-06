@@ -23,25 +23,35 @@ import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.service.ProjectService
+import org.radarbase.auth.authorization.Permission
+import org.radarbase.jersey.auth.Authenticated
+import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.LoggerFactory
 import java.net.URI
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Path("")
 class ProjectResource @Inject constructor(
     private val projectService: ProjectService,
     private val asyncService: AsyncCoroutineService,
+    private val config: AppserverConfig
 ) {
+    private val requestTimeout: Duration = config.server.requestTimeout.seconds
 
+    @Authenticated
     @GET
     @Path("/projects")
     @Produces(MediaType.APPLICATION_JSON)
+    @NeedsPermission(Permission.PROJECT_READ)
     fun getAllProjects(
         @Suspended asyncResponse: AsyncResponse,
     ) {
-        asyncService.runAsCoroutine(asyncResponse) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             projectService.getAllProjects().run {
                 Response.ok(this).build()
             }

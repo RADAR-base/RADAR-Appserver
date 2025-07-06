@@ -5,6 +5,10 @@ server:
   requestTimeout: 30
   isJmxEnabled: false
 
+mp:
+  security:
+    enabled: true
+
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
   resourceName: res_appserver
