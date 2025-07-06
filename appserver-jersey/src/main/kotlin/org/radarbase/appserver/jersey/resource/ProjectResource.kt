@@ -24,14 +24,13 @@ import org.radarbase.appserver.jersey.dto.ProjectDtos
 import org.radarbase.appserver.jersey.service.ProjectService
 import org.radarbase.appserver.jersey.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
+import org.radarbase.appserver.jersey.utils.tokenForCurrentRequest
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.auth.token.DataRadarToken
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
-import org.radarbase.jersey.exception.HttpForbiddenException
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.net.URI
 import kotlin.time.Duration
@@ -49,13 +48,6 @@ class ProjectResource @Inject constructor(
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
     private val mpSecurityEnabled: Boolean = config.mp.security.enabled
 
-    suspend fun tokenForCurrentRequest(): RadarToken = asyncService.runInRequestScope {
-        try {
-            DataRadarToken(tokenProvider.get())
-        } catch (_: Throwable) {
-            throw HttpForbiddenException("unauthorized", "User without authentication does not have permission.")
-        }
-    }
 
     @POST
     @Path(PROJECTS_PATH)
@@ -69,7 +61,7 @@ class ProjectResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             if (mpSecurityEnabled) {
-                val token = tokenForCurrentRequest()
+                val token = tokenForCurrentRequest(asyncService, tokenProvider)
                 authService.checkPermission(
                     Permission.SUBJECT_READ,
                     EntityDetails(project = projectDto.projectId, subject = token.subject),
@@ -104,7 +96,7 @@ class ProjectResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest()
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_UPDATE,
                 EntityDetails(project = projectId, subject = token.subject),
@@ -131,7 +123,7 @@ class ProjectResource @Inject constructor(
                     authService.hasPermission(
                         Permission.PROJECT_READ,
                         EntityDetails(project = it.projectId),
-                        tokenForCurrentRequest()
+                        tokenForCurrentRequest(asyncService, tokenProvider)
                     )
                 }.toList()
                 .toMutableList()
@@ -152,7 +144,7 @@ class ProjectResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val project = projectService.getProjectById(id)
-            val token = tokenForCurrentRequest()
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.PROJECT_READ,
                 EntityDetails(project = project.projectId),
@@ -175,7 +167,7 @@ class ProjectResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val project = projectService.getProjectByProjectId(projectId)
-            val token = tokenForCurrentRequest()
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_READ,
                 EntityDetails(project = project.projectId, subject = token.subject),

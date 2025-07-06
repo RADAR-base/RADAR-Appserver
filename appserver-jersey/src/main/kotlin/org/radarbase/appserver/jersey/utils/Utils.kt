@@ -37,9 +37,14 @@
 
 package org.radarbase.appserver.jersey.utils
 
+import jakarta.inject.Provider
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.exception.InvalidProjectDetailsException
+import org.radarbase.auth.token.DataRadarToken
+import org.radarbase.auth.token.RadarToken
+import org.radarbase.jersey.exception.HttpForbiddenException
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.service.AsyncCoroutineService
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -54,7 +59,7 @@ inline fun <T : Any> checkPresence(value: T?, code: String, messageProvider: () 
     }
 
     if (value == null) {
-        throw HttpNotFoundException(code,messageProvider())
+        throw HttpNotFoundException(code, messageProvider())
     } else {
         return value
     }
@@ -98,5 +103,16 @@ inline fun <reified E : Exception> checkInvalidDetails(
         throw E::class.java.getDeclaredConstructor(
             String::class.java,
         ).newInstance(messageProvider())
+    }
+}
+
+suspend inline fun tokenForCurrentRequest(
+    asyncService: AsyncCoroutineService,
+    tokenProvider: Provider<RadarToken>,
+): RadarToken = asyncService.runInRequestScope {
+    try {
+        DataRadarToken(tokenProvider.get())
+    } catch (_: Throwable) {
+        throw HttpForbiddenException("unauthorized", "User without authentication does not have permission.")
     }
 }
