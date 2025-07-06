@@ -129,6 +129,8 @@ class ProjectResource @Inject constructor(
                 .toMutableList()
                 .let {
                     ProjectDtos(it.toMutableList())
+                }.let {
+                    Response.ok(it).build()
                 }
         }
     }
