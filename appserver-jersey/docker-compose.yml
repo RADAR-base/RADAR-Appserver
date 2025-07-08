@@ -31,7 +31,7 @@ services:
       MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET:
       MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE: /mp-includes/config/oauth_client_details.csv
     volumes:
-      - ./etc/:/mp-includes/
+      - ./src/integrationTest/resources/docker/etc/:/mp-includes/
 
   #---------------------------------------------------------------------------#
   # Appserver Postgres                                                        #
