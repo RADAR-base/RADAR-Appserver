@@ -55,7 +55,7 @@ dependencies {
     implementation(kotlin("reflect"))
 
 //    implementation("org.radarbase:radar-commons:${Versions.radarCommons}")
-//    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommonsVersion}")
     implementation("org.radarbase:radar-jersey:${Versions.radarJerseyVersion}")
     implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {
         runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
@@ -78,6 +78,16 @@ dependencies {
     }
     implementation("com.google.guava:guava:32.1.3-jre")
     implementation("org.quartz-scheduler:quartz:2.5.0")
+
+    testImplementation("io.mockk:mockk:1.14.4")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
+    testImplementation("org.hamcrest:hamcrest:2.1")
+    testImplementation("org.assertj:assertj-core:3.24.2")
+
+    integrationTestImplementation(platform("io.ktor:ktor-bom:${Versions.ktorVersion}"))
+    integrationTestImplementation("io.ktor:ktor-client-content-negotiation")
+    integrationTestImplementation("io.ktor:ktor-serialization-kotlinx-json")
+
 
 //    implementation("org.radarbase:managementportal-client:${Versions.radarAuth}")
 //    implementation("org.radarbase:lzfse-decode:${Versions.lzfse}")
