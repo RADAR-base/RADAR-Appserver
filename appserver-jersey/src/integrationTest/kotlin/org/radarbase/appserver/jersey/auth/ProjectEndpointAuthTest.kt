@@ -92,6 +92,8 @@ class ProjectEndpointAuthTest {
         assertEquals(HttpStatusCode.OK, response.status)
     }
 
+    @Test
+    @Order(3)
     fun getForbiddenProjectWithAuth() = runBlocking {
         val response = httpClient.get("$PROJECT_PATH/test") {
             accept(ContentType.Application.Json)
@@ -104,7 +106,6 @@ class ProjectEndpointAuthTest {
     companion object {
         private const val APPSERVER_URL = "http://localhost:8080"
         private const val PROJECT_PATH = "projects"
-        private val HEADERS: Headers = Headers.Empty
         private lateinit var AUTH_HEADERS: Headers
         private lateinit var httpClient: HttpClient
 
