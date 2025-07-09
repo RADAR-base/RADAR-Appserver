@@ -111,11 +111,11 @@ class FcmNotificationService(
     // TODO : WIP
     suspend fun getFilteredNotifications(
         type: String?,
-        delivered: Boolean,
-        ttlSeconds: Int,
+        delivered: Boolean?,
+        ttlSeconds: Int?,
         startTime: LocalDateTime?,
         endTime: LocalDateTime?,
-        limit: Int,
+        limit: Int?,
     ): FcmNotifications? = null
 
     suspend fun addNotification(
