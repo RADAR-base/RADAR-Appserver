@@ -135,11 +135,11 @@ class FcmDataMessageService(
     // TODO : WIP
     fun getFilteredDataMessages(
         type: String?,
-        delivered: Boolean,
-        ttlSeconds: Int,
+        delivered: Boolean?,
+        ttlSeconds: Int?,
         startTime: LocalDateTime?,
         endTime: LocalDateTime?,
-        limit: Int,
+        limit: Int?,
     ): FcmDataMessages? = null
 
     suspend fun addDataMessage(
