@@ -64,7 +64,6 @@ class ProjectResource @Inject constructor(
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
     private val mpSecurityEnabled: Boolean = config.mp.security.enabled
 
-
     @POST
     @Path(PROJECTS_PATH)
     @Consumes(APPLICATION_JSON)
@@ -139,7 +138,7 @@ class ProjectResource @Inject constructor(
                     authService.hasPermission(
                         Permission.PROJECT_READ,
                         EntityDetails(project = it.projectId),
-                        tokenForCurrentRequest(asyncService, tokenProvider)
+                        tokenForCurrentRequest(asyncService, tokenProvider),
                     )
                 }.toList()
                 .toMutableList()
@@ -166,11 +165,10 @@ class ProjectResource @Inject constructor(
             authService.checkPermission(
                 Permission.PROJECT_READ,
                 EntityDetails(project = project.projectId),
-                token
+                token,
             )
-                .let {
-                    Response.ok(it).build()
-                }
+            Response.ok(project).build()
+
         }
     }
 
@@ -189,7 +187,7 @@ class ProjectResource @Inject constructor(
             authService.checkPermission(
                 Permission.SUBJECT_READ,
                 EntityDetails(project = project.projectId, subject = token.subject),
-                token
+                token,
             )
             Response.ok(project).build()
         }
