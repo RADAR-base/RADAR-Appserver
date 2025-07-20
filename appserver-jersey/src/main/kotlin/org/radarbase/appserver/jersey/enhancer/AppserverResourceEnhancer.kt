@@ -248,11 +248,28 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
         bindFactory(FcmSenderFactory::class.java)
             .to(FcmSender::class.java)
             .`in`(Singleton::class.java)
+
+        bind(UnverifiedProjectService::class.java)
+            .to(org.radarbase.jersey.service.ProjectService::class.java)
+            .`in`(Singleton::class.java)
     }
 
     override fun ResourceConfig.enhance() {
         register(ValidationFeature::class.java)
         register(UnhandledExceptionMapper::class.java)
+    }
+
+    /** Project service without validation of the project's existence. */
+    class UnverifiedProjectService : org.radarbase.jersey.service.ProjectService {
+        override suspend fun ensureOrganization(organizationId: String) = Unit
+
+        override suspend fun ensureProject(projectId: String) = Unit
+
+        override suspend fun ensureSubject(projectId: String, userId: String) = Unit
+
+        override suspend fun listProjects(organizationId: String): List<String> = emptyList()
+
+        override suspend fun projectOrganization(projectId: String): String = "main"
     }
 
     companion object {
