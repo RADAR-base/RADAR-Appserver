@@ -92,7 +92,7 @@ class MpOAuthSupport {
     }
 
     companion object {
-        private const val MANAGEMENTPORTAL_URL = "http://localhost:8080/managementportal"
+        private const val MANAGEMENTPORTAL_URL = "http://localhost:8081/managementportal"
         const val MP_CLIENT = "ManagementPortalapp"
         const val REST_CLIENT = "pRMT"
         const val ADMIN_USER = "admin"
