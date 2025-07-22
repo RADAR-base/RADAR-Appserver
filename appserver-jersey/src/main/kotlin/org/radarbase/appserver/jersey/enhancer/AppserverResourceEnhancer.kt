@@ -199,6 +199,9 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(ScheduleGeneratorService::class.java)
             .`in`(Singleton::class.java)
 
+        bind(QuestionnaireScheduleGeneratorService::class.java)
+            .to(QuestionnaireScheduleGeneratorService::class.java)
+
         bind(QuartzMessageSchedulerListener::class.java)
             .to(QuartzMessageSchedulerListener::class.java)
             .`in`(Singleton::class.java)
