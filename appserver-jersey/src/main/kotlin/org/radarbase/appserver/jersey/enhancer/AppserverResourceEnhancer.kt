@@ -23,6 +23,7 @@ import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.quartz.Scheduler
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
@@ -41,6 +42,7 @@ import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.jersey.factory.event.EventBusFactory
 import org.radarbase.appserver.jersey.factory.fcm.FcmSenderFactory
 import org.radarbase.appserver.jersey.factory.fcm.FirebaseOptionsFactory
+import org.radarbase.appserver.jersey.factory.quartz.QuartzSchedulerFactory
 import org.radarbase.appserver.jersey.fcm.downstream.FcmSender
 import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.ProjectMapper
@@ -238,6 +240,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bindFactory(EventBusFactory::class.java)
             .to(EventBus::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(QuartzSchedulerFactory::class.java)
+            .to(Scheduler::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(SchedulingServiceFactory::class.java)
