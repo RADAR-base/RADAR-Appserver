@@ -11,7 +11,7 @@ mp:
 
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
-  resourceName: res_appserver
+  resourceName: res_appconfig
 
 db:
   jdbcDriver: org.h2.Driver
@@ -27,6 +27,17 @@ github:
     maxContentLength: 1000000
     timeoutSec: 10
     githubToken:
+
+quartz:
+  # Specifies the dispatcher for asynchronous operations.
+  # Options: 'io' (for I/O-bound tasks), 'default' (for CPU-bound tasks), 'unconfined' (uses calling thread).
+  # Defaults to 'unconfined' if not provided.
+  coroutineDispatcher: io
+
+  # Specifies the type of coroutine job.
+  # Options: 'supervisor-job' (supervises child jobs), 'coroutine-job' (no supervision).
+  # Defaults to 'supervisor-job' if not provided.
+  coroutineJob: supervisor-job
 
 protocol:
   githubProtocolRepo: RADAR-base/RADAR-aRMT-protocols

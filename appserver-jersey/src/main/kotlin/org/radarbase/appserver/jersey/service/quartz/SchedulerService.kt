@@ -29,6 +29,8 @@ interface SchedulerService {
 
     fun checkJobExists(jobKey: JobKey): Boolean
 
+    fun checkTriggerExists(triggerKey: TriggerKey): Boolean
+
     fun updateScheduledJob(
         jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?
     )
