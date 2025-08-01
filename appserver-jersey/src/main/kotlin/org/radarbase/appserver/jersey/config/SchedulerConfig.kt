@@ -16,5 +16,7 @@
 
 package org.radarbase.appserver.jersey.config
 
-class SchedulerConfig {
-}
+data class SchedulerConfig(
+    val coroutineDispatcher: String = "io",
+    val coroutineJob: String = "supervisor-job",
+)

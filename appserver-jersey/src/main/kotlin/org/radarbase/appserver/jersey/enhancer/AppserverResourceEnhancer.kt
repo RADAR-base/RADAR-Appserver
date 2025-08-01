@@ -19,11 +19,14 @@ package org.radarbase.appserver.jersey.enhancer
 import com.google.common.eventbus.EventBus
 import com.google.firebase.FirebaseOptions
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.quartz.JobListener
 import org.quartz.Scheduler
+import org.quartz.SchedulerListener
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
@@ -39,6 +42,7 @@ import org.radarbase.appserver.jersey.event.listener.TaskStateEventListener
 import org.radarbase.appserver.jersey.event.listener.quartz.QuartzMessageJobListener
 import org.radarbase.appserver.jersey.event.listener.quartz.QuartzMessageSchedulerListener
 import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
+import org.radarbase.appserver.jersey.factory.coroutines.SchedulerScopedCoroutine
 import org.radarbase.appserver.jersey.factory.event.EventBusFactory
 import org.radarbase.appserver.jersey.factory.fcm.FcmSenderFactory
 import org.radarbase.appserver.jersey.factory.fcm.FirebaseOptionsFactory
@@ -82,6 +86,7 @@ import org.radarbase.appserver.jersey.service.FcmDataMessageService
 import org.radarbase.appserver.jersey.service.FcmNotificationService
 import org.radarbase.appserver.jersey.service.TaskService
 import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
+import org.radarbase.appserver.jersey.service.quartz.SchedulerService
 import org.radarbase.appserver.jersey.service.quartz.SchedulerServiceImpl
 import org.radarbase.appserver.jersey.service.quartz.SimpleQuartzNamingStrategy
 import org.radarbase.appserver.jersey.service.questionnaire_schedule.MessageSchedulerService
@@ -205,11 +210,15 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(QuestionnaireScheduleGeneratorService::class.java)
 
         bind(QuartzMessageSchedulerListener::class.java)
-            .to(QuartzMessageSchedulerListener::class.java)
+            .to(SchedulerListener::class.java)
             .`in`(Singleton::class.java)
 
         bind(QuartzMessageJobListener::class.java)
-            .to(QuartzMessageJobListener::class.java)
+            .to(JobListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(SchedulerServiceImpl::class.java)
+            .to(SchedulerService::class.java)
             .`in`(Singleton::class.java)
 
         bind(MessageSchedulerService::class.java)
@@ -236,6 +245,10 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(MessageStateEventListener::class.java)
             .to(MessageStateEventListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(SchedulerScopedCoroutine::class.java)
+            .to(CoroutineScope::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(EventBusFactory::class.java)
