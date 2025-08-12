@@ -31,7 +31,7 @@ import java.io.Serial
  * [HttpStatus.ALREADY_REPORTED].
  *
  */
-@ResponseStatus(HttpStatus.ALREADY_REPORTED)
+@ResponseStatus(HttpStatus.EXPECTATION_FAILED)
 class AlreadyExistsException : RuntimeException {
     companion object {
         @Serial

@@ -20,7 +20,7 @@ import jakarta.ws.rs.core.Response
 import org.radarbase.jersey.exception.HttpApplicationException
 
 class AlreadyExistsException(code: String, message: String) : HttpApplicationException(
-    Response.Status.INTERNAL_SERVER_ERROR,
+    Response.Status.EXPECTATION_FAILED,
     code,
     message,
 )
