@@ -42,7 +42,7 @@ import java.time.Instant
 import java.util.Objects
 
 /**
- * [Entity] for persisting users. The corresponding DTO is [org.radarbase.appserver.dto.fcm.FcmUserDto].
+ * [Entity] for persisting users. The corresponding DTO is [org.radarbase.appserver.jersey.dto.fcm.FcmUserDto].
  * [Project] can have multiple [User] (Many-to-One).
  */
 @Table(
