@@ -1,11 +1,16 @@
 plugins {
+    idea
     application
     id("org.radarbase.radar-kotlin") version Versions.radarCommonsVersion
     kotlin("plugin.allopen")
     kotlin("plugin.noarg")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.kotlin.plugin.jpa")
+}
 
+idea {
+    module {
+        isDownloadSources = true
+        isDownloadJavadoc = true
+    }
 }
 
 application {

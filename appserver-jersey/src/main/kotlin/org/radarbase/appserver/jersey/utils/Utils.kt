@@ -106,6 +106,32 @@ inline fun <reified E : Exception> checkInvalidDetails(
     }
 }
 
+/**
+ * Throws an exception of type [E] if the given [shouldInvalidate] is true.
+ *
+ * After this function returns normally, Kotlin’s flow analysis knows that
+ * `shouldInvalidate` is false, so any value checked by it can be treated
+ * as “valid” (eg: non‑null).
+ *
+ * @param shouldInvalidate A Boolean expression: if true, an [E] is thrown.
+ * @param messageProvider  Supplies the exception message when invalidation occurs.
+ * @throws E if [shouldInvalidate] is true.
+ */
+@OptIn(ExperimentalContracts::class)
+inline fun <reified E : Exception> checkInvalidDetails(
+    shouldInvalidate: Boolean,
+    messageProvider: () -> String
+) {
+    contract {
+        returns() implies (!shouldInvalidate)
+    }
+    if (shouldInvalidate) {
+        throw E::class.java
+            .getDeclaredConstructor(String::class.java)
+            .newInstance(messageProvider())
+    }
+}
+
 suspend inline fun tokenForCurrentRequest(
     asyncService: AsyncCoroutineService,
     tokenProvider: Provider<RadarToken>,

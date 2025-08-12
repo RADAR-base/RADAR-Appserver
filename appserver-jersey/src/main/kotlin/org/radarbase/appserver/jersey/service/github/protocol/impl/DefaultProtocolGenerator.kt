@@ -114,7 +114,7 @@ class DefaultProtocolGenerator @Inject constructor(
             return cachedProtocolMap.get(true)[subjectId]
         } catch (ex: IOException) {
             logger.warn("Cannot retrieve Protocols, using cached values if available.", ex)
-            return cachedProtocolMap.getCachedMap()[subjectId]!!
+            return cachedProtocolMap.getCachedMap()[subjectId]
         } catch (ex: Exception) {
             logger.warn(
                 "Exception while fetching protocols for subject {}",
