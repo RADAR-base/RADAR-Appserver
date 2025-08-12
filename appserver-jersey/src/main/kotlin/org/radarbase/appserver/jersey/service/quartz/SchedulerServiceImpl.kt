@@ -52,7 +52,7 @@ class SchedulerServiceImpl @Inject constructor(
                 logger.warn("The Listeners could not be added to the scheduler", exc)
             }
         } else {
-            logger.warn("The Listeners cannot be null and will not be added to the scheduler")
+            logger.error("The Listeners cannot be null and should be added to the scheduler")
         }
     }
 

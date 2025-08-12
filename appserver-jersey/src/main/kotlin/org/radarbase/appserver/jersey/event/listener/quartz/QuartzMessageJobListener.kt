@@ -75,9 +75,8 @@ class QuartzMessageJobListener @Inject constructor(
     override fun jobWasExecuted(context: JobExecutionContext, jobException: JobExecutionException?) {
         val jobDataMap = context.mergedJobDataMap
         val messageId = jobDataMap.getLongValue("messageId")
-        val messageType = jobDataMap.getString("messageType")
-        if (messageType == null) {
-            log.warn("The message type does not exist.")
+        val messageType = jobDataMap.getString("messageType") ?: run {
+            log.warn("Message type does not exist.")
             return
         }
 
@@ -86,8 +85,7 @@ class QuartzMessageJobListener @Inject constructor(
             MessageType.NOTIFICATION -> {
                 val notification = runBlocking {
                     notificationRepository.find(messageId)
-                }
-                if (notification == null) {
+                } ?: run {
                     log.warn("The notification does not exist in database and yet was scheduled.")
                     return
                 }
@@ -95,28 +93,25 @@ class QuartzMessageJobListener @Inject constructor(
                     val additionalInfo: MutableMap<String, String> = hashMapOf()
                     additionalInfo.put("error", jobException.message!!)
                     additionalInfo.put("error_description", jobException.toString())
-                    val notificationStateEventError =
-                        NotificationStateEventDto(
-                            notification, MessageState.ERRORED, additionalInfo, Instant.now(),
-                        )
+                    val notificationStateEventError = NotificationStateEventDto(
+                        notification, MessageState.ERRORED, additionalInfo, Instant.now(),
+                    )
                     messageStateEventPublisher.post(notificationStateEventError)
 
                     log.warn("The job could not be executed.", jobException)
                     return
                 }
 
-                val notificationStateEvent =
-                    NotificationStateEventDto(
-                        notification, MessageState.EXECUTED, null, Instant.now(),
-                    )
+                val notificationStateEvent = NotificationStateEventDto(
+                    notification, MessageState.EXECUTED, null, Instant.now(),
+                )
                 messageStateEventPublisher.post(notificationStateEvent)
             }
 
             MessageType.DATA -> {
                 val dataMessage = runBlocking {
                     dataMessageRepository.find(messageId)
-                }
-                if (dataMessage == null) {
+                } ?: run {
                     log.warn("The data message does not exist in database and yet was scheduled.")
                     return
                 }
@@ -134,14 +129,13 @@ class QuartzMessageJobListener @Inject constructor(
                     return
                 }
 
-                val dataMessageStateEvent =
-                    DataMessageStateEventDto(
-                        dataMessage, MessageState.EXECUTED, null, Instant.now(),
-                    )
+                val dataMessageStateEvent = DataMessageStateEventDto(
+                    dataMessage, MessageState.EXECUTED, null, Instant.now(),
+                )
                 messageStateEventPublisher.post(dataMessageStateEvent)
             }
 
-            else -> log.warn("The message type does not exist.")
+            MessageType.UNKNOWN -> log.warn("The message type does not exist.")
         }
     }
 

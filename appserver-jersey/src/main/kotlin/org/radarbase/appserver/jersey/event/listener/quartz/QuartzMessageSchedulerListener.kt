@@ -41,7 +41,7 @@ class QuartzMessageSchedulerListener(
     private val messageStateEventPublisher: EventBus,
     private val notificationRepository: NotificationRepository,
     private val dataMessageRepository: DataMessageRepository,
-        private val scheduler: Scheduler
+    private val scheduler: Scheduler,
 ) : SchedulerListener {
     /**
      * Called by the `[Scheduler]` when a `[JobDetail]` is
@@ -52,9 +52,9 @@ class QuartzMessageSchedulerListener(
         try {
             jobDetail = scheduler.getJobDetail(trigger.jobKey)
         } catch (exc: SchedulerException) {
-            log.warn(
+            logger.warn(
                 "Encountered error while getting job information from Trigger: ",
-                exc
+                exc,
             )
             return
         }
@@ -67,14 +67,13 @@ class QuartzMessageSchedulerListener(
             MessageType.NOTIFICATION -> {
                 val notification = runBlocking {
                     notificationRepository.find(messageId)
-                }
-                if (notification == null) {
-                    log.warn("The notification does not exist in database and yet was scheduled.")
+                } ?: run {
+                    logger.warn("The notification does not exist in database and yet was scheduled.")
                     return
                 }
                 val notificationStateEvent =
                     NotificationStateEventDto(
-                        notification, MessageState.SCHEDULED, null, Instant.now()
+                        notification, MessageState.SCHEDULED, null, Instant.now(),
                     )
                 messageStateEventPublisher.post(notificationStateEvent)
             }
@@ -82,18 +81,17 @@ class QuartzMessageSchedulerListener(
             MessageType.DATA -> {
                 val dataMessage = runBlocking {
                     dataMessageRepository.find(messageId)
-                }
-                if (dataMessage == null) {
-                    log.warn("The data message does not exist in database and yet was scheduled.")
+                } ?: run {
+                    logger.warn("The data message does not exist in database and yet was scheduled.")
                     return
                 }
                 val dataMessageStateEvent = DataMessageStateEventDto(
-                    dataMessage, MessageState.SCHEDULED, null, Instant.now()
+                    dataMessage, MessageState.SCHEDULED, null, Instant.now(),
                 )
                 messageStateEventPublisher.post(dataMessageStateEvent)
             }
 
-            else -> {}
+            MessageType.UNKNOWN -> logger.warn("Job is scheduled for unknown message type")
         }
     }
 
@@ -106,23 +104,22 @@ class QuartzMessageSchedulerListener(
     override fun jobUnscheduled(triggerKey: TriggerKey) {
         val notificationId: Long
         try {
-            notificationId = NAMING_STRATEGY.getMessageId(triggerKey.name)!!.toLong()
+            notificationId = requireNotNull(NAMING_STRATEGY.getMessageId(triggerKey.name)) {
+                "Message ID shouldn't be null when retrieving from naming strategy"
+            }.toLong()
         } catch (_: NumberFormatException) {
-            log.warn("The message id could not be established from unscheduled trigger.")
+            logger.warn("The message id could not be established from unscheduled trigger.")
             return
         }
         val notification = runBlocking {
             notificationRepository.find(notificationId)
-        }
-
-        if (notification == null) {
-            log.warn("The notification does not exist in database and yet was unscheduled.")
+        } ?: run {
+            logger.warn("The notification does not exist in database and yet was unscheduled.")
             return
         }
-        val notificationStateEvent =
-            NotificationStateEventDto(
-                notification, MessageState.CANCELLED, null, Instant.now()
-            )
+        val notificationStateEvent = NotificationStateEventDto(
+            notification, MessageState.CANCELLED, null, Instant.now(),
+        )
         messageStateEventPublisher.post(notificationStateEvent)
     }
 
@@ -281,6 +278,6 @@ class QuartzMessageSchedulerListener(
 
     companion object {
         private val NAMING_STRATEGY: QuartzNamingStrategy = SimpleQuartzNamingStrategy()
-        private val log: Logger = LoggerFactory.getLogger(QuartzMessageSchedulerListener::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(QuartzMessageSchedulerListener::class.java)
     }
 }
