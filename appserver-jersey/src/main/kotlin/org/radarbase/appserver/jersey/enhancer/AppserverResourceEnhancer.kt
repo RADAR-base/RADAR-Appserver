@@ -81,8 +81,10 @@ import org.radarbase.appserver.jersey.repository.impl.NotificationRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.TaskRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.TaskStateEventRepositoryImpl
+import org.radarbase.appserver.jersey.service.DataMessageStateEventService
 import org.radarbase.appserver.jersey.service.FcmDataMessageService
 import org.radarbase.appserver.jersey.service.FcmNotificationService
+import org.radarbase.appserver.jersey.service.NotificationStateEventService
 import org.radarbase.appserver.jersey.service.TaskService
 import org.radarbase.appserver.jersey.service.TaskStateEventService
 import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
@@ -251,6 +253,14 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
 
         bind(MessageStateEventListener::class.java)
             .to(MessageStateEventListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(DataMessageStateEventService::class.java)
+            .to(DataMessageStateEventService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationStateEventService::class.java)
+            .to(NotificationStateEventService::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(SchedulerScopedCoroutine::class.java)

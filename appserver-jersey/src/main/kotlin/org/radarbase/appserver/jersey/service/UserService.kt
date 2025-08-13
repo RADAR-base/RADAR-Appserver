@@ -219,7 +219,7 @@ class UserService @Inject constructor(
             userRepository.add(this)
         }
 
-//        this.scheduleService.generateScheduleForUser(savedUser)
+        this.scheduleService.generateScheduleForUser(savedUser)
 
         return userMapper.entityToDto(savedUser)
     }

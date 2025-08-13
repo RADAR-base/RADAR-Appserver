@@ -92,11 +92,8 @@ class DataMessageStateEventService @Inject constructor(
         )
 
         var additionalInfo: Map<String, String>? = null
-        val dmAssociatedInfo: String = requireNotNull(dataMessageStateEventDto.associatedInfo) {
-            "Associated info in data message state event dto can't be null."
-        }
 
-        if (!dmAssociatedInfo.isEmpty()) {
+        if (!dataMessageStateEventDto.associatedInfo.isNullOrEmpty()) {
             try {
                 additionalInfo = objectMapper.readValue(
                     dataMessageStateEventDto.associatedInfo,
