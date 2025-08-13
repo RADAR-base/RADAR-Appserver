@@ -17,9 +17,11 @@
 package org.radarbase.appserver.jersey.service
 
 import com.google.common.eventbus.EventBus
+import jakarta.inject.Inject
 import org.radarbase.appserver.jersey.dto.fcm.FcmDataMessageDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmDataMessages
 import org.radarbase.appserver.jersey.entity.DataMessage
+import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.event.state.MessageState
 import org.radarbase.appserver.jersey.event.state.dto.DataMessageStateEventDto
@@ -30,14 +32,18 @@ import org.radarbase.appserver.jersey.mapper.DataMessageMapper
 import org.radarbase.appserver.jersey.repository.DataMessageRepository
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
+import org.radarbase.appserver.jersey.service.TaskService.Companion.nonNullUserId
 import org.radarbase.appserver.jersey.service.questionnaire_schedule.MessageSchedulerService
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
+import org.radarbase.appserver.jersey.utils.requireNotNullField
 import org.radarbase.jersey.exception.HttpNotFoundException
 import java.time.Instant
 import java.time.LocalDateTime
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
-class FcmDataMessageService(
+class FcmDataMessageService @Inject constructor(
     private val dataMessageRepository: DataMessageRepository,
     private val userRepository: UserRepository,
     private val projectRepository: ProjectRepository,
@@ -62,15 +68,9 @@ class FcmDataMessageService(
 
     suspend fun getDataMessagesBySubjectId(subjectId: String): FcmDataMessages {
         val user = this.userRepository.findBySubjectId(subjectId)
-        checkPresence(user, "user_not_found") {
-            INVALID_SUBJECT_ID_MESSAGE
-        }
+        checkPresenceOfUser(user)
 
-        val userId = user.id
-        checkNotNull(userId) {
-            "User id cannot be null"
-        }
-        val dataMessages = dataMessageRepository.findByUserId(userId)
+        val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
         return FcmDataMessages()
             .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages))
     }
@@ -80,11 +80,7 @@ class FcmDataMessageService(
     ): FcmDataMessages {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 
-        val userId = user.id
-        checkNotNull(userId) {
-            "User id cannot be null"
-        }
-        val dataMessages = dataMessageRepository.findByUserId(userId)
+        val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
         return FcmDataMessages()
             .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages))
     }
@@ -96,18 +92,10 @@ class FcmDataMessageService(
             "Project not found with projectId $projectId"
         }
 
-        val projectId = project.id
-        checkNotNull(projectId) {
-            "User id cannot be null"
-        }
-        val users: List<User> = this.userRepository.findByProjectId(projectId)
+        val users: List<User> = this.userRepository.findByProjectId(nonNullProjectId(project))
         val dataMessages: MutableSet<DataMessage> = hashSetOf()
         users.flatMapTo(dataMessages) { user ->
-            val userId = user.id
-            checkNotNull(userId) {
-                "User id cannot be null"
-            }
-            this.dataMessageRepository.findByUserId(userId)
+            this.dataMessageRepository.findByUserId(nonNullUserId(user))
         }
         return FcmDataMessages()
             .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages))
@@ -115,20 +103,14 @@ class FcmDataMessageService(
 
     suspend fun checkIfDataMessageExists(dataMessageDto: FcmDataMessageDto, subjectId: String): Boolean {
         val user = this.userRepository.findBySubjectId(subjectId)
-
         checkPresence(user, "user_not_found") {
             INVALID_SUBJECT_ID_MESSAGE
         }
+        val dataMessage = DataMessage.DataMessageBuilder(
+            dataMessageConverter.dtoToEntity(dataMessageDto),
+        ).user(user).build()
 
-        val dataMessage =
-            DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build()
-
-
-        val userId = user.id
-        checkNotNull(userId) {
-            "User id cannot be null"
-        }
-        val dataMessages = this.dataMessageRepository.findByUserId(userId)
+        val dataMessages = this.dataMessageRepository.findByUserId(nonNullUserId(user))
         return dataMessages.contains(dataMessage)
     }
 
@@ -149,20 +131,23 @@ class FcmDataMessageService(
 
         if (!dataMessageRepository
                 .existsByUserIdAndSourceIdAndScheduledTimeAndTtlSeconds(
-                    user.id!!,
-                    dataMessageDto.sourceId!!,
-                    dataMessageDto.scheduledTime!!,
-                    dataMessageDto.ttlSeconds,
+                    nonNullUserId(user),
+                    requireNotNullField(dataMessageDto.sourceId, "Data Message source id"),
+                    requireNotNullField(dataMessageDto.scheduledTime, "Data Message scheduled time"),
+                    requireNotNullField(dataMessageDto.ttlSeconds, "Data Message ttl seconds"),
                 )
         ) {
-            val dataMessageSaved =
-                this.dataMessageRepository.add(
-                    DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build(),
-                )
-            user.usermetrics!!.lastOpened = Instant.now()
+            val dataMessageSaved = dataMessageRepository.add(
+                DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build(),
+            )
+            requireNotNullField(user.usermetrics, "User's user metrics").lastOpened = Instant.now()
             this.userRepository.update(user)
             addDataMessageStateEvent(
-                dataMessageSaved, MessageState.ADDED, dataMessageSaved.createdAt!!,
+                dataMessageSaved,
+                MessageState.ADDED,
+                requireNotNullField(
+                    dataMessageSaved.createdAt, "Data message creation timestamp",
+                ).toInstant(),
             )
             this.schedulerService.schedule(dataMessageSaved)
             return dataMessageConverter.entityToDto(dataMessageSaved)
@@ -177,8 +162,9 @@ class FcmDataMessageService(
     private fun addDataMessageStateEvent(
         dataMessage: DataMessage, state: MessageState, time: Instant,
     ) {
-        val dataMessageStateEvent =
-            DataMessageStateEventDto(dataMessage, state, null, time)
+        val dataMessageStateEvent = DataMessageStateEventDto(
+            dataMessage, state, null, time,
+        )
         dataMessageStateEventPublisher.post(dataMessageStateEvent)
 
     }
@@ -186,18 +172,14 @@ class FcmDataMessageService(
     suspend fun updateDataMessage(
         dataMessageDto: FcmDataMessageDto, subjectId: String, projectId: String,
     ): FcmDataMessageDto {
-        checkInvalidDetails<InvalidNotificationDetailsException>(
-            {
-                dataMessageDto.id == null
-            },
-            {
-                "ID must be supplied for updating the data message"
-            },
-        )
-
+        val dmDtoId = dataMessageDto.id
+        if (dmDtoId == null) {
+            throw InvalidNotificationDetailsException(
+                "ID must be supplied for updating the data message",
+            )
+        }
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
-
-        val dataMessage = this.dataMessageRepository.find(dataMessageDto.id!!)
+        val dataMessage = this.dataMessageRepository.find(dmDtoId)
 
         checkPresence(dataMessage, "data_message_not_found") {
             "Data message does not exist. Please create first"
@@ -211,9 +193,15 @@ class FcmDataMessageService(
             .fcmMessageId(dataMessageDto.hashCode().toString())
             .build()
 
-        val dataMessageSaved = this.dataMessageRepository.update(newDataMessage)!!
+        val dataMessageSaved = this.dataMessageRepository.update(newDataMessage) ?: throw IllegalStateException(
+            "Data message cannot be updated",
+        )
         addDataMessageStateEvent(
-            dataMessageSaved, MessageState.UPDATED, dataMessageSaved.updatedAt!!,
+            dataMessageSaved,
+            MessageState.UPDATED,
+            requireNotNullField(
+                dataMessageSaved.updatedAt, "Data message update timestamp",
+            ).toInstant(),
         )
         if (!dataMessage.delivered) {
             this.schedulerService.updateScheduled(dataMessageSaved)
@@ -222,25 +210,20 @@ class FcmDataMessageService(
     }
 
     suspend fun removeDataMessagesForUser(projectId: String, subjectId: String) {
-        val user = subjectAndProjectExistElseThrow(subjectId, projectId)
-
+        val userId = nonNullUserId(subjectAndProjectExistElseThrow(subjectId, projectId))
         val dataMessages = this.dataMessageRepository.findByUserId(
-            checkNotNull(user.id) {
+            checkNotNull(userId) {
                 "User id cannot be null"
             },
         )
         this.schedulerService.deleteScheduledMultiple(dataMessages)
-
         this.dataMessageRepository.deleteByUserId(
-            checkNotNull(user.id) {
-                "User id cannot be null"
-            },
+            userId,
         )
     }
 
     suspend fun updateDeliveryStatus(fcmMessageId: String, isDelivered: Boolean) {
         val dataMessage = this.dataMessageRepository.findByFcmMessageId(fcmMessageId)
-
         checkInvalidDetails<InvalidNotificationDetailsException>(
             {
                 dataMessage == null
@@ -252,7 +235,6 @@ class FcmDataMessageService(
 
         val newDataMessage = DataMessage.DataMessageBuilder(dataMessage).delivered(isDelivered).build()
         this.dataMessageRepository.update(newDataMessage)
-
     }
 
     // TODO: Investigate if data messages/notifications can be marked in the state CANCELLED when deleted.
@@ -261,21 +243,9 @@ class FcmDataMessageService(
         subjectId: String,
         id: Long,
     ) {
-        val user = subjectAndProjectExistElseThrow(subjectId, projectId)
-
-        if (this.dataMessageRepository.existsByIdAndUserId(
-                id,
-                checkNotNull(user.id) {
-                    "User id cannot be null"
-                },
-            )
-        ) {
-            this.dataMessageRepository.deleteByIdAndUserId(
-                id,
-                checkNotNull(user.id) {
-                    "User id cannot be null"
-                },
-            )
+        val userId = nonNullUserId(subjectAndProjectExistElseThrow(subjectId, projectId))
+        if (dataMessageRepository.existsByIdAndUserId(id, userId)) {
+            this.dataMessageRepository.deleteByIdAndUserId(id, userId)
         } else {
             throw InvalidNotificationDetailsException(
                 "Data message with the provided ID does not exist.",
@@ -285,11 +255,10 @@ class FcmDataMessageService(
 
     suspend fun removeDataMessagesForUserUsingFcmToken(fcmToken: String) {
         val user = this.userRepository.findByFcmToken(fcmToken)
-
         if (user == null) {
             throw InvalidUserDetailsException("The user with the given Fcm Token does not exist")
         } else {
-            this.dataMessageRepository.deleteByUserId(user.id!!)
+            this.dataMessageRepository.deleteByUserId(nonNullUserId(user))
             /*User newUser = user1.setFcmToken("");
           this.userRepository.save(newUser);*/
         }
@@ -299,14 +268,15 @@ class FcmDataMessageService(
         dataMessageDtos: FcmDataMessages, subjectId: String, projectId: String,
     ): FcmDataMessages {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
-        val dataMessages = dataMessageRepository.findByUserId(checkNotNull(user.id) {
-            "User id cannot be null"
-        })
+        val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
 
-        val newDataMessages =
-            dataMessageDtos.dataMessages.map { dto -> dataMessageConverter.dtoToEntity(dto) }
-                .map { dm -> DataMessage.DataMessageBuilder(dm).user(user).build() }
-                .filter { dataMessage: DataMessage? -> !dataMessages.contains(dataMessage) }
+        val newDataMessages = dataMessageDtos.dataMessages.map { dto ->
+            dataMessageConverter.dtoToEntity(dto)
+        }.map { dm ->
+            DataMessage.DataMessageBuilder(dm).user(user).build()
+        }.filter { dataMessage: DataMessage? ->
+            !dataMessages.contains(dataMessage)
+        }
 
         val savedDataMessages: List<DataMessage> = newDataMessages.map {
             this.dataMessageRepository.add(it)
@@ -316,7 +286,7 @@ class FcmDataMessageService(
             addDataMessageStateEvent(
                 dm,
                 MessageState.ADDED,
-                dm.createdAt!!,
+                requireNotNullField(dm.createdAt, "Data message creation timestamp").toInstant(),
             )
         }
 
@@ -333,9 +303,7 @@ class FcmDataMessageService(
                 "Project Id does not exist. Please create a project with the ID first",
             )
         }
-
         val user: User = this.userRepository.findBySubjectIdAndProjectId(subjectId, project.id!!)!!
-
         checkPresence(user, "user_not_found") {
             INVALID_SUBJECT_ID_MESSAGE
         }
@@ -346,9 +314,7 @@ class FcmDataMessageService(
         projectId: String, subjectId: String, dataMessageId: Long,
     ): DataMessage {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
-
-        val dataMessage = dataMessageRepository.findByIdAndUserId(dataMessageId, user.id!!)
-
+        val dataMessage = dataMessageRepository.findByIdAndUserId(dataMessageId, nonNullUserId(user))
         checkInvalidDetails<InvalidNotificationDetailsException>(
             {
                 dataMessage == null
@@ -362,7 +328,6 @@ class FcmDataMessageService(
 
     suspend fun getDataMessageByMessageId(messageId: String): DataMessage {
         val dataMessage = this.dataMessageRepository.findByFcmMessageId(messageId)
-
         checkInvalidDetails<InvalidNotificationDetailsException>(
             {
                 dataMessage == null
@@ -371,12 +336,26 @@ class FcmDataMessageService(
                 "The Data message with FCM Message Id $messageId does not exist."
             },
         )
-
         return dataMessage!!
     }
 
     companion object {
         private const val INVALID_SUBJECT_ID_MESSAGE =
             "The supplied Subject ID is invalid. No user found. Please Create a User First."
+
+        @OptIn(ExperimentalContracts::class)
+        private fun checkPresenceOfUser(user: User?) {
+            contract {
+                returns() implies (user != null)
+            }
+            checkPresence(user, "user_not_found") {
+                INVALID_SUBJECT_ID_MESSAGE
+            }
+        }
+
+        fun nonNullProjectId(project: Project): Long = checkNotNull(project.id) {
+            "User id cannot be null"
+        }
+
     }
 }

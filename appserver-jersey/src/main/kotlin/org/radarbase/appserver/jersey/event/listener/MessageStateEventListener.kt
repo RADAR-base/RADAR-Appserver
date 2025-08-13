@@ -21,17 +21,21 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.AllowConcurrentEvents
 import com.google.common.eventbus.Subscribe
 import jakarta.inject.Inject
+import kotlinx.coroutines.runBlocking
 import org.radarbase.appserver.jersey.entity.DataMessageStateEvent
 import org.radarbase.appserver.jersey.entity.NotificationStateEvent
 import org.radarbase.appserver.jersey.event.state.dto.DataMessageStateEventDto
 import org.radarbase.appserver.jersey.event.state.dto.NotificationStateEventDto
+import org.radarbase.appserver.jersey.service.DataMessageStateEventService
+import org.radarbase.appserver.jersey.service.NotificationStateEventService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+@Suppress("unused")
 class MessageStateEventListener @Inject constructor(
     private val objectMapper: ObjectMapper,
     private val notificationStateEventService: NotificationStateEventService,
-    private val dataMessageStateEventService: DataMessageStateEventService
+    private val dataMessageStateEventService: DataMessageStateEventService,
 ) {
     /**
      * Handle an application event.
@@ -42,22 +46,26 @@ class MessageStateEventListener @Inject constructor(
     @AllowConcurrentEvents
     fun onNotificationStateChange(event: NotificationStateEventDto) {
         val info = convertMapToString(event.additionalInfo)
-        logger.debug("ID: {}, STATE: {}.", event.notification.id, event.state)
+        logger.debug("Notification state changed. ID: {}, STATE: {}.", event.notification.id, event.state)
         val eventEntity = NotificationStateEvent(
-            event.notification, event.state, event.time, info
+            event.notification, event.state, event.time, info,
         )
-        notificationStateEventService.addNotificationStateEvent(eventEntity)
+        runBlocking {
+            notificationStateEventService.addNotificationStateEvent(eventEntity)
+        }
     }
 
     @Subscribe
     @AllowConcurrentEvents
     fun onDataMessageStateChange(event: DataMessageStateEventDto) {
         val info = convertMapToString(event.additionalInfo)
-        logger.debug("ID: {}, STATE: {}", event.dataMessage.id, event.state)
+        logger.debug("Data Message state changed. ID: {}, STATE: {}", event.dataMessage.id, event.state)
         val eventEntity = DataMessageStateEvent(
-            event.dataMessage, event.state, event.time, info
+            event.dataMessage, event.state, event.time, info,
         )
-        dataMessageStateEventService.addDataMessageStateEvent(eventEntity)
+        runBlocking {
+            dataMessageStateEventService.addDataMessageStateEvent(eventEntity)
+        }
     }
 
     fun convertMapToString(additionalInfoMap: Map<String, String>?): String? {
