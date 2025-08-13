@@ -21,10 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.AllowConcurrentEvents
 import com.google.common.eventbus.Subscribe
 import jakarta.inject.Inject
+import kotlinx.coroutines.runBlocking
 import org.radarbase.appserver.jersey.entity.TaskStateEvent
 import org.radarbase.appserver.jersey.event.state.dto.TaskStateEventDto
+import org.radarbase.appserver.jersey.service.TaskStateEventService
 import org.slf4j.LoggerFactory
 
+@Suppress("unused")
 class TaskStateEventListener @Inject constructor(
     private val objectMapper: ObjectMapper,
     private val taskStateEventService: TaskStateEventService,
@@ -43,7 +46,9 @@ class TaskStateEventListener @Inject constructor(
         val eventEntity = TaskStateEvent(
             event.task, event.state, event.time, info,
         )
-        taskStateEventService.addTaskStateEvent(eventEntity)
+        runBlocking {
+            taskStateEventService.addTaskStateEvent(eventEntity)
+        }
     }
 
     fun convertMapToString(additionalInfoMap: Map<String, String>?): String? {

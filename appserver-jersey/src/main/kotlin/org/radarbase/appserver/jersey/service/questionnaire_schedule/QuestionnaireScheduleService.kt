@@ -7,6 +7,7 @@ import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
 import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.dto.questionnaire.Schedule
+import org.radarbase.appserver.jersey.entity.Notification
 import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.repository.ProjectRepository
@@ -118,9 +119,15 @@ class QuestionnaireScheduleService @Inject constructor(
         assessmentSchedules.filterNotNull()
             .filter(AssessmentSchedule::hasTasks)
             .forEach {
-                taskService.addTasks(it.tasks, user)
-                notificationService.addNotifications(it.notifications, user)
-                notificationService.addNotifications(it.reminders, user)
+                val (tasks, notifications, reminders) = nonNullTasksNotificationsAndReminders(
+                    it.tasks,
+                    it.notifications,
+                    it.reminders,
+                )
+
+                taskService.addTasks(tasks, user)
+                notificationService.addNotifications(notifications, user)
+                notificationService.addNotifications(reminders, user)
             }
     }
 
@@ -231,5 +238,15 @@ class QuestionnaireScheduleService @Inject constructor(
 
         private val TASK_SEARCH_PATTERN = Regex("(\\w+)([:<>])(\\w+)")
         private val COMMA_PATTERN = Regex(",")
+
+        fun nonNullTasksNotificationsAndReminders(
+            tasks: List<Task>?, notifications: List<Notification>?, reminders: List<Notification>?,
+        ): Triple<List<Task>, List<Notification>, List<Notification>> {
+            val nonNullTasks = requireNotNull(tasks) { "Tasks cannot be null" }
+            val nonNullNotifications = requireNotNull(notifications) { "Notifications cannot be null" }
+            val nonNullReminders = requireNotNull(reminders) { "Reminders cannot be null" }
+
+            return Triple(nonNullTasks, nonNullNotifications, nonNullReminders)
+        }
     }
 }
