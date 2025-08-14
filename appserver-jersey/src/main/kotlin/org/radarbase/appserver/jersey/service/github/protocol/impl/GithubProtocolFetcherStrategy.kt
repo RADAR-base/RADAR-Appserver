@@ -35,6 +35,7 @@ import org.radarbase.appserver.jersey.service.github.GithubService
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStrategy
 import org.radarbase.appserver.jersey.utils.cache.CachedMap
 import org.radarbase.appserver.jersey.utils.mapParallel
+import org.radarbase.appserver.jersey.utils.requireNotNullField
 import org.radarbase.appserver.jersey.utils.withReentrantLock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -107,7 +108,8 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         val protocolPaths: Set<String> = getProtocolPaths()
 
         users.mapParallel(Dispatchers.Default) {
-            fetchProtocolForSingleUser(it, it.project!!.projectId!!, protocolPaths)
+            val project = requireNotNullField(it.project, "User's project")
+            fetchProtocolForSingleUser(it, requireNotNullField(project.projectId, "Project Id"), protocolPaths)
         }.filter { it.protocol != null }.associate { it.id to it.protocol!! }.also {
             logger.debug("Fetched Protocols from Github")
         }
@@ -127,23 +129,24 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         projectId: String,
         protocolPaths: Set<String>,
     ): ProtocolCacheEntry {
-        val attributes: Map<String?, String?>? = user.attributes ?: emptyMap()
+        val attributes: Map<String?, String?> = user.attributes ?: emptyMap()
+        val subjectId: String = requireNotNullField(user.subjectId, "User subject ID")
 
         val attributeMap: Map<String, String> = protocolPaths.filter {
             it.contains(projectId)
         }.map {
             convertPathToAttributeMap(it, projectId).filter { entry ->
-                attributes?.get(entry.key) == entry.value
+                attributes[entry.key] == entry.value
             }
         }.maxByOrNull { it.size } ?: emptyMap()
 
         return try {
             val attributePath = convertAttributeMapToPath(attributeMap, projectId)
             projectProtocolUriMap.get()[attributePath]?.let {
-                ProtocolCacheEntry(user.subjectId!!, getProtocolFromUrl(it))
-            } ?: ProtocolCacheEntry(user.subjectId!!, null)
+                ProtocolCacheEntry(subjectId, getProtocolFromUrl(it))
+            } ?: ProtocolCacheEntry(subjectId, null)
         } catch (_: Exception) {
-            ProtocolCacheEntry(user.subjectId!!, null)
+            ProtocolCacheEntry(subjectId, null)
         }
     }
 

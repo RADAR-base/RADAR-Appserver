@@ -66,14 +66,14 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC"
     )
-    var createdAt: Instant? = dataMessageEntity?.createdAt
+    var createdAt: Instant? = dataMessageEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
         shape  = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC"
     )
-    var updatedAt: Instant? = dataMessageEntity?.updatedAt
+    var updatedAt: Instant? = dataMessageEntity?.updatedAt?.toInstant()
 
     fun withCreatedAt(createdAt: Instant?): FcmDataMessageDto = apply {
         this.createdAt = createdAt

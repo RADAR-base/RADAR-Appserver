@@ -54,8 +54,8 @@ class DataMessage : Message() {
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "data_message_map")
-    @MapKeyColumn(name = "key", nullable = true)
-    @Column(name = "value")
+    @MapKeyColumn(name = "data_message_key", nullable = true)
+    @Column(name = "data_message_value")
     var dataMap: MutableMap<String?, String?>? = null
 
     class DataMessageBuilder(dataMessage: DataMessage? = null) {

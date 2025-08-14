@@ -27,6 +27,7 @@ import org.radarbase.appserver.jersey.repository.TaskStateEventRepository
 import java.io.IOException
 import javax.naming.SizeLimitExceededException
 
+@Suppress("unused")
 class TaskStateEventService(
     private val taskStateEventRepository: TaskStateEventRepository,
     private val taskService: TaskService,
@@ -46,6 +47,7 @@ class TaskStateEventService(
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     suspend fun getTaskStateEvents(
         projectId: String?,
         subjectId: String?,
@@ -79,6 +81,7 @@ class TaskStateEventService(
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     @Throws(SizeLimitExceededException::class)
     suspend fun publishNotificationStateEventExternal(
         projectId: String,

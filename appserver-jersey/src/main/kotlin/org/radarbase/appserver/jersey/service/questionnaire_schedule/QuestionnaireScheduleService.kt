@@ -184,8 +184,10 @@ class QuestionnaireScheduleService @Inject constructor(
         return checkPresence(this.projectRepository.findByProjectId(projectId), "project_not_found") {
             "Project with projectId $projectId not found. Please create the project first."
         }.let { project ->
-            val projectId: Long = checkNotNull(project.id) { "Project ID cannot be null." }
-            checkPresence(this.userRepository.findBySubjectIdAndProjectId(subjectId, projectId), "user_not_found") {
+            checkPresence(this.userRepository.findBySubjectIdAndProjectId(
+                subjectId,
+                checkNotNull(project.id) { "Project ID cannot be null." }
+                ), "user_not_found") {
                 "User with subjectId $subjectId not found. Please create the user first."
             }
         }

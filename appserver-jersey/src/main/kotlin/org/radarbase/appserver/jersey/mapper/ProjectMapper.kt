@@ -34,7 +34,7 @@ class ProjectMapper : Mapper<ProjectDto, Project> {
     override suspend fun entityToDto(entity: Project): ProjectDto = ProjectDto(
         id = entity.id,
         projectId = entity.projectId,
-        createdAt = entity.createdAt,
-        updatedAt = entity.updatedAt
+        createdAt = entity.createdAt?.toInstant(),
+        updatedAt = entity.updatedAt?.toInstant(),
     )
 }

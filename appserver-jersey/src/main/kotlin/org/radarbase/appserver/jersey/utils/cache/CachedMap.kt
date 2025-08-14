@@ -16,7 +16,6 @@
 
 package org.radarbase.appserver.jersey.utils.cache
 
-import kotlinx.coroutines.runBlocking
 import org.radarbase.appserver.jersey.utils.cache.deps.AtomicNonNullReference
 import java.io.IOException
 import java.time.Duration
@@ -28,7 +27,7 @@ import java.time.Instant
  * This class is thread-safe if the given supplier is thread-safe.
  */
 @Suppress("unused")
-class CachedMap<S : Any, T : Any> (
+class CachedMap<S : Any, T : Any>(
     private val supplier: ThrowingSupplier<Map<S, T>>,
     private val invalidateAfter: Duration,
     private val retryAfter: Duration,
@@ -83,13 +82,11 @@ class CachedMap<S : Any, T : Any> (
      * @throws IOException if the cache cannot be refreshed.
      */
     @Throws(IOException::class)
-    operator fun get(key: S): T? {
+    suspend fun getByKey(key: S): T? {
         val currentResult: Result<S, T> = cache.get()
         val value: T? = currentResult.map[key]
         return if (value == null && currentResult.isStale(retryAfter)) {
-            runBlocking {
-                get(true)[key]
-            }
+            get(true)[key]
         } else {
             value
         }

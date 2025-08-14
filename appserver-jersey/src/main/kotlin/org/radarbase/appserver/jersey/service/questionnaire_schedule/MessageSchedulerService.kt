@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.service.questionnaire_schedule
 
+import jakarta.inject.Inject
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.Date
 
-class MessageSchedulerService<T : Message>(
+class MessageSchedulerService<T : Message> @Inject constructor(
     val fcmSender: FcmSender,
     val schedulerService: SchedulerService,
 ) {

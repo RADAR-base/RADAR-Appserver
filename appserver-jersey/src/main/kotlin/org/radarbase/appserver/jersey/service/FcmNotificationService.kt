@@ -18,8 +18,10 @@ package org.radarbase.appserver.jersey.service
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
+import jakarta.inject.Named
 import org.radarbase.appserver.jersey.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmNotifications
+import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer.Companion.NOTIFICATION_MAPPER
 import org.radarbase.appserver.jersey.entity.Notification
 import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.Task
@@ -29,7 +31,7 @@ import org.radarbase.appserver.jersey.event.state.dto.NotificationStateEventDto
 import org.radarbase.appserver.jersey.exception.AlreadyExistsException
 import org.radarbase.appserver.jersey.exception.InvalidNotificationDetailsException
 import org.radarbase.appserver.jersey.exception.InvalidUserDetailsException
-import org.radarbase.appserver.jersey.mapper.NotificationMapper
+import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.repository.NotificationRepository
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
@@ -49,7 +51,7 @@ class FcmNotificationService @Inject constructor(
     private val userRepository: UserRepository,
     private val projectRepository: ProjectRepository,
     private val schedulerService: MessageSchedulerService<Notification>,
-    private val notificationConverter: NotificationMapper,
+    @param:Named(NOTIFICATION_MAPPER) private val notificationMapper: Mapper<FcmNotificationDto, Notification>,
     private val notificationStateEventPublisher: EventBus,
 ) : NotificationService {
 
@@ -58,19 +60,19 @@ class FcmNotificationService @Inject constructor(
 
     suspend fun getAllNotifications(): FcmNotifications {
         val notifications: List<Notification> = notificationRepository.findAll()
-        return FcmNotifications().withNotifications(notificationConverter.entitiesToDtos(notifications))
+        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
     }
 
     suspend fun getNotificationById(id: Long): FcmNotificationDto {
         val notification: Notification? = notificationRepository.find(id)
-        return notificationConverter.entityToDto(notification ?: Notification())
+        return notificationMapper.entityToDto(notification ?: Notification())
     }
 
     suspend fun getNotificationsBySubjectId(subjectId: String): FcmNotifications {
         val user = this.userRepository.findBySubjectId(subjectId)
         checkPresenceOfUser(user)
         val notifications: List<Notification> = notificationRepository.findByUserId(nonNullUserId(user))
-        return FcmNotifications().withNotifications(notificationConverter.entitiesToDtos(notifications))
+        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
     }
 
     suspend fun getNotificationsByProjectIdAndSubjectId(
@@ -79,7 +81,7 @@ class FcmNotificationService @Inject constructor(
         return subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(nonNullUserId(user))
         }.let { notifications ->
-            FcmNotifications().withNotifications(notificationConverter.entitiesToDtos(notifications))
+            FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
         }
     }
 
@@ -97,7 +99,7 @@ class FcmNotificationService @Inject constructor(
                 }
             }
         }.let { notifications ->
-            FcmNotifications().withNotifications(notificationConverter.entitiesToDtos(notifications))
+            FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
         }
     }
 
@@ -106,7 +108,7 @@ class FcmNotificationService @Inject constructor(
             INVALID_SUBJECT_ID_MESSAGE
         }.let { user ->
             val notification = Notification.NotificationBuilder(
-                notificationConverter.dtoToEntity(notificationDto),
+                notificationMapper.dtoToEntity(notificationDto),
             ).user(user).build()
             val notifications: List<Notification> = this.notificationRepository.findByUserId(nonNullUserId(user))
             return notifications.contains(notification)
@@ -114,6 +116,7 @@ class FcmNotificationService @Inject constructor(
     }
 
     // TODO : WIP
+    @Suppress("UNUSED_PARAMETER")
     fun getFilteredNotifications(
         type: String?,
         delivered: Boolean?,
@@ -134,7 +137,7 @@ class FcmNotificationService @Inject constructor(
             if (schedule) {
                 this.schedulerService.schedule(notificationSaved)
             }
-            return notificationConverter.entityToDto(notificationSaved)
+            return notificationMapper.entityToDto(notificationSaved)
         } else {
             throw AlreadyExistsException(
                 "notifications.already_exists",
@@ -152,7 +155,7 @@ class FcmNotificationService @Inject constructor(
         if (!notificationExists) {
             val savedNotification = addNotificationAndItsStateEvent(notificationDto, user)
             this.schedulerService.schedule(savedNotification)
-            return notificationConverter.entityToDto(savedNotification)
+            return notificationMapper.entityToDto(savedNotification)
         } else {
             throw AlreadyExistsException(
                 "notifications.already_exists",
@@ -166,7 +169,7 @@ class FcmNotificationService @Inject constructor(
         user: User,
     ): Notification {
         val savedNotification = this.notificationRepository.add(
-            Notification.NotificationBuilder(notificationConverter.dtoToEntity(notificationDto)).user(user).build(),
+            Notification.NotificationBuilder(notificationMapper.dtoToEntity(notificationDto)).user(user).build(),
         )
         requireNotNullField(user.usermetrics, "User's user metrics").lastOpened = Instant.now()
         this.userRepository.update(user)
@@ -209,10 +212,8 @@ class FcmNotificationService @Inject constructor(
         notificationDto: FcmNotificationDto, subjectId: String, projectId: String,
     ): FcmNotificationDto {
         val notificationId = notificationDto.id
+            ?: throw InvalidNotificationDetailsException("ID must be supplied for updating the notification")
 
-        if (notificationId == null) {
-            throw InvalidNotificationDetailsException("ID must be supplied for updating the notification")
-        }
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 
         val notification = checkPresence(this.notificationRepository.find(notificationId), "notification_not_found") {
@@ -243,14 +244,14 @@ class FcmNotificationService @Inject constructor(
         if (!notification.delivered) {
             this.schedulerService.updateScheduled(notificationSaved)
         }
-        return notificationConverter.entityToDto(notificationSaved)
+        return notificationMapper.entityToDto(notificationSaved)
     }
 
     suspend fun scheduleAllUserNotifications(subjectId: String, projectId: String): FcmNotifications {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notifications: List<Notification> = notificationRepository.findByUserId(nonNullUserId(user))
         this.schedulerService.scheduleMultiple(notifications)
-        return FcmNotifications().withNotifications(notificationConverter.entitiesToDtos(notifications))
+        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
     }
 
     suspend fun scheduleNotification(subjectId: String, projectId: String, notificationId: Long): FcmNotificationDto {
@@ -260,7 +261,7 @@ class FcmNotificationService @Inject constructor(
             "The Notification with Id $notificationId does not exist in project $projectId for user $subjectId"
         }
         this.schedulerService.schedule(notification)
-        return notificationConverter.entityToDto(notification)
+        return notificationMapper.entityToDto(notification)
     }
 
     suspend fun removeNotificationsForUser(projectId: String, subjectId: String) {
@@ -313,9 +314,7 @@ class FcmNotificationService @Inject constructor(
 
     suspend fun removeNotificationsForUserUsingFcmToken(fcmToken: String) {
         val user = this.userRepository.findByFcmToken(fcmToken)
-        if (user == null) {
-            throw InvalidUserDetailsException("The user with the given Fcm Token does not exist")
-        }
+            ?: throw InvalidUserDetailsException("The user with the given Fcm Token does not exist")
         val userId = nonNullUserId(user)
         this.schedulerService.deleteScheduledMultiple(
             this.notificationRepository.findByUserId(userId),
@@ -347,7 +346,7 @@ class FcmNotificationService @Inject constructor(
         if (schedule) {
             this.schedulerService.scheduleMultiple(savedNotifications)
         }
-        return FcmNotifications().withNotifications(notificationConverter.entitiesToDtos(savedNotifications))
+        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(savedNotifications))
     }
 
     suspend fun addNotifications(notifications: List<Notification>?, user: User): List<Notification> {
@@ -391,7 +390,7 @@ class FcmNotificationService @Inject constructor(
         }
 
         this.schedulerService.scheduleMultiple(savedNotifications)
-        return FcmNotifications().withNotifications(notificationConverter.entitiesToDtos(savedNotifications))
+        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(savedNotifications))
     }
 
     suspend fun addNewNotifications(
@@ -400,7 +399,7 @@ class FcmNotificationService @Inject constructor(
         val newNotifications: List<Notification> = subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(nonNullUserId(user)).let { notifications ->
                 notificationDtos.notifications.map { dto: FcmNotificationDto ->
-                    notificationConverter.dtoToEntity(dto)
+                    notificationMapper.dtoToEntity(dto)
                 }.map { notification ->
                     Notification.NotificationBuilder(notification).user(user).build()
                 }.filter { notification ->
@@ -430,12 +429,9 @@ class FcmNotificationService @Inject constructor(
     ): Notification {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notification = notificationRepository.findByIdAndUserId(notificationId, nonNullUserId(user))
-
-        if (notification == null) {
-            throw InvalidNotificationDetailsException(
+            ?: throw InvalidNotificationDetailsException(
                 "The Notification with Id $notificationId does not exist in project $projectId for user $subjectId",
             )
-        }
 
         return notification
     }

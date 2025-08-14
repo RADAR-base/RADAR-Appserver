@@ -112,14 +112,14 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC"
     )
-    var createdAt: Instant? = notificationEntity?.createdAt
+    var createdAt: Instant? = notificationEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
         shape  = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC"
     )
-    var updatedAt: Instant? = notificationEntity?.updatedAt
+    var updatedAt: Instant? = notificationEntity?.updatedAt?.toInstant()
 
     fun withCreatedAt(createdAt: Instant?): FcmNotificationDto = apply {
         this.createdAt = createdAt

@@ -279,9 +279,6 @@ class UserService @Inject constructor(
             this.scheduleService.generateScheduleForUser(savedUser)
         }
 
-        checkNotNull(savedUser) {
-            "Null user is returned when updating user with subjectId ${userDto.subjectId} and projectId ${userDto.projectId}"
-        }
         return userMapper.entityToDto(savedUser)
     }
 

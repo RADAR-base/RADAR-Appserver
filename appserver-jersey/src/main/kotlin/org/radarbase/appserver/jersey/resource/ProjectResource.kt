@@ -38,6 +38,7 @@ import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.dto.ProjectDtos
 import org.radarbase.appserver.jersey.service.ProjectService
+import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
 import org.radarbase.appserver.jersey.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.jersey.utils.tokenForCurrentRequest
@@ -55,6 +56,7 @@ import kotlin.time.Duration.Companion.seconds
 @Suppress("UnresolvedRestParam")
 @Path("/")
 class ProjectResource @Inject constructor(
+    private val protocolGenerator: ProtocolGenerator,
     private val projectService: ProjectService,
     private val asyncService: AsyncCoroutineService,
     private val authService: AuthService,
@@ -62,7 +64,6 @@ class ProjectResource @Inject constructor(
     config: AppserverConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
-    private val mpSecurityEnabled: Boolean = config.mp.security.enabled
 
     @POST
     @Path(PROJECTS_PATH)
@@ -75,30 +76,21 @@ class ProjectResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            if (mpSecurityEnabled) {
-                val token = tokenForCurrentRequest(asyncService, tokenProvider)
-                authService.checkPermission(
-                    Permission.SUBJECT_READ,
-                    EntityDetails(project = projectDto.projectId, subject = token.subject),
-                    token,
-                )
-                projectService.addProject(projectDto).let {
-                    Response
-                        .created(URI("/projects/project?id=${projectDto.id}"))
-                        .entity(it)
-                        .build()
-                }
-            } else {
-                projectService.addProject(projectDto).let {
-                    Response
-                        .created(URI("/projects/project?id=${projectDto.id}"))
-                        .entity(it)
-                        .build()
-                }
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectDto.projectId, subject = token.subject),
+                token,
+            )
+            projectService.addProject(projectDto).let {
+                Response
+                    .created(URI("/projects/project?id=${projectDto.id}"))
+                    .entity(it)
+                    .build()
             }
         }
     }
-
+    
     @PUT
     @Path("$PROJECTS_PATH/$PROJECT_ID")
     @Consumes(APPLICATION_JSON)

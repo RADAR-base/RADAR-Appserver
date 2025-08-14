@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.event.listener.quartz
 
 import com.google.common.eventbus.EventBus
+import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.quartz.JobDetail
 import org.quartz.JobKey
@@ -37,7 +38,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
-class QuartzMessageSchedulerListener(
+class QuartzMessageSchedulerListener @Inject constructor(
     private val messageStateEventPublisher: EventBus,
     private val notificationRepository: NotificationRepository,
     private val dataMessageRepository: DataMessageRepository,

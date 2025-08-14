@@ -49,7 +49,6 @@ class UserResource @Inject constructor(
     config: AppserverConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
-    private val mpSecurityEnabled: Boolean = config.mp.security.enabled
 
     @POST
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH")
@@ -59,27 +58,20 @@ class UserResource @Inject constructor(
     @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun addUserToProject(
         @Valid fcmUserDto: FcmUserDto,
-        @Valid projectId: String,
+        @Valid @PathParam("projectId") projectId: String,
         @QueryParam("forceFcmToken") @DefaultValue("false") forceFcmToken: Boolean,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            if (mpSecurityEnabled) {
-                val token = tokenForCurrentRequest(asyncService, tokenProvider)
-                authService.checkPermission(
-                    Permission.SUBJECT_UPDATE,
-                    EntityDetails(project = projectId, subject = token.subject),
-                    token,
-                )
-                if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(fcmUserDto)
-                userService.saveUserInProject(fcmUserDto).let {
-                    Response.created(URI("/projects/$projectId/users/?id=${it.id}")).entity(it).build()
-                }
-            } else {
-                if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(fcmUserDto)
-                userService.saveUserInProject(fcmUserDto).let {
-                    Response.created(URI("/projects/$projectId/users/?id=${it.id}")).entity(it).build()
-                }
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_UPDATE,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
+            if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(fcmUserDto)
+            userService.saveUserInProject(fcmUserDto).let {
+                Response.created(URI("/projects/$projectId/users/?id=${it.id}")).entity(it).build()
             }
         }
     }
@@ -92,9 +84,9 @@ class UserResource @Inject constructor(
     @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
     fun updateUserInProject(
         @Valid userDto: FcmUserDto,
-        @Valid projectId: String,
-        @Valid subjectId: String,
-        @QueryParam("forceFcmToken") forceFcmToken: Boolean = false,
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @QueryParam("forceFcmToken") @DefaultValue("false") forceFcmToken: Boolean,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
@@ -118,27 +110,23 @@ class UserResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val users = userService.getAllRadarUsers()
-            if (mpSecurityEnabled) {
-                users
-                    .users
-                    .asFlow()
-                    .filter {
-                        authService.hasPermission(
-                            Permission.SUBJECT_READ,
-                            EntityDetails(project = it.projectId, subject = it.subjectId),
-                            tokenForCurrentRequest(asyncService, tokenProvider),
-                        )
-                    }
-                    .toList()
-                    .toMutableList().let {
-                        FcmUsers(it)
-                    }.let {
-                        Response.ok(it).build()
-                    }
-            } else {
-                Response.ok(users).build()
-            }
+            userService.getAllRadarUsers()
+                .users
+                .asFlow()
+                .filter {
+                    authService.hasPermission(
+                        Permission.SUBJECT_READ,
+                        EntityDetails(project = it.projectId, subject = it.subjectId),
+                        tokenForCurrentRequest(asyncService, tokenProvider),
+                    )
+                }
+                .toList()
+                .toMutableList().let {
+                    FcmUsers(it)
+                }.let {
+                    Response.ok(it).build()
+                }
+
         }
     }
 
@@ -175,16 +163,13 @@ class UserResource @Inject constructor(
     suspend fun fcmUserDtoAsResponseIfAuthorized(
         fcmUserDto: FcmUserDto,
     ): Response {
-        return if (mpSecurityEnabled) {
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = fcmUserDto.projectId, subject = fcmUserDto.subjectId),
-                tokenForCurrentRequest(asyncService, tokenProvider)
-            )
-            Response.ok(fcmUserDto).build()
-        } else {
-            Response.ok(fcmUserDto).build()
-        }
+        authService.checkPermission(
+            Permission.SUBJECT_READ,
+            EntityDetails(project = fcmUserDto.projectId, subject = fcmUserDto.subjectId),
+            tokenForCurrentRequest(asyncService, tokenProvider),
+        )
+
+        return Response.ok(fcmUserDto).build()
     }
 
     @GET
@@ -198,17 +183,13 @@ class UserResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val users = userService.getUsersByProjectId(projectId)
-            if (mpSecurityEnabled) {
-                val token = tokenForCurrentRequest(asyncService, tokenProvider)
-                authService.checkPermission(
-                    Permission.SUBJECT_READ,
-                    EntityDetails(project = projectId, subject = token.subject),
-                    token,
-                )
-                Response.ok(users).build()
-            } else {
-                Response.ok(users).build()
-            }
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
+            Response.ok(users).build()
         }
     }
 

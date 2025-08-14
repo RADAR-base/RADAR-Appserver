@@ -125,28 +125,28 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(UserRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(DataMessageRepository::class.java)
-            .to(DataMessageRepositoryImpl::class.java)
+        bind(DataMessageRepositoryImpl::class.java)
+            .to(DataMessageRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(NotificationRepository::class.java)
-            .to(NotificationRepositoryImpl::class.java)
+        bind(NotificationRepositoryImpl::class.java)
+            .to(NotificationRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(TaskRepository::class.java)
-            .to(TaskRepositoryImpl::class.java)
+        bind(TaskRepositoryImpl::class.java)
+            .to(TaskRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(DataMessageStateEventRepository::class.java)
-            .to(DataMessageStateEventRepositoryImpl::class.java)
+        bind(DataMessageStateEventRepositoryImpl::class.java)
+            .to(DataMessageStateEventRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(NotificationStateEventRepository::class.java)
-            .to(NotificationStateEventRepositoryImpl::class.java)
+        bind(NotificationStateEventRepositoryImpl::class.java)
+            .to(NotificationStateEventRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(TaskStateEventRepository::class.java)
-            .to(TaskStateEventRepositoryImpl::class.java)
+        bind(TaskStateEventRepositoryImpl::class.java)
+            .to(TaskStateEventRepository::class.java)
             .`in`(Singleton::class.java)
 
         bind(TaskStateEventService::class.java)
@@ -230,15 +230,15 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .`in`(Singleton::class.java)
 
         bind(MessageSchedulerService::class.java)
-            .to(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
+        bind(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<DataMessage>>() {}.type)
             .`in`(Singleton::class.java)
 
         bind(SimpleQuartzNamingStrategy::class.java)
             .to(QuartzNamingStrategy::class.java)
-            .`in`(Singleton::class.java)
-
-        bind(SchedulerServiceImpl::class.java)
-            .to(SchedulingService::class.java)
             .`in`(Singleton::class.java)
 
         bind(FcmTransmitter::class.java)

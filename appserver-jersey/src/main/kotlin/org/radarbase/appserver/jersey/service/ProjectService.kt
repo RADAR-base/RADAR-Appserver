@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory
 @Suppress("unused")
 class ProjectService @Inject constructor(
     private val projectRepository: ProjectRepository,
-    @Named(PROJECT_MAPPER) private val projectMapper: Mapper<ProjectDto, Project>,
+    @param:Named(PROJECT_MAPPER) private val projectMapper: Mapper<ProjectDto, Project>,
 ) {
     /**
      * Retrieves all projects from the repository.

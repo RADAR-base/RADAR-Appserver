@@ -1,7 +1,7 @@
 resourceConfig: org.radarbase.appserver.jersey.enhancer.factory.AppserverResourceEnhancerFactory
 
 server:
-  baseUri: http://0.0.0.0:8090/
+  baseUri: http://0.0.0.0:8080/
   requestTimeout: 30
   isJmxEnabled: false
 

@@ -18,8 +18,10 @@ package org.radarbase.appserver.jersey.service
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
+import jakarta.inject.Named
 import org.radarbase.appserver.jersey.dto.fcm.FcmDataMessageDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmDataMessages
+import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer.Companion.DATA_MESSAGE_MAPPER
 import org.radarbase.appserver.jersey.entity.DataMessage
 import org.radarbase.appserver.jersey.entity.Project
 import org.radarbase.appserver.jersey.entity.User
@@ -29,6 +31,7 @@ import org.radarbase.appserver.jersey.exception.AlreadyExistsException
 import org.radarbase.appserver.jersey.exception.InvalidNotificationDetailsException
 import org.radarbase.appserver.jersey.exception.InvalidUserDetailsException
 import org.radarbase.appserver.jersey.mapper.DataMessageMapper
+import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.repository.DataMessageRepository
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
@@ -43,12 +46,13 @@ import java.time.LocalDateTime
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@Suppress("unused")
 class FcmDataMessageService @Inject constructor(
     private val dataMessageRepository: DataMessageRepository,
     private val userRepository: UserRepository,
     private val projectRepository: ProjectRepository,
     private val schedulerService: MessageSchedulerService<DataMessage>,
-    private val dataMessageConverter: DataMessageMapper,
+    @field:Named(DATA_MESSAGE_MAPPER) private val dataMessageMapper: Mapper<FcmDataMessageDto, DataMessage>,
     private val dataMessageStateEventPublisher: EventBus,
 ) : DataMessageService {
 
@@ -58,12 +62,12 @@ class FcmDataMessageService @Inject constructor(
     suspend fun getAllDataMessages(): FcmDataMessages {
         val dataMessages = dataMessageRepository.findAll()
         return FcmDataMessages()
-            .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages))
+            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
     }
 
     suspend fun getDataMessageById(id: Long): FcmDataMessageDto {
         val dataMessage = dataMessageRepository.find(id)
-        return dataMessageConverter.entityToDto(dataMessage ?: DataMessage())
+        return dataMessageMapper.entityToDto(dataMessage ?: DataMessage())
     }
 
     suspend fun getDataMessagesBySubjectId(subjectId: String): FcmDataMessages {
@@ -72,7 +76,7 @@ class FcmDataMessageService @Inject constructor(
 
         val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
         return FcmDataMessages()
-            .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages))
+            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
     }
 
     suspend fun getDataMessagesByProjectIdAndSubjectId(
@@ -82,7 +86,7 @@ class FcmDataMessageService @Inject constructor(
 
         val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
         return FcmDataMessages()
-            .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages))
+            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
     }
 
     suspend fun getDataMessagesByProjectId(projectId: String): FcmDataMessages {
@@ -98,7 +102,7 @@ class FcmDataMessageService @Inject constructor(
             this.dataMessageRepository.findByUserId(nonNullUserId(user))
         }
         return FcmDataMessages()
-            .withDataMessages(dataMessageConverter.entitiesToDtos(dataMessages))
+            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
     }
 
     suspend fun checkIfDataMessageExists(dataMessageDto: FcmDataMessageDto, subjectId: String): Boolean {
@@ -107,7 +111,7 @@ class FcmDataMessageService @Inject constructor(
             INVALID_SUBJECT_ID_MESSAGE
         }
         val dataMessage = DataMessage.DataMessageBuilder(
-            dataMessageConverter.dtoToEntity(dataMessageDto),
+            dataMessageMapper.dtoToEntity(dataMessageDto),
         ).user(user).build()
 
         val dataMessages = this.dataMessageRepository.findByUserId(nonNullUserId(user))
@@ -115,6 +119,7 @@ class FcmDataMessageService @Inject constructor(
     }
 
     // TODO : WIP
+    @Suppress("UNUSED_PARAMETER")
     fun getFilteredDataMessages(
         type: String?,
         delivered: Boolean?,
@@ -138,7 +143,7 @@ class FcmDataMessageService @Inject constructor(
                 )
         ) {
             val dataMessageSaved = dataMessageRepository.add(
-                DataMessage.DataMessageBuilder(dataMessageConverter.dtoToEntity(dataMessageDto)).user(user).build(),
+                DataMessage.DataMessageBuilder(dataMessageMapper.dtoToEntity(dataMessageDto)).user(user).build(),
             )
             requireNotNullField(user.usermetrics, "User's user metrics").lastOpened = Instant.now()
             this.userRepository.update(user)
@@ -150,7 +155,7 @@ class FcmDataMessageService @Inject constructor(
                 ).toInstant(),
             )
             this.schedulerService.schedule(dataMessageSaved)
-            return dataMessageConverter.entityToDto(dataMessageSaved)
+            return dataMessageMapper.entityToDto(dataMessageSaved)
         } else {
             throw AlreadyExistsException(
                 "data_message_already_exists",
@@ -172,12 +177,9 @@ class FcmDataMessageService @Inject constructor(
     suspend fun updateDataMessage(
         dataMessageDto: FcmDataMessageDto, subjectId: String, projectId: String,
     ): FcmDataMessageDto {
-        val dmDtoId = dataMessageDto.id
-        if (dmDtoId == null) {
-            throw InvalidNotificationDetailsException(
-                "ID must be supplied for updating the data message",
-            )
-        }
+        val dmDtoId = dataMessageDto.id ?: throw InvalidNotificationDetailsException(
+            "ID must be supplied for updating the data message",
+        )
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val dataMessage = this.dataMessageRepository.find(dmDtoId)
 
@@ -206,15 +208,13 @@ class FcmDataMessageService @Inject constructor(
         if (!dataMessage.delivered) {
             this.schedulerService.updateScheduled(dataMessageSaved)
         }
-        return dataMessageConverter.entityToDto(dataMessageSaved)
+        return dataMessageMapper.entityToDto(dataMessageSaved)
     }
 
     suspend fun removeDataMessagesForUser(projectId: String, subjectId: String) {
         val userId = nonNullUserId(subjectAndProjectExistElseThrow(subjectId, projectId))
         val dataMessages = this.dataMessageRepository.findByUserId(
-            checkNotNull(userId) {
-                "User id cannot be null"
-            },
+            userId,
         )
         this.schedulerService.deleteScheduledMultiple(dataMessages)
         this.dataMessageRepository.deleteByUserId(
@@ -271,7 +271,7 @@ class FcmDataMessageService @Inject constructor(
         val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
 
         val newDataMessages = dataMessageDtos.dataMessages.map { dto ->
-            dataMessageConverter.dtoToEntity(dto)
+            dataMessageMapper.dtoToEntity(dto)
         }.map { dm ->
             DataMessage.DataMessageBuilder(dm).user(user).build()
         }.filter { dataMessage: DataMessage? ->
@@ -292,7 +292,7 @@ class FcmDataMessageService @Inject constructor(
 
         this.schedulerService.scheduleMultiple(savedDataMessages)
         return FcmDataMessages()
-            .withDataMessages(dataMessageConverter.entitiesToDtos(savedDataMessages))
+            .withDataMessages(dataMessageMapper.entitiesToDtos(savedDataMessages))
     }
 
     suspend fun subjectAndProjectExistElseThrow(subjectId: String, projectId: String): User {

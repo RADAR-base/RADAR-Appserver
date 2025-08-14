@@ -83,7 +83,7 @@ class DefaultProtocolGenerator @Inject constructor(
     @Throws(IOException::class)
     override suspend fun getProtocol(projectId: String): Protocol {
         try {
-            return cachedProjectProtocolMap[projectId]!!
+            return cachedProjectProtocolMap.getByKey(projectId)!!
         } catch (ex: IOException) {
             logger.warn(
                 "Cannot retrieve Protocols for project {} : {}, Using cached values.",
@@ -135,10 +135,7 @@ class DefaultProtocolGenerator @Inject constructor(
      */
     override suspend fun getProtocolForSubject(subjectId: String): Protocol? {
         try {
-            val protocol = cachedProtocolMap[subjectId]
-            if (protocol == null) {
-                return forceGetProtocolForSubject(subjectId)
-            }
+            val protocol = cachedProtocolMap.getByKey(subjectId) ?: return forceGetProtocolForSubject(subjectId)
             return protocol
         } catch (ex: IOException) {
             logger.warn(
@@ -156,7 +153,7 @@ class DefaultProtocolGenerator @Inject constructor(
                 subjectId,
                 ex,
             )
-            throw IOException("Exception while fetching protocols for subject $subjectId", ex)
+            throw IOException("Exception while fetching protocols for subject $subjectId. ${ex.message}", ex)
         }
     }
 
