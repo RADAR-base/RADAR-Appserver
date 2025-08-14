@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.jersey.factory.quartz
 
+import jakarta.inject.Inject
+import org.glassfish.hk2.api.ServiceLocator
 import org.glassfish.jersey.internal.inject.DisposableSupplier
 import org.quartz.Scheduler
 import org.quartz.SchedulerFactory
@@ -23,7 +25,9 @@ import org.quartz.impl.StdSchedulerFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class QuartzSchedulerFactory : DisposableSupplier<Scheduler> {
+class QuartzSchedulerFactory @Inject constructor(
+    private val serviceLocator: ServiceLocator
+) : DisposableSupplier<Scheduler> {
     val schedulerFactory: SchedulerFactory = StdSchedulerFactory()
     var scheduler: Scheduler? = null
 
@@ -35,6 +39,7 @@ class QuartzSchedulerFactory : DisposableSupplier<Scheduler> {
                     if (!it.isStarted) {
                         it.start()
                     }
+                    it.setJobFactory(HK2JobFactory(serviceLocator))
                 }
             }
             scheduler!!

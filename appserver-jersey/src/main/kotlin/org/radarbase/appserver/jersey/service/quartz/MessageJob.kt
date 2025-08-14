@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.service.quartz
 
 import jakarta.inject.Inject
+import kotlinx.coroutines.runBlocking
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
@@ -35,12 +36,11 @@ class MessageJob @Inject constructor(
     private val notificationTransmitters: List<NotificationTransmitter>,
     private val dataMessageTransmitters: List<DataMessageTransmitter>,
     private val notificationService: FcmNotificationService,
-    private val dataMessageService: FcmDataMessageService
+    private val dataMessageService: FcmDataMessageService,
 ) : Job {
     /**
      * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.Trigger]
     `*  fires that is associated with the `Job`.
-     *
      *
      * The implementation may wish to set a [result][JobExecutionContext.setResult]
      * object on the [JobExecutionContext] before this method exits. The result itself is
@@ -61,9 +61,11 @@ class MessageJob @Inject constructor(
         try {
             when (type) {
                 MessageType.NOTIFICATION -> {
-                    val notification = notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-                        projectId, subjectId, messageId
-                    )
+                    val notification = runBlocking {
+                        notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+                            projectId, subjectId, messageId,
+                        )
+                    }
                     notificationTransmitters.forEach { transmitter ->
                         try {
                             transmitter.send(notification)
@@ -74,9 +76,11 @@ class MessageJob @Inject constructor(
                 }
 
                 MessageType.DATA -> {
-                    val dataMessage = dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-                        projectId, subjectId, messageId
-                    )
+                    val dataMessage = runBlocking {
+                        dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
+                            projectId, subjectId, messageId,
+                        )
+                    }
                     dataMessageTransmitters.forEach { transmitter ->
                         try {
                             transmitter.send(dataMessage)
@@ -99,8 +103,8 @@ class MessageJob @Inject constructor(
          * Exceptions that occurred while transmitting the message via the
          * transmitters. At present, only the FcmTransmitter affects the job execution state.
          */
-        val fcmException: FcmMessageTransmitException? = exceptions.filterIsInstance<FcmMessageTransmitException>()
-            .firstOrNull()
+        val fcmException: FcmMessageTransmitException? =
+            exceptions.filterIsInstance<FcmMessageTransmitException>().firstOrNull()
         if (fcmException != null) {
             throw JobExecutionException("Could not transmit a message", fcmException)
         }
