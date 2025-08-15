@@ -27,6 +27,7 @@ import org.glassfish.jersey.server.validation.ValidationFeature
 import org.quartz.JobListener
 import org.quartz.Scheduler
 import org.quartz.SchedulerListener
+import org.radarbase.appserver.jersey.application_event.EventBusStartupListener
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
@@ -242,9 +243,11 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .`in`(Singleton::class.java)
 
         bind(FcmTransmitter::class.java)
-            .to(DataMessageTransmitter::class.java)
             .to(NotificationTransmitter::class.java)
-            .to(FcmTransmitter::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(FcmTransmitter::class.java)
+            .to(DataMessageTransmitter::class.java)
             .`in`(Singleton::class.java)
 
         bind(TaskStateEventListener::class.java)
@@ -295,6 +298,7 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
     override fun ResourceConfig.enhance() {
         register(ValidationFeature::class.java)
         register(UnhandledExceptionMapper::class.java)
+        register(EventBusStartupListener::class.java)
     }
 
     /** Project service without validation of the project's existence. */

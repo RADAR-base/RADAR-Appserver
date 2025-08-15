@@ -21,22 +21,41 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.AllowConcurrentEvents
 import com.google.common.eventbus.Subscribe
 import jakarta.inject.Inject
-import kotlinx.coroutines.runBlocking
+import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.entity.DataMessageStateEvent
 import org.radarbase.appserver.jersey.entity.NotificationStateEvent
 import org.radarbase.appserver.jersey.event.state.dto.DataMessageStateEventDto
 import org.radarbase.appserver.jersey.event.state.dto.NotificationStateEventDto
 import org.radarbase.appserver.jersey.service.DataMessageStateEventService
 import org.radarbase.appserver.jersey.service.NotificationStateEventService
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @Suppress("unused")
 class MessageStateEventListener @Inject constructor(
     private val objectMapper: ObjectMapper,
-    private val notificationStateEventService: NotificationStateEventService,
-    private val dataMessageStateEventService: DataMessageStateEventService,
+    private val asyncService: AsyncCoroutineService,
+    private val serviceLocator: ServiceLocator,
 ) {
+    private var notificationStateEventService: NotificationStateEventService? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(NotificationStateEventService::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
+    private var dataMessageStateEventService: DataMessageStateEventService? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(DataMessageStateEventService::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
     /**
      * Handle an application event.
      *
@@ -46,12 +65,13 @@ class MessageStateEventListener @Inject constructor(
     @AllowConcurrentEvents
     fun onNotificationStateChange(event: NotificationStateEventDto) {
         val info = convertMapToString(event.additionalInfo)
-        logger.debug("Notification state changed. ID: {}, STATE: {}.", event.notification.id, event.state)
+        logger.info("Notification state changed. ID: {}, STATE: {}.", event.notification.id, event.state)
         val eventEntity = NotificationStateEvent(
             event.notification, event.state, event.time, info,
         )
-        runBlocking {
-            notificationStateEventService.addNotificationStateEvent(eventEntity)
+        asyncService.runBlocking {
+            notificationStateEventService?.addNotificationStateEvent(eventEntity)
+                ?: logger.error("NotificationStateEventService is not initialized.")
         }
     }
 
@@ -63,8 +83,9 @@ class MessageStateEventListener @Inject constructor(
         val eventEntity = DataMessageStateEvent(
             event.dataMessage, event.state, event.time, info,
         )
-        runBlocking {
-            dataMessageStateEventService.addDataMessageStateEvent(eventEntity)
+        asyncService.runBlocking {
+            dataMessageStateEventService?.addDataMessageStateEvent(eventEntity)
+                ?: logger.error("DataMessageStateEventService is not initialized.")
         }
     }
 

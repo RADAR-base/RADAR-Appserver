@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
+import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.dto.NotificationStateEventDto
 import org.radarbase.appserver.jersey.entity.Notification
 import org.radarbase.appserver.jersey.entity.NotificationStateEvent
@@ -31,9 +32,19 @@ import java.io.IOException
 class NotificationStateEventService @Inject constructor(
     private val notificationStateEventRepository: NotificationStateEventRepository,
     private val notificationService: FcmNotificationService,
-    private val notificationEventBus: EventBus,
     private val objectMapper: ObjectMapper,
+    private val serviceLocator: ServiceLocator,
 ) {
+    private var notificationStateEventBus: EventBus? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(EventBus::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
+
     suspend fun addNotificationStateEvent(notificationStateEvent: NotificationStateEvent) {
         if (notificationStateEvent.state == MessageState.CANCELLED) {
             // the notification will be removed shortly
@@ -121,7 +132,7 @@ class NotificationStateEventService @Inject constructor(
             additionalInfo,
             messageTime,
         )
-        notificationEventBus.post(stateEvent)
+        notificationStateEventBus?.post(stateEvent) ?: log.error("Event bus is not initialized")
     }
 
     @Throws(IllegalStateException::class)
@@ -138,6 +149,7 @@ class NotificationStateEventService @Inject constructor(
     }
 
     companion object {
+        private val log = org.slf4j.LoggerFactory.getLogger(NotificationStateEventService::class.java)
         private const val MAX_NUMBER_OF_STATES = 20
 
         private val EXTERNAL_EVENTS = setOf<MessageState>(

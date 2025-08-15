@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
+import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.dto.DataMessageStateEventDto
 import org.radarbase.appserver.jersey.entity.DataMessage
 import org.radarbase.appserver.jersey.entity.DataMessageStateEvent
@@ -31,9 +32,18 @@ import java.io.IOException
 class DataMessageStateEventService @Inject constructor(
     private val dataMessageStateEventRepository: DataMessageStateEventRepository,
     private val dataMessageService: FcmDataMessageService,
-    private val dataMessageEventBus: EventBus,
+    private val serviceLocator: ServiceLocator,
     private val objectMapper: ObjectMapper,
 ) {
+    private var dataMessageEventBus: EventBus? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(EventBus::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
     suspend fun addDataMessageStateEvent(dataMessageStateEvent: DataMessageStateEvent) {
         dataMessageStateEventRepository.add(dataMessageStateEvent)
     }
@@ -119,7 +129,7 @@ class DataMessageStateEventService @Inject constructor(
             additionalInfo,
             messageTime,
         )
-        dataMessageEventBus.post(stateEvent)
+        dataMessageEventBus?.post(stateEvent) ?: logger.error("Event bus is not initialized.")
     }
 
     @Throws(IllegalStateException::class)
@@ -136,6 +146,7 @@ class DataMessageStateEventService @Inject constructor(
     }
 
     companion object {
+        private val logger = org.slf4j.LoggerFactory.getLogger(DataMessageStateEventService::class.java)
         private val EXTERNAL_EVENTS = setOf(
             MessageState.DELIVERED,
             MessageState.DISMISSED,

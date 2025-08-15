@@ -34,6 +34,7 @@ import org.radarbase.appserver.jersey.repository.NotificationRepository
 import org.radarbase.appserver.jersey.service.quartz.MessageType
 import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
 import org.radarbase.appserver.jersey.service.quartz.SimpleQuartzNamingStrategy
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -43,7 +44,8 @@ class QuartzMessageSchedulerListener @Inject constructor(
     private val notificationRepository: NotificationRepository,
     private val dataMessageRepository: DataMessageRepository,
     private val scheduler: Scheduler,
-) : SchedulerListener {
+    private val asyncService: AsyncCoroutineService,
+    ) : SchedulerListener {
     /**
      * Called by the `[Scheduler]` when a `[JobDetail]` is
      * scheduled.
@@ -66,7 +68,7 @@ class QuartzMessageSchedulerListener @Inject constructor(
 
         when (type) {
             MessageType.NOTIFICATION -> {
-                val notification = runBlocking {
+                val notification = asyncService.runBlocking {
                     notificationRepository.find(messageId)
                 } ?: run {
                     logger.warn("The notification does not exist in database and yet was scheduled.")
@@ -80,7 +82,7 @@ class QuartzMessageSchedulerListener @Inject constructor(
             }
 
             MessageType.DATA -> {
-                val dataMessage = runBlocking {
+                val dataMessage = asyncService.runBlocking {
                     dataMessageRepository.find(messageId)
                 } ?: run {
                     logger.warn("The data message does not exist in database and yet was scheduled.")

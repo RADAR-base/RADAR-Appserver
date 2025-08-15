@@ -19,22 +19,34 @@ package org.radarbase.appserver.jersey.service
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.EventBus
+import jakarta.inject.Inject
+import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.dto.TaskStateEventDto
 import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.TaskStateEvent
 import org.radarbase.appserver.jersey.event.state.TaskState
 import org.radarbase.appserver.jersey.repository.TaskStateEventRepository
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import javax.naming.SizeLimitExceededException
 
 @Suppress("unused")
-class TaskStateEventService(
+class TaskStateEventService @Inject constructor(
     private val taskStateEventRepository: TaskStateEventRepository,
     private val taskService: TaskService,
     private val notificationService: FcmNotificationService,
-    private val taskStateEventBus: EventBus,
     private val objectMapper: ObjectMapper,
+    private val serviceLocator: ServiceLocator,
 ) {
+    private var taskStateEventBus: EventBus? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(EventBus::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
 
     suspend fun addTaskStateEvent(taskStateEvent: TaskStateEvent) {
         taskStateEventRepository.add(taskStateEvent)
@@ -115,7 +127,7 @@ class TaskStateEventService(
             additionalInfo,
             taskStateEventDto.time,
         )
-        taskStateEventBus.post(stateEvent)
+        taskStateEventBus?.post(stateEvent) ?: logger.warn("EventBus is not initialized.")
     }
 
     @Throws(SizeLimitExceededException::class, IllegalStateException::class)
@@ -134,6 +146,8 @@ class TaskStateEventService(
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(TaskStateEventService::class.java)
+
         private val EXTERNAL_EVENTS: Set<TaskState> = setOf(
             TaskState.COMPLETED,
             TaskState.UNKNOWN,
