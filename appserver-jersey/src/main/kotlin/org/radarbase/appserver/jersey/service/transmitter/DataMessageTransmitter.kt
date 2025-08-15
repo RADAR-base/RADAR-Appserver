@@ -21,5 +21,5 @@ import org.radarbase.appserver.jersey.exception.MessageTransmitException
 
 interface DataMessageTransmitter {
     @Throws(MessageTransmitException::class)
-    fun send(dataMessage: DataMessage)
+    suspend fun send(dataMessage: DataMessage)
 }

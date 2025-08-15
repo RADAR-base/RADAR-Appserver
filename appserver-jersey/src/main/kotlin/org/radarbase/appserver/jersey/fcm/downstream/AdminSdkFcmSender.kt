@@ -31,6 +31,7 @@ import com.google.firebase.messaging.Notification
 import org.radarbase.appserver.jersey.fcm.model.FcmDataMessage
 import org.radarbase.appserver.jersey.fcm.model.FcmDownstreamMessage
 import org.radarbase.appserver.jersey.fcm.model.FcmNotificationMessage
+import org.radarbase.appserver.jersey.utils.requireNotNullField
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
@@ -53,7 +54,7 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
             .setFcmOptions(FcmOptions.builder().build())
             .setCondition(downstreamMessage.condition)
 
-        val ttl = getValidTtlMillis(downstreamMessage.timeToLive!!)
+        val ttl = getValidTtlMillis(requireNotNullField(downstreamMessage.timeToLive, "Downstream message time to live"))
 
         when (downstreamMessage) {
             is FcmNotificationMessage -> {
@@ -128,42 +129,32 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
         }
     }
 
-    private fun getAndroidNotification(notificationMessage: FcmNotificationMessage): AndroidNotification? {
-        val builder = AndroidNotification.builder()
-                .setBody(notificationMessage.notification!!.getOrDefault("body", "").toString())
-                .setTitle(
-                    notificationMessage.notification!!.getOrDefault("title", "").toString()
-                )
-                .setChannelId(
-                    getString(notificationMessage.notification!!["android_channel_id"])
-                )
-                .setColor(getString(notificationMessage.notification!!["color"]))
-                .setTag(getString(notificationMessage.notification!!["tag"]))
-                .setIcon(getString(notificationMessage.notification!!["icon"]))
-                .setSound(getString(notificationMessage.notification!!["sound"]))
-                .setClickAction(getString(notificationMessage.notification!!["click_action"]))
+    private fun getAndroidNotification(notificationMessage: FcmNotificationMessage): AndroidNotification {
+        val notification = requireNotNullField(notificationMessage.notification, "Fcm downstream message Notification")
 
-        val bodyLocKey = getString(notificationMessage.notification!!["body_loc_key"])
-        val titleLocKey = getString(notificationMessage.notification!!["title_loc_key"])
+        val builder = AndroidNotification.builder()
+                .setBody(notification.getOrDefault("body", "").toString())
+                .setTitle(notification.getOrDefault("title", "").toString())
+                .setChannelId(getString(notification["android_channel_id"]))
+                .setColor(getString(notification["color"]))
+                .setTag(getString(notification["tag"]))
+                .setIcon(getString(notification["icon"]))
+                .setSound(getString(notification["sound"]))
+                .setClickAction(getString(notification["click_action"]))
+
+        val bodyLocKey = getString(notification["body_loc_key"])
+        val titleLocKey = getString(notification["title_loc_key"])
 
         if (bodyLocKey != null) {
             builder
-                .setBodyLocalizationKey(
-                    getString(notificationMessage.notification!!["body_loc_key"])
-                )
-                .addBodyLocalizationArg(
-                    getString(notificationMessage.notification!!["body_loc_args"])
-                )
+                .setBodyLocalizationKey(getString(notification["body_loc_key"]))
+                .addBodyLocalizationArg(getString(notification["body_loc_args"]))
         }
 
         if (titleLocKey != null) {
             builder
-                .addTitleLocalizationArg(
-                    getString(notificationMessage.notification!!["title_loc_args"])
-                )
-                .setTitleLocalizationKey(
-                    getString(notificationMessage.notification!!["title_loc_key"])
-                )
+                .addTitleLocalizationArg(getString(notification["title_loc_args"]))
+                .setTitleLocalizationKey(getString(notification["title_loc_key"]))
         }
 
         return builder.build()
@@ -171,56 +162,48 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
 
     private fun getApnsConfigBuilder(message: FcmDownstreamMessage, ttl: Duration): ApnsConfig.Builder? {
         val config = ApnsConfig.builder()
-
         if (message.collapseKey != null) config.putHeader("apns-collapse-id", message.collapseKey)
 
         // The date at which the notification is no longer valid. This value is a UNIX epoch
         // expressed in seconds (UTC).
-        config.putHeader(
-            "apns-expiration",
-            Instant.now().plus(ttl).epochSecond.toString()
-        )
+        config.putHeader("apns-expiration", Instant.now().plus(ttl).epochSecond.toString())
 
         when (message) {
             is FcmNotificationMessage -> {
                 val notificationMessage = message
-                val apnsData: Map<String?, Any?> = HashMap(notificationMessage.data ?: emptyMap<String, String>())
+                val notification = requireNotNullField(notificationMessage.notification, "Fcm downstream message Notification")
+                val apnsData: Map<String?, Any?> = HashMap( notificationMessage.data ?: emptyMap<String, String>())
 
                 val apsAlertBuilder = ApsAlert.builder()
-                val title = getString(notificationMessage.notification!!["title"])
+                val title = getString(notification["title"])
                 if (title != null) apsAlertBuilder.setTitle(title)
-
-                val body = getString(notificationMessage.notification!!["body"])
+                val body = getString(notification["body"])
                 if (body != null) apsAlertBuilder.setBody(body)
-
-                val titleLocKey = getString(notificationMessage.notification!!["title_loc_key"])
+                val titleLocKey = getString(notification["title_loc_key"])
                 if (titleLocKey != null) apsAlertBuilder.setTitleLocalizationKey(titleLocKey)
-
-                val titleLocArgs = getString(notificationMessage.notification!!["title_loc_args"])
+                val titleLocArgs = getString(notification["title_loc_args"])
                 if (titleLocKey != null && titleLocArgs != null) apsAlertBuilder.addTitleLocalizationArg(titleLocArgs)
-
-                val bodyLocKey = getString(notificationMessage.notification!!["body_loc_key"])
+                val bodyLocKey = getString(notification["body_loc_key"])
                 if (bodyLocKey != null) apsAlertBuilder.setLocalizationKey(bodyLocKey)
-
-                val bodyLocArgs = getString(notificationMessage.notification!!["body_loc_args"])
+                val bodyLocArgs = getString(notification["body_loc_args"])
                 if (bodyLocKey != null && bodyLocArgs != null) apsAlertBuilder.addLocalizationArg(bodyLocArgs)
-
                 val apsBuilder = Aps.builder()
-                val sound = getString(notificationMessage.notification!!["sound"])
+                val sound = getString(notification["sound"])
                 if (sound != null) apsBuilder.setSound(sound)
-
-                val badge = getString(notificationMessage.notification!!["badge"])
+                val badge = getString(notification["badge"])
                 if (badge != null) apsBuilder.setBadge(badge.toInt())
-
-                val category = getString(notificationMessage.notification!!["category"])
+                val category = getString(notification["category"])
                 if (category != null) apsBuilder.setCategory(category)
-
-                val threadId = getString(notificationMessage.notification!!["thread_id"])
+                val threadId = getString(notification["thread_id"])
                 if (threadId != null) apsBuilder.setThreadId(threadId)
 
-                if (notificationMessage.contentAvailable != null) apsBuilder.setContentAvailable(notificationMessage.contentAvailable!!)
+                if (notificationMessage.contentAvailable != null) apsBuilder.setContentAvailable(requireNotNullField(
+                    notificationMessage.contentAvailable, "Fcm downstream message contentAvailable"
+                ))
 
-                if (notificationMessage.mutableContent != null) apsBuilder.setMutableContent(notificationMessage.mutableContent!!)
+                if (notificationMessage.mutableContent != null) apsBuilder.setMutableContent(requireNotNullField(
+                    notificationMessage.mutableContent, "Fcm downstream message mutableContent"
+                ))
 
                 return config
                     .putAllCustomData(apnsData)
@@ -251,7 +234,7 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
     }
 
     fun getValidTtlMillis(ttl: Int): Duration {
-        val ttlSeconds = if (ttl >= 0 && ttl <= DEFAULT_TIME_TO_LIVE) ttl else DEFAULT_TIME_TO_LIVE
+        val ttlSeconds = if (ttl in 0..DEFAULT_TIME_TO_LIVE) ttl else DEFAULT_TIME_TO_LIVE
         return Duration.ofSeconds(ttlSeconds.toLong())
     }
 
