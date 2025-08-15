@@ -24,5 +24,8 @@ object Paths {
     const val NOTIFICATION_ID = "{notificationId}"
     const val MESSAGING_DATA_PATH = "messaging/data"
     const val MESSAGING_NOTIFICATION_PATH = "messaging/notifications"
+    const val GITHUB_PATH = "github"
+    const val GITHUB_CONTENT_PATH = "content"
+    const val PROTOCOLS_PATH = "protocols"
     const val ALL_KEYWORD = "all"
 }
