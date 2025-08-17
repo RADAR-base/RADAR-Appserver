@@ -16,15 +16,17 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class NotificationProtocolMode {
-    @JsonProperty("standard")
+    @SerialName("standard")
     STANDARD,
 
-    @JsonProperty("disabled")
+    @SerialName("disabled")
     DISABLED,
 
-    @JsonProperty("combined")
+    @SerialName("combined")
     COMBINED,
 }

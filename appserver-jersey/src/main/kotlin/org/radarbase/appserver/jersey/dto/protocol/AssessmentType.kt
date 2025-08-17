@@ -16,18 +16,20 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class AssessmentType {
-    @JsonProperty("scheduled")
+    @SerialName("scheduled")
     SCHEDULED,
 
-    @JsonProperty("clinical")
+    @SerialName("clinical")
     CLINICAL,
 
-    @JsonProperty("triggered")
+    @SerialName("triggered")
     TRIGGERED,
 
-    @JsonProperty("all")
+    @SerialName("all")
     ALL,
 }

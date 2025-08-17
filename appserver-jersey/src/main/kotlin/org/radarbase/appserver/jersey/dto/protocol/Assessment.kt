@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.dto.protocol
 
 import jakarta.persistence.Column
+import kotlinx.serialization.Serializable
 
 /**
  * Data Transfer object (DTO) for Assessment. A project may represent a Protocol for scheduling
@@ -26,6 +27,7 @@ import jakarta.persistence.Column
  * @see Protocol
  */
 
+@Serializable
 data class Assessment(
     var name: String? = null,
     private var _type: AssessmentType? = null,

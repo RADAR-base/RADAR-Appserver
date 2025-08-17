@@ -16,11 +16,13 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import kotlinx.serialization.Serializable
 import java.util.Locale
 
 /**
  * Data Transfer object (DTO) for LanguageText. Handles multi-language support for text.
  */
+@Serializable
 data class LanguageText(
     var en: String? = null,
     var it: String? = null,

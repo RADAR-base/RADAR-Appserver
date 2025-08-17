@@ -17,14 +17,17 @@
 package org.radarbase.appserver.jersey.dto.protocol
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class NotificationProtocol(
-    @field:JsonProperty("mode")
+    @SerialName("mode")
     var mode: NotificationProtocolMode = NotificationProtocolMode.STANDARD,
-    @field:JsonProperty("title")
+    @SerialName("title")
     var title: LanguageText? = null,
-    @field:JsonProperty("text")
+    @SerialName("text")
     var body: LanguageText? = null,
-    @field:JsonProperty("email")
+    @SerialName("email")
     var email: EmailNotificationProtocol = EmailNotificationProtocol(),
 )

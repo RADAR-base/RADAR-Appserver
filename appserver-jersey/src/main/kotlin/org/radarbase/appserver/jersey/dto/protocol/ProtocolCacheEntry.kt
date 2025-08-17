@@ -16,4 +16,7 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ProtocolCacheEntry(val id: String, val protocol: Protocol?)
