@@ -23,7 +23,7 @@ import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.service.protocol.handler.ProtocolHandler
 import org.radarbase.appserver.jersey.service.protocol.time.TimeCalculatorService
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.task.TaskGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.task.TaskGeneratorService
 import java.time.Instant
 import java.util.TimeZone
 

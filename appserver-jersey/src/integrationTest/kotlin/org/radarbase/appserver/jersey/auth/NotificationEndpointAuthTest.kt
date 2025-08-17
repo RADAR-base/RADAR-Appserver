@@ -52,17 +52,18 @@ import java.time.Instant
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class NotificationEndpointAuthTest {
 
-    val notification = FcmNotificationDto()
-        .withScheduledTime(Instant.now().plus(Duration.ofSeconds(100)))
-        .withBody("Test Body")
-        .withSourceId("test-source")
-        .withTitle("Test Title")
-        .withTtlSeconds(86400)
-        .withFcmMessageId("123455")
-        .withAdditionalData(mutableMapOf())
-        .withAppPackage("armt")
-        .withSourceType("armt")
-        .withType("ESM")
+    val notification = FcmNotificationDto().apply {
+        scheduledTime = Instant.now().plus(Duration.ofSeconds(100))
+        body = "Test Body"
+        sourceId = "test-source"
+        title = "Test Title"
+        ttlSeconds = 86400
+        fcmMessageId = "123455"
+        additionalData = mutableMapOf()
+        appPackage = "armt"
+        sourceType = "armt"
+        type = "ESM"
+    }
 
     @BeforeEach
     fun createUserAndProject(): Unit = runBlocking {
@@ -145,9 +146,10 @@ class NotificationEndpointAuthTest {
         val notifications = FcmNotifications()
             .withNotifications(
                 listOf(
-                    singleNotification
-                        .withTitle("Test Title 1")
-                        .withFcmMessageId("xxxyyyy"),
+                    singleNotification.apply {
+                        title = "Test Title 1"
+                        fcmMessageId = "xxxyyyy"
+                    },
                 ),
             )
 

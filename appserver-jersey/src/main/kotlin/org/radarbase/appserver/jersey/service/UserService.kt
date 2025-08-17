@@ -29,7 +29,7 @@ import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.UserMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.QuestionnaireScheduleService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleService
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.jersey.exception.HttpNotFoundException

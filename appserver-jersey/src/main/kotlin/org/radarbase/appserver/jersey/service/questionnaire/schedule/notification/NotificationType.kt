@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule.notification
+package org.radarbase.appserver.jersey.service.questionnaire.schedule.notification
 
 enum class NotificationType {
     SOON,

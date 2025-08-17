@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.application_event
+package org.radarbase.appserver.jersey.application.event
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject

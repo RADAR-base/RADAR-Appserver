@@ -87,7 +87,8 @@ dependencies {
 }
 
 ktlint {
-    ignoreFailures.set(true)
+    ignoreFailures.set(false)
+    outputColorName.set("RED")
 }
 
 radarKotlin {

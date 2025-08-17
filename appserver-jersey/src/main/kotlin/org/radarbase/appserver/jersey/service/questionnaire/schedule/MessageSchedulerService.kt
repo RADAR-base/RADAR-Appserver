@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule
+package org.radarbase.appserver.jersey.service.questionnaire.schedule
 
 import jakarta.inject.Inject
 import org.quartz.JobBuilder
@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.Date
 
+@Suppress("unused")
 class MessageSchedulerService<T : Message> @Inject constructor(
     val fcmSender: FcmSender,
     val schedulerService: SchedulerService,

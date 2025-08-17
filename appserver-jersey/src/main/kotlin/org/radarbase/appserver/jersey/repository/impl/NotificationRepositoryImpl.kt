@@ -88,11 +88,11 @@ class NotificationRepositoryImpl(
             .resultList
     }
 
-    override suspend fun findByTaskId(taskId: Long): List<Notification> = transact {
+    override suspend fun findByTaskId(id: Long): List<Notification> = transact {
         createQuery(
             "SELECT n FROM Notification n WHERE n.task.id = :taskId",
             Notification::class.java,
-        ).setParameter("taskId", taskId)
+        ).setParameter("taskId", id)
             .resultList
     }
 

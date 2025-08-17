@@ -27,7 +27,7 @@ import org.glassfish.jersey.server.validation.ValidationFeature
 import org.quartz.JobListener
 import org.quartz.Scheduler
 import org.quartz.SchedulerListener
-import org.radarbase.appserver.jersey.application_event.EventBusStartupListener
+import org.radarbase.appserver.jersey.application.event.EventBusStartupListener
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
@@ -89,10 +89,10 @@ import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
 import org.radarbase.appserver.jersey.service.quartz.SchedulerService
 import org.radarbase.appserver.jersey.service.quartz.SchedulerServiceImpl
 import org.radarbase.appserver.jersey.service.quartz.SimpleQuartzNamingStrategy
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.MessageSchedulerService
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.QuestionnaireScheduleGeneratorService
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.QuestionnaireScheduleService
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.MessageSchedulerService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.ScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.service.transmitter.DataMessageTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.FcmTransmitter

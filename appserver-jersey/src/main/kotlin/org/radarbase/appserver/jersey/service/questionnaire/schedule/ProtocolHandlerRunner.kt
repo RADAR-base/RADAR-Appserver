@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule
+package org.radarbase.appserver.jersey.service.questionnaire.schedule
 
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
 import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule

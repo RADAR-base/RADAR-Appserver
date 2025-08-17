@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule.notification
+package org.radarbase.appserver.jersey.service.questionnaire.schedule.notification
 
 import org.radarbase.appserver.jersey.dto.protocol.LanguageText
 import org.radarbase.appserver.jersey.entity.Notification

@@ -27,8 +27,8 @@ import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.service.protocol.handler.ProtocolHandler
 import org.radarbase.appserver.jersey.service.protocol.time.TimeCalculatorService
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.notification.NotificationType
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.notification.TaskNotificationGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.notification.NotificationType
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.notification.TaskNotificationGeneratorService
 import org.radarbase.appserver.jersey.utils.flatMapParallel
 import java.time.Instant
 import java.time.temporal.ChronoUnit

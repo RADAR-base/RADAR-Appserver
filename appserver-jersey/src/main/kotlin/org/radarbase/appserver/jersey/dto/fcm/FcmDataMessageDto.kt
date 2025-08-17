@@ -75,66 +75,6 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
     )
     var updatedAt: Instant? = dataMessageEntity?.updatedAt?.toInstant()
 
-    fun withCreatedAt(createdAt: Instant?): FcmDataMessageDto = apply {
-        this.createdAt = createdAt
-    }
-
-    fun withUpdatedAt(updatedAt: Instant?): FcmDataMessageDto = apply {
-        this.updatedAt = updatedAt
-    }
-
-    fun withId(id: Long?): FcmDataMessageDto = apply {
-        this.id = id
-    }
-
-    fun withScheduledTime(scheduledTime: Instant?): FcmDataMessageDto = apply {
-        this.scheduledTime = scheduledTime
-    }
-
-    fun withDelivered(delivered: Boolean): FcmDataMessageDto = apply {
-        this.delivered = delivered
-    }
-
-    fun withTtlSeconds(ttlSeconds: Int): FcmDataMessageDto = apply {
-        this.ttlSeconds = ttlSeconds
-    }
-
-    fun withFcmMessageId(fcmMessageId: String?): FcmDataMessageDto = apply {
-        this.fcmMessageId = fcmMessageId
-    }
-
-    fun withSourceId(sourceId: String?): FcmDataMessageDto = apply {
-        this.sourceId = sourceId
-    }
-
-    fun withAppPackage(appPackage: String?): FcmDataMessageDto = apply {
-        this.appPackage = appPackage
-    }
-
-    fun withSourceType(sourceType: String?): FcmDataMessageDto = apply {
-        this.sourceType = sourceType
-    }
-
-    fun withDataMap(dataMap: MutableMap<String?, String?>?): FcmDataMessageDto = apply {
-        this.dataMap = dataMap
-    }
-
-    fun withFcmTopic(fcmTopic: String?): FcmDataMessageDto = apply {
-        this.fcmTopic = fcmTopic
-    }
-
-    fun withFcmCondition(fcmCondition: String?): FcmDataMessageDto = apply {
-        this.fcmCondition = fcmCondition
-    }
-
-    fun withPriority(priority: String?): FcmDataMessageDto = apply {
-        this.priority = priority
-    }
-
-    fun withMutableContent(mutableContent: Boolean): FcmDataMessageDto = apply {
-        this.mutableContent = mutableContent
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FcmDataMessageDto) return false

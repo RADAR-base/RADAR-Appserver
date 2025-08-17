@@ -22,6 +22,7 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import org.radarbase.appserver.jersey.entity.Task
 
+@Suppress("UNCHECKED_CAST")
 class TaskSpecification(
     private val searchCriteria: SearchCriteria,
 ) : QuerySpecification<Task> {

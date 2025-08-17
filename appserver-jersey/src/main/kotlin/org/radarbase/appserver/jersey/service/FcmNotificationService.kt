@@ -36,7 +36,7 @@ import org.radarbase.appserver.jersey.repository.NotificationRepository
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.service.TaskService.Companion.nonNullUserId
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.MessageSchedulerService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.MessageSchedulerService
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.appserver.jersey.utils.requireNotNullField
@@ -60,7 +60,9 @@ class FcmNotificationService @Inject constructor(
 
     suspend fun getAllNotifications(): FcmNotifications {
         val notifications: List<Notification> = notificationRepository.findAll()
-        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
+        return FcmNotifications(
+            notificationMapper.entitiesToDtos(notifications).toMutableList(),
+        )
     }
 
     suspend fun getNotificationById(id: Long): FcmNotificationDto {
@@ -72,7 +74,9 @@ class FcmNotificationService @Inject constructor(
         val user = this.userRepository.findBySubjectId(subjectId)
         checkPresenceOfUser(user)
         val notifications: List<Notification> = notificationRepository.findByUserId(nonNullUserId(user))
-        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
+        return FcmNotifications(
+            notificationMapper.entitiesToDtos(notifications).toMutableList(),
+        )
     }
 
     suspend fun getNotificationsByProjectIdAndSubjectId(
@@ -82,7 +86,9 @@ class FcmNotificationService @Inject constructor(
         return subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(nonNullUserId(user))
         }.let { notifications ->
-            FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
+            FcmNotifications(
+                notificationMapper.entitiesToDtos(notifications).toMutableList(),
+            )
         }
     }
 
@@ -100,7 +106,9 @@ class FcmNotificationService @Inject constructor(
                 }
             }
         }.let { notifications ->
-            FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
+            FcmNotifications(
+                notificationMapper.entitiesToDtos(notifications).toMutableList(),
+            )
         }
     }
 
@@ -232,16 +240,10 @@ class FcmNotificationService @Inject constructor(
             "Notification does not exist. Please create one first"
         }
 
-        val newNotification = Notification.NotificationBuilder(notification)
-            .body(notificationDto.body)
-            .scheduledTime(notificationDto.scheduledTime)
-            .sourceId(notificationDto.sourceId)
-            .title(notificationDto.title)
-            .ttlSeconds(notificationDto.ttlSeconds)
-            .type(notificationDto.type)
-            .user(user)
-            .fcmMessageId(notificationDto.hashCode().toString())
-            .build()
+        val newNotification = Notification.NotificationBuilder(notification).body(notificationDto.body)
+            .scheduledTime(notificationDto.scheduledTime).sourceId(notificationDto.sourceId)
+            .title(notificationDto.title).ttlSeconds(notificationDto.ttlSeconds).type(notificationDto.type).user(user)
+            .fcmMessageId(notificationDto.hashCode().toString()).build()
         val notificationSaved = this.notificationRepository.update(newNotification) ?: throw IllegalStateException(
             "Returned notification is null. Notification didn't updated successfully in the database.",
         )
@@ -264,7 +266,9 @@ class FcmNotificationService @Inject constructor(
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notifications: List<Notification> = notificationRepository.findByUserId(nonNullUserId(user))
         this.schedulerService.scheduleMultiple(notifications)
-        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(notifications))
+        return FcmNotifications(
+            notificationMapper.entitiesToDtos(notifications).toMutableList(),
+        )
     }
 
     suspend fun scheduleNotification(subjectId: String, projectId: String, notificationId: Long): FcmNotificationDto {
@@ -364,7 +368,9 @@ class FcmNotificationService @Inject constructor(
         if (schedule) {
             this.schedulerService.scheduleMultiple(savedNotifications)
         }
-        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(savedNotifications))
+        return FcmNotifications(
+            notificationMapper.entitiesToDtos(savedNotifications).toMutableList(),
+        )
     }
 
     suspend fun addNotifications(notifications: List<Notification>?, user: User): List<Notification> {
@@ -410,7 +416,9 @@ class FcmNotificationService @Inject constructor(
         }
 
         this.schedulerService.scheduleMultiple(savedNotifications)
-        return FcmNotifications().withNotifications(notificationMapper.entitiesToDtos(savedNotifications))
+        return FcmNotifications(
+            notificationMapper.entitiesToDtos(savedNotifications).toMutableList(),
+        )
     }
 
     suspend fun addNewNotifications(

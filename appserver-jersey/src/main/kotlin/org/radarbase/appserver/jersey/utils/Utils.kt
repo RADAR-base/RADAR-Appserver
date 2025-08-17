@@ -55,6 +55,7 @@ fun <T> requireNotNullField(value: T?, fieldName: String): T = checkNotNull(valu
  * @param messageProvider a lambda providing the error message for the exception
  * @throws InvalidProjectDetailsException if the validation fails
  */
+@Suppress("UNUSED_PARAMETER")
 inline fun checkInvalidProjectDetails(
     projectDTO: ProjectDto,
     invalidation: () -> Boolean,

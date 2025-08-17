@@ -33,7 +33,7 @@ import jakarta.ws.rs.core.Response
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
 import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.QuestionnaireScheduleService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleService
 import org.radarbase.appserver.jersey.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.QUESTIONNAIRE_SCHEDULE

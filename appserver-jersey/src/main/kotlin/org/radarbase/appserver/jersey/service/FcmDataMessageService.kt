@@ -35,7 +35,7 @@ import org.radarbase.appserver.jersey.repository.DataMessageRepository
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.service.TaskService.Companion.nonNullUserId
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.MessageSchedulerService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.MessageSchedulerService
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.appserver.jersey.utils.requireNotNullField
@@ -60,8 +60,7 @@ class FcmDataMessageService @Inject constructor(
 
     suspend fun getAllDataMessages(): FcmDataMessages {
         val dataMessages = dataMessageRepository.findAll()
-        return FcmDataMessages()
-            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
+        return FcmDataMessages(dataMessageMapper.entitiesToDtos(dataMessages).toMutableList())
     }
 
     suspend fun getDataMessageById(id: Long): FcmDataMessageDto {
@@ -74,8 +73,9 @@ class FcmDataMessageService @Inject constructor(
         checkPresenceOfUser(user)
 
         val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
-        return FcmDataMessages()
-            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
+        return FcmDataMessages(
+            dataMessageMapper.entitiesToDtos(dataMessages).toMutableList(),
+        )
     }
 
     suspend fun getDataMessagesByProjectIdAndSubjectId(
@@ -85,8 +85,9 @@ class FcmDataMessageService @Inject constructor(
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 
         val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
-        return FcmDataMessages()
-            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
+        return FcmDataMessages(
+            dataMessageMapper.entitiesToDtos(dataMessages).toMutableList(),
+        )
     }
 
     suspend fun getDataMessagesByProjectId(projectId: String): FcmDataMessages {
@@ -101,8 +102,9 @@ class FcmDataMessageService @Inject constructor(
         users.flatMapTo(dataMessages) { user ->
             this.dataMessageRepository.findByUserId(nonNullUserId(user))
         }
-        return FcmDataMessages()
-            .withDataMessages(dataMessageMapper.entitiesToDtos(dataMessages))
+        return FcmDataMessages(
+            dataMessageMapper.entitiesToDtos(dataMessages).toMutableList(),
+        )
     }
 
     suspend fun checkIfDataMessageExists(dataMessageDto: FcmDataMessageDto, subjectId: String): Boolean {
@@ -303,8 +305,9 @@ class FcmDataMessageService @Inject constructor(
         }
 
         this.schedulerService.scheduleMultiple(savedDataMessages)
-        return FcmDataMessages()
-            .withDataMessages(dataMessageMapper.entitiesToDtos(savedDataMessages))
+        return FcmDataMessages(
+            dataMessageMapper.entitiesToDtos(dataMessages).toMutableList(),
+        )
     }
 
     suspend fun subjectAndProjectExistElseThrow(subjectId: String, projectId: String): User {
