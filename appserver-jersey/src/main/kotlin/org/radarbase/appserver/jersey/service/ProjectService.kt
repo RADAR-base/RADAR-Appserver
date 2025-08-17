@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory
  * for converting between entity and DTO objects.
  */
 @Suppress("unused")
-class ProjectService @Inject constructor(
+class   ProjectService @Inject constructor(
     private val projectRepository: ProjectRepository,
     @param:Named(PROJECT_MAPPER) private val projectMapper: Mapper<ProjectDto, Project>,
 ) {

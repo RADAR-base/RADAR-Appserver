@@ -64,7 +64,6 @@ class FcmDataMessageResource @Inject constructor(
     config: AppserverConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
-    private val mpSecurityEnabled: Boolean = config.mp.security.enabled
 
     @GET
     @Path(MESSAGING_DATA_PATH)
@@ -102,11 +101,14 @@ class FcmDataMessageResource @Inject constructor(
         @Valid @QueryParam("type") type: String?,
         @Valid @QueryParam("delivered") delivered: Boolean?,
         @Valid @QueryParam("ttlSeconds") ttlSeconds: Int?,
-        @Valid @QueryParam("startTime") startTime: LocalDateTime?,
-        @Valid @QueryParam("endTime") endTime: LocalDateTime?,
+        @Valid @QueryParam("startTime") startTimeStr: String?,
+        @Valid @QueryParam("endTime") endTimeStr: String?,
         @Valid @QueryParam("limit") limit: Int?,
         @Suspended asyncResponse: AsyncResponse,
     ) {
+        val startTime = startTimeStr?.let { LocalDateTime.parse(it) }
+        val endTime = endTimeStr?.let { LocalDateTime.parse(it) }
+
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             Response.ok(
                 fcmDataMessageService.getFilteredDataMessages(
@@ -137,126 +139,120 @@ class FcmDataMessageResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID/$MESSAGING_DATA_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun getDataMessageUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            if (mpSecurityEnabled) {
-                val token = tokenForCurrentRequest(asyncService, tokenProvider)
-                authService.checkPermission(
-                    Permission.SUBJECT_READ,
-                    EntityDetails(project = projectId, subject = token.subject),
-                    token,
-                )
-                fcmDataMessageService.getDataMessagesByProjectId(projectId).let {
-                    Response.ok(it).build()
-                }
-            } else {
-                fcmDataMessageService.getDataMessagesByProjectId(projectId).let {
-                    Response.ok(it).build()
-                }
-            }
-        }
-    }
-
-    @POST
-    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-    fun addSingleDataMessage(
-        @Valid @PathParam("projectId") projectId: String,
-        @Valid @PathParam("subjectId") subjectId: String,
-        @Valid fcmDataMessage: FcmDataMessageDto,
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            fcmDataMessageService.addDataMessage(
-                fcmDataMessage,
-                subjectId,
-                projectId,
-            ).let {
-                Response.created(URI("$MESSAGING_DATA_PATH/${it.id}")).entity(it).build()
-            }
-        }
-    }
-
-    @POST
-    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/batch")
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-    fun addBatchDataMessages(
-        @Valid @PathParam("projectId") projectId: String,
-        @Valid @PathParam("subjectId") subjectId: String,
-        @Valid fcmDataMessages: FcmDataMessages,
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            fcmDataMessageService.addDataMessages(
-                fcmDataMessages, subjectId, projectId,
-            ).let {
-                Response.ok().build()
-            }
-        }
-    }
-
-    @PUT
-    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-    fun updateDataMessage(
-        @Valid @PathParam("projectId") projectId: String,
-        @Valid @PathParam("subjectId") subjectId: String,
-        @Valid fcmDataMessage: FcmDataMessageDto,
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            fcmDataMessageService.updateDataMessage(
-                fcmDataMessage,
-                subjectId,
-                projectId,
-            ).let {
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
+            fcmDataMessageService.getDataMessagesByProjectId(projectId).let {
                 Response.ok(it).build()
             }
         }
     }
 
-    @DELETE
-    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/$ALL_KEYWORD")
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-    fun deleteDataMessageForUser(
-        @Valid @PathParam("projectId") projectId: String,
-        @Valid @PathParam("subjectId") subjectId: String,
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            fcmDataMessageService.removeDataMessagesForUser(projectId, subjectId).let {
-                Response.ok().build()
-            }
+@POST
+@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
+@Produces(APPLICATION_JSON)
+@Authenticated
+@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+fun addSingleDataMessage(
+    @Valid @PathParam("projectId") projectId: String,
+    @Valid @PathParam("subjectId") subjectId: String,
+    @Valid fcmDataMessage: FcmDataMessageDto,
+    @Suspended asyncResponse: AsyncResponse,
+) {
+    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+        fcmDataMessageService.addDataMessage(
+            fcmDataMessage,
+            subjectId,
+            projectId,
+        ).let {
+            Response.created(URI("$MESSAGING_DATA_PATH/${it.id}")).entity(it).build()
         }
     }
+}
 
-    @DELETE
-    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/{id}")
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-    fun deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
-        @Valid @PathParam("projectId") projectId: String,
-        @Valid @PathParam("subjectId") subjectId: String,
-        @PathParam("id") id: Long,
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            fcmDataMessageService.deleteDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-                projectId, subjectId, id,
-            )
+@POST
+@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/batch")
+@Produces(APPLICATION_JSON)
+@Authenticated
+@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+fun addBatchDataMessages(
+    @Valid @PathParam("projectId") projectId: String,
+    @Valid @PathParam("subjectId") subjectId: String,
+    @Valid fcmDataMessages: FcmDataMessages,
+    @Suspended asyncResponse: AsyncResponse,
+) {
+    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+        fcmDataMessageService.addDataMessages(
+            fcmDataMessages, subjectId, projectId,
+        ).let {
+            Response.ok().build()
         }
     }
+}
+
+@PUT
+@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
+@Produces(APPLICATION_JSON)
+@Authenticated
+@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+fun updateDataMessage(
+    @Valid @PathParam("projectId") projectId: String,
+    @Valid @PathParam("subjectId") subjectId: String,
+    @Valid fcmDataMessage: FcmDataMessageDto,
+    @Suspended asyncResponse: AsyncResponse,
+) {
+    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+        fcmDataMessageService.updateDataMessage(
+            fcmDataMessage,
+            subjectId,
+            projectId,
+        ).let {
+            Response.ok(it).build()
+        }
+    }
+}
+
+@DELETE
+@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/$ALL_KEYWORD")
+@Produces(APPLICATION_JSON)
+@Authenticated
+@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+fun deleteDataMessageForUser(
+    @Valid @PathParam("projectId") projectId: String,
+    @Valid @PathParam("subjectId") subjectId: String,
+    @Suspended asyncResponse: AsyncResponse,
+) {
+    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+        fcmDataMessageService.removeDataMessagesForUser(projectId, subjectId).let {
+            Response.ok().build()
+        }
+    }
+}
+
+@DELETE
+@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/{id}")
+@Produces(APPLICATION_JSON)
+@Authenticated
+@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+fun deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
+    @Valid @PathParam("projectId") projectId: String,
+    @Valid @PathParam("subjectId") subjectId: String,
+    @PathParam("id") id: Long,
+    @Suspended asyncResponse: AsyncResponse,
+) {
+    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+        fcmDataMessageService.deleteDataMessageByProjectIdAndSubjectIdAndDataMessageId(
+            projectId, subjectId, id,
+        )
+    }
+}
 }

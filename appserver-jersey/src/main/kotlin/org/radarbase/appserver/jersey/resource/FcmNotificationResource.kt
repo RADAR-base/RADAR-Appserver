@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 King's College London
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.radarbase.appserver.jersey.resource
 
 import jakarta.inject.Provider
@@ -48,7 +64,6 @@ class FcmNotificationResource(
     config: AppserverConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
-    private val mpSecurityEnabled: Boolean = config.mp.security.enabled
 
     @GET
     @Path(MESSAGING_NOTIFICATION_PATH)
@@ -91,11 +106,14 @@ class FcmNotificationResource(
         @Valid @QueryParam("type") type: String?,
         @Valid @QueryParam("delivered") delivered: Boolean?,
         @Valid @QueryParam("ttlSeconds") ttlSeconds: Int?,
-        @Valid @QueryParam("startTime") startTime: LocalDateTime?,
-        @Valid @QueryParam("endTime") endTime: LocalDateTime?,
+        @Valid @QueryParam("startTime") startTimeStr: String?,
+        @Valid @QueryParam("endTime") endTimeStr: String?,
         @Valid @QueryParam("limit") limit: Int?,
         @Suspended asyncResponse: AsyncResponse,
     ) {
+        val startTime = startTimeStr?.let { LocalDateTime.parse(it) }
+        val endTime = endTimeStr?.let { LocalDateTime.parse(it) }
+
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             Response.ok(
                 fcmNotificationService.getFilteredNotifications(
@@ -132,20 +150,14 @@ class FcmNotificationResource(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            if (mpSecurityEnabled) {
-                val token = tokenForCurrentRequest(asyncService, tokenProvider)
-                authService.checkPermission(
-                    Permission.SUBJECT_READ,
-                    EntityDetails(project = projectId, subject = token.subject),
-                    token,
-                )
-                fcmNotificationService.getNotificationsByProjectId(projectId).let {
-                    Response.ok(it).build()
-                }
-            } else {
-                fcmNotificationService.getNotificationsByProjectId(projectId).let {
-                    Response.ok(it).build()
-                }
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
+            fcmNotificationService.getNotificationsByProjectId(projectId).let {
+                Response.ok(it).build()
             }
         }
     }
@@ -222,7 +234,7 @@ class FcmNotificationResource(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             fcmNotificationService.addNotification(
-                fcmNotification, subjectId, projectId, schedule
+                fcmNotification, subjectId, projectId, schedule,
             ).let {
                 Response.ok().build()
             }

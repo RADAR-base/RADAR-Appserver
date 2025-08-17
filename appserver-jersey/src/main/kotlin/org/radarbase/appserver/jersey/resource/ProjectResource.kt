@@ -38,7 +38,6 @@ import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.dto.ProjectDtos
 import org.radarbase.appserver.jersey.service.ProjectService
-import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
 import org.radarbase.appserver.jersey.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.jersey.utils.tokenForCurrentRequest
@@ -56,7 +55,6 @@ import kotlin.time.Duration.Companion.seconds
 @Suppress("UnresolvedRestParam")
 @Path("/")
 class ProjectResource @Inject constructor(
-    private val protocolGenerator: ProtocolGenerator,
     private val projectService: ProjectService,
     private val asyncService: AsyncCoroutineService,
     private val authService: AuthService,
@@ -90,7 +88,7 @@ class ProjectResource @Inject constructor(
             }
         }
     }
-    
+
     @PUT
     @Path("$PROJECTS_PATH/$PROJECT_ID")
     @Consumes(APPLICATION_JSON)
@@ -135,7 +133,7 @@ class ProjectResource @Inject constructor(
                 }.toList()
                 .toMutableList()
                 .let {
-                    ProjectDtos(it.toMutableList())
+                    ProjectDtos(it)
                 }.let {
                     Response.ok(it).build()
                 }

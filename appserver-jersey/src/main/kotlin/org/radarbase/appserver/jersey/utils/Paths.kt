@@ -24,8 +24,12 @@ object Paths {
     const val NOTIFICATION_ID = "{notificationId}"
     const val MESSAGING_DATA_PATH = "messaging/data"
     const val MESSAGING_NOTIFICATION_PATH = "messaging/notifications"
+    const val NOTIFICATION_STATE_EVENTS_PATH = "state_events"
+    const val QUESTIONNAIRE_STATE_EVENTS_PATH = "state_events"
     const val GITHUB_PATH = "github"
     const val GITHUB_CONTENT_PATH = "content"
     const val PROTOCOLS_PATH = "protocols"
+    const val TASK_ID = "{taskId}"
+    const val QUESTIONNAIRE_SCHEDULE = "questionnaire/schedule"
     const val ALL_KEYWORD = "all"
 }
