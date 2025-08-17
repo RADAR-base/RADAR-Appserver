@@ -16,11 +16,12 @@
 
 package org.radarbase.appserver.jersey.event.listener
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.AllowConcurrentEvents
 import com.google.common.eventbus.Subscribe
 import jakarta.inject.Inject
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.entity.DataMessageStateEvent
 import org.radarbase.appserver.jersey.entity.NotificationStateEvent
@@ -34,10 +35,14 @@ import org.slf4j.LoggerFactory
 
 @Suppress("unused")
 class MessageStateEventListener @Inject constructor(
-    private val objectMapper: ObjectMapper,
     private val asyncService: AsyncCoroutineService,
     private val serviceLocator: ServiceLocator,
 ) {
+    private val json = Json {
+        encodeDefaults = true
+        ignoreUnknownKeys = true
+    }
+
     private var notificationStateEventService: NotificationStateEventService? = null
         get() {
             if (field == null) {
@@ -89,15 +94,17 @@ class MessageStateEventListener @Inject constructor(
         }
     }
 
+
     fun convertMapToString(additionalInfoMap: Map<String, String>?): String? {
-        if (additionalInfoMap == null) {
-            return null
-        }
-        try {
-            return objectMapper.writeValueAsString(additionalInfoMap)
-        } catch (_: JsonProcessingException) {
-            logger.warn("error processing event's additional info: {}", additionalInfoMap)
-            return null
+        if (additionalInfoMap == null) return null
+        return try {
+            json.encodeToString(
+                MapSerializer(String.serializer(), String.serializer()),
+                additionalInfoMap
+            )
+        } catch (e: Exception) {
+            logger.warn("error processing event's additional info: {}", additionalInfoMap, e)
+            null
         }
     }
 
