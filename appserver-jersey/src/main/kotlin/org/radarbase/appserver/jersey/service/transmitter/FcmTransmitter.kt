@@ -88,7 +88,8 @@ class FcmTransmitter @Inject constructor(
             ErrorCode.RESOURCE_EXHAUSTED,
             ErrorCode.FAILED_PRECONDITION,
             ErrorCode.UNAUTHENTICATED,
-            ErrorCode.UNKNOWN -> {}
+            ErrorCode.UNKNOWN,
+            -> {}
             ErrorCode.UNAVAILABLE -> {
                 // Could schedule for retry.
                 logger.warn("The FCM service is unavailable")
@@ -111,16 +112,17 @@ class FcmTransmitter @Inject constructor(
 
                 logger.warn("The Device for user {} was unregistered.", userDto.subjectId)
                 notificationService.removeNotificationsForUser(
-                    projectId, subjectId,
+                    projectId,
+                    subjectId,
                 )
                 dataMessageService.removeDataMessagesForUser(
-                    projectId, subjectId,
+                    projectId,
+                    subjectId,
                 )
                 userService.checkFcmTokenExistsAndReplace(userDto)
             }
         }
     }
-
 
     companion object {
         private val logger = LoggerFactory.getLogger(FcmTransmitter::class.java)
@@ -130,7 +132,8 @@ class FcmTransmitter @Inject constructor(
 
         private fun createMessageFromNotification(notification: Notification): FcmNotificationMessage {
             val to = Objects.requireNonNullElseGet<String>(
-                notification.fcmTopic, requireNotNullField(notification.user, "Notification's User")::fcmToken,
+                notification.fcmTopic,
+                requireNotNullField(notification.user, "Notification's User")::fcmToken,
             )
             return FcmNotificationMessage().apply {
                 this.to = to
@@ -148,7 +151,8 @@ class FcmTransmitter @Inject constructor(
         private fun createMessageFromDataMessage(dataMessage: DataMessage): FcmDataMessage {
             val to =
                 Objects.requireNonNullElseGet<String>(
-                    dataMessage.fcmTopic, requireNotNullField(dataMessage.user, "Data Message's User")::fcmToken,
+                    dataMessage.fcmTopic,
+                    requireNotNullField(dataMessage.user, "Data Message's User")::fcmToken,
                 )
             return FcmDataMessage().apply {
                 this.to = to

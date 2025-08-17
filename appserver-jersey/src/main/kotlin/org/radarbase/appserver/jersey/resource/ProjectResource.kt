@@ -158,7 +158,6 @@ class ProjectResource @Inject constructor(
                 token,
             )
             Response.ok(project).build()
-
         }
     }
 

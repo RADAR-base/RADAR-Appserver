@@ -36,7 +36,8 @@ class TaskStateEventRepositoryImpl(
         createQuery(
             """SELECT COUNT(e) 
                 FROM TaskStateEvent e
-                WHERE e.id = :id""".trimIndent(),
+                WHERE e.id = :id
+            """.trimIndent(),
             Long::class.java,
         ).setParameter("id", id)
             .singleResult > 0
@@ -65,7 +66,6 @@ class TaskStateEventRepositoryImpl(
             TaskStateEvent::class.java,
         ).setParameter("taskId", taskId)
             .resultList
-
     }
 
     override suspend fun countByTaskId(taskId: Long): Long = transact {

@@ -45,7 +45,7 @@ class QuartzMessageSchedulerListener @Inject constructor(
     private val dataMessageRepository: DataMessageRepository,
     private val scheduler: Scheduler,
     private val asyncService: AsyncCoroutineService,
-    ) : SchedulerListener {
+) : SchedulerListener {
     /**
      * Called by the `[Scheduler]` when a `[JobDetail]` is
      * scheduled.
@@ -76,7 +76,10 @@ class QuartzMessageSchedulerListener @Inject constructor(
                 }
                 val notificationStateEvent =
                     NotificationStateEventDto(
-                        notification, MessageState.SCHEDULED, null, Instant.now(),
+                        notification,
+                        MessageState.SCHEDULED,
+                        null,
+                        Instant.now(),
                     )
                 messageStateEventPublisher.post(notificationStateEvent)
             }
@@ -89,7 +92,10 @@ class QuartzMessageSchedulerListener @Inject constructor(
                     return
                 }
                 val dataMessageStateEvent = DataMessageStateEventDto(
-                    dataMessage, MessageState.SCHEDULED, null, Instant.now(),
+                    dataMessage,
+                    MessageState.SCHEDULED,
+                    null,
+                    Instant.now(),
                 )
                 messageStateEventPublisher.post(dataMessageStateEvent)
             }
@@ -121,7 +127,10 @@ class QuartzMessageSchedulerListener @Inject constructor(
             return
         }
         val notificationStateEvent = NotificationStateEventDto(
-            notification, MessageState.CANCELLED, null, Instant.now(),
+            notification,
+            MessageState.CANCELLED,
+            null,
+            Instant.now(),
         )
         messageStateEventPublisher.post(notificationStateEvent)
     }

@@ -55,4 +55,3 @@ suspend inline fun <T, R> Iterable<T>.flatMapParallel(
     }.awaitAll()
         .flatten()
 }
-

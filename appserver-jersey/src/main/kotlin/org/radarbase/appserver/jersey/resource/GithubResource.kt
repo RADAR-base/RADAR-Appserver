@@ -66,5 +66,4 @@ class GithubResource @Inject constructor(
             }
         }
     }
-
 }

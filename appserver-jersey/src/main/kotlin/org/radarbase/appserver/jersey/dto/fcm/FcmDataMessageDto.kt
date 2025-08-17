@@ -28,9 +28,9 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
     var id: Long? = dataMessageEntity?.id
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var scheduledTime: @NotNull Instant? = dataMessageEntity?.scheduledTime
 
@@ -62,16 +62,16 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
     var mutableContent: Boolean = dataMessageEntity?.mutableContent == true
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var createdAt: Instant? = dataMessageEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var updatedAt: Instant? = dataMessageEntity?.updatedAt?.toInstant()
 
@@ -139,14 +139,18 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
         if (this === other) return true
         if (other !is FcmDataMessageDto) return false
         val that = other
-        return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime
-                && appPackage == that.appPackage
-                && sourceType == that.sourceType
+        return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime &&
+            appPackage == that.appPackage &&
+            sourceType == that.sourceType
     }
 
     override fun hashCode(): Int {
         return Objects.hash(
-            scheduledTime, delivered, ttlSeconds, appPackage, sourceType
+            scheduledTime,
+            delivered,
+            ttlSeconds,
+            appPackage,
+            sourceType,
         )
     }
 

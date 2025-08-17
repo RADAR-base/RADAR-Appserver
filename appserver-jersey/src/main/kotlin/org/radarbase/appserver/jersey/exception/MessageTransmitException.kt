@@ -31,5 +31,4 @@ open class MessageTransmitException : HttpApplicationException {
         code,
         message,
     )
-
 }

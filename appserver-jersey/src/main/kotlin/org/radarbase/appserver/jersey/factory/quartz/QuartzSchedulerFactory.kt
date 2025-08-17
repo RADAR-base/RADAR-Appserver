@@ -26,7 +26,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class QuartzSchedulerFactory @Inject constructor(
-    private val serviceLocator: ServiceLocator
+    private val serviceLocator: ServiceLocator,
 ) : DisposableSupplier<Scheduler> {
     val schedulerFactory: SchedulerFactory = StdSchedulerFactory()
     var scheduler: Scheduler? = null

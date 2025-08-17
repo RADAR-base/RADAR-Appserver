@@ -16,8 +16,6 @@
 
 package org.radarbase.appserver.jersey.service
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
 import kotlinx.serialization.builtins.MapSerializer
@@ -45,7 +43,6 @@ class NotificationStateEventService @Inject constructor(
             }
             return field
         }
-
 
     suspend fun addNotificationStateEvent(notificationStateEvent: NotificationStateEvent) {
         if (notificationStateEvent.state == MessageState.CANCELLED) {
@@ -165,6 +162,5 @@ class NotificationStateEventService @Inject constructor(
             checkNotNull(stateEvent.notification) {
                 "DataMessage in state event data can't be null"
             }
-
     }
 }

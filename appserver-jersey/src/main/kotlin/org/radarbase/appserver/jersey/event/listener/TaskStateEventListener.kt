@@ -60,7 +60,10 @@ class TaskStateEventListener @Inject constructor(
         val info = convertMapToString(event.additionalInfo)
         logger.info("Task state changed. ID: {}, STATE: {}", event.task?.id, event.state)
         val eventEntity = TaskStateEvent(
-            event.task, event.state, event.time, info,
+            event.task,
+            event.state,
+            event.time,
+            info,
         )
         asyncService.runBlocking {
             taskStateEventService?.addTaskStateEvent(eventEntity)
@@ -73,7 +76,7 @@ class TaskStateEventListener @Inject constructor(
         return try {
             json.encodeToString(
                 MapSerializer(String.serializer(), String.serializer()),
-                additionalInfoMap
+                additionalInfoMap,
             )
         } catch (e: Exception) {
             logger.warn("error processing event's additional info: {}", additionalInfoMap, e)

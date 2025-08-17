@@ -112,7 +112,12 @@ class FcmDataMessageResource @Inject constructor(
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             Response.ok(
                 fcmDataMessageService.getFilteredDataMessages(
-                    type, delivered, ttlSeconds, startTime, endTime, limit,
+                    type,
+                    delivered,
+                    ttlSeconds,
+                    startTime,
+                    endTime,
+                    limit,
                 ),
             ).build()
         }
@@ -157,102 +162,106 @@ class FcmDataMessageResource @Inject constructor(
         }
     }
 
-@POST
-@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
-@Produces(APPLICATION_JSON)
-@Authenticated
-@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-fun addSingleDataMessage(
-    @Valid @PathParam("projectId") projectId: String,
-    @Valid @PathParam("subjectId") subjectId: String,
-    @Valid fcmDataMessage: FcmDataMessageDto,
-    @Suspended asyncResponse: AsyncResponse,
-) {
-    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-        fcmDataMessageService.addDataMessage(
-            fcmDataMessage,
-            subjectId,
-            projectId,
-        ).let {
-            Response.created(URI("$MESSAGING_DATA_PATH/${it.id}")).entity(it).build()
+    @POST
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun addSingleDataMessage(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmDataMessage: FcmDataMessageDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            fcmDataMessageService.addDataMessage(
+                fcmDataMessage,
+                subjectId,
+                projectId,
+            ).let {
+                Response.created(URI("$MESSAGING_DATA_PATH/${it.id}")).entity(it).build()
+            }
         }
     }
-}
 
-@POST
-@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/batch")
-@Produces(APPLICATION_JSON)
-@Authenticated
-@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-fun addBatchDataMessages(
-    @Valid @PathParam("projectId") projectId: String,
-    @Valid @PathParam("subjectId") subjectId: String,
-    @Valid fcmDataMessages: FcmDataMessages,
-    @Suspended asyncResponse: AsyncResponse,
-) {
-    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-        fcmDataMessageService.addDataMessages(
-            fcmDataMessages, subjectId, projectId,
-        ).let {
-            Response.ok().build()
+    @POST
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/batch")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun addBatchDataMessages(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmDataMessages: FcmDataMessages,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            fcmDataMessageService.addDataMessages(
+                fcmDataMessages,
+                subjectId,
+                projectId,
+            ).let {
+                Response.ok().build()
+            }
         }
     }
-}
 
-@PUT
-@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
-@Produces(APPLICATION_JSON)
-@Authenticated
-@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-fun updateDataMessage(
-    @Valid @PathParam("projectId") projectId: String,
-    @Valid @PathParam("subjectId") subjectId: String,
-    @Valid fcmDataMessage: FcmDataMessageDto,
-    @Suspended asyncResponse: AsyncResponse,
-) {
-    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-        fcmDataMessageService.updateDataMessage(
-            fcmDataMessage,
-            subjectId,
-            projectId,
-        ).let {
-            Response.ok(it).build()
+    @PUT
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun updateDataMessage(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmDataMessage: FcmDataMessageDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            fcmDataMessageService.updateDataMessage(
+                fcmDataMessage,
+                subjectId,
+                projectId,
+            ).let {
+                Response.ok(it).build()
+            }
         }
     }
-}
 
-@DELETE
-@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/$ALL_KEYWORD")
-@Produces(APPLICATION_JSON)
-@Authenticated
-@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-fun deleteDataMessageForUser(
-    @Valid @PathParam("projectId") projectId: String,
-    @Valid @PathParam("subjectId") subjectId: String,
-    @Suspended asyncResponse: AsyncResponse,
-) {
-    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-        fcmDataMessageService.removeDataMessagesForUser(projectId, subjectId).let {
-            Response.ok().build()
+    @DELETE
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/$ALL_KEYWORD")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteDataMessageForUser(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            fcmDataMessageService.removeDataMessagesForUser(projectId, subjectId).let {
+                Response.ok().build()
+            }
         }
     }
-}
 
-@DELETE
-@Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/{id}")
-@Produces(APPLICATION_JSON)
-@Authenticated
-@NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
-fun deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
-    @Valid @PathParam("projectId") projectId: String,
-    @Valid @PathParam("subjectId") subjectId: String,
-    @PathParam("id") id: Long,
-    @Suspended asyncResponse: AsyncResponse,
-) {
-    asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-        fcmDataMessageService.deleteDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-            projectId, subjectId, id,
-        )
+    @DELETE
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/{id}")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @PathParam("id") id: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            fcmDataMessageService.deleteDataMessageByProjectIdAndSubjectIdAndDataMessageId(
+                projectId,
+                subjectId,
+                id,
+            )
+        }
     }
-}
 }

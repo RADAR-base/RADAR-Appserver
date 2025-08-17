@@ -32,7 +32,10 @@ interface SchedulerService {
     fun checkTriggerExists(triggerKey: TriggerKey): Boolean
 
     fun updateScheduledJob(
-        jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?
+        jobKey: JobKey,
+        triggerKey: TriggerKey,
+        jobDataMap: JobDataMap,
+        associatedObject: Any?,
     )
 
     fun deleteScheduledJobs(jobKeys: List<JobKey>)

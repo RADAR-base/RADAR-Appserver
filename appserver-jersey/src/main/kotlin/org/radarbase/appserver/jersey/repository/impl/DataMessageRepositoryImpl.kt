@@ -37,7 +37,8 @@ class DataMessageRepositoryImpl(
         createQuery(
             """SELECT COUNT(d)
                 FROM DataMessage d 
-                WHERE d.id = :id """.trimIndent(),
+                WHERE d.id = :id 
+            """.trimIndent(),
             Long::class.java,
         ).setParameter("id", id).singleResult > 0
     }
@@ -108,7 +109,6 @@ class DataMessageRepositoryImpl(
             .setParameter("scheduledTime", scheduledTime)
             .setParameter("ttlSeconds", ttlSeconds)
             .singleResult > 0
-
     }
 
     override suspend fun existsByIdAndUserId(id: Long, userId: Long): Boolean = transact {
@@ -116,7 +116,8 @@ class DataMessageRepositoryImpl(
             """SELECT COUNT(d)
                 FROM DataMessage d 
                 WHERE d.id = :id
-                AND d.user.id = :userId""".trimIndent(),
+                AND d.user.id = :userId
+            """.trimIndent(),
             Long::class.java,
         )
             .setParameter("id", id)

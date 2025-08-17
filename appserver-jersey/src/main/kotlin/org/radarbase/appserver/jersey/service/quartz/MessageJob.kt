@@ -41,7 +41,7 @@ class MessageJob @Inject constructor(
 ) : Job {
     /**
      * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.Trigger]
-    `*  fires that is associated with the `Job`.
+     `*  fires that is associated with the `Job`.
      *
      * The implementation may wish to set a [result][JobExecutionContext.setResult]
      * object on the [JobExecutionContext] before this method exits. The result itself is
@@ -65,7 +65,9 @@ class MessageJob @Inject constructor(
                     asyncService.runBlocking {
                         val notification =
                             notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
-                                projectId, subjectId, messageId,
+                                projectId,
+                                subjectId,
+                                messageId,
                             )
 
                         notificationTransmitter.let { transmitter ->
@@ -81,7 +83,9 @@ class MessageJob @Inject constructor(
                 MessageType.DATA -> {
                     asyncService.runBlocking {
                         val dataMessage = dataMessageService.getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-                            projectId, subjectId, messageId,
+                            projectId,
+                            subjectId,
+                            messageId,
                         )
 
                         dataMessageTransmitter.let { transmitter ->

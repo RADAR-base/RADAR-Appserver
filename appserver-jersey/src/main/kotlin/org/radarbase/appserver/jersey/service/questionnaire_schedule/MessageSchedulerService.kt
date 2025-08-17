@@ -49,7 +49,7 @@ class MessageSchedulerService<T : Message> @Inject constructor(
         if (schedulerService.checkJobExists(jobDetail.key)) {
             logger.info("Job with key {} has been scheduled already", { jobDetail.key })
         } else {
-            logger.debug("Job Detail = {}", jobDetail);
+            logger.debug("Job Detail = {}", jobDetail)
             val trigger = getTriggerForMessage(message, jobDetail)
             schedulerService.scheduleJob(jobDetail, trigger)
         }
@@ -77,12 +77,14 @@ class MessageSchedulerService<T : Message> @Inject constructor(
     fun updateScheduled(message: T) {
         val (messageId: Long, subjectId: String) = nonNullMessageIdAndSubjectId(message)
         val jobKeyString: String = NAMING_STRATEGY.getJobKeyName(
-            subjectId, messageId.toString(),
+            subjectId,
+            messageId.toString(),
         )
         val jobKey = JobKey(jobKeyString)
         val triggerKeyString: String =
             NAMING_STRATEGY.getTriggerName(
-                subjectId, messageId.toString(),
+                subjectId,
+                messageId.toString(),
             )
         val triggerKey = TriggerKey(triggerKeyString)
         val jobDataMap = JobDataMap()
@@ -130,7 +132,8 @@ class MessageSchedulerService<T : Message> @Inject constructor(
                 .withIdentity(
                     TriggerKey(
                         NAMING_STRATEGY.getTriggerName(
-                            subjectId, messageId.toString(),
+                            subjectId,
+                            messageId.toString(),
                         ),
                     ),
                 )
@@ -170,7 +173,8 @@ class MessageSchedulerService<T : Message> @Inject constructor(
                 .withIdentity(
                     JobKey(
                         NAMING_STRATEGY.getJobKeyName(
-                            subjectId, messageId.toString(),
+                            subjectId,
+                            messageId.toString(),
                         ),
                     ),
                 )
@@ -225,7 +229,5 @@ class MessageSchedulerService<T : Message> @Inject constructor(
 
             return Pair(messageId, subjectId)
         }
-
     }
 }
-

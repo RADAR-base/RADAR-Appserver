@@ -30,13 +30,13 @@ import java.util.TimeZone
 
 open class CompletedQuestionnaireHandler(
     private val prevTasks: List<Task>,
-    private val prevTimezone: String
+    private val prevTimezone: String,
 ) : ProtocolHandler {
 
     override suspend fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
         val currentTimezone = checkPresence(user.timezone, "invalid_user_details") {
             "User's timezone can't be null in completed questionnaire handler"
@@ -52,7 +52,7 @@ open class CompletedQuestionnaireHandler(
         currentTasks: List<Task>,
         previousTasks: List<Task>,
         currentTimezone: String,
-        prevTimezone: String
+        prevTimezone: String,
     ): List<Task> {
         currentTasks.mapParallel(Dispatchers.Default) { newTask ->
             val matching = if (currentTimezone != prevTimezone) {
@@ -90,7 +90,7 @@ open class CompletedQuestionnaireHandler(
     private fun getPreviousTimezoneEquivalent(
         taskTimestamp: Timestamp,
         newTimezone: String,
-        prevTimezone: String
+        prevTimezone: String,
     ): Timestamp {
         val timezoneDiff = TimeZone.getTimeZone(newTimezone).rawOffset - TimeZone.getTimeZone(prevTimezone).rawOffset
         return Timestamp(taskTimestamp.time + timezoneDiff)

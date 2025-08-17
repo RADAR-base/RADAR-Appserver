@@ -72,7 +72,10 @@ class MessageStateEventListener @Inject constructor(
         val info = convertMapToString(event.additionalInfo)
         logger.info("Notification state changed. ID: {}, STATE: {}.", event.notification.id, event.state)
         val eventEntity = NotificationStateEvent(
-            event.notification, event.state, event.time, info,
+            event.notification,
+            event.state,
+            event.time,
+            info,
         )
         asyncService.runBlocking {
             notificationStateEventService?.addNotificationStateEvent(eventEntity)
@@ -86,7 +89,10 @@ class MessageStateEventListener @Inject constructor(
         val info = convertMapToString(event.additionalInfo)
         logger.debug("Data Message state changed. ID: {}, STATE: {}", event.dataMessage.id, event.state)
         val eventEntity = DataMessageStateEvent(
-            event.dataMessage, event.state, event.time, info,
+            event.dataMessage,
+            event.state,
+            event.time,
+            info,
         )
         asyncService.runBlocking {
             dataMessageStateEventService?.addDataMessageStateEvent(eventEntity)
@@ -94,13 +100,12 @@ class MessageStateEventListener @Inject constructor(
         }
     }
 
-
     fun convertMapToString(additionalInfoMap: Map<String, String>?): String? {
         if (additionalInfoMap == null) return null
         return try {
             json.encodeToString(
                 MapSerializer(String.serializer(), String.serializer()),
-                additionalInfoMap
+                additionalInfoMap,
             )
         } catch (e: Exception) {
             logger.warn("error processing event's additional info: {}", additionalInfoMap, e)

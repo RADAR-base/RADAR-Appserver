@@ -118,7 +118,6 @@ class ProjectEndpointAuthTest {
         assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
-
     companion object {
         private const val APPSERVER_URL = "http://localhost:8080"
         private const val PROJECT_PATH = "projects"

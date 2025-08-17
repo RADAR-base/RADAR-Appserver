@@ -30,7 +30,6 @@ import org.radarbase.appserver.jersey.event.state.dto.DataMessageStateEventDto
 import org.radarbase.appserver.jersey.exception.AlreadyExistsException
 import org.radarbase.appserver.jersey.exception.InvalidNotificationDetailsException
 import org.radarbase.appserver.jersey.exception.InvalidUserDetailsException
-import org.radarbase.appserver.jersey.mapper.DataMessageMapper
 import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.repository.DataMessageRepository
 import org.radarbase.appserver.jersey.repository.ProjectRepository
@@ -80,7 +79,8 @@ class FcmDataMessageService @Inject constructor(
     }
 
     suspend fun getDataMessagesByProjectIdAndSubjectId(
-        projectId: String, subjectId: String,
+        projectId: String,
+        subjectId: String,
     ): FcmDataMessages {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 
@@ -130,7 +130,9 @@ class FcmDataMessageService @Inject constructor(
     ): FcmDataMessages? = null
 
     suspend fun addDataMessage(
-        dataMessageDto: FcmDataMessageDto, subjectId: String, projectId: String,
+        dataMessageDto: FcmDataMessageDto,
+        subjectId: String,
+        projectId: String,
     ): FcmDataMessageDto {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
 
@@ -151,7 +153,8 @@ class FcmDataMessageService @Inject constructor(
                 dataMessageSaved,
                 MessageState.ADDED,
                 requireNotNullField(
-                    dataMessageSaved.createdAt, "Data message creation timestamp",
+                    dataMessageSaved.createdAt,
+                    "Data message creation timestamp",
                 ).toInstant(),
             )
             this.schedulerService.schedule(dataMessageSaved)
@@ -165,17 +168,23 @@ class FcmDataMessageService @Inject constructor(
     }
 
     private fun addDataMessageStateEvent(
-        dataMessage: DataMessage, state: MessageState, time: Instant,
+        dataMessage: DataMessage,
+        state: MessageState,
+        time: Instant,
     ) {
         val dataMessageStateEvent = DataMessageStateEventDto(
-            dataMessage, state, null, time,
+            dataMessage,
+            state,
+            null,
+            time,
         )
         dataMessageStateEventPublisher.post(dataMessageStateEvent)
-
     }
 
     suspend fun updateDataMessage(
-        dataMessageDto: FcmDataMessageDto, subjectId: String, projectId: String,
+        dataMessageDto: FcmDataMessageDto,
+        subjectId: String,
+        projectId: String,
     ): FcmDataMessageDto {
         val dmDtoId = dataMessageDto.id ?: throw InvalidNotificationDetailsException(
             "ID must be supplied for updating the data message",
@@ -202,7 +211,8 @@ class FcmDataMessageService @Inject constructor(
             dataMessageSaved,
             MessageState.UPDATED,
             requireNotNullField(
-                dataMessageSaved.updatedAt, "Data message update timestamp",
+                dataMessageSaved.updatedAt,
+                "Data message update timestamp",
             ).toInstant(),
         )
         if (!dataMessage.delivered) {
@@ -265,7 +275,9 @@ class FcmDataMessageService @Inject constructor(
     }
 
     suspend fun addDataMessages(
-        dataMessageDtos: FcmDataMessages, subjectId: String, projectId: String,
+        dataMessageDtos: FcmDataMessages,
+        subjectId: String,
+        projectId: String,
     ): FcmDataMessages {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val dataMessages = dataMessageRepository.findByUserId(nonNullUserId(user))
@@ -311,7 +323,9 @@ class FcmDataMessageService @Inject constructor(
     }
 
     suspend fun getDataMessageByProjectIdAndSubjectIdAndDataMessageId(
-        projectId: String, subjectId: String, dataMessageId: Long,
+        projectId: String,
+        subjectId: String,
+        dataMessageId: Long,
     ): DataMessage {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val dataMessage = dataMessageRepository.findByIdAndUserId(dataMessageId, nonNullUserId(user))
@@ -356,6 +370,5 @@ class FcmDataMessageService @Inject constructor(
         fun nonNullProjectId(project: Project): Long = checkNotNull(project.id) {
             "User id cannot be null"
         }
-
     }
 }

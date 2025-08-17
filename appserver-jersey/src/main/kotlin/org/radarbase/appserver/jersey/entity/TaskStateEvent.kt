@@ -52,7 +52,7 @@ class TaskStateEvent {
     var task: Task? = null
 
     constructor()
-    
+
     constructor(task: Task?, state: TaskState?, time: Instant?, associatedInfo: String?) {
         this.state = state
         this.time = time

@@ -18,7 +18,6 @@ package org.radarbase.appserver.jersey.config
 
 import org.radarbase.appserver.jersey.config.github.GithubConfig
 import org.radarbase.appserver.jersey.config.questionnaire.QuestionnaireProtocolConfig
-import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
 
 data class AppserverConfig(

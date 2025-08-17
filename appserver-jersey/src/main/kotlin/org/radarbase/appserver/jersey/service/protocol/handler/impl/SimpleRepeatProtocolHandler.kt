@@ -33,7 +33,7 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
     override suspend fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
         val timezone = user.timezone
         requireNotNull(timezone) {
@@ -52,7 +52,7 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
     private fun generateReferenceTimestamps(
         assessment: Assessment,
         startTime: Instant,
-        timezoneId: String
+        timezoneId: String,
     ): List<Instant> {
         val timezone = TimeZone.getTimeZone(timezoneId)
         val repeatProtocol: RepeatProtocol? = assessment.protocol?.repeatProtocol
@@ -60,7 +60,7 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
         val repeatProtocolUnit: String? = repeatProtocol?.unit
         val repeatProtocolAmount: Int? = repeatProtocol?.amount
 
-        if (repeatProtocol == null || repeatProtocolUnit == null ||  repeatProtocolAmount == null) {
+        if (repeatProtocol == null || repeatProtocolUnit == null || repeatProtocolAmount == null) {
             logger.warn("Repeat protocol is null for assessment in SimpleRepeatProtocolHandler")
             return emptyList()
         }
@@ -84,7 +84,7 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
     private fun calculateValidStartTime(
         startTime: Instant,
         timezone: TimeZone,
-        simpleRepeatProtocol: TimePeriod
+        simpleRepeatProtocol: TimePeriod,
     ): Instant {
         var referenceTime = startTime
         val defaultStartTime = timeCalculatorService.advanceRepeat(Instant.now(), MINUS_ONE_WEEK, timezone)

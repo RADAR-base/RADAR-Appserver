@@ -93,7 +93,7 @@ class NotificationEndpointAuthTest {
     @Test
     fun unAuthorizedViewNotificationsForUser(): Unit = runBlocking {
         val response = httpClient.get(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH"
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH",
         ) {
             accept(ContentType.Application.Json)
         }
@@ -104,7 +104,7 @@ class NotificationEndpointAuthTest {
     @Test
     fun unAuthorizedViewNotificationsForProject(): Unit = runBlocking {
         val response = httpClient.get(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$NOTIFICATION_PATH"
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$NOTIFICATION_PATH",
         ) {
             accept(ContentType.Application.Json)
         }
@@ -115,7 +115,7 @@ class NotificationEndpointAuthTest {
     @Test
     fun unauthorizedCreateNotificationForUser(): Unit = runBlocking {
         val response = httpClient.post(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH"
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH",
         ) {
             contentType(ContentType.Application.Json)
             setBody(notification)
@@ -128,7 +128,7 @@ class NotificationEndpointAuthTest {
     @Test
     fun createNotificationForUser(): Unit = runBlocking {
         val response = httpClient.post(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH"
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH",
         ) {
             setBody(notification)
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
@@ -143,14 +143,16 @@ class NotificationEndpointAuthTest {
     fun createBatchNotificationForUser(): Unit = runBlocking {
         val singleNotification = notification
         val notifications = FcmNotifications()
-            .withNotifications(listOf(
-                singleNotification
-                    .withTitle("Test Title 1")
-                    .withFcmMessageId("xxxyyyy")
-            ))
+            .withNotifications(
+                listOf(
+                    singleNotification
+                        .withTitle("Test Title 1")
+                        .withFcmMessageId("xxxyyyy"),
+                ),
+            )
 
         val response = httpClient.post(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH/batch"
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH/batch",
         ) {
             setBody(notifications)
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
@@ -162,8 +164,8 @@ class NotificationEndpointAuthTest {
 
     @Test
     fun viewNotificationsForUser(): Unit = runBlocking {
-        val  response = httpClient.get(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH"
+        val response = httpClient.get(
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH",
         ) {
             accept(ContentType.Application.Json)
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
@@ -175,7 +177,7 @@ class NotificationEndpointAuthTest {
     @Test
     fun viewNotificationsForProject(): Unit = runBlocking {
         val response = httpClient.get(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$NOTIFICATION_PATH"
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$NOTIFICATION_PATH",
         ) {
             accept(ContentType.Application.Json)
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
@@ -187,19 +189,19 @@ class NotificationEndpointAuthTest {
     @Test
     fun forbiddenViewNotificationsForOtherUser(): Unit = runBlocking {
         val response = httpClient.get(
-            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/sub-2/$NOTIFICATION_PATH"
+            "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/sub-2/$NOTIFICATION_PATH",
         ) {
             accept(ContentType.Application.Json)
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
 
-     assertEquals(response.status, HttpStatusCode.Forbidden)
+        assertEquals(response.status, HttpStatusCode.Forbidden)
     }
 
     @Test
     fun forbiddenViewNotificationsForOtherProject(): Unit = runBlocking {
         val response = httpClient.get(
-            "$PROJECT_PATH/other-project/$NOTIFICATION_PATH"
+            "$PROJECT_PATH/other-project/$NOTIFICATION_PATH",
         ) {
             accept(ContentType.Application.Json)
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])

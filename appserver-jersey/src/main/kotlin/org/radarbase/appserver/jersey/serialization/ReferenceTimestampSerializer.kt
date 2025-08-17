@@ -29,7 +29,7 @@ import org.radarbase.appserver.jersey.dto.protocol.ReferenceTimestampType
 
 object ReferenceTimestampSerializer : KSerializer<ReferenceTimestamp> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor(
-        "ReferenceTimestamp"
+        "ReferenceTimestamp",
     )
 
     override fun serialize(encoder: Encoder, value: ReferenceTimestamp) {

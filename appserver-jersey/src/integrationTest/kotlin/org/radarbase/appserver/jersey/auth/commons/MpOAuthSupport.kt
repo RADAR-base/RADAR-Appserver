@@ -98,5 +98,4 @@ class MpOAuthSupport {
         const val ADMIN_USER = "admin"
         const val ADMIN_PASSWORD = "admin"
     }
-
 }

@@ -113,7 +113,6 @@ class User(
         User::language,
     )
 
-
     override fun equals(other: Any?): Boolean = equalTo(
         other,
         User::subjectId,

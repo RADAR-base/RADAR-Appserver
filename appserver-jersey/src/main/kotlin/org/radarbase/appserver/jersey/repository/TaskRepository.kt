@@ -16,7 +16,6 @@
 
 package org.radarbase.appserver.jersey.repository
 
-import jakarta.transaction.Transactional
 import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
 import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.search.QuerySpecification

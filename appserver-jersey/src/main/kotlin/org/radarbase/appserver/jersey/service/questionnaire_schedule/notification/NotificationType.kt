@@ -23,5 +23,5 @@ enum class NotificationType {
     MISSED_SOON,
     MISSED,
     TEST,
-    OTHER
+    OTHER,
 }

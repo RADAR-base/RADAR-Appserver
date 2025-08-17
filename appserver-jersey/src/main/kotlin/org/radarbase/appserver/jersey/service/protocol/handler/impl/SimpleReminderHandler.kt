@@ -80,11 +80,16 @@ class SimpleReminderHandler : ProtocolHandler {
     }
 
     suspend fun generateReminders(
-        tasks: List<Task>, assessment: Assessment, timezone: TimeZone,
-        user: User, title: String, body: String, emailEnabled: Boolean,
+        tasks: List<Task>,
+        assessment: Assessment,
+        timezone: TimeZone,
+        user: User,
+        title: String,
+        body: String,
+        emailEnabled: Boolean,
     ): List<Notification> = coroutineScope {
         tasks.flatMapParallel { task: Task ->
-            val reminders =     assessment.protocol?.reminders ?: return@flatMapParallel emptyList()
+            val reminders = assessment.protocol?.reminders ?: return@flatMapParallel emptyList()
             val repeatReminders = reminders.repeat ?: return@flatMapParallel emptyList()
 
             (1..repeatReminders).map { repeat: Int ->
@@ -93,17 +98,23 @@ class SimpleReminderHandler : ProtocolHandler {
 
                     val timestamp = timeCalculatorService.advanceRepeat(task.timestamp!!.toInstant(), offset, timezone)
                     taskNotificationGeneratorService.createNotification(
-                        task, timestamp, title, body, emailEnabled,
+                        task,
+                        timestamp,
+                        title,
+                        body,
+                        emailEnabled,
                     ).also {
                         it.user = user
                     }
                 }
             }.awaitAll()
         }.filter { notification ->
-            (Instant.now().isBefore(
-                notification.scheduledTime!!
-                    .plus(notification.ttlSeconds.toLong(), ChronoUnit.SECONDS),
-            ))
+            (
+                Instant.now().isBefore(
+                    notification.scheduledTime!!
+                        .plus(notification.ttlSeconds.toLong(), ChronoUnit.SECONDS),
+                )
+                )
         }
     }
 }

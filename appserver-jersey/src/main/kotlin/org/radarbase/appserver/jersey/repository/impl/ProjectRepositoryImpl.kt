@@ -46,7 +46,8 @@ class ProjectRepositoryImpl(
         createQuery(
             """SELECT COUNT(p)
                 FROM Project p 
-                WHERE p.id = :id""".trimIndent(),
+                WHERE p.id = :id
+            """.trimIndent(),
             Long::class.java,
         ).setParameter(
             "id", id,
@@ -57,7 +58,8 @@ class ProjectRepositoryImpl(
         createQuery(
             """SELECT COUNT(p) 
                 FROM Project p 
-                WHERE p.projectId = :projectId""".trimIndent(),
+                WHERE p.projectId = :projectId
+            """.trimIndent(),
             Long::class.java,
         ).setParameter(
             "projectId", projectId,
@@ -92,7 +94,8 @@ class ProjectRepositoryImpl(
         val projectExists = createQuery(
             """SELECT COUNT(p) 
                 FROM Project p 
-                WHERE p.projectId = :projectId""".trimIndent(),
+                WHERE p.projectId = :projectId
+            """.trimIndent(),
             Long::class.java,
         ).setParameter(
             "projectId", dto.projectId,

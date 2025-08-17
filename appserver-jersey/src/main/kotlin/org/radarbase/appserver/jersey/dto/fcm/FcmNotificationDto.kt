@@ -30,9 +30,9 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
 
     @field:NotNull
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var scheduledTime: Instant? = notificationEntity?.scheduledTime
 
@@ -108,16 +108,16 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
     var mutableContent: Boolean = notificationEntity?.mutableContent == true
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var createdAt: Instant? = notificationEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var updatedAt: Instant? = notificationEntity?.updatedAt?.toInstant()
 
@@ -265,10 +265,16 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
         FcmNotificationDto::sourceType,
     )
 
-
     override fun hashCode(): Int {
         return Objects.hash(
-            scheduledTime, delivered, title, body, ttlSeconds, type, appPackage, sourceType
+            scheduledTime,
+            delivered,
+            title,
+            body,
+            ttlSeconds,
+            type,
+            appPackage,
+            sourceType,
         )
     }
 

@@ -87,7 +87,9 @@ class TaskService @Inject constructor(
     suspend fun addTask(task: Task): Task {
         val (user, taskName, taskTimestamp) = validateUserTaskNameAndTaskTimestamp(task)
         val alreadyExists = this.taskRepository.existsByUserIdAndNameAndTimestamp(
-            nonNullUserId(user), taskName, taskTimestamp,
+            nonNullUserId(user),
+            taskName,
+            taskTimestamp,
         )
 
         if (!alreadyExists) {
@@ -98,9 +100,12 @@ class TaskService @Inject constructor(
             val taskCreationTimestamp = checkNotNull(saved.createdAt) { "Task creation timestamp cannot be null" }
             addTaskStateEvent(saved, TaskState.ADDED, taskCreationTimestamp.toInstant())
             return saved
-        } else throw AlreadyExistsException(
-            "task_already_exists", "The Task Already exists. Please Use update endpoint",
-        )
+        } else {
+            throw AlreadyExistsException(
+                "task_already_exists",
+                "The Task Already exists. Please Use update endpoint",
+            )
+        }
     }
 
     suspend fun addTasks(tasks: List<Task>, user: User): List<Task> {
@@ -135,7 +140,9 @@ class TaskService @Inject constructor(
         val (user, taskName, taskTimestamp) = validateUserTaskNameAndTaskTimestamp(oldTask)
 
         val doesntExists = !this.taskRepository.existsByUserIdAndNameAndTimestamp(
-            nonNullUserId(user), taskName, taskTimestamp,
+            nonNullUserId(user),
+            taskName,
+            taskTimestamp,
         )
 
         checkPresence(doesntExists, "task_not_found") {

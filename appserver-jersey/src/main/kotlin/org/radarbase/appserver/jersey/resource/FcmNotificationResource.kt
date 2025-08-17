@@ -96,7 +96,6 @@ class FcmNotificationResource(
         }
     }
 
-
     @GET
     @Path("$MESSAGING_NOTIFICATION_PATH/filter")
     @Produces(APPLICATION_JSON)
@@ -117,7 +116,12 @@ class FcmNotificationResource(
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             Response.ok(
                 fcmNotificationService.getFilteredNotifications(
-                    type, delivered, ttlSeconds, startTime, endTime, limit,
+                    type,
+                    delivered,
+                    ttlSeconds,
+                    startTime,
+                    endTime,
+                    limit,
                 ),
             ).build()
         }
@@ -201,7 +205,6 @@ class FcmNotificationResource(
         }
     }
 
-
     @POST
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID/schedule")
     @Produces(APPLICATION_JSON)
@@ -234,7 +237,10 @@ class FcmNotificationResource(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             fcmNotificationService.addNotification(
-                fcmNotification, subjectId, projectId, schedule,
+                fcmNotification,
+                subjectId,
+                projectId,
+                schedule,
             ).let {
                 Response.ok().build()
             }
@@ -293,10 +299,10 @@ class FcmNotificationResource(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             fcmNotificationService.deleteNotificationByProjectIdAndSubjectIdAndNotificationId(
-                projectId, subjectId, id,
+                projectId,
+                subjectId,
+                id,
             )
         }
     }
-
-
 }

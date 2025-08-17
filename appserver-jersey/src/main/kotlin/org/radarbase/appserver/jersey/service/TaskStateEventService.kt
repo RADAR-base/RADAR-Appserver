@@ -47,7 +47,6 @@ class TaskStateEventService @Inject constructor(
             return field
         }
 
-
     suspend fun addTaskStateEvent(taskStateEvent: TaskStateEvent) {
         taskStateEventRepository.add(taskStateEvent)
         val task = checkNotNull(taskStateEvent.task) { "Task in task state event can't be null" }

@@ -106,17 +106,15 @@ class NotificationStateEventResource @Inject constructor(
                 projectId,
                 subjectId,
                 notificationId,
-                notificationStateEventDto
+                notificationStateEventDto,
             )
             notificationStateEventService.getNotificationStateEvents(
                 projectId,
                 subjectId,
-                notificationId
+                notificationId,
             ).let {
                 Response.ok(it).build()
             }
         }
     }
-
-
 }

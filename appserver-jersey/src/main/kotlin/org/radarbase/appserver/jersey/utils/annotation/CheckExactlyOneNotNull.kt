@@ -19,10 +19,10 @@ package org.radarbase.appserver.jersey.utils.annotation
 import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
-import kotlin.annotation.AnnotationRetention.RUNTIME
-import kotlin.annotation.AnnotationTarget.CLASS
 import java.beans.Introspector
 import java.beans.PropertyDescriptor
+import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationTarget.CLASS
 
 @Target(CLASS)
 @Retention(RUNTIME)
@@ -55,7 +55,6 @@ annotation class CheckExactlyOneNotNull(
             } catch (_: Exception) {
                 false
             }
-
         }
     }
 }

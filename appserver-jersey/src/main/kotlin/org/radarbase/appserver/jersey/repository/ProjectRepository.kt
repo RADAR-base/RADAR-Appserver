@@ -19,7 +19,7 @@ package org.radarbase.appserver.jersey.repository
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.entity.Project
 
-interface ProjectRepository: BaseRepository<Project> {
+interface ProjectRepository : BaseRepository<Project> {
     suspend fun findByProjectId(projectId: String): Project?
     suspend fun existsByProjectId(projectId: String): Boolean
     suspend fun updateEfficiently(dto: ProjectDto): Project

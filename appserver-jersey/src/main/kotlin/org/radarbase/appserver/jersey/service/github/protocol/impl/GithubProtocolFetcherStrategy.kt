@@ -247,7 +247,7 @@ class GithubProtocolFetcherStrategy @Inject constructor(
 
         try {
             val branchJson = githubService.getGithubContentWithoutCache(
-                "$GITHUB_API_URI$protocolRepo/branches/$protocolBranch"
+                "$GITHUB_API_URI$protocolRepo/branches/$protocolBranch",
             )
 
             val branchElement = Json.parseToJsonElement(branchJson).jsonObject
@@ -259,7 +259,7 @@ class GithubProtocolFetcherStrategy @Inject constructor(
                 ?: throw IOException("Missing tree sha in branch JSON")
 
             val treeJson = githubService.getGithubContent(
-                "$GITHUB_API_URI$protocolRepo/git/trees/$treeSha?recursive=true"
+                "$GITHUB_API_URI$protocolRepo/git/trees/$treeSha?recursive=true",
             )
             val treeElement = Json.parseToJsonElement(treeJson).jsonObject
 
@@ -282,8 +282,6 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         protocolUriMap
     }
 
-
-
     /**
      * Fetches a `Protocol` object from a specified URI. The method retrieves the content from the given URI,
      * parses it into a `GithubContent` object, and extracts the `Protocol` data from it.
@@ -295,8 +293,8 @@ class GithubProtocolFetcherStrategy @Inject constructor(
     @Throws(IOException::class)
     private suspend fun getProtocolFromUrl(uri: URI): Protocol {
         val contentString = githubService.getGithubContent(uri.toString())
-        val protocol = localJson.decodeFromString<GithubContent>(contentString).content ?:
-        throw IOException("Protocol content is null")
+        val protocol = localJson.decodeFromString<GithubContent>(contentString).content
+            ?: throw IOException("Protocol content is null")
         return localJson.decodeFromString<Protocol>(protocol)
     }
 

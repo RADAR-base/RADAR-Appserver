@@ -23,8 +23,11 @@ import java.time.Instant
 
 class TaskNotificationGeneratorService {
     fun createNotification(
-        task: Task, notificationTimestamp: Instant,
-        title: String?, body: String?, emailEnabled: Boolean
+        task: Task,
+        notificationTimestamp: Instant,
+        title: String?,
+        body: String?,
+        emailEnabled: Boolean,
     ): Notification {
         return Notification.NotificationBuilder().apply {
             scheduledTime(notificationTimestamp)

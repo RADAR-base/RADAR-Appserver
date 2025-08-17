@@ -16,7 +16,6 @@
 
 package org.radarbase.appserver.jersey.fcm.model
 
-
 abstract class FcmDownstreamMessage : FcmMessage {
     var to: String? = null
     var condition: String? = null

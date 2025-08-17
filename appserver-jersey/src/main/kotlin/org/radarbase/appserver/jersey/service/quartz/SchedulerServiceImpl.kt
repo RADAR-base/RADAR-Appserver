@@ -77,7 +77,10 @@ class SchedulerServiceImpl @Inject constructor(
     }
 
     override fun updateScheduledJob(
-        jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?,
+        jobKey: JobKey,
+        triggerKey: TriggerKey,
+        jobDataMap: JobDataMap,
+        associatedObject: Any?,
     ) {
         coroutineScope.launch {
             require(checkJobExists(jobKey)) { "The Specified Job Key does not exist : $jobKey" }

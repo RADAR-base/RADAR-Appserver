@@ -73,8 +73,11 @@ class SimpleNotificationHandler : ProtocolHandler {
     }
 
     suspend fun generateNotifications(
-        tasks: List<Task>, user: User,
-        title: String, body: String, emailEnabled: Boolean,
+        tasks: List<Task>,
+        user: User,
+        title: String,
+        body: String,
+        emailEnabled: Boolean,
     ): List<Notification> {
         return tasks.mapParallel(Dispatchers.Default) { task: Task ->
             task.timestamp?.let { taskTimeStamp ->

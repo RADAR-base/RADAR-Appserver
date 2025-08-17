@@ -101,7 +101,7 @@ inline fun <reified E : Exception> checkInvalidDetails(
 @OptIn(ExperimentalContracts::class)
 inline fun <reified E : Exception> checkInvalidDetails(
     shouldInvalidate: Boolean,
-    messageProvider: () -> String
+    messageProvider: () -> String,
 ) {
     contract {
         returns() implies (!shouldInvalidate)

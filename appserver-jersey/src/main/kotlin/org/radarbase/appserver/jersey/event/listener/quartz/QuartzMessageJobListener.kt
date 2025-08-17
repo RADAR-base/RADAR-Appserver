@@ -95,7 +95,10 @@ class QuartzMessageJobListener @Inject constructor(
                     additionalInfo.put("error", jobException.message!!)
                     additionalInfo.put("error_description", jobException.toString())
                     val notificationStateEventError = NotificationStateEventDto(
-                        notification, MessageState.ERRORED, additionalInfo, Instant.now(),
+                        notification,
+                        MessageState.ERRORED,
+                        additionalInfo,
+                        Instant.now(),
                     )
                     messageStateEventPublisher.post(notificationStateEventError)
 
@@ -104,7 +107,10 @@ class QuartzMessageJobListener @Inject constructor(
                 }
 
                 val notificationStateEvent = NotificationStateEventDto(
-                    notification, MessageState.EXECUTED, null, Instant.now(),
+                    notification,
+                    MessageState.EXECUTED,
+                    null,
+                    Instant.now(),
                 )
                 messageStateEventPublisher.post(notificationStateEvent)
             }
@@ -122,7 +128,10 @@ class QuartzMessageJobListener @Inject constructor(
                     additionalInfo.put("error", jobException.message!!)
                     additionalInfo.put("error_description", jobException.toString())
                     val dataMessageStateEventError = DataMessageStateEventDto(
-                        dataMessage, MessageState.ERRORED, additionalInfo, Instant.now(),
+                        dataMessage,
+                        MessageState.ERRORED,
+                        additionalInfo,
+                        Instant.now(),
                     )
                     messageStateEventPublisher.post(dataMessageStateEventError)
 
@@ -131,7 +140,10 @@ class QuartzMessageJobListener @Inject constructor(
                 }
 
                 val dataMessageStateEvent = DataMessageStateEventDto(
-                    dataMessage, MessageState.EXECUTED, null, Instant.now(),
+                    dataMessage,
+                    MessageState.EXECUTED,
+                    null,
+                    Instant.now(),
                 )
                 messageStateEventPublisher.post(dataMessageStateEvent)
             }

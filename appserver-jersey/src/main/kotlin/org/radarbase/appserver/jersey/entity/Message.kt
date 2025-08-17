@@ -98,7 +98,7 @@ class Message(
     var priority: String? = null,
 
     @Column(name = "mutable_content")
-    var mutableContent: Boolean = false
+    var mutableContent: Boolean = false,
 ) : AuditModel(), Serializable, Scheduled {
 
     override fun equals(other: Any?): Boolean = equalTo(
@@ -122,14 +122,13 @@ class Message(
             delivered,
             dryRun,
             appPackage,
-            sourceType
+            sourceType,
         )
     }
 
     override fun toString(): String {
         return "Message(id=$id, user=$user, task=$task, sourceId=$sourceId, scheduledTime=$scheduledTime, ttlSeconds=$ttlSeconds, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, delivered=$delivered, validated=$validated, appPackage=$appPackage, sourceType=$sourceType, dryRun=$dryRun, priority=$priority, mutableContent=$mutableContent)"
     }
-
 
     companion object {
         @Serial

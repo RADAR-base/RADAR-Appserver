@@ -142,7 +142,6 @@ class UserResource @Inject constructor(
                 }.let {
                     Response.ok(it).build()
                 }
-
         }
     }
 
@@ -226,4 +225,3 @@ class UserResource @Inject constructor(
         }
     }
 }
-

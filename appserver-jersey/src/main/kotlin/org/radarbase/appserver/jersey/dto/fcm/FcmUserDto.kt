@@ -56,24 +56,24 @@ data class FcmUserDto(
     var lastDelivered: Instant? = null,
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var createdAt: Instant? = null,
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var updatedAt: Instant? = null,
 
     @field:NotNull
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var enrolmentDate: Instant? = null,
 
@@ -103,5 +103,5 @@ data class FcmUserDto(
         timezone = user.timezone,
         fcmToken = user.fcmToken,
         language = user.language,
-        attributes = user.attributes
-    )}
+        attributes = user.attributes,
+    ) }

@@ -171,7 +171,8 @@ class NotificationRepositoryImpl(
             """SELECT COUNT(n) 
                 FROM Notification n 
                 WHERE n.id = :id 
-                AND n.user.id = :userId""".trimIndent(),
+                AND n.user.id = :userId
+            """.trimIndent(),
             Long::class.java,
         ).setParameter("id", id)
             .setParameter("userId", userId)

@@ -63,9 +63,13 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
                         AndroidConfig.builder().run {
                             setCollapseKey(downstreamMessage.collapseKey)
                             setPriority(
-                                if (priority == null) AndroidConfig.Priority.HIGH else AndroidConfig.Priority.valueOf(
-                                    priority,
-                                ),
+                                if (priority == null) {
+                                    AndroidConfig.Priority.HIGH
+                                } else {
+                                    AndroidConfig.Priority.valueOf(
+                                        priority,
+                                    )
+                                },
                             )
                             setTtl(ttl.toMillis())
                             setNotification(getAndroidNotification(downstreamMessage))
@@ -105,9 +109,13 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
                         AndroidConfig.builder().run {
                             setCollapseKey(downstreamMessage.collapseKey)
                             setPriority(
-                                if (priority == null) AndroidConfig.Priority.NORMAL else AndroidConfig.Priority.valueOf(
-                                    priority,
-                                ),
+                                if (priority == null) {
+                                    AndroidConfig.Priority.NORMAL
+                                } else {
+                                    AndroidConfig.Priority.valueOf(
+                                        priority,
+                                    )
+                                },
                             )
                             setTtl(ttl.toMillis())
                             putAllData(downstreamMessage.data)
@@ -133,14 +141,14 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
         val notification = requireNotNullField(notificationMessage.notification, "Fcm downstream message Notification")
 
         val builder = AndroidNotification.builder()
-                .setBody(notification.getOrDefault("body", "").toString())
-                .setTitle(notification.getOrDefault("title", "").toString())
-                .setChannelId(getString(notification["android_channel_id"]))
-                .setColor(getString(notification["color"]))
-                .setTag(getString(notification["tag"]))
-                .setIcon(getString(notification["icon"]))
-                .setSound(getString(notification["sound"]))
-                .setClickAction(getString(notification["click_action"]))
+            .setBody(notification.getOrDefault("body", "").toString())
+            .setTitle(notification.getOrDefault("title", "").toString())
+            .setChannelId(getString(notification["android_channel_id"]))
+            .setColor(getString(notification["color"]))
+            .setTag(getString(notification["tag"]))
+            .setIcon(getString(notification["icon"]))
+            .setSound(getString(notification["sound"]))
+            .setClickAction(getString(notification["click_action"]))
 
         val bodyLocKey = getString(notification["body_loc_key"])
         val titleLocKey = getString(notification["title_loc_key"])
@@ -172,7 +180,7 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
             is FcmNotificationMessage -> {
                 val notificationMessage = message
                 val notification = requireNotNullField(notificationMessage.notification, "Fcm downstream message Notification")
-                val apnsData: Map<String?, Any?> = HashMap( notificationMessage.data ?: emptyMap<String, String>())
+                val apnsData: Map<String?, Any?> = HashMap(notificationMessage.data ?: emptyMap<String, String>())
 
                 val apsAlertBuilder = ApsAlert.builder()
                 val title = getString(notification["title"])
@@ -197,13 +205,23 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
                 val threadId = getString(notification["thread_id"])
                 if (threadId != null) apsBuilder.setThreadId(threadId)
 
-                if (notificationMessage.contentAvailable != null) apsBuilder.setContentAvailable(requireNotNullField(
-                    notificationMessage.contentAvailable, "Fcm downstream message contentAvailable"
-                ))
+                if (notificationMessage.contentAvailable != null) {
+                    apsBuilder.setContentAvailable(
+                        requireNotNullField(
+                            notificationMessage.contentAvailable,
+                            "Fcm downstream message contentAvailable",
+                        ),
+                    )
+                }
 
-                if (notificationMessage.mutableContent != null) apsBuilder.setMutableContent(requireNotNullField(
-                    notificationMessage.mutableContent, "Fcm downstream message mutableContent"
-                ))
+                if (notificationMessage.mutableContent != null) {
+                    apsBuilder.setMutableContent(
+                        requireNotNullField(
+                            notificationMessage.mutableContent,
+                            "Fcm downstream message mutableContent",
+                        ),
+                    )
+                }
 
                 return config
                     .putAllCustomData(apnsData)
@@ -227,7 +245,6 @@ class AdminSdkFcmSender(options: FirebaseOptions) : FcmSender {
             }
         }
     }
-
 
     private fun getString(obj: Any?): String? {
         return obj?.toString()

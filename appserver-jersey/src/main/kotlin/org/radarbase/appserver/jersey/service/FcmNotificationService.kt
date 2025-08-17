@@ -76,7 +76,8 @@ class FcmNotificationService @Inject constructor(
     }
 
     suspend fun getNotificationsByProjectIdAndSubjectId(
-        projectId: String, subjectId: String,
+        projectId: String,
+        subjectId: String,
     ): FcmNotifications {
         return subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(nonNullUserId(user))
@@ -127,7 +128,10 @@ class FcmNotificationService @Inject constructor(
     ): FcmNotifications? = null
 
     suspend fun addNotification(
-        notificationDto: FcmNotificationDto, subjectId: String, projectId: String, schedule: Boolean,
+        notificationDto: FcmNotificationDto,
+        subjectId: String,
+        projectId: String,
+        schedule: Boolean,
     ): FcmNotificationDto {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notificationExists: Boolean = checkNotificationExists(notificationDto, subjectId, projectId)
@@ -147,7 +151,9 @@ class FcmNotificationService @Inject constructor(
     }
 
     suspend fun addNotification(
-        notificationDto: FcmNotificationDto, subjectId: String, projectId: String,
+        notificationDto: FcmNotificationDto,
+        subjectId: String,
+        projectId: String,
     ): FcmNotificationDto {
         val notificationExists = checkNotificationExists(notificationDto, subjectId, projectId)
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
@@ -174,9 +180,11 @@ class FcmNotificationService @Inject constructor(
         requireNotNullField(user.usermetrics, "User's user metrics").lastOpened = Instant.now()
         this.userRepository.update(user)
         addNotificationStateEvent(
-            savedNotification, MessageState.ADDED,
+            savedNotification,
+            MessageState.ADDED,
             requireNotNullField(
-                savedNotification.createdAt, "Notification creation timestamp",
+                savedNotification.createdAt,
+                "Notification creation timestamp",
             ).toInstant(),
         )
 
@@ -202,14 +210,18 @@ class FcmNotificationService @Inject constructor(
     }
 
     private fun addNotificationStateEvent(
-        notification: Notification, state: MessageState, time: Instant,
+        notification: Notification,
+        state: MessageState,
+        time: Instant,
     ) {
         val notificationStateEvent = NotificationStateEventDto(notification, state, null, time)
         notificationStateEventPublisher.post(notificationStateEvent)
     }
 
     suspend fun updateNotification(
-        notificationDto: FcmNotificationDto, subjectId: String, projectId: String,
+        notificationDto: FcmNotificationDto,
+        subjectId: String,
+        projectId: String,
     ): FcmNotificationDto {
         val notificationId = notificationDto.id
             ?: throw InvalidNotificationDetailsException("ID must be supplied for updating the notification")
@@ -238,7 +250,8 @@ class FcmNotificationService @Inject constructor(
             notificationSaved,
             MessageState.UPDATED,
             requireNotNullField(
-                notificationSaved.updatedAt, "Notification update timestamp",
+                notificationSaved.updatedAt,
+                "Notification update timestamp",
             ).toInstant(),
         )
         if (!notification.delivered) {
@@ -298,9 +311,11 @@ class FcmNotificationService @Inject constructor(
                 this.notificationRepository.findByIdAndUserId(id, userId)!!,
             )
             this.notificationRepository.deleteByIdAndUserId(id, userId)
-        } else throw InvalidNotificationDetailsException(
-            "Notification with the provided ID does not exist.",
-        )
+        } else {
+            throw InvalidNotificationDetailsException(
+                "Notification with the provided ID does not exist.",
+            )
+        }
     }
 
     suspend fun removeNotificationsForUserUsingTaskId(projectId: String, subjectId: String, taskId: Long) {
@@ -332,7 +347,10 @@ class FcmNotificationService @Inject constructor(
     }
 
     suspend fun addNotifications(
-        notificationDtos: FcmNotifications, subjectId: String, projectId: String, schedule: Boolean,
+        notificationDtos: FcmNotifications,
+        subjectId: String,
+        projectId: String,
+        schedule: Boolean,
     ): FcmNotifications {
         val savedNotifications = addNewNotifications(notificationDtos, subjectId, projectId)
         savedNotifications.forEach { n: Notification ->
@@ -378,7 +396,9 @@ class FcmNotificationService @Inject constructor(
     }
 
     suspend fun addNotifications(
-        notificationDtos: FcmNotifications, subjectId: String, projectId: String,
+        notificationDtos: FcmNotifications,
+        subjectId: String,
+        projectId: String,
     ): FcmNotifications {
         val savedNotifications = addNewNotifications(notificationDtos, subjectId, projectId)
         savedNotifications.forEach { n: Notification ->
@@ -394,7 +414,9 @@ class FcmNotificationService @Inject constructor(
     }
 
     suspend fun addNewNotifications(
-        notificationDtos: FcmNotifications, subjectId: String, projectId: String,
+        notificationDtos: FcmNotifications,
+        subjectId: String,
+        projectId: String,
     ): List<Notification> {
         val newNotifications: List<Notification> = subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
             notificationRepository.findByUserId(nonNullUserId(user)).let { notifications ->
@@ -411,7 +433,6 @@ class FcmNotificationService @Inject constructor(
         return newNotifications.map {
             this.notificationRepository.add(it)
         }
-
     }
 
     suspend fun subjectAndProjectExistElseThrow(subjectId: String, projectId: String): User {
@@ -425,7 +446,9 @@ class FcmNotificationService @Inject constructor(
     }
 
     suspend fun getNotificationByProjectIdAndSubjectIdAndNotificationId(
-        projectId: String, subjectId: String, notificationId: Long,
+        projectId: String,
+        subjectId: String,
+        notificationId: Long,
     ): Notification {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notification = notificationRepository.findByIdAndUserId(notificationId, nonNullUserId(user))
