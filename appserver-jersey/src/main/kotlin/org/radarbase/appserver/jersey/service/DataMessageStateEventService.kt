@@ -16,10 +16,11 @@
 
 package org.radarbase.appserver.jersey.service
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.dto.DataMessageStateEventDto
 import org.radarbase.appserver.jersey.entity.DataMessage
@@ -33,7 +34,6 @@ class DataMessageStateEventService @Inject constructor(
     private val dataMessageStateEventRepository: DataMessageStateEventRepository,
     private val dataMessageService: FcmDataMessageService,
     private val serviceLocator: ServiceLocator,
-    private val objectMapper: ObjectMapper,
 ) {
     private var dataMessageEventBus: EventBus? = null
         get() {
@@ -105,9 +105,9 @@ class DataMessageStateEventService @Inject constructor(
 
         if (!dataMessageStateEventDto.associatedInfo.isNullOrEmpty()) {
             try {
-                additionalInfo = objectMapper.readValue(
-                    dataMessageStateEventDto.associatedInfo,
-                    object : TypeReference<Map<String, String>>() {},
+                additionalInfo = Json.decodeFromString(
+                    MapSerializer(String.serializer(), String.serializer()),
+                    dataMessageStateEventDto.associatedInfo!!,
                 )
             } catch (_: IOException) {
                 throw IllegalStateException(

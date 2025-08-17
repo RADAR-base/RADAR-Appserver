@@ -20,6 +20,9 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.dto.NotificationStateEventDto
 import org.radarbase.appserver.jersey.entity.Notification
@@ -32,7 +35,6 @@ import java.io.IOException
 class NotificationStateEventService @Inject constructor(
     private val notificationStateEventRepository: NotificationStateEventRepository,
     private val notificationService: FcmNotificationService,
-    private val objectMapper: ObjectMapper,
     private val serviceLocator: ServiceLocator,
 ) {
     private var notificationStateEventBus: EventBus? = null
@@ -107,10 +109,9 @@ class NotificationStateEventService @Inject constructor(
         var additionalInfo: Map<String, String>? = null
         if (!notificationStateEventDto.associatedInfo.isNullOrEmpty()) {
             try {
-                additionalInfo = objectMapper.readValue(
-                    notificationStateEventDto.associatedInfo,
-                    object : TypeReference<Map<String, String>>() {
-                    },
+                additionalInfo = Json.decodeFromString(
+                    MapSerializer(String.serializer(), String.serializer()),
+                    notificationStateEventDto.associatedInfo!!,
                 )
             } catch (_: IOException) {
                 throw IllegalStateException(
