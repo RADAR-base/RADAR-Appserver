@@ -47,8 +47,10 @@ services:
   # Appserver                                                                 #
   #---------------------------------------------------------------------------#
   appserver:
-    image: radarbase/radar-appserver
-    build: ./
+    build:
+      context: ../
+      dockerfile: Dockerfile.appserver-jersey
+    image: radarbase/radar-appserver:SNAPSHOT
     restart: always
     ports:
       - "8080:8080"

@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "appserver"
+rootProject.name = "radar-appserver"
 
 include("appserver-legacy")
 include("appserver-jersey")

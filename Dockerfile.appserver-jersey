@@ -10,33 +10,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=$BUILDPLATFORM gradle:8.5-jdk17 as builder
+FROM --platform=$BUILDPLATFORM gradle:8.5-jdk17 AS builder
 
 RUN mkdir /code
-WORKDIR code
+WORKDIR /code
+
 ENV GRADLE_USER_HOME=/code/.gradlecache \
    GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork -Dorg.gradle.vfs.watch=false"
 
-COPY ../buildSrc /code/buildSrc
-COPY ../build.gradle.kts ../settings.gradle.kts /code/
-COPY ./build.gradle.kts /code/radar-appserver
+COPY ./buildSrc /code/buildSrc
+COPY ./build.gradle.kts ./settings.gradle.kts /code/
+COPY appserver-jersey/build.gradle.kts /code/appserver-jersey/
 
-RUN gradle downloadDependencies copyDependencies
+RUN gradle appserver-jersey:downloadDependencies appserver-jersey:copyDependencies appserver-jersey:startScripts
 
-COPY ./src /code/radar-appserver/src
+COPY appserver-jersey/src/ /code/appserver-jersey/src
 
 RUN gradle jar
 
 FROM eclipse-temurin:17-jre
 
-COPY --from=builder /code/radar-appserver/build/scripts/* /usr/bin/
-COPY --from=builder /code/radar-appserver/build/third-party/* /usr/lib/
-COPY --from=builder /code/radar-appserver/build/libs/*.jar /usr/lib/
+COPY --from=builder /code/appserver-jersey/build/scripts/* /usr/bin/
+COPY --from=builder /code/appserver-jersey/build/third-party/* /usr/lib/
+COPY --from=builder /code/appserver-jersey/build/libs/*.jar /usr/lib/
+COPY --from=builder /code/appserver-jersey/src/main/resources/appserver.yml /etc/appserver-jersey/appserver.yml
 
 USER 101
 
 EXPOSE 8080
 
-CMD ["radar-appserver"]
+CMD ["appserver-jersey"]
 
 

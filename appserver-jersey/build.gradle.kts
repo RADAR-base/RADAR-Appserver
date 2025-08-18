@@ -1,7 +1,7 @@
 plugins {
     application
     kotlin("plugin.serialization") version Versions.kotlinVersion
-    id("org.radarbase.radar-kotlin") version Versions.radarCommonsVersion
+    id("org.radarbase.radar-kotlin")
     kotlin("plugin.allopen")
     kotlin("plugin.noarg")
 }
