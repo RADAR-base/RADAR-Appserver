@@ -5,18 +5,26 @@ server:
   requestTimeout: 30
   isJmxEnabled: false
 
-mp:
-  security:
-    enabled: true
-
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
   resourceName: res_appconfig
 
 db:
-  jdbcDriver: org.h2.Driver
-  jdbcUrl: jdbc:h2:mem:dev
-  hibernateDialect: org.hibernate.dialect.H2Dialect
+  # For Development environment, use H2 database.
+  #  jdbcDriver: org.h2.Driver
+  #  jdbcUrl: jdbc:h2:mem:dev
+  #  hibernateDialect: org.hibernate.dialect.H2Dialect
+  #  liquibase:
+  #    enabled: false
+  #  additionalProperties:
+  #    jakarta.persistence.schema-generation.database.action: drop-and-create
+  #    hibernate.show_sql: true
+  #    hibernate.format_sql: true
+  jdbcDriver: org.postgresql.Driver
+  jdbcUrl: jdbc:postgresql://localhost:5432/appserver
+  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
+  username: radar
+  password: radar
 
 github:
   cache:

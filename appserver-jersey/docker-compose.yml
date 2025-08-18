@@ -39,7 +39,7 @@ services:
   appserver-postgres:
     image: postgres
     environment:
-      POSTGRES_DB: radar
+      POSTGRES_DB: appserver
       POSTGRES_USER: radar
       POSTGRES_PASSWORD: radar
 

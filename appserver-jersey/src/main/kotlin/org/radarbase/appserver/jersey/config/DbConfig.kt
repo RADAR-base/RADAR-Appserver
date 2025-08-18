@@ -39,10 +39,10 @@ data class DbConfig(
         NotificationStateEvent::class.qualifiedName!!,
         DataMessageStateEvent::class.qualifiedName!!,
     ),
-    val jdbcDriver: String? = null,
-    val jdbcUrl: String? = null,
-    val username: String? = null,
-    val password: String? = null,
+    val jdbcDriver: String = "org.postgresql.Driver",
+    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver",
+    val username: String = "radar",
+    val password: String = "radar",
     val hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",
     val additionalProperties: Map<String, String> = emptyMap(),
     val liquibase: LiquibaseConfig = LiquibaseConfig(),
@@ -50,7 +50,7 @@ data class DbConfig(
     override fun validate() {
         checkInvalidDetails<IllegalStateException>(
             {
-                jdbcDriver.isNullOrBlank() || jdbcUrl.isNullOrBlank()
+                jdbcDriver.isBlank() || jdbcUrl.isBlank()
             },
             {
                 "JDBC driver and URL must not be null or empty"

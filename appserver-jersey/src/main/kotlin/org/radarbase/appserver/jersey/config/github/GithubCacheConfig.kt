@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GithubCacheConfig(
     @field:JsonProperty("cacheDurationSec")
-    val cacheDuration: Long? = null,
+    val cacheDuration: Long = 3600,
     @field:JsonProperty("retryDurationSec")
-    val retryDuration: Long? = null,
+    val retryDuration: Long = 60,
     val maxCacheSize: Int = 10000,
 )

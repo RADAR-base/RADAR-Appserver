@@ -19,7 +19,7 @@ package org.radarbase.appserver.jersey.config
 data class AuthConfig(
     val resourceName: String = "res_Appserver",
     val issuer: String? = null,
-    val managementPortalUrl: String? = null,
+    val managementPortalUrl: String = "http://localhost:8081/managementportal",
     val publicKeyUrls: List<String>? = null,
 ) : Validation {
     override fun validate() {

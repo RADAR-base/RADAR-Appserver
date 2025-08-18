@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GithubClientConfig(
     val maxContentLength: Long = 10_00_000,
-    @JsonProperty("timeoutSec")
+    @field:JsonProperty("timeoutSec")
     val timeout: Long = 10L,
     val githubToken: String? = null,
 )

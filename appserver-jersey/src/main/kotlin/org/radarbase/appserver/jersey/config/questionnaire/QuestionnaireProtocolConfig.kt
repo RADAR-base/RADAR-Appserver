@@ -17,7 +17,7 @@
 package org.radarbase.appserver.jersey.config.questionnaire
 
 data class QuestionnaireProtocolConfig(
-    val githubProtocolRepo: String? = null,
-    val protocolFileName: String? = null,
-    val githubBranch: String? = null,
+    val githubProtocolRepo: String = "RADAR-base/RADAR-aRMT-protocols",
+    val protocolFileName: String = "protocol.json",
+    val githubBranch: String = "master",
 )
