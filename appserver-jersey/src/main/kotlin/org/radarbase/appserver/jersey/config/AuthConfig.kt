@@ -23,7 +23,7 @@ data class AuthConfig(
     val publicKeyUrls: List<String>? = null,
 ) : Validation {
     override fun validate() {
-        check(managementPortalUrl != null || !publicKeyUrls.isNullOrEmpty()) {
+        check(managementPortalUrl.isBlank() || publicKeyUrls.isNullOrEmpty()) {
             "At least one of auth.publicKeyUrls or auth.managementPortalUrl must be configured"
         }
     }
