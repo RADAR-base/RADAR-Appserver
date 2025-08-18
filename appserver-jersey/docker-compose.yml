@@ -54,6 +54,8 @@ services:
       - "8080:8080"
     environment:
       JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
-      FCMSERVER_SENDERID: "1043784930865"
-      FCMSERVER_SERVERKEY: "AAAA8wZuFjE:APA91bGpJQ3Sft0mZAaVMjDJGNLjFsdDLTo-37ZN69r4lKlHiRN78t4bCfkNKcXG5c9cJg-eGtWB7FqceQUDVtf7B1Zvw_2ycynqwKe2YqXFeyaq83Gf0R3AS1EKSWFS60GCr8eUEliz"
-      APPSERVER_JDBC_URL: jdbc:postgresql://postgres:5432/radar
+      APPSERVER_JDBC_URL: jdbc:postgresql://postgres:5432/appserver
+      APPSERVER_JDBC_USERNAME: radar
+      APPSERVER_JDBC_PASSWORD: radar
+      APPSERVER_JDBC_DRIVER: org.postgresql.Driver
+      APPSERVER_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
