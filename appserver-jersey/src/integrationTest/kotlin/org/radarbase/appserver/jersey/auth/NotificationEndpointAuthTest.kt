@@ -143,15 +143,14 @@ class NotificationEndpointAuthTest {
     @Test
     fun createBatchNotificationForUser(): Unit = runBlocking {
         val singleNotification = notification
-        val notifications = FcmNotifications()
-            .withNotifications(
-                listOf(
-                    singleNotification.apply {
-                        title = "Test Title 1"
-                        fcmMessageId = "xxxyyyy"
-                    },
-                ),
-            )
+        val notifications = FcmNotifications(
+            mutableListOf(
+                singleNotification.apply {
+                    title = "Test Title 1"
+                    fcmMessageId = "xxxyyyy"
+                },
+            ),
+        )
 
         val response = httpClient.post(
             "$PROJECT_PATH/$DEFAULT_PROJECT/$USER_PATH/$DEFAULT_USER/$NOTIFICATION_PATH/batch",

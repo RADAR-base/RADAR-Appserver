@@ -30,6 +30,7 @@ object Paths {
     const val GITHUB_CONTENT_PATH = "content"
     const val PROTOCOLS_PATH = "protocols"
     const val TASK_ID = "{taskId}"
+    const val TASKS_PATH = "tasks"
     const val QUESTIONNAIRE_SCHEDULE = "questionnaire/schedule"
     const val ALL_KEYWORD = "all"
 }

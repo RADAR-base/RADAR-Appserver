@@ -44,6 +44,7 @@ import org.radarbase.auth.authorization.Permission
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
+import java.net.MalformedURLException
 import java.net.URI
 import java.time.Instant
 import java.util.Locale
@@ -76,7 +77,7 @@ class QuestionnaireScheduleResource @Inject constructor(
                 Response.created(
                     URI("$PROJECTS_PATH/$projectId/$USERS_PATH/$subjectId/$QUESTIONNAIRE_SCHEDULE"),
                 ).build()
-            } catch (ex: Exception) {
+            } catch (ex: MalformedURLException) {
                 Response.status(Response.Status.BAD_REQUEST).entity(
                     "Error while generating schedule: ${ex.message}",
                 )
@@ -104,7 +105,7 @@ class QuestionnaireScheduleResource @Inject constructor(
                 Response.created(
                     URI("$PROJECTS_PATH/$projectId/$USERS_PATH/$subjectId/$QUESTIONNAIRE_SCHEDULE"),
                 ).build()
-            } catch (ex: Exception) {
+            } catch (ex: MalformedURLException) {
                 Response.status(Response.Status.BAD_REQUEST).entity(
                     "Error while generating schedule: ${ex.message}",
                 )
@@ -130,7 +131,6 @@ class QuestionnaireScheduleResource @Inject constructor(
             val endTime: Instant? = endTimeStr?.let { Instant.parse(it) }
             val assessmentType = AssessmentType.valueOf(type.uppercase(Locale.getDefault()))
 
-            var sent = false
             if (startTime != null && endTime != null) {
                 scheduleService.getTasksForDateUsingProjectIdAndSubjectId(
                     projectId,
@@ -138,13 +138,9 @@ class QuestionnaireScheduleResource @Inject constructor(
                     startTime,
                     endTime,
                 ).let {
-                    sent = true
                     Response.ok(it).build()
                 }
-            }
-
-            if (assessmentType != AssessmentType.ALL) {
-                sent = true
+            } else if (assessmentType != AssessmentType.ALL) {
                 Response.ok(
                     scheduleService.getTasksByTypeUsingProjectIdAndSubjectId(
                         projectId,
@@ -153,9 +149,7 @@ class QuestionnaireScheduleResource @Inject constructor(
                         search,
                     ),
                 ).build()
-            }
-
-            if (!sent) {
+            } else {
                 Response.ok(
                     scheduleService.getTasksUsingProjectIdAndSubjectId(
                         projectId,
@@ -169,7 +163,7 @@ class QuestionnaireScheduleResource @Inject constructor(
     @DELETE
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
     fun deleteScheduleForUser(
         @PathParam("projectId") projectId: String,
         @PathParam("subjectId") subjectId: String,

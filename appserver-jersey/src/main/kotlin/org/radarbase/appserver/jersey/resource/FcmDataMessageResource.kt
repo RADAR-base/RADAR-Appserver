@@ -93,7 +93,7 @@ class FcmDataMessageResource @Inject constructor(
     }
 
     @GET
-    @Path("$MESSAGING_DATA_PATH/filter")
+    @Path("$MESSAGING_DATA_PATH/filtered")
     @Produces(APPLICATION_JSON)
     @Authenticated
     @NeedsPermission(Permission.PROJECT_READ)
@@ -201,7 +201,7 @@ class FcmDataMessageResource @Inject constructor(
                 subjectId,
                 projectId,
             ).let {
-                Response.ok().build()
+                Response.ok(it).build()
             }
         }
     }
@@ -262,6 +262,8 @@ class FcmDataMessageResource @Inject constructor(
                 subjectId,
                 id,
             )
+
+            Response.ok().build()
         }
     }
 }

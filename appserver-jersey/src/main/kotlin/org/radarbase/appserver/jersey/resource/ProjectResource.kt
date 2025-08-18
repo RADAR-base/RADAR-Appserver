@@ -82,7 +82,7 @@ class ProjectResource @Inject constructor(
             )
             projectService.addProject(projectDto).let {
                 Response
-                    .created(URI("/projects/project?id=${projectDto.id}"))
+                    .created(URI("/projects/project?id=${it.id}"))
                     .entity(it)
                     .build()
             }

@@ -23,7 +23,7 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
-import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
+import jakarta.ws.rs.core.MediaType.TEXT_PLAIN
 import jakarta.ws.rs.core.Response
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.service.github.GithubService
@@ -47,7 +47,7 @@ class GithubResource @Inject constructor(
 
     @GET
     @Path("/$GITHUB_CONTENT_PATH")
-    @Produces(APPLICATION_JSON)
+    @Produces(TEXT_PLAIN)
     @Authenticated
     @NeedsPermission(Permission.SUBJECT_READ)
     fun getGithubContent(

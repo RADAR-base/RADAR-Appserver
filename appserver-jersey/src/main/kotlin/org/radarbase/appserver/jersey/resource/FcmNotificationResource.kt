@@ -33,6 +33,7 @@ import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.core.Response
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.fcm.FcmNotificationDto
+import org.radarbase.appserver.jersey.dto.fcm.FcmNotifications
 import org.radarbase.appserver.jersey.service.FcmNotificationService
 import org.radarbase.appserver.jersey.utils.Paths.ALL_KEYWORD
 import org.radarbase.appserver.jersey.utils.Paths.MESSAGING_NOTIFICATION_PATH
@@ -40,6 +41,7 @@ import org.radarbase.appserver.jersey.utils.Paths.NOTIFICATION_ID
 import org.radarbase.appserver.jersey.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.SUBJECT_ID
+import org.radarbase.appserver.jersey.utils.Paths.TASKS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.USERS_PATH
 import org.radarbase.appserver.jersey.utils.tokenForCurrentRequest
 import org.radarbase.auth.authorization.EntityDetails
@@ -175,6 +177,7 @@ class FcmNotificationResource(
         @Valid @PathParam("projectId") projectId: String,
         @Valid @PathParam("subjectId") subjectId: String,
         @Valid fcmNotification: FcmNotificationDto,
+        @QueryParam("schedule") @DefaultValue("true") schedule: Boolean,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
@@ -182,6 +185,7 @@ class FcmNotificationResource(
                 fcmNotification,
                 subjectId,
                 projectId,
+                schedule,
             ).let {
                 Response.created(URI("$MESSAGING_NOTIFICATION_PATH/${it.id}")).entity(it).build()
             }
@@ -232,17 +236,17 @@ class FcmNotificationResource(
         @Valid @PathParam("projectId") projectId: String,
         @Valid @PathParam("subjectId") subjectId: String,
         @QueryParam("schedule") @DefaultValue("false") schedule: Boolean,
-        @Valid fcmNotification: FcmNotificationDto,
+        @Valid fcmNotification: FcmNotifications,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            fcmNotificationService.addNotification(
+            fcmNotificationService.addNotifications(
                 fcmNotification,
                 subjectId,
                 projectId,
                 schedule,
             ).let {
-                Response.ok().build()
+                Response.ok(it).build()
             }
         }
     }
@@ -288,7 +292,6 @@ class FcmNotificationResource(
 
     @DELETE
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID")
-    @Produces(APPLICATION_JSON)
     @Authenticated
     @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
     fun deleteNotificationUsingProjectIdAndSubjectIdAndNotificationId(
@@ -303,6 +306,27 @@ class FcmNotificationResource(
                 subjectId,
                 id,
             )
+            Response.ok().build()
+        }
+    }
+
+    @DELETE
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_NOTIFICATION_PATH/$TASKS_PATH/{id}")
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteNotificationUsingProjectIdAndSubjectIdAndTaskId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @PathParam("id") id: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            fcmNotificationService.removeNotificationsForUserUsingTaskId(
+                projectId,
+                subjectId,
+                id,
+            )
+            Response.ok().build()
         }
     }
 }

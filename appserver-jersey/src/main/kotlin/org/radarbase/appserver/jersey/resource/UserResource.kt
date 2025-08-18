@@ -20,6 +20,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Provider
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -79,6 +80,7 @@ class UserResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            fcmUserDto.projectId = projectId
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_UPDATE,
@@ -222,6 +224,22 @@ class UserResource @Inject constructor(
             userService.getUserByProjectIdAndSubjectId(projectId, subjectId).let {
                 Response.ok(it).build()
             }
+        }
+    }
+
+    @DELETE
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteUserUsingProjectIdAndSubjectId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            userService.deleteUserByProjectIdAndSubjectId(projectId, subjectId)
+            Response.ok().build()
         }
     }
 }
