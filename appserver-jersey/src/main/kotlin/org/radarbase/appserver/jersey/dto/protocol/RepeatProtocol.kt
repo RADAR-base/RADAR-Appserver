@@ -17,9 +17,11 @@
 package org.radarbase.appserver.jersey.dto.protocol
 
 import jakarta.validation.constraints.NotNull
+import kotlinx.serialization.Serializable
 import org.radarbase.appserver.jersey.utils.annotation.CheckExactlyOneNotNull
 
 @CheckExactlyOneNotNull(fieldNames = ["amount", "randomAmountBetween"])
+@Serializable
 data class RepeatProtocol(
     @field:NotNull
     var unit: String? = null,

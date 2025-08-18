@@ -3,11 +3,11 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     eclipse
-//    scala
+    scala
     kotlin("kapt")
     kotlin("plugin.allopen")
     kotlin("plugin.noarg")
-//    id("io.gatling.gradle") version Versions.gatlingVersion
+    id("io.gatling.gradle") version Versions.gatlingVersion
     id("org.springframework.boot") version Versions.springBootVersion
     id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
     id("org.radarbase.radar-dependency-management")
@@ -57,24 +57,6 @@ val integrationTestImplementation: Configuration by configurations.getting {
 val integrationTestRuntimeOnly: Configuration by configurations.getting
 
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
-//
-// kotlin {
-//    compilerOptions {
-//        jvmTarget.set(JvmTarget.JVM_17)
-//        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
-//        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
-//    }
-// }
-
-// java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(17))
-//    }
-// }
-
-// tasks.withType<KotlinJvmCompile>().configureEach {
-//    jvmTargetValidationMode.set(JvmTargetValidationMode.ERROR)
-// }
 
 radarDependencies {
     rejectMajorVersionUpdates.set(true)
@@ -87,6 +69,7 @@ radarKotlin {
     junitVersion.set(Versions.junit5Version)
 }
 
+// TODO: Need to use a custom gradle plugin defined for this in buildSrc
 // integrationTestConfig {
 //    sourceSetName = "IntegrationTest"
 //    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -151,7 +134,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutinesVersion}")
     testImplementation("org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlinVersion}")
 
-//    testImplementation("io.gatling.highcharts:gatling-charts-highcharts:3.9.2")
+    testImplementation("io.gatling.highcharts:gatling-charts-highcharts:3.9.2")
 
     implementation("org.liquibase.ext:liquibase-hibernate6:4.20.0")
 
@@ -166,7 +149,7 @@ dependencies {
     testImplementation("org.junit.platform:junit-platform-launcher:1.8.2")
     testImplementation("org.junit.platform:junit-platform-engine:1.8.2")
 
-//    gatlingImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    gatlingImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }
 
 ktlint {
@@ -229,30 +212,3 @@ tasks.register<Copy>("unpack") {
     into(layout.buildDirectory.dir("dependency"))
 }
 
-// tasks.register("downloadDependencies") {
-//    description = "Pre download dependencies"
-//
-//    doLast {
-//        configurations.compileClasspath.get().files
-//        configurations.runtimeClasspath.get().files
-//    }
-// }
-//
-// tasks.register<Copy>("copyDependencies") {
-//    from(configurations.runtimeClasspath)
-//    into(layout.buildDirectory.dir("third-party"))
-// }
-
-val isNonStable: (String) -> Boolean = { version: String ->
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any {
-        version.uppercase().contains(it)
-    }
-    val regex = Regex("^[0-9,.v-]+(-r)?$")
-    !stableKeyword && !(regex.matches(version))
-}
-
-// tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
-//    rejectVersionIf {
-//        isNonStable(candidate.version)
-//    }
-// }

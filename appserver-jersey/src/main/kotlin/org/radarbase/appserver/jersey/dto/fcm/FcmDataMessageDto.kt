@@ -28,9 +28,9 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
     var id: Long? = dataMessageEntity?.id
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var scheduledTime: @NotNull Instant? = dataMessageEntity?.scheduledTime
 
@@ -62,91 +62,35 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
     var mutableContent: Boolean = dataMessageEntity?.mutableContent == true
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
-    var createdAt: Instant? = dataMessageEntity?.createdAt
+    var createdAt: Instant? = dataMessageEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
-    var updatedAt: Instant? = dataMessageEntity?.updatedAt
-
-    fun withCreatedAt(createdAt: Instant?): FcmDataMessageDto = apply {
-        this.createdAt = createdAt
-    }
-
-    fun withUpdatedAt(updatedAt: Instant?): FcmDataMessageDto = apply {
-        this.updatedAt = updatedAt
-    }
-
-    fun withId(id: Long?): FcmDataMessageDto = apply {
-        this.id = id
-    }
-
-    fun withScheduledTime(scheduledTime: Instant?): FcmDataMessageDto = apply {
-        this.scheduledTime = scheduledTime
-    }
-
-    fun withDelivered(delivered: Boolean): FcmDataMessageDto = apply {
-        this.delivered = delivered
-    }
-
-    fun withTtlSeconds(ttlSeconds: Int): FcmDataMessageDto = apply {
-        this.ttlSeconds = ttlSeconds
-    }
-
-    fun withFcmMessageId(fcmMessageId: String?): FcmDataMessageDto = apply {
-        this.fcmMessageId = fcmMessageId
-    }
-
-    fun withSourceId(sourceId: String?): FcmDataMessageDto = apply {
-        this.sourceId = sourceId
-    }
-
-    fun withAppPackage(appPackage: String?): FcmDataMessageDto = apply {
-        this.appPackage = appPackage
-    }
-
-    fun withSourceType(sourceType: String?): FcmDataMessageDto = apply {
-        this.sourceType = sourceType
-    }
-
-    fun withDataMap(dataMap: MutableMap<String?, String?>?): FcmDataMessageDto = apply {
-        this.dataMap = dataMap
-    }
-
-    fun withFcmTopic(fcmTopic: String?): FcmDataMessageDto = apply {
-        this.fcmTopic = fcmTopic
-    }
-
-    fun withFcmCondition(fcmCondition: String?): FcmDataMessageDto = apply {
-        this.fcmCondition = fcmCondition
-    }
-
-    fun withPriority(priority: String?): FcmDataMessageDto = apply {
-        this.priority = priority
-    }
-
-    fun withMutableContent(mutableContent: Boolean): FcmDataMessageDto = apply {
-        this.mutableContent = mutableContent
-    }
+    var updatedAt: Instant? = dataMessageEntity?.updatedAt?.toInstant()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FcmDataMessageDto) return false
         val that = other
-        return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime
-                && appPackage == that.appPackage
-                && sourceType == that.sourceType
+        return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime &&
+            appPackage == that.appPackage &&
+            sourceType == that.sourceType
     }
 
     override fun hashCode(): Int {
         return Objects.hash(
-            scheduledTime, delivered, ttlSeconds, appPackage, sourceType
+            scheduledTime,
+            delivered,
+            ttlSeconds,
+            appPackage,
+            sourceType,
         )
     }
 

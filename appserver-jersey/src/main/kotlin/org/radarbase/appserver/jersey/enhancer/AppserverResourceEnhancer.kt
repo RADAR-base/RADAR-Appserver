@@ -19,10 +19,15 @@ package org.radarbase.appserver.jersey.enhancer
 import com.google.common.eventbus.EventBus
 import com.google.firebase.FirebaseOptions
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.quartz.JobListener
+import org.quartz.Scheduler
+import org.quartz.SchedulerListener
+import org.radarbase.appserver.jersey.application.event.EventBusStartupListener
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.FcmServerConfig
 import org.radarbase.appserver.jersey.dto.ProjectDto
@@ -38,18 +43,41 @@ import org.radarbase.appserver.jersey.event.listener.TaskStateEventListener
 import org.radarbase.appserver.jersey.event.listener.quartz.QuartzMessageJobListener
 import org.radarbase.appserver.jersey.event.listener.quartz.QuartzMessageSchedulerListener
 import org.radarbase.appserver.jersey.exception.handler.UnhandledExceptionMapper
+import org.radarbase.appserver.jersey.factory.coroutines.SchedulerScopedCoroutine
 import org.radarbase.appserver.jersey.factory.event.EventBusFactory
 import org.radarbase.appserver.jersey.factory.fcm.FcmSenderFactory
 import org.radarbase.appserver.jersey.factory.fcm.FirebaseOptionsFactory
+import org.radarbase.appserver.jersey.factory.quartz.QuartzSchedulerFactory
+import org.radarbase.appserver.jersey.factory.scheduling.SchedulingServiceFactory
 import org.radarbase.appserver.jersey.fcm.downstream.FcmSender
+import org.radarbase.appserver.jersey.mapper.DataMessageMapper
 import org.radarbase.appserver.jersey.mapper.Mapper
+import org.radarbase.appserver.jersey.mapper.NotificationMapper
 import org.radarbase.appserver.jersey.mapper.ProjectMapper
 import org.radarbase.appserver.jersey.mapper.UserMapper
+import org.radarbase.appserver.jersey.repository.DataMessageRepository
+import org.radarbase.appserver.jersey.repository.DataMessageStateEventRepository
+import org.radarbase.appserver.jersey.repository.NotificationRepository
+import org.radarbase.appserver.jersey.repository.NotificationStateEventRepository
 import org.radarbase.appserver.jersey.repository.ProjectRepository
+import org.radarbase.appserver.jersey.repository.TaskRepository
+import org.radarbase.appserver.jersey.repository.TaskStateEventRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
+import org.radarbase.appserver.jersey.repository.impl.DataMessageRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.DataMessageStateEventRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.NotificationRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.ProjectRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.TaskRepositoryImpl
+import org.radarbase.appserver.jersey.repository.impl.TaskStateEventRepositoryImpl
 import org.radarbase.appserver.jersey.repository.impl.UserRepositoryImpl
+import org.radarbase.appserver.jersey.service.DataMessageStateEventService
+import org.radarbase.appserver.jersey.service.FcmDataMessageService
+import org.radarbase.appserver.jersey.service.FcmNotificationService
+import org.radarbase.appserver.jersey.service.NotificationStateEventService
 import org.radarbase.appserver.jersey.service.ProjectService
+import org.radarbase.appserver.jersey.service.TaskService
+import org.radarbase.appserver.jersey.service.TaskStateEventService
 import org.radarbase.appserver.jersey.service.UserService
 import org.radarbase.appserver.jersey.service.github.GithubClient
 import org.radarbase.appserver.jersey.service.github.GithubService
@@ -57,32 +85,15 @@ import org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStr
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
 import org.radarbase.appserver.jersey.service.github.protocol.impl.DefaultProtocolGenerator
 import org.radarbase.appserver.jersey.service.github.protocol.impl.GithubProtocolFetcherStrategy
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.QuestionnaireScheduleGeneratorService
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.ScheduleGeneratorService
-import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
-import org.radarbase.appserver.jersey.factory.scheduling.SchedulingServiceFactory
-import org.radarbase.appserver.jersey.mapper.DataMessageMapper
-import org.radarbase.appserver.jersey.mapper.NotificationMapper
-import org.radarbase.appserver.jersey.repository.DataMessageRepository
-import org.radarbase.appserver.jersey.repository.DataMessageStateEventRepository
-import org.radarbase.appserver.jersey.repository.NotificationRepository
-import org.radarbase.appserver.jersey.repository.NotificationStateEventRepository
-import org.radarbase.appserver.jersey.repository.TaskRepository
-import org.radarbase.appserver.jersey.repository.TaskStateEventRepository
-import org.radarbase.appserver.jersey.repository.impl.DataMessageRepositoryImpl
-import org.radarbase.appserver.jersey.repository.impl.DataMessageStateEventRepositoryImpl
-import org.radarbase.appserver.jersey.repository.impl.NotificationRepositoryImpl
-import org.radarbase.appserver.jersey.repository.impl.NotificationStateEventRepositoryImpl
-import org.radarbase.appserver.jersey.repository.impl.TaskRepositoryImpl
-import org.radarbase.appserver.jersey.repository.impl.TaskStateEventRepositoryImpl
-import org.radarbase.appserver.jersey.service.DataMessageService
-import org.radarbase.appserver.jersey.service.FcmDataMessageService
-import org.radarbase.appserver.jersey.service.FcmNotificationService
-import org.radarbase.appserver.jersey.service.TaskService
 import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
+import org.radarbase.appserver.jersey.service.quartz.SchedulerService
 import org.radarbase.appserver.jersey.service.quartz.SchedulerServiceImpl
 import org.radarbase.appserver.jersey.service.quartz.SimpleQuartzNamingStrategy
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.MessageSchedulerService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.MessageSchedulerService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.ScheduleGeneratorService
+import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.service.transmitter.DataMessageTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.FcmTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.NotificationTransmitter
@@ -115,28 +126,32 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(UserRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(DataMessageRepository::class.java)
-            .to(DataMessageRepositoryImpl::class.java)
+        bind(DataMessageRepositoryImpl::class.java)
+            .to(DataMessageRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(NotificationRepository::class.java)
-            .to(NotificationRepositoryImpl::class.java)
+        bind(NotificationRepositoryImpl::class.java)
+            .to(NotificationRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(TaskRepository::class.java)
-            .to(TaskRepositoryImpl::class.java)
+        bind(TaskRepositoryImpl::class.java)
+            .to(TaskRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(DataMessageStateEventRepository::class.java)
-            .to(DataMessageStateEventRepositoryImpl::class.java)
+        bind(DataMessageStateEventRepositoryImpl::class.java)
+            .to(DataMessageStateEventRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(NotificationStateEventRepository::class.java)
-            .to(NotificationStateEventRepositoryImpl::class.java)
+        bind(NotificationStateEventRepositoryImpl::class.java)
+            .to(NotificationStateEventRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(TaskStateEventRepository::class.java)
-            .to(TaskStateEventRepositoryImpl::class.java)
+        bind(TaskStateEventRepositoryImpl::class.java)
+            .to(TaskStateEventRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskStateEventService::class.java)
+            .to(TaskStateEventService::class.java)
             .`in`(Singleton::class.java)
 
         bind(ProjectMapper::class.java)
@@ -199,30 +214,40 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(ScheduleGeneratorService::class.java)
             .`in`(Singleton::class.java)
 
+        bind(QuestionnaireScheduleService::class.java)
+            .to(QuestionnaireScheduleService::class.java)
+            .`in`(Singleton::class.java)
+
         bind(QuartzMessageSchedulerListener::class.java)
-            .to(QuartzMessageSchedulerListener::class.java)
+            .to(SchedulerListener::class.java)
             .`in`(Singleton::class.java)
 
         bind(QuartzMessageJobListener::class.java)
-            .to(QuartzMessageJobListener::class.java)
+            .to(JobListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(SchedulerServiceImpl::class.java)
+            .to(SchedulerService::class.java)
             .`in`(Singleton::class.java)
 
         bind(MessageSchedulerService::class.java)
-            .to(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
+        bind(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<DataMessage>>() {}.type)
             .`in`(Singleton::class.java)
 
         bind(SimpleQuartzNamingStrategy::class.java)
             .to(QuartzNamingStrategy::class.java)
             .`in`(Singleton::class.java)
 
-        bind(SchedulerServiceImpl::class.java)
-            .to(SchedulingService::class.java)
+        bind(FcmTransmitter::class.java)
+            .to(NotificationTransmitter::class.java)
             .`in`(Singleton::class.java)
 
         bind(FcmTransmitter::class.java)
             .to(DataMessageTransmitter::class.java)
-            .to(NotificationTransmitter::class.java)
-            .to(FcmTransmitter::class.java)
             .`in`(Singleton::class.java)
 
         bind(TaskStateEventListener::class.java)
@@ -233,8 +258,24 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
             .to(MessageStateEventListener::class.java)
             .`in`(Singleton::class.java)
 
+        bind(DataMessageStateEventService::class.java)
+            .to(DataMessageStateEventService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationStateEventService::class.java)
+            .to(NotificationStateEventService::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(SchedulerScopedCoroutine::class.java)
+            .to(CoroutineScope::class.java)
+            .`in`(Singleton::class.java)
+
         bindFactory(EventBusFactory::class.java)
             .to(EventBus::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(QuartzSchedulerFactory::class.java)
+            .to(Scheduler::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(SchedulingServiceFactory::class.java)
@@ -248,11 +289,29 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
         bindFactory(FcmSenderFactory::class.java)
             .to(FcmSender::class.java)
             .`in`(Singleton::class.java)
+
+        bind(UnverifiedProjectService::class.java)
+            .to(org.radarbase.jersey.service.ProjectService::class.java)
+            .`in`(Singleton::class.java)
     }
 
     override fun ResourceConfig.enhance() {
         register(ValidationFeature::class.java)
         register(UnhandledExceptionMapper::class.java)
+        register(EventBusStartupListener::class.java)
+    }
+
+    /** Project service without validation of the project's existence. */
+    class UnverifiedProjectService : org.radarbase.jersey.service.ProjectService {
+        override suspend fun ensureOrganization(organizationId: String) = Unit
+
+        override suspend fun ensureProject(projectId: String) = Unit
+
+        override suspend fun ensureSubject(projectId: String, userId: String) = Unit
+
+        override suspend fun listProjects(organizationId: String): List<String> = emptyList()
+
+        override suspend fun projectOrganization(projectId: String): String = "main"
     }
 
     companion object {

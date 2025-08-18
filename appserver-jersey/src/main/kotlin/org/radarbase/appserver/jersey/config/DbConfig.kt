@@ -16,7 +16,13 @@
 
 package org.radarbase.appserver.jersey.config
 
+import org.radarbase.appserver.jersey.entity.DataMessage
+import org.radarbase.appserver.jersey.entity.DataMessageStateEvent
+import org.radarbase.appserver.jersey.entity.Notification
+import org.radarbase.appserver.jersey.entity.NotificationStateEvent
 import org.radarbase.appserver.jersey.entity.Project
+import org.radarbase.appserver.jersey.entity.Task
+import org.radarbase.appserver.jersey.entity.TaskStateEvent
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.entity.UserMetrics
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
@@ -26,11 +32,17 @@ data class DbConfig(
         Project::class.qualifiedName!!,
         User::class.qualifiedName!!,
         UserMetrics::class.qualifiedName!!,
+        Task::class.qualifiedName!!,
+        Notification::class.qualifiedName!!,
+        DataMessage::class.qualifiedName!!,
+        TaskStateEvent::class.qualifiedName!!,
+        NotificationStateEvent::class.qualifiedName!!,
+        DataMessageStateEvent::class.qualifiedName!!,
     ),
-    val jdbcDriver: String? = null,
-    val jdbcUrl: String? = null,
-    val username: String? = null,
-    val password: String? = null,
+    val jdbcDriver: String = "org.postgresql.Driver",
+    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver",
+    val username: String = "radar",
+    val password: String = "radar",
     val hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",
     val additionalProperties: Map<String, String> = emptyMap(),
     val liquibase: LiquibaseConfig = LiquibaseConfig(),
@@ -38,7 +50,7 @@ data class DbConfig(
     override fun validate() {
         checkInvalidDetails<IllegalStateException>(
             {
-                jdbcDriver.isNullOrBlank() || jdbcUrl.isNullOrBlank()
+                jdbcDriver.isBlank() || jdbcUrl.isBlank()
             },
             {
                 "JDBC driver and URL must not be null or empty"

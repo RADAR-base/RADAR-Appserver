@@ -28,7 +28,6 @@ import org.radarbase.appserver.jersey.mapper.ProjectMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.utils.checkInvalidProjectDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
-import org.radarbase.jersey.exception.HttpNotFoundException
 import org.slf4j.LoggerFactory
 
 /**
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory
 @Suppress("unused")
 class ProjectService @Inject constructor(
     private val projectRepository: ProjectRepository,
-    @Named(PROJECT_MAPPER) private val projectMapper: Mapper<ProjectDto, Project>,
+    @param:Named(PROJECT_MAPPER) private val projectMapper: Mapper<ProjectDto, Project>,
 ) {
     /**
      * Retrieves all projects from the repository.
@@ -100,8 +99,6 @@ class ProjectService @Inject constructor(
     suspend fun addProject(projectDTO: ProjectDto): ProjectDto {
         val projectId: String? = projectDTO.projectId
 
-        logger.info("Adding project with id $projectId adding to project")
-
         checkInvalidProjectDetails(
             projectDTO,
             { projectDTO.id != null },
@@ -139,30 +136,11 @@ class ProjectService @Inject constructor(
      * @throws org.radarbase.jersey.exception.HttpNotFoundException if the project to update does not exist
      */
     suspend fun updateProject(projectDto: ProjectDto): ProjectDto {
-        checkInvalidProjectDetails(
-            projectDto,
-            { projectDto.id == null },
-            { "The 'id' of the project must be supplied for updating project" },
-        )
-
-        val project = projectRepository.find(projectDto.id!!) ?: throw HttpNotFoundException(
-            "project_not_found",
-            "Project with id ${projectDto.id} does not exists. Please create project first",
-        )
-
-        project.apply {
-            projectId = projectDto.projectId
-        }
-
-        val savedProject = projectRepository.update(project)
-            ?: throw HttpNotFoundException(
-                "project_not_found",
-                "Project with id ${projectDto.id} does not exists. Please create project first",
-            )
-
-        println("Project updated successfully: $savedProject")
-        return projectMapper.entityToDto(savedProject).also {
-            println("Sending: $it")
+        return projectRepository.updateEfficiently(projectDto).let { savedProject ->
+            println("Project updated successfully: $savedProject")
+            projectMapper.entityToDto(savedProject).also {
+                println("Sending: $it")
+            }
         }
     }
 

@@ -14,32 +14,16 @@
  * limitations under the License.
  */
 
-/*
- *
- *  *
- *  *  * Copyright 2018 King's College London
- *  *  *
- *  *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  *  * you may not use this file except in compliance with the License.
- *  *  * You may obtain a copy of the License at
- *  *  *
- *  *  *   http://www.apache.org/licenses/LICENSE-2.0
- *  *  *
- *  *  * Unless required by applicable law or agreed to in writing, software
- *  *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  *  * See the License for the specific language governing permissions and
- *  *  * limitations under the License.
- *  *  *
- *  *
- *
- */
-
 package org.radarbase.appserver.jersey.utils
 
+import jakarta.inject.Provider
 import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.exception.InvalidProjectDetailsException
+import org.radarbase.auth.token.DataRadarToken
+import org.radarbase.auth.token.RadarToken
+import org.radarbase.jersey.exception.HttpForbiddenException
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.service.AsyncCoroutineService
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -54,11 +38,13 @@ inline fun <T : Any> checkPresence(value: T?, code: String, messageProvider: () 
     }
 
     if (value == null) {
-        throw HttpNotFoundException(code,messageProvider())
+        throw HttpNotFoundException(code, messageProvider())
     } else {
         return value
     }
 }
+
+fun <T> requireNotNullField(value: T?, fieldName: String): T = checkNotNull(value) { "$fieldName cannot be null" }
 
 /**
  * Validates a condition for the given project details and throws [InvalidProjectDetailsException]
@@ -69,6 +55,7 @@ inline fun <T : Any> checkPresence(value: T?, code: String, messageProvider: () 
  * @param messageProvider a lambda providing the error message for the exception
  * @throws InvalidProjectDetailsException if the validation fails
  */
+@Suppress("UNUSED_PARAMETER")
 inline fun checkInvalidProjectDetails(
     projectDTO: ProjectDto,
     invalidation: () -> Boolean,
@@ -98,5 +85,42 @@ inline fun <reified E : Exception> checkInvalidDetails(
         throw E::class.java.getDeclaredConstructor(
             String::class.java,
         ).newInstance(messageProvider())
+    }
+}
+
+/**
+ * Throws an exception of type [E] if the given [shouldInvalidate] is true.
+ *
+ * After this function returns normally, Kotlin’s flow analysis knows that
+ * `shouldInvalidate` is false, so any value checked by it can be treated
+ * as “valid” (eg: non‑null).
+ *
+ * @param shouldInvalidate A Boolean expression: if true, an [E] is thrown.
+ * @param messageProvider  Supplies the exception message when invalidation occurs.
+ * @throws E if [shouldInvalidate] is true.
+ */
+@OptIn(ExperimentalContracts::class)
+inline fun <reified E : Exception> checkInvalidDetails(
+    shouldInvalidate: Boolean,
+    messageProvider: () -> String,
+) {
+    contract {
+        returns() implies (!shouldInvalidate)
+    }
+    if (shouldInvalidate) {
+        throw E::class.java
+            .getDeclaredConstructor(String::class.java)
+            .newInstance(messageProvider())
+    }
+}
+
+suspend inline fun tokenForCurrentRequest(
+    asyncService: AsyncCoroutineService,
+    tokenProvider: Provider<RadarToken>,
+): RadarToken = asyncService.runInRequestScope {
+    try {
+        DataRadarToken(tokenProvider.get())
+    } catch (_: Throwable) {
+        throw HttpForbiddenException("unauthorized", "User without authentication does not have permission.")
     }
 }

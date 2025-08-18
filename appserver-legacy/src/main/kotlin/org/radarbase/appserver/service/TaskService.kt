@@ -51,7 +51,7 @@ class TaskService(
     private val eventPublisher: ApplicationEventPublisher?,
 ) {
     @Transactional(readOnly = true)
-    fun getAllProjects(): List<Task> {
+    fun getAllTasks(): List<Task> {
         return taskRepository.findAll()
     }
 

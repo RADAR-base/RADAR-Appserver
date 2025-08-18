@@ -29,7 +29,7 @@ fun interface CustomThrowingFunction<in T, out R> {
     /**
      * Applies the given transformation logic on the input of type T and returns a result of type R.
      *
-     * @param t The input parameter of type T on which the operation is to be applied.
+     * @param key The input parameter of type T on which the operation is to be applied.
      * @return The result of the operation as an instance of type R.
      * @throws Exception If an exception occurs during the application of the transformation.
      */

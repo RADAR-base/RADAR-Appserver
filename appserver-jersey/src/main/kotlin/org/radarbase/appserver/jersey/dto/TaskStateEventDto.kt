@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule.notification
+package org.radarbase.appserver.jersey.dto
 
-enum class NotificationType {
-    SOON,
-    NOW,
-    REMINDER,
-    MISSED_SOON,
-    MISSED,
-    TEST,
-    OTHER
-}
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import org.radarbase.appserver.jersey.event.state.TaskState
+import java.time.Instant
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TaskStateEventDto(
+    var id: Long? = null,
+    var taskId: Long? = null,
+    var state: TaskState? = null,
+    var time: Instant? = null,
+    var associatedInfo: String? = null,
+)

@@ -36,7 +36,8 @@ class NotificationStateEventRepositoryImpl(
         createQuery(
             """SELECT COUNT(n) 
             FROM NotificationStateEvent n 
-            WHERE n.id = :id""".trimIndent(),
+            WHERE n.id = :id
+            """.trimIndent(),
             Long::class.java,
         ).setParameter("id", id)
             .singleResult > 0

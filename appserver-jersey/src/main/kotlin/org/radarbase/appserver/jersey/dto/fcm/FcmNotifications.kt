@@ -23,17 +23,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.Objects
 
-class FcmNotifications {
-
+class FcmNotifications(
     @field:Size(max = 200)
-    private var _notifications: MutableList<FcmNotificationDto> = mutableListOf()
+    private val _notifications: MutableList<FcmNotificationDto>,
+) {
 
     val notifications: List<FcmNotificationDto>
-        get() = _notifications
-
-    fun withNotifications(notifications: List<FcmNotificationDto>): FcmNotifications = apply {
-        this._notifications = notifications.toMutableList()
-    }
+        get() = _notifications.toMutableList()
 
     fun addNotification(notificationDto: FcmNotificationDto): FcmNotifications = apply {
         if (!_notifications.contains(notificationDto)) {
@@ -55,7 +51,6 @@ class FcmNotifications {
     override fun hashCode(): Int {
         return Objects.hash(_notifications)
     }
-
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(FcmNotifications::class.java)

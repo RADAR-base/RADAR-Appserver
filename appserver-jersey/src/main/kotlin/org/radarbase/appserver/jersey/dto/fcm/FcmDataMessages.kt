@@ -22,18 +22,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.Objects
 
-class FcmDataMessages {
-
+class FcmDataMessages(
     @field:Size(max = 200)
-    private var _dataMessages: MutableList<FcmDataMessageDto> = mutableListOf()
+    private val _dataMessages: MutableList<FcmDataMessageDto>,
+) {
 
     val dataMessages: List<FcmDataMessageDto>
         get() = _dataMessages
-
-    fun withDataMessages(dataMessages: List<FcmDataMessageDto>): FcmDataMessages {
-        this._dataMessages = dataMessages.toMutableList()
-        return this
-    }
 
     fun addDataMessage(dataMessageDto: FcmDataMessageDto): FcmDataMessages {
         if (!_dataMessages.contains(dataMessageDto)) {
@@ -52,7 +47,6 @@ class FcmDataMessages {
     override fun hashCode(): Int {
         return Objects.hash(_dataMessages)
     }
-
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(FcmDataMessages::class.java)

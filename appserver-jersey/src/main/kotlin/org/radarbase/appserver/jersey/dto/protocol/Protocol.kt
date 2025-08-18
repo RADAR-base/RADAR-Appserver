@@ -16,12 +16,15 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import kotlinx.serialization.Serializable
+
 /**
  * Data Transfer object (DTO) for Protocol. A project may represent a `Protocol` for scheduling
  * questionnaires.
  *
  * @see <a href="https://github.com/RADAR-base/RADAR-aRMT-protocols">aRMT Protocols</a>
  */
+@Serializable
 data class Protocol(
     var version: String? = null,
     var schemaVersion: String? = null,

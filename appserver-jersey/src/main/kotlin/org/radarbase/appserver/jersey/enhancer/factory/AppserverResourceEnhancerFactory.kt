@@ -44,9 +44,7 @@ class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : En
             user = config.db.username,
             password = config.db.password,
             dialect = config.db.hibernateDialect,
-            properties = mapOf(
-                "jakarta.persistence.schema-generation.database.action" to "drop-and-create",
-            ),
+            properties = config.db.additionalProperties,
             liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
             ),

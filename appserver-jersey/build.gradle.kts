@@ -1,11 +1,9 @@
 plugins {
     application
+    kotlin("plugin.serialization") version Versions.kotlinVersion
     id("org.radarbase.radar-kotlin") version Versions.radarCommonsVersion
     kotlin("plugin.allopen")
     kotlin("plugin.noarg")
-    id("org.jetbrains.kotlin.plugin.spring")
-    id("org.jetbrains.kotlin.plugin.jpa")
-
 }
 
 application {
@@ -19,7 +17,6 @@ application {
         "-Dcom.sun.management.jmxremote.ssl=false",
     )
 }
-
 
 description = "RADAR Appserver for scheduling tasks and notifications."
 
@@ -51,11 +48,9 @@ allOpen {
 }
 
 dependencies {
-//    implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
-//    implementation("org.radarbase:radar-commons:${Versions.radarCommons}")
-//    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommonsVersion}")
     implementation("org.radarbase:radar-jersey:${Versions.radarJerseyVersion}")
     implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {
         runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
@@ -76,27 +71,24 @@ dependencies {
             }
         }
     }
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
     implementation("com.google.guava:guava:32.1.3-jre")
     implementation("org.quartz-scheduler:quartz:2.5.0")
 
-//    implementation("org.radarbase:managementportal-client:${Versions.radarAuth}")
-//    implementation("org.radarbase:lzfse-decode:${Versions.lzfse}")
-//    implementation("org.radarbase:radar-auth:${Versions.radarAuth}")
+    testImplementation("io.mockk:mockk:1.14.4")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
+    testImplementation("org.hamcrest:hamcrest:2.1")
+    testImplementation("org.assertj:assertj-core:3.24.2")
 
-//    implementation(platform("io.ktor:ktor-bom:${Versions.ktor}"))
-//    implementation("io.ktor:ktor-client-auth")
+    integrationTestImplementation(platform("io.ktor:ktor-bom:${Versions.ktorVersion}"))
+    integrationTestImplementation("io.ktor:ktor-client-content-negotiation")
+    integrationTestImplementation("io.ktor:ktor-serialization-kotlinx-json")
+}
 
-//    runtimeOnly("org.glassfish.grizzly:grizzly-framework-monitoring:${Versions.grizzly}")
-//    runtimeOnly("org.glassfish.grizzly:grizzly-http-monitoring:${Versions.grizzly}")
-//    runtimeOnly("org.glassfish.grizzly:grizzly-http-server-monitoring:${Versions.grizzly}")
-//
-//    testImplementation("org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}")
-//    testImplementation("org.hamcrest:hamcrest:${Versions.hamcrest}")
-//    testImplementation("com.squareup.okhttp3:mockwebserver:${Versions.okHttp}")
-
-//    integrationTestImplementation(platform("io.ktor:ktor-bom:${Versions.ktor}"))
-//    integrationTestImplementation("io.ktor:ktor-client-content-negotiation")
-//    integrationTestImplementation("io.ktor:ktor-serialization-kotlinx-json")
+ktlint {
+    ignoreFailures.set(false)
+    outputColorName.set("RED")
 }
 
 radarKotlin {

@@ -37,4 +37,4 @@ class MessageStateEvent(
 
     @Column(name = "associated_info", length = 1250)
     var associatedInfo: String? = null,
-    )
+)

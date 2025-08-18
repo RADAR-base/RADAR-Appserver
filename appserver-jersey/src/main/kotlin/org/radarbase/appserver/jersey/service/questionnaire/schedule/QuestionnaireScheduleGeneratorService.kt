@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule
+package org.radarbase.appserver.jersey.service.questionnaire.schedule
 
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
 import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
@@ -84,15 +84,21 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     override fun getReminderHandler(assessment: Assessment): ProtocolHandler? {
         return if (assessment.type == AssessmentType.CLINICAL) {
             null
-        } else ReminderHandlerFactory.reminderHandler
+        } else {
+            ReminderHandlerFactory.reminderHandler
+        }
     }
 
     override fun getCompletedQuestionnaireHandler(
-        assessment: Assessment, prevTasks: List<Task>, prevTimezone: String
+        assessment: Assessment,
+        prevTasks: List<Task>,
+        prevTimezone: String,
     ): ProtocolHandler? {
         return if (assessment.type == AssessmentType.CLINICAL) {
             null
-        } else CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
+        } else {
+            CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
+        }
     }
 
     companion object {

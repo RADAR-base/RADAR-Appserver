@@ -16,22 +16,17 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import org.radarbase.appserver.jersey.utils.deserializer.ReferenceTimestampDeserializer
+import kotlinx.serialization.Serializable
+import org.radarbase.appserver.jersey.serialization.ReferenceTimestampSerializer
 
+@Serializable
 data class AssessmentProtocol(
     var repeatProtocol: RepeatProtocol? = null,
     var reminders: ReminderTimePeriod? = null,
     var completionWindow: TimePeriod? = null,
     var repeatQuestionnaire: RepeatQuestionnaire? = null,
+    @Serializable(with = ReferenceTimestampSerializer::class)
     var referenceTimestamp: ReferenceTimestamp? = null,
     var clinicalProtocol: ClinicalProtocol? = null,
     var notification: NotificationProtocol = NotificationProtocol(),
-) {
-    @JsonDeserialize(using = ReferenceTimestampDeserializer::class)
-    fun setReferenceTimestamp(responseObject: Any?) {
-        if (responseObject is ReferenceTimestamp) {
-            this.referenceTimestamp = responseObject
-        }
-    }
-}
+)

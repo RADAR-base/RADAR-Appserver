@@ -19,8 +19,11 @@ package org.radarbase.appserver.jersey.repository.impl
 import jakarta.inject.Provider
 import jakarta.persistence.EntityManager
 import jakarta.ws.rs.core.Context
+import org.radarbase.appserver.jersey.dto.ProjectDto
 import org.radarbase.appserver.jersey.entity.Project
+import org.radarbase.appserver.jersey.exception.InvalidProjectDetailsException
 import org.radarbase.appserver.jersey.repository.ProjectRepository
+import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.service.AsyncCoroutineService
 
@@ -43,7 +46,8 @@ class ProjectRepositoryImpl(
         createQuery(
             """SELECT COUNT(p)
                 FROM Project p 
-                WHERE p.id = :id""".trimIndent(),
+                WHERE p.id = :id
+            """.trimIndent(),
             Long::class.java,
         ).setParameter(
             "id", id,
@@ -54,7 +58,8 @@ class ProjectRepositoryImpl(
         createQuery(
             """SELECT COUNT(p) 
                 FROM Project p 
-                WHERE p.projectId = :projectId""".trimIndent(),
+                WHERE p.projectId = :projectId
+            """.trimIndent(),
             Long::class.java,
         ).setParameter(
             "projectId", projectId,
@@ -67,8 +72,42 @@ class ProjectRepositoryImpl(
 
     override suspend fun delete(entity: Project) = Unit // Not needed
 
-    override suspend fun update(entity: Project): Project? = transact {
+    override suspend fun update(entity: Project): Project = transact {
         merge(entity)
+    }
+
+    /**
+     * Efficient way to update the project by retrieving and updating the retrieved persistent project entity Instead of doing it in two transactions.
+     */
+    override suspend fun updateEfficiently(dto: ProjectDto): Project = transact {
+        val projectId = try {
+            requireNotNull(dto.id)
+        } catch (_: IllegalArgumentException) {
+            throw InvalidProjectDetailsException("The 'id' of the project must be supplied for updating project")
+        }
+
+        val project = find(Project::class.java, projectId) ?: throw HttpNotFoundException(
+            "project_not_found",
+            "Project with id $projectId does not exists. Please create project first",
+        )
+
+        val projectExists = createQuery(
+            """SELECT COUNT(p) 
+                FROM Project p 
+                WHERE p.projectId = :projectId
+            """.trimIndent(),
+            Long::class.java,
+        ).setParameter(
+            "projectId", dto.projectId,
+        ).singleResult > 0
+
+        if (projectExists) {
+            throw InvalidProjectDetailsException("Project with id $projectId already exists.")
+        }
+
+        project.apply {
+            this.projectId = dto.projectId
+        }
     }
 
     override suspend fun findAll(): List<Project> = transact {

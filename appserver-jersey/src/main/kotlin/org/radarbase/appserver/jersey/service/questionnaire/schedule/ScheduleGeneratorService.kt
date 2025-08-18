@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule
+package org.radarbase.appserver.jersey.service.questionnaire.schedule
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

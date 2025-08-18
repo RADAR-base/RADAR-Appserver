@@ -26,8 +26,8 @@ import java.util.Base64
 import java.util.function.Supplier
 
 class FirebaseOptionsFactory @Inject constructor(
-    private val serverConfig: FcmServerConfig
-): Supplier<FirebaseOptions> {
+    private val serverConfig: FcmServerConfig,
+) : Supplier<FirebaseOptions> {
     override fun get(): FirebaseOptions {
         var googleCredentials: GoogleCredentials? = null
 

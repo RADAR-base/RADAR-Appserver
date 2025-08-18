@@ -16,22 +16,24 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Suppress("unused")
+@Serializable
 enum class ReferenceTimestampType {
-    @JsonProperty("date")
+    @SerialName("date")
     DATE,
 
-    @JsonProperty("datetime")
+    @SerialName("datetime")
     DATETIME,
 
-    @JsonProperty("datetimeutc")
+    @SerialName("datetimeutc")
     DATETIMEUTC,
 
-    @JsonProperty("now")
+    @SerialName("now")
     NOW,
 
-    @JsonProperty("today")
+    @SerialName("today")
     TODAY,
 }

@@ -17,12 +17,14 @@
 package org.radarbase.appserver.jersey.dto.protocol
 
 import jakarta.validation.constraints.NotNull
+import kotlinx.serialization.Serializable
 import org.radarbase.appserver.jersey.utils.annotation.CheckExactlyOneNotNull
 
 /**
  * Data Transfer object (DTO) for RepeatQuestionnaire. Handles repeat configurations for questionnaires.
  */
 @CheckExactlyOneNotNull(fieldNames = ["unitsFromZero", "randomUnitsFromZeroBetween", "dayOfWeekMap"])
+@Serializable
 data class RepeatQuestionnaire(
     @field:NotNull
     var unit: String? = null,

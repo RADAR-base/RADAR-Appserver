@@ -16,10 +16,12 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import kotlinx.serialization.Serializable
 import org.radarbase.appserver.jersey.utils.equalTo
 import org.radarbase.appserver.jersey.utils.stringRepresentation
 import java.util.Objects
 
+@Serializable
 open class TimePeriod(var unit: String? = null, var amount: Int? = null) {
     override fun toString(): String = stringRepresentation(
         TimePeriod::amount,

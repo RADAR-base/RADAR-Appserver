@@ -31,10 +31,10 @@ import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.sql.Timestamp
 
-class TaskRepositoryImpl (
+class TaskRepositoryImpl(
     @Context em: Provider<EntityManager>,
     @Context asyncCoroutineService: AsyncCoroutineService,
-) : HibernateRepository(em, asyncCoroutineService), TaskRepository{
+) : HibernateRepository(em, asyncCoroutineService), TaskRepository {
     override suspend fun find(id: Long): Task? = transact {
         find(Task::class.java, id)
     }
@@ -42,7 +42,7 @@ class TaskRepositoryImpl (
     override suspend fun exists(id: Long): Boolean = transact {
         createQuery(
             "SELECT COUNT(t) FROM Task t WHERE t.id = :id",
-            Long::class.java
+            Long::class.java,
         ).setParameter("id", id)
             .singleResult > 0
     }
@@ -67,7 +67,7 @@ class TaskRepositoryImpl (
     override suspend fun findByUserId(userId: Long): List<Task> = transact {
         createQuery(
             "SELECT t FROM Task t WHERE t.user.id = :userId",
-            Task::class.java
+            Task::class.java,
         ).setParameter("userId", userId)
             .resultList
     }
@@ -78,7 +78,7 @@ class TaskRepositoryImpl (
     ): List<Task> = transact {
         createQuery(
             "SELECT t FROM Task t WHERE t.user.id = :userId AND t.type = :type",
-            Task::class.java
+            Task::class.java,
         )
             .setParameter("userId", userId)
             .setParameter("type", type)
@@ -96,7 +96,7 @@ class TaskRepositoryImpl (
         type: AssessmentType,
     ): Unit = transact {
         createQuery(
-            "DELETE FROM Task t WHERE t.user.id = :userId AND t.type = :type"
+            "DELETE FROM Task t WHERE t.user.id = :userId AND t.type = :type",
         )
             .setParameter("userId", userId)
             .setParameter("type", type)
@@ -106,7 +106,7 @@ class TaskRepositoryImpl (
     override suspend fun existsByIdAndUserId(id: Long, userId: Long): Boolean = transact {
         createQuery(
             "SELECT COUNT(t) FROM Task t WHERE t.id = :id AND t.user.id = :userId",
-            Long::class.java
+            Long::class.java,
         )
             .setParameter("id", id)
             .setParameter("userId", userId)
@@ -120,7 +120,7 @@ class TaskRepositoryImpl (
     ): Boolean = transact {
         createQuery(
             "SELECT COUNT(t) FROM Task t WHERE t.user.id = :userId AND t.name = :name AND t.timestamp = :timestamp",
-            Long::class.java
+            Long::class.java,
         )
             .setParameter("userId", userId)
             .setParameter("name", name)
@@ -131,7 +131,7 @@ class TaskRepositoryImpl (
     override suspend fun findByIdAndUserId(id: Long, userId: Long): Task? = transact {
         createQuery(
             "SELECT t FROM Task t WHERE t.id = :id AND t.user.id = :userId",
-            Task::class.java
+            Task::class.java,
         )
             .setParameter("id", id)
             .setParameter("userId", userId)

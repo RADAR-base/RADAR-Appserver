@@ -26,8 +26,8 @@ import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.service.protocol.handler.ProtocolHandler
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.task.TaskGeneratorService
 import org.radarbase.appserver.jersey.service.protocol.time.TimeCalculatorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.task.TaskGeneratorService
 import org.radarbase.appserver.jersey.utils.flatMapParallel
 import java.time.Instant
 import java.util.TimeZone
@@ -37,7 +37,9 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
     private val taskGeneratorService = TaskGeneratorService()
 
     override suspend fun handle(
-        assessmentSchedule: AssessmentSchedule, assessment: Assessment, user: User,
+        assessmentSchedule: AssessmentSchedule,
+        assessment: Assessment,
+        user: User,
     ): AssessmentSchedule {
         val referenceTimestamp = assessmentSchedule.referenceTimestamps
             ?: return assessmentSchedule.also { it.tasks = emptyList() }
@@ -51,7 +53,9 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
     }
 
     private suspend fun generateTasks(
-        assessment: Assessment, referenceTimestamps: List<Instant>, user: User,
+        assessment: Assessment,
+        referenceTimestamps: List<Instant>,
+        user: User,
     ): List<Task> = coroutineScope {
         val timezone = TimeZone.getTimeZone(user.timezone)
 
@@ -60,7 +64,7 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
         val unitsFromZero: List<Int> = repeatQuestionnaire.unitsFromZero.orEmpty()
 
         val completionWindow = this@SimpleRepeatQuestionnaireHandler.calculateCompletionWindow(
-            assessment.protocol?.completionWindow
+            assessment.protocol?.completionWindow,
         )
 
         referenceTimestamps.flatMapParallel { referenceTimestamp: Instant ->

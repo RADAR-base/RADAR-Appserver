@@ -16,23 +16,51 @@
 
 package org.radarbase.appserver.jersey.event.listener
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.AllowConcurrentEvents
 import com.google.common.eventbus.Subscribe
 import jakarta.inject.Inject
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.entity.DataMessageStateEvent
 import org.radarbase.appserver.jersey.entity.NotificationStateEvent
 import org.radarbase.appserver.jersey.event.state.dto.DataMessageStateEventDto
 import org.radarbase.appserver.jersey.event.state.dto.NotificationStateEventDto
+import org.radarbase.appserver.jersey.service.DataMessageStateEventService
+import org.radarbase.appserver.jersey.service.NotificationStateEventService
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+@Suppress("unused")
 class MessageStateEventListener @Inject constructor(
-    private val objectMapper: ObjectMapper,
-    private val notificationStateEventService: NotificationStateEventService,
-    private val dataMessageStateEventService: DataMessageStateEventService
+    private val asyncService: AsyncCoroutineService,
+    private val serviceLocator: ServiceLocator,
 ) {
+    private val json = Json {
+        encodeDefaults = true
+        ignoreUnknownKeys = true
+    }
+
+    private var notificationStateEventService: NotificationStateEventService? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(NotificationStateEventService::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
+    private var dataMessageStateEventService: DataMessageStateEventService? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(DataMessageStateEventService::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
     /**
      * Handle an application event.
      *
@@ -42,33 +70,46 @@ class MessageStateEventListener @Inject constructor(
     @AllowConcurrentEvents
     fun onNotificationStateChange(event: NotificationStateEventDto) {
         val info = convertMapToString(event.additionalInfo)
-        logger.debug("ID: {}, STATE: {}.", event.notification.id, event.state)
+        logger.info("Notification state changed. ID: {}, STATE: {}.", event.notification.id, event.state)
         val eventEntity = NotificationStateEvent(
-            event.notification, event.state, event.time, info
+            event.notification,
+            event.state,
+            event.time,
+            info,
         )
-        notificationStateEventService.addNotificationStateEvent(eventEntity)
+        asyncService.runBlocking {
+            notificationStateEventService?.addNotificationStateEvent(eventEntity)
+                ?: logger.error("NotificationStateEventService is not initialized.")
+        }
     }
 
     @Subscribe
     @AllowConcurrentEvents
     fun onDataMessageStateChange(event: DataMessageStateEventDto) {
         val info = convertMapToString(event.additionalInfo)
-        logger.debug("ID: {}, STATE: {}", event.dataMessage.id, event.state)
+        logger.debug("Data Message state changed. ID: {}, STATE: {}", event.dataMessage.id, event.state)
         val eventEntity = DataMessageStateEvent(
-            event.dataMessage, event.state, event.time, info
+            event.dataMessage,
+            event.state,
+            event.time,
+            info,
         )
-        dataMessageStateEventService.addDataMessageStateEvent(eventEntity)
+        asyncService.runBlocking {
+            dataMessageStateEventService?.addDataMessageStateEvent(eventEntity)
+                ?: logger.error("DataMessageStateEventService is not initialized.")
+        }
     }
 
     fun convertMapToString(additionalInfoMap: Map<String, String>?): String? {
-        if (additionalInfoMap == null) {
-            return null
-        }
-        try {
-            return objectMapper.writeValueAsString(additionalInfoMap)
-        } catch (_: JsonProcessingException) {
-            logger.warn("error processing event's additional info: {}", additionalInfoMap)
-            return null
+        if (additionalInfoMap == null) return null
+        return try {
+            json.encodeToString(
+                MapSerializer(String.serializer(), String.serializer()),
+                additionalInfoMap,
+            )
+        } catch (e: Exception) {
+            logger.warn("error processing event's additional info: {}", additionalInfoMap, e)
+            null
         }
     }
 

@@ -16,9 +16,13 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import kotlinx.serialization.Serializable
+import org.radarbase.appserver.jersey.serialization.URISerializer
 import java.net.URI
 
+@Serializable
 data class DefinitionInfo(
+    @Serializable(with = URISerializer::class)
     val repository: URI? = null,
     val name: String? = null,
     val avsc: String? = null,

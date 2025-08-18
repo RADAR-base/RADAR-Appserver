@@ -16,14 +16,16 @@
 
 package org.radarbase.appserver.jersey.service.github.protocol.impl
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import io.ktor.utils.io.errors.IOException
 import jakarta.inject.Inject
 import jakarta.ws.rs.WebApplicationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.protocol.GithubContent
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
@@ -35,6 +37,7 @@ import org.radarbase.appserver.jersey.service.github.GithubService
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolFetcherStrategy
 import org.radarbase.appserver.jersey.utils.cache.CachedMap
 import org.radarbase.appserver.jersey.utils.mapParallel
+import org.radarbase.appserver.jersey.utils.requireNotNullField
 import org.radarbase.appserver.jersey.utils.withReentrantLock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -50,14 +53,12 @@ import java.time.Duration
  * @property protocolRepo The configured GitHub repository path where protocols are stored.
  * @property protocolFileName The name of the protocol file used to identify relevant files in the repository.
  * @property protocolBranch The branch of the repository from which protocols should be retrieved.
- * @property objectMapper A JSON utility for serialization and deserialization of data.
  * @property userRepository Repository for accessing User data from the database.
  * @property projectRepository Repository for accessing Project data from the database.
  * @property githubService A service for interacting with the GitHub API.
  */
 class GithubProtocolFetcherStrategy @Inject constructor(
     config: AppserverConfig,
-    private val objectMapper: ObjectMapper,
     private val userRepository: UserRepository,
     private val projectRepository: ProjectRepository,
     private val githubService: GithubService,
@@ -82,8 +83,14 @@ class GithubProtocolFetcherStrategy @Inject constructor(
     }
 
     private val fetchLock = Mutex()
-    private val localMapper: ObjectMapper = objectMapper.copy().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+    @OptIn(ExperimentalSerializationApi::class)
+    private val localJson = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        explicitNulls = false
+        encodeDefaults = true
+        prettyPrint = false
     }
 
     /**
@@ -107,7 +114,8 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         val protocolPaths: Set<String> = getProtocolPaths()
 
         users.mapParallel(Dispatchers.Default) {
-            fetchProtocolForSingleUser(it, it.project!!.projectId!!, protocolPaths)
+            val project = requireNotNullField(it.project, "User's project")
+            fetchProtocolForSingleUser(it, requireNotNullField(project.projectId, "Project Id"), protocolPaths)
         }.filter { it.protocol != null }.associate { it.id to it.protocol!! }.also {
             logger.debug("Fetched Protocols from Github")
         }
@@ -127,23 +135,24 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         projectId: String,
         protocolPaths: Set<String>,
     ): ProtocolCacheEntry {
-        val attributes: Map<String?, String?>? = user.attributes ?: emptyMap()
+        val attributes: Map<String?, String?> = user.attributes ?: emptyMap()
+        val subjectId: String = requireNotNullField(user.subjectId, "User subject ID")
 
         val attributeMap: Map<String, String> = protocolPaths.filter {
             it.contains(projectId)
         }.map {
             convertPathToAttributeMap(it, projectId).filter { entry ->
-                attributes?.get(entry.key) == entry.value
+                attributes[entry.key] == entry.value
             }
         }.maxByOrNull { it.size } ?: emptyMap()
 
         return try {
             val attributePath = convertAttributeMapToPath(attributeMap, projectId)
             projectProtocolUriMap.get()[attributePath]?.let {
-                ProtocolCacheEntry(user.subjectId!!, getProtocolFromUrl(it))
-            } ?: ProtocolCacheEntry(user.subjectId!!, null)
+                ProtocolCacheEntry(subjectId, getProtocolFromUrl(it))
+            } ?: ProtocolCacheEntry(subjectId, null)
         } catch (_: Exception) {
-            ProtocolCacheEntry(user.subjectId!!, null)
+            ProtocolCacheEntry(subjectId, null)
         }
     }
 
@@ -156,15 +165,16 @@ class GithubProtocolFetcherStrategy @Inject constructor(
      */
     override suspend fun fetchProtocolsPerProject(): Map<String, Protocol> {
         val protocolPaths = getProtocolPaths()
-
+        if (protocolPaths.isEmpty()) return emptyMap()
         return projectRepository.findAll().mapParallel(Dispatchers.Default) { project ->
-            val projectId = project.projectId!!
+            val projectId = requireNotNullField(project.projectId, "Project Id")
             val protocol = protocolPaths.lastOrNull { it.contains(projectId) }?.let { path ->
                 try {
                     val uri = projectProtocolUriMap.get()[path] ?: return@let null
                     getProtocolFromUrl(uri)
-                } catch (_: Exception) {
-                    null
+                } catch (e: Exception) {
+//                    null
+                    throw e
                 }
             }
             ProtocolCacheEntry(projectId, protocol)
@@ -236,27 +246,38 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         val protocolUriMap = mutableMapOf<String, URI>()
 
         try {
-            val treeContent = githubService.getGithubContentWithoutCache(
+            val branchJson = githubService.getGithubContentWithoutCache(
                 "$GITHUB_API_URI$protocolRepo/branches/$protocolBranch",
-            ).run {
-                this@GithubProtocolFetcherStrategy.getArrayNode(this)
-            }.run {
-                this.findValue("tree").findValue("sha").asText()
-            }.let { treeSha ->
-                githubService.getGithubContent("$GITHUB_API_URI$protocolRepo/git/trees/$treeSha?recursive=true")
-            }
+            )
 
-            val tree = getArrayNode(treeContent).get("tree")
-            for (jsonNode in tree) {
-                val path = jsonNode.get("path").asText()
+            val branchElement = Json.parseToJsonElement(branchJson).jsonObject
+            val treeSha = branchElement["commit"]
+                ?.jsonObject?.get("commit")
+                ?.jsonObject?.get("tree")
+                ?.jsonObject?.get("sha")
+                ?.jsonPrimitive?.content
+                ?: throw IOException("Missing tree sha in branch JSON")
+
+            val treeJson = githubService.getGithubContent(
+                "$GITHUB_API_URI$protocolRepo/git/trees/$treeSha?recursive=true",
+            )
+            val treeElement = Json.parseToJsonElement(treeJson).jsonObject
+
+            val treeArray = treeElement["tree"]?.jsonArray
+                ?: throw IOException("Missing tree array in tree JSON")
+
+            for (node in treeArray) {
+                val obj = node.jsonObject
+                val path = obj["path"]?.jsonPrimitive?.content ?: continue
                 if (path.contains(this.protocolFileName)) {
-                    protocolUriMap[path] = URI.create(jsonNode.get("url").asText())
+                    val url = obj["url"]?.jsonPrimitive?.content ?: continue
+                    protocolUriMap[path] = URI.create(url)
                 }
             }
         } catch (e: WebApplicationException) {
-            throw io.ktor.utils.io.errors.IOException("Failed to retrieve protocols URIs from github", e)
+            throw IOException("Failed to retrieve protocols URIs from github", e)
         } catch (e: Exception) {
-            throw io.ktor.utils.io.errors.IOException("Exception when retrieving protocol uri map info", e)
+            throw IOException("Exception when retrieving protocol uri map info", e)
         }
         protocolUriMap
     }
@@ -272,20 +293,9 @@ class GithubProtocolFetcherStrategy @Inject constructor(
     @Throws(IOException::class)
     private suspend fun getProtocolFromUrl(uri: URI): Protocol {
         val contentString = githubService.getGithubContent(uri.toString())
-        val content = localMapper.readValue(contentString, GithubContent::class.java)
-        return localMapper.readValue(content.content, Protocol::class.java)
-    }
-
-    /**
-     * Parses the given JSON string into an ObjectNode.
-     *
-     * @param json The JSON string to be parsed.
-     * @return The parsed ObjectNode representation of the JSON string.
-     */
-    private fun getArrayNode(json: String): ObjectNode {
-        objectMapper.factory.createParser(json).use { parserProtocol ->
-            return objectMapper.readTree(parserProtocol)
-        }
+        val protocol = localJson.decodeFromString<GithubContent>(contentString).content
+            ?: throw IOException("Protocol content is null")
+        return localJson.decodeFromString<Protocol>(protocol)
     }
 
     companion object {

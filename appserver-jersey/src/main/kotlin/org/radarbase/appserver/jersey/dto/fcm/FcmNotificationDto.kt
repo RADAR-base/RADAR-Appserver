@@ -30,9 +30,9 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
 
     @field:NotNull
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
     var scheduledTime: Instant? = notificationEntity?.scheduledTime
 
@@ -108,150 +108,18 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
     var mutableContent: Boolean = notificationEntity?.mutableContent == true
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
-    var createdAt: Instant? = notificationEntity?.createdAt
+    var createdAt: Instant? = notificationEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
-        shape  = JsonFormat.Shape.STRING,
+        shape = JsonFormat.Shape.STRING,
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC"
+        timezone = "UTC",
     )
-    var updatedAt: Instant? = notificationEntity?.updatedAt
-
-    fun withCreatedAt(createdAt: Instant?): FcmNotificationDto = apply {
-        this.createdAt = createdAt
-    }
-
-    fun withUpdatedAt(updatedAt: Instant?): FcmNotificationDto = apply {
-        this.updatedAt = updatedAt
-    }
-
-    fun withId(id: Long?): FcmNotificationDto = apply {
-        this.id = id
-    }
-
-    fun withScheduledTime(scheduledTime: Instant?): FcmNotificationDto = apply {
-        this.scheduledTime = scheduledTime
-    }
-
-    fun withDelivered(delivered: Boolean): FcmNotificationDto = apply {
-        this.delivered = delivered
-    }
-
-    fun withTitle(title: String?): FcmNotificationDto = apply {
-        this.title = title
-    }
-
-    fun withBody(body: String?): FcmNotificationDto = apply {
-        this.body = body
-    }
-
-    fun withTtlSeconds(ttlSeconds: Int): FcmNotificationDto = apply {
-        this.ttlSeconds = ttlSeconds
-    }
-
-    fun withFcmMessageId(fcmMessageId: String?): FcmNotificationDto = apply {
-        this.fcmMessageId = fcmMessageId
-    }
-
-    fun withSourceId(sourceId: String?): FcmNotificationDto = apply {
-        this.sourceId = sourceId
-    }
-
-    fun withType(type: String?): FcmNotificationDto = apply {
-        this.type = type
-    }
-
-    fun withAppPackage(appPackage: String?): FcmNotificationDto = apply {
-        this.appPackage = appPackage
-    }
-
-    fun withSourceType(sourceType: String?): FcmNotificationDto = apply {
-        this.sourceType = sourceType
-    }
-
-    fun withAdditionalData(additionalData: MutableMap<String?, String?>?): FcmNotificationDto = apply {
-        this.additionalData = additionalData
-    }
-
-    fun withFcmTopic(fcmTopic: String?): FcmNotificationDto = apply {
-        this.fcmTopic = fcmTopic
-    }
-
-    fun withFcmCondition(fcmCondition: String?): FcmNotificationDto = apply {
-        this.fcmCondition = fcmCondition
-    }
-
-    fun withPriority(priority: String?): FcmNotificationDto = apply {
-        this.priority = priority
-    }
-
-    fun withSound(sound: String?): FcmNotificationDto = apply {
-        this.sound = sound
-    }
-
-    fun withBadge(badge: String?): FcmNotificationDto = apply {
-        this.badge = badge
-    }
-
-    fun withSubtitle(subtitle: String?): FcmNotificationDto = apply {
-        this.subtitle = subtitle
-    }
-
-    fun withIcon(icon: String?): FcmNotificationDto = apply {
-        this.icon = icon
-    }
-
-    fun withColor(color: String?): FcmNotificationDto = apply {
-        this.color = color
-    }
-
-    fun withBodyLocKey(bodyLocKey: String?): FcmNotificationDto = apply {
-        this.bodyLocKey = bodyLocKey
-    }
-
-    fun withBodyLocArgs(bodyLocArgs: String?): FcmNotificationDto = apply {
-        this.bodyLocArgs = bodyLocArgs
-    }
-
-    fun withTitleLocKey(titleLocKey: String?): FcmNotificationDto = apply {
-        this.titleLocKey = titleLocKey
-    }
-
-    fun withTitleLocArgs(titleLocArgs: String?): FcmNotificationDto = apply {
-        this.titleLocArgs = titleLocArgs
-    }
-
-    fun withAndroidChannelId(androidChannelId: String?): FcmNotificationDto = apply {
-        this.androidChannelId = androidChannelId
-    }
-
-    fun withTag(tag: String?): FcmNotificationDto = apply {
-        this.tag = tag
-    }
-
-    fun withClickAction(clickAction: String?): FcmNotificationDto = apply {
-        this.clickAction = clickAction
-    }
-
-    fun withEmailEnabled(emailEnabled: Boolean): FcmNotificationDto = apply {
-        this.emailEnabled = emailEnabled
-    }
-
-    fun withEmailTitle(emailTitle: String?): FcmNotificationDto = apply {
-        this.emailTitle = emailTitle
-    }
-
-    fun withEmailBody(emailBody: String?): FcmNotificationDto = apply {
-        this.emailBody = emailBody
-    }
-
-    fun withMutableContent(mutableContent: Boolean): FcmNotificationDto = apply {
-        this.mutableContent = mutableContent
-    }
+    var updatedAt: Instant? = notificationEntity?.updatedAt?.toInstant()
 
     override fun equals(other: Any?): Boolean = equalTo(
         other,
@@ -265,10 +133,16 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
         FcmNotificationDto::sourceType,
     )
 
-
     override fun hashCode(): Int {
         return Objects.hash(
-            scheduledTime, delivered, title, body, ttlSeconds, type, appPackage, sourceType
+            scheduledTime,
+            delivered,
+            title,
+            body,
+            ttlSeconds,
+            type,
+            appPackage,
+            sourceType,
         )
     }
 

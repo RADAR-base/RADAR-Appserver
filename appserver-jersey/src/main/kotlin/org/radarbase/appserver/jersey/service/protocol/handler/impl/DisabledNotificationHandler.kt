@@ -25,7 +25,7 @@ class DisabledNotificationHandler : ProtocolHandler {
     override suspend fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
         return assessmentSchedule.also {
             it.notifications = emptyList()

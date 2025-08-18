@@ -17,6 +17,8 @@
 package org.radarbase.appserver.jersey.service.quartz
 
 import jakarta.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.JobKey
@@ -33,11 +35,15 @@ import java.util.Date
 
 class SchedulerServiceImpl @Inject constructor(
     private val scheduler: Scheduler,
+    private val coroutineScope: CoroutineScope,
     jobListener: JobListener?,
     schedulerListener: SchedulerListener?,
 ) : SchedulerService {
 
     init {
+        if (!scheduler.isStarted) {
+            scheduler.start()
+        }
         if (jobListener != null && schedulerListener != null) {
             try {
                 scheduler.listenerManager.addJobListener(jobListener)
@@ -46,53 +52,67 @@ class SchedulerServiceImpl @Inject constructor(
                 logger.warn("The Listeners could not be added to the scheduler", exc)
             }
         } else {
-            logger.warn("The Listeners cannot be null and will not be added to the scheduler")
+            logger.error("The Listeners cannot be null and should be added to the scheduler")
         }
     }
 
     override fun scheduleJob(jobDetail: JobDetail, trigger: Trigger) {
-        scheduler.scheduleJob(jobDetail, trigger)
+        coroutineScope.launch {
+            scheduler.scheduleJob(jobDetail, trigger)
+        }
     }
 
     override fun checkJobExists(jobKey: JobKey): Boolean {
         return scheduler.checkExists(jobKey)
     }
 
+    override fun checkTriggerExists(triggerKey: TriggerKey): Boolean {
+        return scheduler.checkExists(triggerKey)
+    }
+
     override fun scheduleJobs(jobDetailTriggerMap: Map<JobDetail, Set<Trigger>>) {
-        scheduler.scheduleJobs(jobDetailTriggerMap, true)
+        coroutineScope.launch {
+            scheduler.scheduleJobs(jobDetailTriggerMap, true)
+        }
     }
 
     override fun updateScheduledJob(
-        jobKey: JobKey, triggerKey: TriggerKey, jobDataMap: JobDataMap, associatedObject: Any?
+        jobKey: JobKey,
+        triggerKey: TriggerKey,
+        jobDataMap: JobDataMap,
+        associatedObject: Any?,
     ) {
-        require(scheduler.checkExists(jobKey)) { "The Specified Job Key does not exist : $jobKey" }
+        coroutineScope.launch {
+            require(checkJobExists(jobKey)) { "The Specified Job Key does not exist : $jobKey" }
+            require(checkTriggerExists(triggerKey)) { "The Specified Trigger Key does not exist :$triggerKey" }
 
-        require(scheduler.checkExists(triggerKey)) { "The Specified Trigger Key does not exist :$triggerKey" }
+            val jobDetail = scheduler.getJobDetail(jobKey)
+            jobDetail.jobDataMap.putAll(jobDataMap.wrappedMap)
 
-        val jobDetail = scheduler.getJobDetail(jobKey)
-        jobDetail.jobDataMap.putAll(jobDataMap.wrappedMap)
+            val trigger = scheduler.getTrigger(triggerKey) as SimpleTriggerImpl
+            trigger.jobDataMap.putAll(jobDataMap.wrappedMap)
 
-        val trigger = scheduler.getTrigger(triggerKey) as SimpleTriggerImpl
-        trigger.jobDataMap.putAll(jobDataMap.wrappedMap)
+            if (associatedObject is Scheduled) {
+                val scheduledTime =
+                    requireNotNull(associatedObject.scheduledTime) { "The scheduled time cannot be null" }
+                trigger.setStartTime(Date(scheduledTime.toEpochMilli()))
+            }
 
-        if (associatedObject is Scheduled) {
-            val scheduledObject = associatedObject
-            trigger.setStartTime(Date(scheduledObject.scheduledTime!!.toEpochMilli()))
+            scheduler.addJob(jobDetail, true)
+            scheduler.rescheduleJob(triggerKey, trigger)
         }
-
-        scheduler.addJob(jobDetail, true)
-
-        scheduler.rescheduleJob(triggerKey, trigger)
     }
 
     override fun deleteScheduledJobs(jobKeys: List<JobKey>) {
-        // The scheduler.deleteJobs method does not unschedule jobs so using a deleteJob.
-        jobKeys.forEach(this::deleteScheduledJob)
+        // The scheduler::deleteJobs method does not unschedule jobs so using a deleteJob.
+        jobKeys.forEach(this@SchedulerServiceImpl::deleteScheduledJob)
     }
 
     override fun deleteScheduledJob(jobKey: JobKey) {
-        if (scheduler.checkExists(jobKey)) {
-            scheduler.deleteJob(jobKey)
+        coroutineScope.launch {
+            if (scheduler.checkExists(jobKey)) {
+                jobKey.let(scheduler::deleteJob)
+            }
         }
     }
 

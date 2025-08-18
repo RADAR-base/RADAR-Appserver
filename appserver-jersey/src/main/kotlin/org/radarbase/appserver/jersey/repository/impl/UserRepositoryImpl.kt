@@ -43,7 +43,8 @@ class UserRepositoryImpl(
         createQuery(
             """SELECT COUNT(u)
                 FROM User u 
-                WHERE u.id = :id""".trimIndent(),
+                WHERE u.id = :id
+            """.trimIndent(),
             Long::class.java,
         ).setParameter("id", id).singleResult > 0
     }
@@ -67,14 +68,14 @@ class UserRepositoryImpl(
             """SELECT u 
                         FROM User u 
                         WHERE u.subjectId = :subjectId 
-                        AND u.project.id = :projectId""".trimIndent(),
+                        AND u.project.id = :projectId
+            """.trimIndent(),
             User::class.java,
         )
             .setParameter("subjectId", subjectId)
             .setParameter("projectId", projectId)
             .resultList
             .firstOrNull()
-
     }
 
     override suspend fun findByFcmToken(fcmToken: String): User? = transact {

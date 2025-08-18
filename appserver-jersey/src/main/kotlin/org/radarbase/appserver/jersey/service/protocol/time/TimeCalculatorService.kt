@@ -96,11 +96,13 @@ class TimeCalculatorService {
          * and days, where a week is assumed to always contain 7 days.
          */
         private const val WEEK_TO_DAYS = 7
+
         /**
          * Constant representing the number of days in a month. It is used as an approximate value
          * where 31 days is considered the standard number of days in a month for calculations.
          */
         private const val MONTH_TO_DAYS = 31
+
         /**
          * Represents the number of days in a standard non-leap year.
          *

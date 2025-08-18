@@ -41,21 +41,22 @@ import java.time.Instant
 @Suppress("unused")
 @Entity
 @Table(
-    name = "data_messages", uniqueConstraints = [
+    name = "data_messages",
+    uniqueConstraints = [
         UniqueConstraint(
             columnNames = [
-                "user_id", "source_id", "scheduled_time", "ttl_seconds", "delivered", "dry_run"
-            ]
-        )
-    ]
+                "user_id", "source_id", "scheduled_time", "ttl_seconds", "delivered", "dry_run",
+            ],
+        ),
+    ],
 )
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 class DataMessage : Message() {
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "data_message_map")
-    @MapKeyColumn(name = "key", nullable = true)
-    @Column(name = "value")
+    @MapKeyColumn(name = "data_message_key", nullable = true)
+    @Column(name = "data_message_value")
     var dataMap: MutableMap<String?, String?>? = null
 
     class DataMessageBuilder(dataMessage: DataMessage? = null) {
@@ -132,7 +133,6 @@ class DataMessage : Message() {
             this.mutableContent = mutableContent
         }
 
-
         fun dataMap(dataMap: MutableMap<String?, String?>?): DataMessageBuilder = apply {
             this.dataMap = dataMap
         }
@@ -159,8 +159,6 @@ class DataMessage : Message() {
             return dataMessage
         }
     }
-
-
 
     override fun toString(): String {
         return "DataMessage(dataMap=$dataMap)"

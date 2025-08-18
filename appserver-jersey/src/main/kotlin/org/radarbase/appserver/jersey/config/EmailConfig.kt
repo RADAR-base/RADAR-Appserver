@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.config
 
+// TODO: The email work needs to be done, not sure should we use smtp server here in jersey?
 data class EmailConfig(
-    val enabled: Boolean? = null,
+    val enabled: Boolean = false,
 )

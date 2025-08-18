@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.questionnaire_schedule.notification
+package org.radarbase.appserver.jersey.service.questionnaire.schedule.notification
 
 import org.radarbase.appserver.jersey.dto.protocol.LanguageText
 import org.radarbase.appserver.jersey.entity.Notification
@@ -23,8 +23,11 @@ import java.time.Instant
 
 class TaskNotificationGeneratorService {
     fun createNotification(
-        task: Task, notificationTimestamp: Instant,
-        title: String?, body: String?, emailEnabled: Boolean
+        task: Task,
+        notificationTimestamp: Instant,
+        title: String?,
+        body: String?,
+        emailEnabled: Boolean,
     ): Notification {
         return Notification.NotificationBuilder().apply {
             scheduledTime(notificationTimestamp)

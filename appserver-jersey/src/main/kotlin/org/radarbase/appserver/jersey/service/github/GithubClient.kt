@@ -60,8 +60,9 @@ class GithubClient @Inject constructor(
 
     private val authorizationHeader: String
         get() {
-            return if (githubToken.isNullOrEmpty()) ""
-            else {
+            return if (githubToken.isNullOrEmpty()) {
+                ""
+            } else {
                 "Bearer " + githubToken.trim { it <= ' ' }
             }
         }

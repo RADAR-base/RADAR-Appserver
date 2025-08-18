@@ -16,6 +16,9 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ClinicalProtocol(
     var requiresInClinicCompletion: Boolean = false,
     var repeatAfterClinicVisit: RepeatQuestionnaire? = null,

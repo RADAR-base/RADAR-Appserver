@@ -29,6 +29,7 @@ import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.UserMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleService
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.jersey.exception.HttpNotFoundException
@@ -41,7 +42,7 @@ class UserService @Inject constructor(
     @Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
     val userRepository: UserRepository,
     val projectRepository: ProjectRepository,
-//    val scheduleService: QuestionnaireScheduleService,
+    val scheduleService: QuestionnaireScheduleService,
     config: AppserverConfig,
 ) {
     private val sendEmailNotifications: Boolean = config.email.enabled ?: false
@@ -199,7 +200,7 @@ class UserService @Inject constructor(
         )
 
         val email: String? = userDto.email
-        if (sendEmailNotifications && (email == null || email.isEmpty())) {
+        if (sendEmailNotifications && email.isNullOrEmpty()) {
             logger.warn(
                 "No email address was provided for new subject '{}'. The option to send notifications via email " +
                     "('email.enabled') will not work for this subject. Consider to provide a valid email " +
@@ -218,7 +219,7 @@ class UserService @Inject constructor(
             userRepository.add(this)
         }
 
-//        this.scheduleService.generateScheduleForUser(savedUser)
+        this.scheduleService.generateScheduleForUser(savedUser)
 
         return userMapper.entityToDto(savedUser)
     }
@@ -235,7 +236,6 @@ class UserService @Inject constructor(
      * @throws InvalidUserDetailsException If the user with the specified subject ID does not exist within the project.
      */
     suspend fun updateUser(userDto: FcmUserDto): FcmUserDto {
-//        TODO update to use Id instead of subjectId
         val project: Project = checkPresence(
             projectRepository.findByProjectId(
                 checkNotNull(userDto.projectId) { "Project ID must not be null" },
@@ -246,19 +246,18 @@ class UserService @Inject constructor(
         }
 
         val user: User? = userRepository.findBySubjectIdAndProjectId(
-            requireNotNull(userDto.subjectId) { "Subject id must not be null" },
-            requireNotNull(project.id) { "Project id must not be null" },
+            requireNotNull(userDto.subjectId) { "Subject id must be non-null" },
+            requireNotNull(project.id) { "Project `id` must be non-null" },
         )
 
         checkInvalidDetails<InvalidUserDetailsException>(
-            { user == null },
-            {
-                "The user with specified subject ID ${userDto.subjectId} does not exist in project ID "
-                "${userDto.projectId} Please use post endpoint to create the user."
-            },
-        )
+            user == null,
+        ) {
+            "The user with specified subject ID ${userDto.subjectId} does not exist in project ID "
+            "${userDto.projectId} Please use post endpoint to create the user."
+        }
 
-        user!!.apply {
+        user.apply {
             this.fcmToken = userDto.fcmToken
             this.usermetrics = UserMapper.getValidUserMetrics(userDto)
             this.enrolmentDate = userDto.enrolmentDate
@@ -271,25 +270,21 @@ class UserService @Inject constructor(
             }
         }
 
-        val savedUser: User? = userRepository.update(user)
+        val savedUser: User = userRepository.update(user) ?: throw HttpNotFoundException(
+            "user_not_found",
+            "User with id ${user.id} not found.",
+        )
         // Generate schedule for user
         if (user.attributes != userDto.attributes || user.timezone != userDto.timezone || user.enrolmentDate != userDto.enrolmentDate || user.language != userDto.language) {
-//            this.scheduleService.generateScheduleForUser(savedUser)
+            this.scheduleService.generateScheduleForUser(savedUser)
         }
 
-        checkNotNull(savedUser) {
-            "Null user is returned when updating user with subjectId ${userDto.subjectId} and projectId ${userDto.projectId}"
-        }
         return userMapper.entityToDto(savedUser)
     }
 
-    suspend fun updateLastDelivered(fcmToken: String?, lastDelivered: Instant?) {
+    suspend fun updateLastDelivered(fcmToken: String, lastDelivered: Instant?) {
         val user: User = checkPresence(
-            userRepository.findByFcmToken(
-                requireNotNull(fcmToken) {
-                    "FCM token cannot be null when updating last delivered time for user"
-                },
-            ),
+            userRepository.findByFcmToken(fcmToken),
             "user_not_found",
         ) {
             "User with the fcm-token $fcmToken doesn't exists"
@@ -321,13 +316,12 @@ class UserService @Inject constructor(
         )
 
         checkInvalidDetails<InvalidUserDetailsException>(
-            { user == null },
-            {
-                "The user with specified subject ID $subjectId does not exist in project ID $projectId. Please specify a valid user for deleting."
-            },
-        )
+            user == null,
+        ) {
+            "The user with specified subject ID $subjectId does not exist in project ID $projectId. Please specify a valid user for deleting."
+        }
 
-        this.userRepository.delete(user!!)
+        this.userRepository.delete(user)
     }
 
     companion object {

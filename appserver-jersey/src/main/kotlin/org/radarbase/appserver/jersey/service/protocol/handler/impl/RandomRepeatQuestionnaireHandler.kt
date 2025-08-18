@@ -22,13 +22,12 @@ import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.service.protocol.handler.ProtocolHandler
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.task.TaskGeneratorService
 import org.radarbase.appserver.jersey.service.protocol.time.TimeCalculatorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.task.TaskGeneratorService
 import java.time.Instant
 import java.util.TimeZone
 
-
-class RandomRepeatQuestionnaireHandler: ProtocolHandler {
+class RandomRepeatQuestionnaireHandler : ProtocolHandler {
     private val defaultTaskCompletionWindow = 86_400_000L
     private val timeCalculatorService = TimeCalculatorService()
     private val taskGeneratorService = TaskGeneratorService()
@@ -36,9 +35,8 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
     override suspend fun handle(
         assessmentSchedule: AssessmentSchedule,
         assessment: Assessment,
-        user: User
+        user: User,
     ): AssessmentSchedule {
-
         val referenceTimestamps = assessmentSchedule.referenceTimestamps ?: return assessmentSchedule.apply {
             tasks = emptyList()
         }
@@ -46,7 +44,7 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
         val tasks = generateTasks(
             assessment,
             referenceTimestamps,
-            user
+            user,
         )
         assessmentSchedule.tasks = tasks
         return assessmentSchedule
@@ -55,7 +53,7 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
     private fun generateTasks(
         assessment: Assessment,
         referenceTimestamps: List<Instant>,
-        user: User
+        user: User,
     ): List<Task> {
         val timezone = TimeZone.getTimeZone(user.timezone)
         val repeatQuestionnaire = assessment.protocol?.repeatQuestionnaire
@@ -79,7 +77,7 @@ class RandomRepeatQuestionnaireHandler: ProtocolHandler {
 
     private fun getRandomAmountInRange(range: Array<Int>): Int {
         val (lowerLimit, upperLimit) = range
-        return (lowerLimit .. upperLimit).random()
+        return (lowerLimit..upperLimit).random()
     }
 
     private fun calculateCompletionWindow(completionWindow: TimePeriod?): Long {

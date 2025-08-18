@@ -16,19 +16,38 @@
 
 package org.radarbase.appserver.jersey.event.listener
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.eventbus.AllowConcurrentEvents
 import com.google.common.eventbus.Subscribe
 import jakarta.inject.Inject
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import org.glassfish.hk2.api.ServiceLocator
 import org.radarbase.appserver.jersey.entity.TaskStateEvent
 import org.radarbase.appserver.jersey.event.state.dto.TaskStateEventDto
+import org.radarbase.appserver.jersey.service.TaskStateEventService
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.LoggerFactory
 
+@Suppress("unused")
 class TaskStateEventListener @Inject constructor(
-    private val objectMapper: ObjectMapper,
-    private val taskStateEventService: TaskStateEventService,
+    private val asyncService: AsyncCoroutineService,
+    private val serviceLocator: ServiceLocator,
 ) {
+    private var taskStateEventService: TaskStateEventService? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(TaskStateEventService::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
+    private val json = Json {
+        encodeDefaults = true
+        ignoreUnknownKeys = true
+    }
+
     /**
      * Handle an application event.
      * // we can add more event listeners by annotating with @EventListener
@@ -39,22 +58,29 @@ class TaskStateEventListener @Inject constructor(
     @AllowConcurrentEvents
     fun onTaskStateChange(event: TaskStateEventDto) {
         val info = convertMapToString(event.additionalInfo)
-        logger.debug("ID: {}, STATE: {}", event.task?.id, event.state)
+        logger.info("Task state changed. ID: {}, STATE: {}", event.task?.id, event.state)
         val eventEntity = TaskStateEvent(
-            event.task, event.state, event.time, info,
+            event.task,
+            event.state,
+            event.time,
+            info,
         )
-        taskStateEventService.addTaskStateEvent(eventEntity)
+        asyncService.runBlocking {
+            taskStateEventService?.addTaskStateEvent(eventEntity)
+                ?: logger.error("TaskStateEventService is not initialized.")
+        }
     }
 
     fun convertMapToString(additionalInfoMap: Map<String, String>?): String? {
-        if (additionalInfoMap == null) {
-            return null
-        }
-        try {
-            return objectMapper.writeValueAsString(additionalInfoMap)
-        } catch (_: JsonProcessingException) {
-            logger.warn("error processing event's additional info: {}", additionalInfoMap)
-            return null
+        if (additionalInfoMap == null) return null
+        return try {
+            json.encodeToString(
+                MapSerializer(String.serializer(), String.serializer()),
+                additionalInfoMap,
+            )
+        } catch (e: Exception) {
+            logger.warn("error processing event's additional info: {}", additionalInfoMap, e)
+            null
         }
     }
 

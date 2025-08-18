@@ -37,14 +37,14 @@ import java.time.Duration
  */
 class GithubService @Inject constructor(
     private val githubClient: GithubClient,
-    config: AppserverConfig
+    config: AppserverConfig,
 ) {
     private val cacheTime: Long
     private val retryTime: Long
     private val maxSize: Int
 
     init {
-        config.github.cache.let {  githubCacheConfig ->
+        config.github.cache.let { githubCacheConfig ->
             cacheTime = checkNotNull(githubCacheConfig.cacheDuration) { "Github cache duration cannot be null in config" }
             retryTime = checkNotNull(githubCacheConfig.retryDuration) { "Github retry duration cannot be null in config" }
             maxSize = githubCacheConfig.maxCacheSize

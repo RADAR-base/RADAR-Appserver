@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  #---------------------------------------------------------------------------#
+  # ManagementPortal Postgres                                                 #
+  #---------------------------------------------------------------------------#
+  managementportal-postgresql:
+    image: postgres
+    environment:
+      POSTGRES_USER: radarbase
+      POSTGRES_PASSWORD: radarbase
+      POSTGRES_DB: managementportal
+
+
+  #---------------------------------------------------------------------------#
+  # Management Portal                                                         #
+  #---------------------------------------------------------------------------#
+  managementportal:
+    image: radarbase/management-portal:2.1.0
+    environment:
+      SERVER_PORT: 8081
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://managementportal-postgresql:5432/managementportal
+      SPRING_DATASOURCE_USERNAME: radarbase
+      SPRING_DATASOURCE_PASSWORD: radarbase
+      SPRING_LIQUIBASE_CONTEXTS: dev #includes testing_data, remove for production builds
+      JHIPSTER_SLEEP: 10 # gives time for the database to boot before the application
+      JAVA_OPTS: -Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
+      MANAGEMENTPORTAL_COMMON_BASE_URL: http://localhost:8081/managementportal
+      MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL: http://localhost:8081/managementportal
+      MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET:
+      MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE: /mp-includes/config/oauth_client_details.csv
+    volumes:
+      - ./src/integrationTest/resources/docker/etc/:/mp-includes/
+
+  #---------------------------------------------------------------------------#
+  # Appserver Postgres                                                        #
+  #---------------------------------------------------------------------------#
+  appserver-postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: appserver
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+
+  #---------------------------------------------------------------------------#
+  # Appserver                                                                 #
+  #---------------------------------------------------------------------------#
+  appserver:
+    image: radarbase/radar-appserver
+    build: ./
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
+      FCMSERVER_SENDERID: "1043784930865"
+      FCMSERVER_SERVERKEY: "AAAA8wZuFjE:APA91bGpJQ3Sft0mZAaVMjDJGNLjFsdDLTo-37ZN69r4lKlHiRN78t4bCfkNKcXG5c9cJg-eGtWB7FqceQUDVtf7B1Zvw_2ycynqwKe2YqXFeyaq83Gf0R3AS1EKSWFS60GCr8eUEliz"
+      APPSERVER_JDBC_URL: jdbc:postgresql://postgres:5432/radar

@@ -27,8 +27,8 @@ import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.service.protocol.handler.ProtocolHandler
 import org.radarbase.appserver.jersey.service.protocol.time.TimeCalculatorService
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.notification.NotificationType
-import org.radarbase.appserver.jersey.service.questionnaire_schedule.notification.TaskNotificationGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.notification.NotificationType
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.notification.TaskNotificationGeneratorService
 import org.radarbase.appserver.jersey.utils.flatMapParallel
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -80,11 +80,16 @@ class SimpleReminderHandler : ProtocolHandler {
     }
 
     suspend fun generateReminders(
-        tasks: List<Task>, assessment: Assessment, timezone: TimeZone,
-        user: User, title: String, body: String, emailEnabled: Boolean,
+        tasks: List<Task>,
+        assessment: Assessment,
+        timezone: TimeZone,
+        user: User,
+        title: String,
+        body: String,
+        emailEnabled: Boolean,
     ): List<Notification> = coroutineScope {
         tasks.flatMapParallel { task: Task ->
-            val reminders =     assessment.protocol?.reminders ?: return@flatMapParallel emptyList()
+            val reminders = assessment.protocol?.reminders ?: return@flatMapParallel emptyList()
             val repeatReminders = reminders.repeat ?: return@flatMapParallel emptyList()
 
             (1..repeatReminders).map { repeat: Int ->
@@ -93,17 +98,23 @@ class SimpleReminderHandler : ProtocolHandler {
 
                     val timestamp = timeCalculatorService.advanceRepeat(task.timestamp!!.toInstant(), offset, timezone)
                     taskNotificationGeneratorService.createNotification(
-                        task, timestamp, title, body, emailEnabled,
+                        task,
+                        timestamp,
+                        title,
+                        body,
+                        emailEnabled,
                     ).also {
                         it.user = user
                     }
                 }
             }.awaitAll()
         }.filter { notification ->
-            (Instant.now().isBefore(
-                notification.scheduledTime!!
-                    .plus(notification.ttlSeconds.toLong(), ChronoUnit.SECONDS),
-            ))
+            (
+                Instant.now().isBefore(
+                    notification.scheduledTime!!
+                        .plus(notification.ttlSeconds.toLong(), ChronoUnit.SECONDS),
+                )
+                )
         }
     }
 }
