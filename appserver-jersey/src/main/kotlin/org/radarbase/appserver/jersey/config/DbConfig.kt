@@ -26,6 +26,7 @@ import org.radarbase.appserver.jersey.entity.TaskStateEvent
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.entity.UserMetrics
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
+import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class DbConfig(
     val classes: List<String> = listOf(
@@ -47,6 +48,23 @@ data class DbConfig(
     val additionalProperties: Map<String, String> = emptyMap(),
     val liquibase: LiquibaseConfig = LiquibaseConfig(),
 ) : Validation {
+    fun withEnv(): DbConfig = this
+        .copyEnv("APPSERVER_JDBC_URL") {
+            copy(jdbcUrl = it)
+        }
+        .copyEnv("APPSERVER_JDBC_USERNAME") {
+            copy(username = it)
+        }
+        .copyEnv("APPSERVER_JDBC_PASSWORD") {
+            copy(password = it)
+        }
+        .copyEnv("APPSERVER_HIBERNATE_DIALECT") {
+            copy(hibernateDialect = it)
+        }
+        .copyEnv("APPSERVER_JDBC_DRIVER") {
+            copy(jdbcDriver = it)
+        }
+
     override fun validate() {
         checkInvalidDetails<IllegalStateException>(
             {
