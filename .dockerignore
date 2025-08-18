@@ -1,3 +1,12 @@
-/src/test/
-/src/integrationTest
-/src/gatling
+/appserver-jersey/src/test/
+/appserver-jersey/src/integrationTest
+/appserver-jersey/build
+/appserver-legacy/build
+/buildSrc/build
+/out
+/.git
+/.gradle*
+/gradle/wrapper
+/gradlew*
+/.idea
+/.github

@@ -1,0 +1,74 @@
+resourceConfig: org.radarbase.appserver.jersey.enhancer.factory.AppserverResourceEnhancerFactory
+
+# Server configuration.
+server:
+  # Base URI of the application.
+  baseUri: http://0.0.0.0:8080/
+  # Timeout for requests to the application.
+  requestTimeout: 30
+  isJmxEnabled: false
+
+# Authentication configuration.
+auth:
+  managementPortalUrl: http://localhost:8081/managementportal
+  resourceName: res_appconfig
+
+db:
+  # For Development environment, use H2 database.
+  #  jdbcDriver: org.h2.Driver
+  #  jdbcUrl: jdbc:h2:mem:dev
+  #  hibernateDialect: org.hibernate.dialect.H2Dialect
+  #  liquibase:
+  #    enabled: false
+  #  additionalProperties:
+  #    jakarta.persistence.schema-generation.database.action: drop-and-create
+  #    hibernate.show_sql: true
+  #    hibernate.format_sql: true
+  jdbcDriver: org.postgresql.Driver
+  jdbcUrl: jdbc:postgresql://localhost:5432/appserver
+  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
+  username: radar
+  password: radar
+
+# GitHub configuration.
+github:
+  # GitHub Cache configuration.
+  cache:
+    # Duration in seconds for which the cache is valid.
+    cacheDurationSec: 3600
+    # Duration in seconds after which the cache can be refreshed.
+    retryDurationSec: 60
+    # Maximum number of entries in the cache.
+    maxCacheSize: 10000
+    # GitHub HTTP Client configuration.
+  client:
+    maxContentLength: 1000000
+    timeoutSec: 10
+    githubToken:
+
+# Quartz Scheduler Configuration.
+quartz:
+  # Specifies the dispatcher for asynchronous operations.
+  # Options: 'io' (for I/O-bound tasks), 'default' (for CPU-bound tasks), 'unconfined' (uses calling thread).
+  # Defaults to 'unconfined' if not provided.
+  coroutineDispatcher: io
+
+  # Specifies the type of coroutine job.
+  # Options: 'supervisor-job' (supervises child jobs), 'coroutine-job' (no supervision).
+  # Defaults to 'supervisor-job' if not provided.
+  coroutineJob: supervisor-job
+
+protocol:
+  githubProtocolRepo: RADAR-base/RADAR-aRMT-protocols
+  protocolFileName: protocol.json
+  githubBranch: master
+
+email:
+  enabled: false
+
+fcm:
+  fcmsender: org.radarbase.appserver.jersey.fcm.downstream.AdminSdkFcmSender
+  credentials:
+
+eventBus:
+  numThreads: 3
