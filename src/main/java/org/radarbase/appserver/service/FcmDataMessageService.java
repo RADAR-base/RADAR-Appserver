@@ -249,9 +249,8 @@ public class FcmDataMessageService implements DataMessageService {
 
         dataMessage.ifPresentOrElse(
                 (DataMessage d) -> {
-
-                    DataMessage newDataMessage = new DataMessage.DataMessageBuilder(d).delivered(isDelivered).build();
-                    this.dataMessageRepository.save(newDataMessage);
+                    d.setDelivered(isDelivered);
+                    this.dataMessageRepository.save(d);
                 },
                 () -> {
                     throw new InvalidNotificationDetailsException(

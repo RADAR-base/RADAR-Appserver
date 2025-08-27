@@ -318,9 +318,8 @@ public class FcmNotificationService implements NotificationService {
 
         notification.ifPresentOrElse(
                 (Notification n) -> {
-
-                    Notification newNotif = new Notification.NotificationBuilder(n).delivered(isDelivered).build();
-                    this.notificationRepository.save(newNotif);
+                    n.setDelivered(isDelivered);
+                    this.notificationRepository.save(n);
                 },
                 () -> {
                     throw new InvalidNotificationDetailsException(
