@@ -67,9 +67,7 @@ dependencies {
 
     /* The entries in the block below are added here to force the version of
     *  transitive dependencies and mitigate reported vulnerabilities */
-    implementation("org.springframework.security:spring-security-web:6.2.7")
     implementation("org.apache.tomcat.embed:tomcat-embed-core:10.1.44")
-    implementation("org.springframework:spring-webmvc:$springVersion")
     implementation("io.netty:netty-handler-proxy:$nettyVersion")
     implementation("io.netty:netty-handler:$nettyVersion")
 
@@ -79,7 +77,6 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-mail')
-    implementation group: "org.springframework.security", name: "spring-security-config", version: springSecurityVersion
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:' + springOauth2AutoconfigureVersion)
     implementation('org.springframework.security.oauth:spring-security-oauth2:' + springOauth2Version)
     runtimeOnly("org.hibernate.validator:hibernate-validator:$hibernateValidatorVersion")
@@ -97,7 +94,7 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-    annotationProcessor "org.springframework:spring-context-indexer:$springVersion"
+    annotationProcessor "org.springframework:spring-context-indexer"
 
     // FCM Admin SDK
     implementation('com.google.firebase:firebase-admin:9.3.0') {
@@ -113,7 +110,7 @@ dependencies {
     }
 
     // AOP
-    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
+    runtimeOnly group: 'org.springframework', name: 'spring-aop'
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion)
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'
