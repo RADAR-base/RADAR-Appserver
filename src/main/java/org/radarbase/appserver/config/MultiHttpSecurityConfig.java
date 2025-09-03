@@ -70,17 +70,13 @@ public class MultiHttpSecurityConfig {
         @Bean
         public SecurityFilterChain apiDocsFilterChain(HttpSecurity http) throws Exception {
             http.securityMatcher("/v3/api-docs**")
-                    .cors()
-                    .and()
-                    .authorizeHttpRequests()
-                    .anyRequest()
-                    .permitAll()
+                    .cors(cors -> {})
+                    .authorizeHttpRequests(auth -> auth
+                            .anyRequest().permitAll()
+                    )
                     // .hasRole("ADMIN")
-                    .and()
-                    .httpBasic()
-                    .and()
-                    .csrf()
-                    .disable();
+                    .httpBasic(basic -> {})
+                    .csrf(csrf -> csrf.disable());
 
             return http.build();
         }
@@ -92,16 +88,13 @@ public class MultiHttpSecurityConfig {
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             // Allow all actuator endpoints.
             http.securityMatcher(EndpointRequest.toAnyEndpoint())
-                    .cors()
-                    .and()
-                    .authorizeHttpRequests()
-                    .anyRequest()
-                    .permitAll()
-                    .and()
-                    .csrf()
-                    .disable();
+                    .cors(cors -> {})
+                    .authorizeHttpRequests(auth -> auth
+                            .anyRequest().permitAll()
+                    )
+                    .csrf(csrf -> csrf.disable());
 
-            http.headers().frameOptions().disable();
+            http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
             return http.build();
         }
