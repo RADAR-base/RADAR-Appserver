@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   managementportal:
-    image: radarbase/management-portal:2.1.0
+    image: radarbase/management-portal:latest
     environment:
       SERVER_PORT: 8081
       SPRING_PROFILES_ACTIVE: prod
