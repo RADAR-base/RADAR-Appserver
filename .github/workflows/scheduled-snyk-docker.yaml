@@ -6,14 +6,17 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: radarbase/radar-appserver
+  DOCKER_IMAGE: ghcr.io/${{ github.repository }}/radar-appserver
 
 jobs:
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Run Snyk to check for vulnerabilities
         continue-on-error: true # To make sure that SARIF upload gets called

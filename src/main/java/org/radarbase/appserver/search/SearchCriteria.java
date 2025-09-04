@@ -3,9 +3,14 @@ package org.radarbase.appserver.search;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
-public class SearchCriteria {
+public class SearchCriteria implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 327842183571958L;
     private String key;
     private String operation;
     private Object value;
