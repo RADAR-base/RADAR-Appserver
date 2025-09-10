@@ -9,7 +9,7 @@ env:
   REPOSITORY: ${{ github.repository }}
   IMAGES: >-
     [{
-    'name': 'radar-appserverradar-upload-backend',
+    'name': 'radar-appserver',
     'build_file': 'Dockerfile',
     'authors': 'Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>',
     'description': 'RADAR-base appserver backend application',
