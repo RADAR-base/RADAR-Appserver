@@ -21,7 +21,10 @@ LABEL maintainer="Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>"
 LABEL description="RADAR-base App server"
 
 ENV JDK_JAVA_OPTIONS='-Xmx2G -Djava.security.egd=file:/dev/./urandom' \
-    SPRING_PROFILES_ACTIVE=prod
+    SPRING_PROFILES_ACTIVE=prod \
+    # Globally disables liquibase analytics.
+    # (see: https://docs.liquibase.com/pro/user-guide/what-data-does-liquibase-collect-and-how-is-it-used)
+    LIQUIBASE_ANALYTICS_ENABLED=false
 
 VOLUME /tmp
 ARG DEPENDENCY=/code/build/dependency
