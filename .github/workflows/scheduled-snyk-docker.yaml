@@ -14,10 +14,14 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      packages: read
 
     steps:
       - uses: actions/checkout@v5
-
+      
+      - name: Lowercase image name
+        run: echo "DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/management-portal" >> ${GITHUB_ENV}
+        
       - name: Run Snyk to check for vulnerabilities
         continue-on-error: true # To make sure that SARIF upload gets called
         uses: snyk/actions/docker@master
