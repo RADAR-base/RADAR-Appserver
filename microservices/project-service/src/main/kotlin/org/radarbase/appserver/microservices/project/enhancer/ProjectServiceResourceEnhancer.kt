@@ -58,4 +58,7 @@ class ProjectServiceResourceEnhancer(private val config: ProjectServiceConfig) :
         override suspend fun projectOrganization(projectId: String): String = "main"
     }
 
+    companion object {
+        const val PROJECT_MAPPER = "project_mapper"
+    }
 }

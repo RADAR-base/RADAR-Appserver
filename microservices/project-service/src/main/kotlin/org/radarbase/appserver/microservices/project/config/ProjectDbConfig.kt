@@ -29,7 +29,7 @@ data class ProjectDbConfig(
     val password: String = "radar",
     val hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",
     val additionalProperties: Map<String, String> = emptyMap(),
-    val liquibaseConfig: CoreLiquibaseConfig = CoreLiquibaseConfig(),
+    val liquibase: CoreLiquibaseConfig = CoreLiquibaseConfig(),
 ) : Validation {
     fun withEnv(): ProjectDbConfig = this
         .copyEnv("APPSERVER_PROJECT_JDBC_URL") {
