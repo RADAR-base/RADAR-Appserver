@@ -31,10 +31,10 @@ import java.time.LocalDateTime
  */
 interface FcmNotificationService {
 
-    /** Get all notifications wrapped as DTO container. */
+    /** Get all notifications wrapped as DTO. */
     suspend fun getAllNotifications(): FcmNotifications
 
-    /** Get a single notification DTO by DB id. Returns an "empty" DTO when not found in current implementation. */
+    /** Get a single notification DTO by id. */
     suspend fun getNotificationById(id: Long): FcmNotificationDto
 
     /** Get all notifications for the user identified by subjectId. */
@@ -54,7 +54,6 @@ interface FcmNotificationService {
 
     /**
      * Filter notifications by optional criteria.
-     * Current service has this as TODO/WIP and returns null in some implementations.
      */
     fun getFilteredNotifications(
         type: String? = null,
@@ -67,7 +66,6 @@ interface FcmNotificationService {
 
     /**
      * Add a notification for the user identified by (subjectId, projectId).
-     * `schedule` controls whether the schedulerService.schedule(...) is invoked.
      * Returns the saved DTO.
      */
     suspend fun addNotification(
@@ -89,7 +87,6 @@ interface FcmNotificationService {
 
     /**
      * Add a notification entity and publish its state event; returns the saved Notification entity.
-     * Exposed because callers (or alternate implementations) may need to reuse the behaviour.
      */
     suspend fun addNotificationAndItsStateEvent(notificationDto: FcmNotificationDto, user: User): Notification
 
@@ -98,7 +95,7 @@ interface FcmNotificationService {
      */
     suspend fun checkNotificationExists(notificationDto: FcmNotificationDto, subjectId: String, projectId: String): Boolean
 
-    /** Update an existing notification. The DTO must contain the id. Returns the updated DTO. */
+    /** Update an existing notification. Returns the updated DTO. */
     suspend fun updateNotification(notificationDto: FcmNotificationDto, subjectId: String, projectId: String): FcmNotificationDto
 
     /** Schedule all notifications for a user (subjectId, projectId) and return them as DTO wrapper. */
@@ -115,7 +112,6 @@ interface FcmNotificationService {
 
     /**
      * Delete a specific notification by id for a (projectId, subjectId) pair.
-     * Should validate the notification belongs to the given user/project.
      */
     suspend fun deleteNotificationByProjectIdAndSubjectIdAndNotificationId(projectId: String, subjectId: String, id: Long)
 
@@ -136,13 +132,11 @@ interface FcmNotificationService {
 
     /**
      * Add notifications from entity list for a resolved user. Returns saved entity list.
-     * Note: notifications may be null or empty; implementations should handle gracefully.
      */
     suspend fun addNotifications(notifications: List<Notification>?, user: User): List<Notification>
 
     /**
      * Add multiple notifications (DTO wrapper) for a user and schedule them. Returns saved DTO wrapper.
-     * (Overload without explicit schedule flag — existing implementation schedules them.)
      */
     suspend fun addNotifications(notificationDtos: FcmNotifications, subjectId: String, projectId: String): FcmNotifications
 
@@ -150,12 +144,6 @@ interface FcmNotificationService {
      * Create and persist new notifications (entities) without scheduling; returns saved entities.
      */
     suspend fun addNewNotifications(notificationDtos: FcmNotifications, subjectId: String, projectId: String): List<Notification>
-
-    /**
-     * Ensure subject and project exist; returns the resolved User entity or throws.
-     * Exposed here because callers (or other implementations) may need the same behaviour.
-     */
-    suspend fun subjectAndProjectExistElseThrow(subjectId: String, projectId: String): User
 
     /**
      * Get a Notification entity by (projectId, subjectId, notificationId). Throws if not found.

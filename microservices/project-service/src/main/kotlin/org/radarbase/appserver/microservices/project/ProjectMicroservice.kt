@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    val logger = LoggerFactory.getLogger("org.radarbase.appserver.microservices.project.ProjectService")
+    val logger = LoggerFactory.getLogger("org.radarbase.appserver.microservices.project.ProjectMicroservice")
 
     logger.info("Starting Project Service")
 

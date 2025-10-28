@@ -19,7 +19,6 @@ package org.radarbase.appserver.microservices.core.service
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmDataMessageDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmDataMessages
 import org.radarbase.appserver.microservices.core.entity.DataMessage
-import org.radarbase.appserver.microservices.core.entity.User
 import java.time.LocalDateTime
 
 /**
@@ -28,12 +27,12 @@ import java.time.LocalDateTime
  * Implementations are expected to perform validation, persistence and scheduling
  * as appropriate for the concrete environment (e.g. FCM-backed scheduler).
  */
-interface DataMessageService {
+interface FcmDataMessageService {
 
     /** Get all data messages as DTO wrapper. */
     suspend fun getAllDataMessages(): FcmDataMessages
 
-    /** Get a single data message DTO by DB id. Returns an "empty" DTO when not found in current implementation. */
+    /** Get a single data message DTO by DB id. */
     suspend fun getDataMessageById(id: Long): FcmDataMessageDto
 
     /** Get all data messages for the user identified by subjectId. */
@@ -53,7 +52,6 @@ interface DataMessageService {
 
     /**
      * Filter data messages by a variety of optional criteria.
-     * Current service has this as TODO/WIP and returns null in some implementations.
      */
     fun getFilteredDataMessages(
         type: String? = null,
@@ -92,7 +90,6 @@ interface DataMessageService {
 
     /**
      * Delete a specific data message by id for a (projectId, subjectId) pair.
-     * Should validate the message belongs to the given user/project.
      */
     suspend fun deleteDataMessageByProjectIdAndSubjectIdAndDataMessageId(
         projectId: String,
@@ -109,12 +106,6 @@ interface DataMessageService {
         subjectId: String,
         projectId: String,
     ): FcmDataMessages
-
-    /**
-     * Ensure subject and project exist; returns the resolved User entity or throws.
-     * Exposed here because callers (or other implementations) may need the same behaviour.
-     */
-    suspend fun subjectAndProjectExistElseThrow(subjectId: String, projectId: String): User
 
     /**
      * Get a DataMessage entity by (projectId, subjectId, dataMessageId).
