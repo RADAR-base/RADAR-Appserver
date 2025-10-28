@@ -1,6 +1,7 @@
 plugins {
     kotlin("plugin.allopen")
     kotlin("plugin.noarg")
+    kotlin("plugin.serialization") version Versions.kotlinVersion
 }
 
 description = "Core library containing shared configurations, utilities, and common data models required by appserver microservices."
@@ -20,6 +21,7 @@ dependencies {
     api("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {
         runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
     }
+    api("org.glassfish.jersey.ext:jersey-bean-validation:3.1.10")
     implementation("com.google.firebase:firebase-admin:9.3.0") {
         constraints {
             implementation("com.google.protobuf:protobuf-java:3.25.5") {
@@ -30,7 +32,12 @@ dependencies {
             }
         }
     }
+    
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("org.quartz-scheduler:quartz:2.5.0")
+
 }
 
 allOpen {
