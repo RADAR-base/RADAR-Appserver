@@ -20,7 +20,7 @@ import java.net.URI
 
 class CoreServerConfig(
     /** Base URL to serve data with. This will determine the base path and the port. */
-    val baseUri: URI = URI.create("http://0.0.0.0:9010/"),
+    val baseUri: URI = URI.create("http://0.0.0.0:8080"),
     /**
      * Maximum time in seconds to wait for a request to complete.
      * This timeout is applied to the co-routine context, not to the Grizzly server.

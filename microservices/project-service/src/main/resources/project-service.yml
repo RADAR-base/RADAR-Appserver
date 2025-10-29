@@ -1,6 +1,6 @@
 resourceConfig: org.radarbase.appserver.microservices.project.enhancer.factory.ProjectServiceResourceEnhancerFactory
 server:
-  baseUri: http://0.0.0.0:9010/appserver/projects
+  baseUri: http://0.0.0.0:9010/projects
   requestTimeout: 30
   isJmxEnabled: false
 
