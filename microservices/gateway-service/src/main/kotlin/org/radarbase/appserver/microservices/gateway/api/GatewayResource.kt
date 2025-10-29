@@ -30,8 +30,10 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
+import jakarta.ws.rs.core.MediaType.TEXT_PLAIN
 import jakarta.ws.rs.core.Response
 import kotlinx.serialization.json.Json
+import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
@@ -40,6 +42,7 @@ import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.tokenForCurrentRequest
 import org.radarbase.appserver.microservices.gateway.config.GatewayConfig
 import org.radarbase.appserver.microservices.gateway.config.ServiceRoute
+import org.radarbase.appserver.microservices.gateway.utils.GithubHostVerifier.isAllowedGithubUrl
 import org.radarbase.appserver.microservices.gateway.utils.Utils.handleProxyResponse
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
@@ -250,6 +253,34 @@ class GatewayResource @Inject constructor(
             handleProxyResponse(proxyResponse)
         }
     }
+
+    @GET
+    @Path("/github")
+    @Produces(TEXT_PLAIN)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ)
+    fun getGithubContent(
+        @QueryParam("url") url: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            if (!isAllowedGithubUrl(url)) {
+                return@runAsCoroutine Response.status(Response.Status.BAD_REQUEST)
+                    .entity("invalid or disallowed url")
+                    .build()
+            }
+
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = null, subject = token.subject),
+                token,
+            )
+
+            GithubServiceContract.getGithubContent(url).let(::handleProxyResponse)
+        }
+    }
+
 }
 
 
