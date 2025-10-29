@@ -17,7 +17,6 @@
 package org.radarbase.appserver.microservices.project.api
 
 import jakarta.inject.Inject
-import jakarta.inject.Provider
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
@@ -31,22 +30,11 @@ import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.toList
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
-import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.project.service.ProjectService
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
-import org.radarbase.appserver.microservices.core.utils.tokenForCurrentRequest
 import org.radarbase.appserver.microservices.project.config.ProjectServiceConfig
-import org.radarbase.auth.authorization.EntityDetails
-import org.radarbase.auth.authorization.Permission
-import org.radarbase.auth.token.RadarToken
-import org.radarbase.jersey.auth.AuthService
-import org.radarbase.jersey.auth.Authenticated
-import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.net.URI
 import kotlin.time.Duration
@@ -57,8 +45,6 @@ import kotlin.time.Duration.Companion.seconds
 class ProjectResource @Inject constructor(
     private val projectService: ProjectService,
     private val asyncService: AsyncCoroutineService,
-    private val authService: AuthService,
-    private val tokenProvider: Provider<RadarToken>,
     config: ProjectServiceConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
@@ -67,19 +53,11 @@ class ProjectResource @Inject constructor(
     @Path(PROJECTS_PATH)
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
     fun addProject(
         @Valid projectDto: ProjectDto,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = projectDto.projectId, subject = token.subject),
-                token,
-            )
             projectService.addProject(projectDto).let {
                 Response
                     .created(URI("/projects/project?id=${it.id}"))
@@ -93,20 +71,12 @@ class ProjectResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun updateProject(
         @Valid @PathParam("projectId") projectId: String,
         @Valid projectDto: ProjectDto,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_UPDATE,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
             projectService.updateProject(projectDto).let {
                 Response.ok(it).build()
             }
@@ -116,47 +86,25 @@ class ProjectResource @Inject constructor(
     @GET
     @Path(PROJECTS_PATH)
     @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.PROJECT_READ)
     fun getAllProjects(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            projectService.getAllProjects().projects
-                .asFlow()
-                .filter {
-                    authService.hasPermission(
-                        Permission.PROJECT_READ,
-                        EntityDetails(project = it.projectId),
-                        tokenForCurrentRequest(asyncService, tokenProvider),
-                    )
-                }.toList()
-                .toMutableList()
-                .let {
-                    ProjectDtos(it)
-                }.let {
-                    Response.ok(it).build()
-                }
+            projectService.getAllProjects()
+        }.let {
+            Response.ok(it).build()
         }
     }
 
     @GET
     @Path("$PROJECTS_PATH/project")
     @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.PROJECT_READ)
     fun getProjectUsingId(
         @QueryParam("id") id: Long,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val project = projectService.getProjectById(id)
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.PROJECT_READ,
-                EntityDetails(project = project.projectId),
-                token,
-            )
             Response.ok(project).build()
         }
     }
@@ -164,20 +112,12 @@ class ProjectResource @Inject constructor(
     @GET
     @Path("$PROJECTS_PATH/$PROJECT_ID")
     @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
     fun getProjectUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val project = projectService.getProjectByProjectId(projectId)
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = project.projectId, subject = token.subject),
-                token,
-            )
             Response.ok(project).build()
         }
     }

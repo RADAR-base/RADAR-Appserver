@@ -30,11 +30,17 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
+import jakarta.ws.rs.core.Response
+import kotlinx.serialization.json.Json
+import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
+import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.tokenForCurrentRequest
 import org.radarbase.appserver.microservices.gateway.config.GatewayConfig
+import org.radarbase.appserver.microservices.gateway.config.ServiceRoute
+import org.radarbase.appserver.microservices.gateway.utils.Utils.handleProxyResponse
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.token.RadarToken
@@ -52,7 +58,11 @@ class GatewayResource @Inject constructor(
     private val tokenProvider: Provider<RadarToken>,
     config: GatewayConfig,
 ) {
+    private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
+
     private val requestTimeout = config.server.requestTimeout.seconds
+    private val projectServiceRoute: ServiceRoute = config.routes.first { it.name == "project" }
+    private val prefix = config.externalPrefix
 
     @POST
     @Path(PROJECTS_PATH)
@@ -72,6 +82,14 @@ class GatewayResource @Inject constructor(
                 token,
             )
 
+            handleProxyResponse(
+                ProjectServiceContract.addProject(
+                    projectDto,
+                    projectServiceRoute.baseUrl,
+                    projectServiceRoute.path,
+                    prefix,
+                ),
+            )
         }
     }
 
@@ -94,6 +112,14 @@ class GatewayResource @Inject constructor(
                 token,
             )
 
+            handleProxyResponse(
+                ProjectServiceContract.updateProject(
+                    projectDto,
+                    projectServiceRoute.baseUrl,
+                    projectServiceRoute.path,
+                    prefix,
+                ),
+            )
         }
     }
 
@@ -107,6 +133,41 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
 
+            val proxyResponse = ProjectServiceContract.getAllProjects(
+                projectServiceRoute.baseUrl,
+                projectServiceRoute.path,
+                prefix,
+            )
+
+            if (proxyResponse.status !in 200..299) {
+                return@runAsCoroutine handleProxyResponse(proxyResponse)
+            }
+
+            val decoded: ProjectDtos? = try {
+                if (proxyResponse.body != null) {
+                    val bodyString = proxyResponse.body?.decodeToString() ?: ""
+                    json.decodeFromString<ProjectDtos>(bodyString)
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+
+            if (decoded == null) {
+                return@runAsCoroutine handleProxyResponse(proxyResponse)
+            }
+
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            val filtered: MutableList<ProjectDto> = decoded.projects
+                .filter { project ->
+                    authService.hasPermission(
+                        Permission.PROJECT_READ,
+                        EntityDetails(project = project.projectId),
+                        token,
+                    )
+                }
+                .toMutableList()
+
+            Response.ok(ProjectDtos(filtered)).build()
         }
     }
 
@@ -120,7 +181,32 @@ class GatewayResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val proxyResponse = ProjectServiceContract.getProjectUsingId(
+                id,
+                projectServiceRoute.baseUrl,
+                projectServiceRoute.path,
+                prefix,
+            )
 
+            val decodedProject: ProjectDto? = try {
+                if (proxyResponse.status in 200..299 && proxyResponse.body != null) {
+                    val bodyString = proxyResponse.body?.decodeToString() ?: ""
+                    json.decodeFromString<ProjectDto>(bodyString)
+                } else {
+                    null
+                }
+            } catch (_: Exception) {
+                null
+            }
+
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.PROJECT_READ,
+                EntityDetails(project = decodedProject?.projectId),
+                token,
+            )
+
+            handleProxyResponse(proxyResponse)
         }
     }
 
@@ -134,7 +220,34 @@ class GatewayResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val proxyResponse = ProjectServiceContract.getProjectUsingProjectId(
+                projectId,
+                projectServiceRoute.baseUrl,
+                projectServiceRoute.path,
+                prefix,
+            )
 
+            val decodedProject: ProjectDto? = try {
+                if (proxyResponse.status in 200..299 && proxyResponse.body != null) {
+                    val bodyString = proxyResponse.body?.decodeToString() ?: ""
+                    json.decodeFromString<ProjectDto>(bodyString)
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+
+            val projectIdForAuth = decodedProject?.projectId ?: projectId
+
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectIdForAuth, subject = token.subject),
+                token,
+            )
+
+            handleProxyResponse(proxyResponse)
         }
     }
 }
