@@ -24,7 +24,7 @@ import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
-class ProjectServiceResourceEnhancerFactory(private val config: GithubServiceConfig) : EnhancerFactory {
+class GithubServiceResourceEnhancerFactory(private val config: GithubServiceConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
         val authConfig = AuthConfig(
             managementPortal = MPConfig(
