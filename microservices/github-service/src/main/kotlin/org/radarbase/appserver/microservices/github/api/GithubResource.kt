@@ -29,9 +29,6 @@ import org.radarbase.appserver.microservices.core.utils.Paths.GITHUB_CONTENT_PAT
 import org.radarbase.appserver.microservices.core.utils.Paths.GITHUB_PATH
 import org.radarbase.appserver.microservices.github.config.GithubServiceConfig
 import org.radarbase.appserver.microservices.github.service.GithubService
-import org.radarbase.auth.authorization.Permission
-import org.radarbase.jersey.auth.Authenticated
-import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.net.MalformedURLException
 import kotlin.time.Duration
@@ -48,8 +45,6 @@ class GithubResource @Inject constructor(
     @GET
     @Path("/$GITHUB_CONTENT_PATH")
     @Produces(TEXT_PLAIN)
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
     fun getGithubContent(
         @QueryParam("url") url: String,
         @Suspended asyncResponse: AsyncResponse,
