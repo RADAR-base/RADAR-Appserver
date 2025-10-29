@@ -1,6 +1,6 @@
 resourceConfig: org.radarbase.appserver.microservices.project.enhancer.factory.ProtocolServiceResourceEnhancerFactory
 server:
-  baseUri: http://0.0.0.0:9010/protocol
+  baseUri: http://0.0.0.0:9011/protocols
   requestTimeout: 30
   isJmxEnabled: false
 
