@@ -17,12 +17,10 @@
 package org.radarbase.appserver.microservices.contract.calls
 
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.client.request.accept
 import io.ktor.serialization.kotlinx.json.json
@@ -52,10 +50,6 @@ object GithubServiceContract {
         }
     }
 
-    /**
-     * Fetch raw github content at the given absolute URL.
-     * Caller MUST validate the url (avoid SSRF).
-     */
     suspend fun getGithubContent(url: String): ProxyResponse {
         return tryProxyRequest {
             return@tryProxyRequest client.get(url) {
