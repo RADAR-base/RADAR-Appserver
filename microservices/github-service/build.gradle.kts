@@ -7,5 +7,9 @@ dependencies {
     implementation(project(":microservices:contract"))
     implementation("org.radarbase:radar-jersey:${Versions.radarJerseyVersion}")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("io.ktor:ktor-client-core:${Versions.ktorVersion}")
+    implementation("io.ktor:ktor-client-cio:${Versions.ktorVersion}")
+
+    implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktorVersion}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktorVersion}")
 }
