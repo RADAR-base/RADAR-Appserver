@@ -1,11 +1,9 @@
 plugins {
 }
 
-description = "Library "
+description = "A library that provides a validated and contracted connection between microservices"
 
 dependencies {
-}
-
-tasks.test {
-    useJUnitPlatform()
+    implementation("io.ktor:ktor-client-core:${Versions.ktorVersion}")
+    implementation("io.ktor:ktor-client-cio:${Versions.ktorVersion}")
 }
