@@ -16,13 +16,12 @@
 
 package org.radarbase.appserver.microservices.github.config
 
-import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
-import org.radarbase.appserver.microservices.core.config.CoreServerConfig
-import org.radarbase.jersey.enhancer.EnhancerFactory
+import com.fasterxml.jackson.annotation.JsonProperty
 
-data class GithubServiceConfig(
-    val resourceConfig: Class<out EnhancerFactory>,
-    val server: CoreServerConfig,
-    val auth: CoreAuthConfig,
-    val github: GithubConfig,
+data class GithubCacheConfig(
+    @field:JsonProperty("cacheDurationSec")
+    val cacheDuration: Long = 3600,
+    @field:JsonProperty("retryDurationSec")
+    val retryDuration: Long = 60,
+    val maxCacheSize: Int = 10000,
 )
