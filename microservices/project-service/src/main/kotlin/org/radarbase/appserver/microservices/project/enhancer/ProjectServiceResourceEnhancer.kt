@@ -27,16 +27,12 @@ import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 class ProjectServiceResourceEnhancer(private val config: ProjectServiceConfig) : JerseyResourceEnhancer {
     override val packages: Array<String>
         get() = arrayOf(
-            "org.radarbase.appserver.microservices.project.resource",
+            "org.radarbase.appserver.microservices.project.api",
         )
 
     override fun AbstractBinder.enhance() {
         bind(config)
             .to(ProjectServiceConfig::class.java)
-            .`in`(Singleton::class.java)
-
-        bind(UnverifiedProjectService::class.java)
-            .to(org.radarbase.jersey.service.ProjectService::class.java)
             .`in`(Singleton::class.java)
     }
 
@@ -45,18 +41,6 @@ class ProjectServiceResourceEnhancer(private val config: ProjectServiceConfig) :
         register(UnhandledExceptionMapper::class.java)
     }
 
-    /** Project service without validation of the project's existence. */
-    class UnverifiedProjectService : org.radarbase.jersey.service.ProjectService {
-        override suspend fun ensureOrganization(organizationId: String) = Unit
-
-        override suspend fun ensureProject(projectId: String) = Unit
-
-        override suspend fun ensureSubject(projectId: String, userId: String) = Unit
-
-        override suspend fun listProjects(organizationId: String): List<String> = emptyList()
-
-        override suspend fun projectOrganization(projectId: String): String = "main"
-    }
 
     companion object {
         const val PROJECT_MAPPER = "project_mapper"
