@@ -16,14 +16,6 @@
 
 package org.radarbase.appserver.microservices.user.config
 
-import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
-import org.radarbase.appserver.microservices.core.config.CoreServerConfig
-import org.radarbase.jersey.enhancer.EnhancerFactory
-
-data class UserServiceConfig(
-    val resourceConfig: Class<out EnhancerFactory>,
-    val server: CoreServerConfig,
-    val auth: CoreAuthConfig,
-    val db: UserDbConfig,
-    val email: EmailConfig,
+data class EmailConfig(
+    val enabled: Boolean = false,
 )

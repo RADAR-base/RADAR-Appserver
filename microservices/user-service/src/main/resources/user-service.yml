@@ -9,6 +9,9 @@ auth:
   managementPortalUrl: http://localhost:8081/managementportal
   resourceName: res_Appserver
 
+email:
+  enabled: false
+
 db:
   # For Development environment, use H2 database.
   #  jdbcDriver: org.h2.Driver

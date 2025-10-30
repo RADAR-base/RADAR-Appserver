@@ -27,6 +27,7 @@ import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExc
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
 import org.radarbase.appserver.microservices.user.config.UserServiceConfig
+import org.radarbase.appserver.microservices.user.service.UserService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class UserServiceResourceEnhancer(private val config: UserServiceConfig) : JerseyResourceEnhancer {
@@ -44,7 +45,9 @@ class UserServiceResourceEnhancer(private val config: UserServiceConfig) : Jerse
             .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
             .`in`(Singleton::class.java)
 
-        // Also register user service
+        bind(UserService::class.java)
+            .to(UserService::class.java)
+            .`in`(Singleton::class.java)
     }
 
     override fun ResourceConfig.enhance() {
@@ -53,6 +56,6 @@ class UserServiceResourceEnhancer(private val config: UserServiceConfig) : Jerse
     }
 
     companion object {
-        private const val USER_MAPPER = "user_mapper"
+        const val USER_MAPPER = "user_mapper"
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.repository.impl
+package org.radarbase.appserver.microservices.user.repository
 
 import jakarta.inject.Provider
 import jakarta.persistence.EntityManager
