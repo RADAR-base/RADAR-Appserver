@@ -18,11 +18,30 @@ package org.radarbase.appserver.microservices.project.config
 
 import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
 import org.radarbase.appserver.microservices.core.config.CoreServerConfig
+import org.radarbase.appserver.microservices.core.config.Validation
+import org.radarbase.jersey.config.ConfigLoader.copyOnChange
 import org.radarbase.jersey.enhancer.EnhancerFactory
 
 data class ProjectServiceConfig(
     val resourceConfig: Class<out EnhancerFactory>,
     val server: CoreServerConfig,
     val auth: CoreAuthConfig,
-    val db: ProjectDbConfig
-)
+    val db: ProjectDbConfig,
+) : Validation {
+
+    override fun validate() {
+        listOf(auth, server, db).forEach {
+            it.validate()
+        }
+    }
+
+    fun withEnv(): ProjectServiceConfig = this.copyOnChange(
+        db,
+        {
+            it.withEnv()
+        },
+        {
+            copy(db = it)
+        },
+    )
+}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.repository.impl
+package org.radarbase.appserver.microservices.project.repository
 
 import jakarta.inject.Provider
 import jakarta.persistence.EntityManager
@@ -22,7 +22,7 @@ import jakarta.ws.rs.core.Context
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.entity.Project
 import org.radarbase.appserver.microservices.core.exception.InvalidProjectDetailsException
-import org.radarbase.appserver.microservices.project.repository.ProjectRepository
+import org.radarbase.appserver.microservices.core.repository.ProjectRepository
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.hibernate.HibernateRepository
 import org.radarbase.jersey.service.AsyncCoroutineService

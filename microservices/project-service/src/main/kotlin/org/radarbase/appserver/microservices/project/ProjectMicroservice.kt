@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.microservices.project
 
+import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.appserver.microservices.project.config.ProjectServiceConfig
 import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
@@ -34,9 +35,16 @@ fun main(args: Array<String>) {
                 "/etc/project-service/project-service.yml",
             ),
             args,
-        )
+        ).withEnv()
     } catch (_: IllegalArgumentException) {
-        logger.info("No configuration file (project-service.yml) found. Exiting...")
+        logger.error("No configuration file (project-service.yml) found. Exiting...")
+        exitProcess(1)
+    }
+
+    try {
+        (config as Validation).validate()
+    } catch (ex: IllegalStateException) {
+        logger.error("Invalid configuration: {}", ex.message)
         exitProcess(1)
     }
 
