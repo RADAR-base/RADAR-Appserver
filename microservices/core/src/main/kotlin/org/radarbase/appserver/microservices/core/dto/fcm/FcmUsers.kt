@@ -17,7 +17,9 @@
 package org.radarbase.appserver.microservices.core.dto.fcm
 
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class FcmUsers(
     @field:Size(max = 1500)
     val users: List<FcmUserDto>,

@@ -20,11 +20,17 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.radarbase.appserver.microservices.core.entity.DataMessage
+import org.radarbase.appserver.microservices.core.serialization.InstantSerializer
 import java.time.Instant
 import java.util.Objects
 
-class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
+@Serializable
+class FcmDataMessageDto(
+    @Transient private val dataMessageEntity: DataMessage? = null
+) {
     var id: Long? = dataMessageEntity?.id
 
     @field:JsonFormat(
@@ -32,6 +38,7 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var scheduledTime: @NotNull Instant? = dataMessageEntity?.scheduledTime
 
     var delivered: Boolean = dataMessageEntity?.delivered == true
@@ -66,6 +73,7 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var createdAt: Instant? = dataMessageEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
@@ -73,6 +81,7 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var updatedAt: Instant? = dataMessageEntity?.updatedAt?.toInstant()
 
     override fun equals(other: Any?): Boolean {
