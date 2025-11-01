@@ -18,11 +18,21 @@ package org.radarbase.appserver.microservices.github.config
 
 import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
 import org.radarbase.appserver.microservices.core.config.CoreServerConfig
+import org.radarbase.jersey.config.ConfigLoader.copyOnChange
 import org.radarbase.jersey.enhancer.EnhancerFactory
 
 data class GithubServiceConfig(
     val resourceConfig: Class<out EnhancerFactory>,
     val server: CoreServerConfig,
-    val auth: CoreAuthConfig,
     val github: GithubConfig,
-)
+) {
+    fun withEnv(): GithubServiceConfig = this.copyOnChange(
+        github,
+        {
+            it.withEnv()
+        },
+        {
+            copy(github = it)
+        },
+    )
+}
