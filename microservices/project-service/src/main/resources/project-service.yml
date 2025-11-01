@@ -5,10 +5,6 @@ server:
   requestTimeout: 30
   isJmxEnabled: false
 
-auth:
-  managementPortalUrl: http://localhost:8081/managementportal
-  resourceName: res_Appserver
-
 db:
   # For Development environment, use H2 database.
   jdbcDriver: org.h2.Driver

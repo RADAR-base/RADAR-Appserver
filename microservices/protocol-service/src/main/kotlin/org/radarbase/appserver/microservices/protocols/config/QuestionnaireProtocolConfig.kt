@@ -16,22 +16,8 @@
 
 package org.radarbase.appserver.microservices.protocols.config
 
-import org.radarbase.jersey.config.ConfigLoader.copyOnChange
-import org.radarbase.jersey.enhancer.EnhancerFactory
-
-data class ProtocolServiceConfig(
-    val resourceConfig: Class<out EnhancerFactory>,
-    val server: ProtocolServerConfig,
-    val protocol: QuestionnaireProtocolConfig,
-) {
-    fun withEnv(): ProtocolServiceConfig = this
-        .copyOnChange(
-            server,
-            {
-                it.withEnv()
-            },
-            {
-                copy(server = it)
-            },
-        )
-}
+data class QuestionnaireProtocolConfig(
+    val githubProtocolRepo: String = "RADAR-base/RADAR-aRMT-protocols",
+    val protocolFileName: String = "protocol.json",
+    val githubBranch: String = "master",
+)

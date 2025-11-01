@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.config
+package org.radarbase.appserver.microservices.contract.utils
 
-import org.radarbase.jersey.config.ConfigLoader.copyOnChange
-import org.radarbase.jersey.enhancer.EnhancerFactory
-
-data class ProtocolServiceConfig(
-    val resourceConfig: Class<out EnhancerFactory>,
-    val server: ProtocolServerConfig,
-    val protocol: QuestionnaireProtocolConfig,
-) {
-    fun withEnv(): ProtocolServiceConfig = this
-        .copyOnChange(
-            server,
-            {
-                it.withEnv()
-            },
-            {
-                copy(server = it)
-            },
-        )
+object Env {
+    const val PROJECT_SERVICE_BASE_URL = "APPSERVER_PROJECT_SERVICE_BASE_URL"
+    const val USER_SERVICE_BASE_URL = "APPSERVER_USER_SERVICE_BASE_URL"
+    const val GATEWAY_SERVICE_BASE_URL = "APPSERVER_GATEWAY_SERVICE_BASE_URL"
+    const val GITHUB_SERVICE_BASE_URL = "APPSERVER_GITHUB_SERVICE_BASE_URL"
+    const val PROTOCOL_SERVICE_BASE_URL = "APPSERVER_PROTOCOL_SERVICE_BASE_URL"
 }

@@ -1,7 +1,7 @@
-resourceConfig: org.radarbase.appserver.microservices.project.enhancer.factory.GithubServiceResourceEnhancerFactory
+resourceConfig: org.radarbase.appserver.microservices.github.enhancer.factory.GithubServiceResourceEnhancerFactory
 
 server:
-  baseUri: http://0.0.0.0:9012/github
+  baseUri: http://github-service:9011
   requestTimeout: 30
   isJmxEnabled: false
 

@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.gateway
+package org.radarbase.appserver.microservices.protocols
 
-import org.radarbase.appserver.microservices.gateway.config.GatewayConfig
+import org.radarbase.appserver.microservices.protocols.config.ProtocolServiceConfig
 import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    val logger = LoggerFactory.getLogger("org.radarbase.appserver.microservices.gateway.GatewayService")
+    val logger = LoggerFactory.getLogger("org.radarbase.appserver.microservices.protocol.ProtocolMicroservice")
 
-    logger.info("Starting Gateway Service")
+    logger.info("Starting Protocol Service")
 
     val config = try {
-        ConfigLoader.loadConfig<GatewayConfig>(
+        ConfigLoader.loadConfig<ProtocolServiceConfig>(
             listOf(
-                "microservices/gateway-service/src/main/resources/gateway-service.yml",
-                "/etc/project-service/gateway-service.yml",
+                "microservices/protocol-service/src/main/resources/protocol-service.yml",
+                "/etc/protocol-service/protocol-service.yml",
             ),
             args,
         ).withEnv()
     } catch (_: IllegalArgumentException) {
-        logger.info("No configuration file (gateway-service.yml) found. Exiting...")
+        logger.error("No configuration file (protocol-service.yml) found. Exiting...")
         exitProcess(1)
     }
 

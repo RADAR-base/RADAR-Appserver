@@ -11,4 +11,5 @@ dependencies {
 
     implementation("org.radarbase:radar-jersey:${Versions.radarJerseyVersion}")
     implementation(project(":microservices:core"))
+    implementation(project(":microservices:contract"))
 }
