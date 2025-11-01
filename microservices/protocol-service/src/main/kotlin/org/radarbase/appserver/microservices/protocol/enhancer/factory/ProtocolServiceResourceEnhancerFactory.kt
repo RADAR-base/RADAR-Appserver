@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.enhancer.factory
+package org.radarbase.appserver.microservices.protocol.enhancer.factory
 
-import org.radarbase.appserver.microservices.protocols.config.ProtocolServiceConfig
-import org.radarbase.appserver.microservices.protocols.enhancer.ProtocolServiceResourceEnhancer
+import org.radarbase.appserver.microservices.protocol.config.ProtocolServiceConfig
+import org.radarbase.appserver.microservices.protocol.enhancer.ProtocolServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer

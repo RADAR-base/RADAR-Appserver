@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.api
+package org.radarbase.appserver.microservices.protocol.api
 
 import jakarta.inject.Inject
 import jakarta.validation.Valid
@@ -32,7 +32,7 @@ import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.PROTOCOLS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.SUBJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
-import org.radarbase.appserver.microservices.protocols.config.ProtocolServiceConfig
+import org.radarbase.appserver.microservices.protocol.config.ProtocolServiceConfig
 import org.radarbase.jersey.service.AsyncCoroutineService
 import kotlin.time.Duration.Companion.seconds
 

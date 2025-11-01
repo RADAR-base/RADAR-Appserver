@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.config
+package org.radarbase.appserver.microservices.protocol.config
 
 import org.radarbase.appserver.microservices.contract.utils.Env
 import org.radarbase.appserver.microservices.core.config.Validation

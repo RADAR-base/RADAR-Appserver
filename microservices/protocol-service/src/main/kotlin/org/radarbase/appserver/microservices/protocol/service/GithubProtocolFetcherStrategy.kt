@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.service
+package org.radarbase.appserver.microservices.protocol.service
 
 import io.ktor.utils.io.errors.IOException
 import jakarta.inject.Inject
@@ -35,7 +35,7 @@ import org.radarbase.appserver.microservices.core.utils.cache.CachedMap
 import org.radarbase.appserver.microservices.core.utils.mapParallel
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
 import org.radarbase.appserver.microservices.core.utils.withReentrantLock
-import org.radarbase.appserver.microservices.protocols.config.ProtocolServiceConfig
+import org.radarbase.appserver.microservices.protocol.config.ProtocolServiceConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI

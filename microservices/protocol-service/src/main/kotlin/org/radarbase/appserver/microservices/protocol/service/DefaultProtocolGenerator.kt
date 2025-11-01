@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.service
+package org.radarbase.appserver.microservices.protocol.service
 
 import io.ktor.utils.io.errors.IOException
 import jakarta.inject.Inject

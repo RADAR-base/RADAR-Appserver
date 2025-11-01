@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.enhancer
+package org.radarbase.appserver.microservices.protocol.enhancer
 
 import jakarta.inject.Singleton
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
-import org.radarbase.appserver.microservices.protocols.config.ProtocolServiceConfig
+import org.radarbase.appserver.microservices.protocol.config.ProtocolServiceConfig
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class ProtocolServiceResourceEnhancer(private val config: ProtocolServiceConfig) : JerseyResourceEnhancer {

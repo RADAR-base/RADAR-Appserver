@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols
+package org.radarbase.appserver.microservices.protocol
 
-import org.radarbase.appserver.microservices.protocols.config.ProtocolServiceConfig
+import org.radarbase.appserver.microservices.protocol.config.ProtocolServiceConfig
 import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.LoggerFactory
