@@ -17,9 +17,9 @@
 package org.radarbase.appserver.microservices.gateway.config
 
 import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
-import org.radarbase.appserver.microservices.core.config.CoreServerConfig
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
+import org.radarbase.jersey.config.ConfigLoader.copyOnChange
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import java.net.URI
 
@@ -28,11 +28,19 @@ data class GatewayConfig(
     val auth: CoreAuthConfig,
     val externalPrefix: String = "",
     val routes: Set<ServiceRoute>,
-    val server: CoreServerConfig,
+    val server: GatewayServerConfig,
 ) : Validation {
-
     fun withEnv(): GatewayConfig = this
-        .copyEnv("PROJECT_SERVICE_BASE_URL") { projectBase ->
+        .copyOnChange(
+            server,
+            {
+                it.withEnv()
+            },
+            {
+                copy(server = it)
+            },
+        )
+        .copyEnv("APPSERVER_PROJECT_SERVICE_BASE_URL") { projectBase ->
             updateOrAddRoute("project") { prevConfig ->
                 ServiceRoute(
                     name = prevConfig?.name ?: "project",
@@ -43,7 +51,7 @@ data class GatewayConfig(
                 copy(routes = updated)
             }
         }
-        .copyEnv("USER_SERVICE_BASE_URL") { userBase ->
+        .copyEnv("APPSERVER_USER_SERVICE_BASE_URL") { userBase ->
             updateOrAddRoute("user") { prevConfig ->
                 ServiceRoute(
                     name = prevConfig?.name ?: "user",

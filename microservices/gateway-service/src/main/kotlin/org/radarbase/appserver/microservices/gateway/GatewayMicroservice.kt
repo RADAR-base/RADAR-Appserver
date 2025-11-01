@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
                 "/etc/project-service/gateway-service.yml",
             ),
             args,
-        )
+        ).withEnv()
     } catch (_: IllegalArgumentException) {
         logger.info("No configuration file (gateway-service.yml) found. Exiting...")
         exitProcess(1)

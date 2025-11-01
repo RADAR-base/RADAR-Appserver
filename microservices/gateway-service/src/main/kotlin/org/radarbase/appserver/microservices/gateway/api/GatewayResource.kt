@@ -35,14 +35,10 @@ import jakarta.ws.rs.core.Response
 import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
-import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
-import org.radarbase.appserver.microservices.core.utils.Paths.PROTOCOLS_PATH
-import org.radarbase.appserver.microservices.core.utils.Paths.SUBJECT_ID
-import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
 import org.radarbase.appserver.microservices.core.utils.tokenForCurrentRequest
 import org.radarbase.appserver.microservices.gateway.config.GatewayConfig
 import org.radarbase.appserver.microservices.gateway.config.ServiceRoute
@@ -70,6 +66,8 @@ class GatewayResource @Inject constructor(
     private val requestTimeout = config.server.requestTimeout.seconds
     private val projectServiceRoute: ServiceRoute = config.routes.first { it.name == "project" }
     private val prefix = config.externalPrefix
+
+//-------------------------------------------------Project Service------------------------------------------------------
 
     @POST
     @Path(PROJECTS_PATH)
@@ -150,9 +148,10 @@ class GatewayResource @Inject constructor(
                 return@runAsCoroutine handleProxyResponse(proxyResponse)
             }
 
+            val proxyResponseBody: ByteArray? = proxyResponse.body
             val decoded: ProjectDtos? = try {
-                if (proxyResponse.body != null) {
-                    val bodyString = proxyResponse.body?.decodeToString() ?: ""
+                if (proxyResponseBody != null) {
+                    val bodyString = proxyResponseBody.decodeToString()
                     json.decodeFromString<ProjectDtos>(bodyString)
                 } else null
             } catch (_: Exception) {
@@ -195,15 +194,16 @@ class GatewayResource @Inject constructor(
                 prefix,
             )
 
-            val decodedProject: ProjectDto? = try {
-                if (proxyResponse.status in 200..299 && proxyResponse.body != null) {
-                    val bodyString = proxyResponse.body?.decodeToString() ?: ""
+            val proxyResponseBody: ByteArray? = proxyResponse.body
+            val decodedProject: ProjectDto = try {
+                if (proxyResponse.status in 200..299 && proxyResponseBody != null) {
+                    val bodyString = proxyResponseBody.decodeToString()
                     json.decodeFromString<ProjectDto>(bodyString)
                 } else {
-                    null
+                    return@runAsCoroutine handleProxyResponse(proxyResponse)
                 }
             } catch (_: Exception) {
-                null
+                return@runAsCoroutine handleProxyResponse(proxyResponse)
             }
 
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
@@ -213,7 +213,7 @@ class GatewayResource @Inject constructor(
                 token,
             )
 
-            handleProxyResponse(proxyResponse)
+            Response.ok(decodedProject).build()
         }
     }
 
@@ -234,10 +234,12 @@ class GatewayResource @Inject constructor(
                 prefix,
             )
 
+            val projectResponseBody = proxyResponse.body
             val decodedProject: ProjectDto? = try {
-                if (proxyResponse.status in 200..299 && proxyResponse.body != null) {
-                    val bodyString = proxyResponse.body?.decodeToString() ?: ""
-                    json.decodeFromString<ProjectDto>(bodyString)
+                if (proxyResponse.status in 200..299 && projectResponseBody != null) {
+                    (proxyResponse.body?.decodeToString() ?: "").let { bodyString ->
+                        json.decodeFromString<ProjectDto>(bodyString)
+                    }
                 } else {
                     null
                 }
@@ -245,8 +247,11 @@ class GatewayResource @Inject constructor(
                 null
             }
 
-            val projectIdForAuth = decodedProject?.projectId ?: projectId
+            if (decodedProject == null) {
+                return@runAsCoroutine handleProxyResponse(proxyResponse)
+            }
 
+            val projectIdForAuth = decodedProject.projectId ?: projectId
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_READ,
@@ -254,9 +259,11 @@ class GatewayResource @Inject constructor(
                 token,
             )
 
-            handleProxyResponse(proxyResponse)
+            Response.ok(decodedProject).build()
         }
     }
+
+//-------------------------------------------Github Service-------------------------------------------------------------
 
     @GET
     @Path("/github")
@@ -285,78 +292,78 @@ class GatewayResource @Inject constructor(
         }
     }
 
-    @GET
-    @Path(PROTOCOLS_PATH)
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.PROJECT_READ)
-    fun getProtocols(
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(Permission.PROJECT_READ, EntityDetails(project = null, subject = token.subject), token)
-
-            val proxyResponse = ProtocolServiceContract.getProtocols(
-                projectServiceRoute.baseUrl,
-                projectServiceRoute.path,
-                prefix,
-            )
-
-            handleProxyResponse(proxyResponse)
-        }
-    }
-
-    @GET
-    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$PROTOCOLS_PATH")
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.PROJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
-    fun getProtocolsUsingProjectIdAndSubjectId(
-        @Valid @PathParam("projectId") projectId: String,
-        @Valid @PathParam("subjectId") subjectId: String,
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(Permission.PROJECT_READ, EntityDetails(project = projectId, subject = token.subject), token)
-
-            val proxyResponse = ProtocolServiceContract.getProtocolForSubject(
-                projectId,
-                subjectId,
-                projectServiceRoute.baseUrl,
-                projectServiceRoute.path,
-                prefix,
-            )
-
-            handleProxyResponse(proxyResponse)
-        }
-    }
-
-    @GET
-    @Path("$PROJECTS_PATH/$PROJECT_ID/$PROTOCOLS_PATH")
-    @Produces(APPLICATION_JSON)
-    @Authenticated
-    @NeedsPermission(Permission.PROJECT_READ, projectPathParam = "projectId")
-    fun getProtocolsUsingProjectId(
-        @Valid @PathParam("projectId") projectId: String,
-        @Suspended asyncResponse: AsyncResponse,
-    ) {
-        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(Permission.PROJECT_READ, EntityDetails(project = projectId, subject = token.subject), token)
-
-            val proxyResponse = ProtocolServiceContract.getProtocolsForProject(
-                projectId,
-                projectServiceRoute.baseUrl,
-                projectServiceRoute.path,
-                prefix,
-            )
-
-            handleProxyResponse(proxyResponse)
-        }
-    }
-
+//    @GET
+//    @Path(PROTOCOLS_PATH)
+//    @Produces(APPLICATION_JSON)
+//    @Authenticated
+//    @NeedsPermission(Permission.PROJECT_READ)
+//    fun getProtocols(
+//        @Suspended asyncResponse: AsyncResponse,
+//    ) {
+//        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+//            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+//            authService.checkPermission(Permission.PROJECT_READ, EntityDetails(project = null, subject = token.subject), token)
+//
+//            val proxyResponse = ProtocolServiceContract.getProtocols(
+//                projectServiceRoute.baseUrl,
+//                projectServiceRoute.path,
+//                prefix,
+//            )
+//
+//            handleProxyResponse(proxyResponse)
+//        }
+//    }
+//
+//    @GET
+//    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$PROTOCOLS_PATH")
+//    @Produces(APPLICATION_JSON)
+//    @Authenticated
+//    @NeedsPermission(Permission.PROJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+//    fun getProtocolsUsingProjectIdAndSubjectId(
+//        @Valid @PathParam("projectId") projectId: String,
+//        @Valid @PathParam("subjectId") subjectId: String,
+//        @Suspended asyncResponse: AsyncResponse,
+//    ) {
+//        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+//            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+//            authService.checkPermission(Permission.PROJECT_READ, EntityDetails(project = projectId, subject = token.subject), token)
+//
+//            val proxyResponse = ProtocolServiceContract.getProtocolForSubject(
+//                projectId,
+//                subjectId,
+//                projectServiceRoute.baseUrl,
+//                projectServiceRoute.path,
+//                prefix,
+//            )
+//
+//            handleProxyResponse(proxyResponse)
+//        }
+//    }
+//
+//    @GET
+//    @Path("$PROJECTS_PATH/$PROJECT_ID/$PROTOCOLS_PATH")
+//    @Produces(APPLICATION_JSON)
+//    @Authenticated
+//    @NeedsPermission(Permission.PROJECT_READ, projectPathParam = "projectId")
+//    fun getProtocolsUsingProjectId(
+//        @Valid @PathParam("projectId") projectId: String,
+//        @Suspended asyncResponse: AsyncResponse,
+//    ) {
+//        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+//            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+//            authService.checkPermission(Permission.PROJECT_READ, EntityDetails(project = projectId, subject = token.subject), token)
+//
+//            val proxyResponse = ProtocolServiceContract.getProtocolsForProject(
+//                projectId,
+//                projectServiceRoute.baseUrl,
+//                projectServiceRoute.path,
+//                prefix,
+//            )
+//
+//            handleProxyResponse(proxyResponse)
+//        }
+//    }
+//
 }
 
 
