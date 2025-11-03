@@ -2,6 +2,8 @@ plugins {
     application
 }
 
+description = "AppServer Gateway Microservices Implementation"
+
 dependencies {
     implementation(project(":microservices:core"))
     implementation(project(":microservices:contract"))
