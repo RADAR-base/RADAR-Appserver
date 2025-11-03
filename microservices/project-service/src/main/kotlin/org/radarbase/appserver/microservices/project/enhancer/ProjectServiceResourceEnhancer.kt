@@ -17,12 +17,23 @@
 package org.radarbase.appserver.microservices.project.enhancer
 
 import jakarta.inject.Singleton
+import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.radarbase.appserver.microservices.core.dto.ProjectDto
+import org.radarbase.appserver.microservices.core.entity.Project
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
+import org.radarbase.appserver.microservices.core.mapper.Mapper
+import org.radarbase.appserver.microservices.core.mapper.ProjectMapper
+import org.radarbase.appserver.microservices.core.repository.ProjectRepository
+import org.radarbase.appserver.microservices.core.utils.Const.PROJECT_MAPPER
 import org.radarbase.appserver.microservices.project.config.ProjectServiceConfig
+import org.radarbase.appserver.microservices.project.repository.ProjectRepositoryImpl
+import org.radarbase.appserver.microservices.project.service.ProjectService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
+import org.radarbase.jersey.service.AsyncCoroutineService
+import org.radarbase.jersey.service.ScopedAsyncCoroutineService
 
 class ProjectServiceResourceEnhancer(private val config: ProjectServiceConfig) : JerseyResourceEnhancer {
     override val packages: Array<String>
@@ -34,6 +45,24 @@ class ProjectServiceResourceEnhancer(private val config: ProjectServiceConfig) :
         bind(config)
             .to(ProjectServiceConfig::class.java)
             .`in`(Singleton::class.java)
+
+        bind(ProjectService::class.java)
+            .to(ProjectService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(ProjectRepositoryImpl::class.java)
+            .to(ProjectRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(ProjectMapper::class.java)
+            .to(object : TypeLiteral<Mapper<ProjectDto, Project>>() {}.type)
+            .named(PROJECT_MAPPER)
+            .`in`(Singleton::class.java)
+
+        bind(ScopedAsyncCoroutineService::class.java)
+            .to(AsyncCoroutineService::class.java)
+            .`in`(Singleton::class.java)
+
     }
 
     override fun ResourceConfig.enhance() {
@@ -41,8 +70,4 @@ class ProjectServiceResourceEnhancer(private val config: ProjectServiceConfig) :
         register(UnhandledExceptionMapper::class.java)
     }
 
-
-    companion object {
-        const val PROJECT_MAPPER = "project_mapper"
-    }
 }

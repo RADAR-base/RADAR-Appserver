@@ -18,13 +18,14 @@ package org.radarbase.appserver.microservices.project.config
 
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
+import org.radarbase.appserver.microservices.core.entity.Project
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class ProjectDbConfig(
-    val classes: List<String> = emptyList(),
+    val classes: List<String> = listOf(Project::class.qualifiedName!!),
     val jdbcDriver: String = "org.postgresql.Driver",
-    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/microservices/project",
+    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_project",
     val username: String = "radar",
     val password: String = "radar",
     val hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",

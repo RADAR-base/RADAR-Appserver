@@ -18,8 +18,6 @@ package org.radarbase.appserver.microservices.project.enhancer.factory
 
 import org.radarbase.appserver.microservices.project.config.ProjectServiceConfig
 import org.radarbase.appserver.microservices.project.enhancer.ProjectServiceResourceEnhancer
-import org.radarbase.jersey.auth.AuthConfig
-import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
@@ -28,15 +26,6 @@ import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
 class ProjectServiceResourceEnhancerFactory(private val config: ProjectServiceConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
-        val authConfig = AuthConfig(
-            managementPortal = MPConfig(
-                url = config.auth.managementPortalUrl,
-            ),
-            jwtResourceName = config.auth.resourceName,
-            jwtIssuer = config.auth.issuer,
-            jwksUrls = config.auth.publicKeyUrls ?: emptyList(),
-        )
-
         val dbConfig = DatabaseConfig(
             managedClasses = config.db.classes,
             url = config.db.jdbcUrl,
@@ -52,8 +41,6 @@ class ProjectServiceResourceEnhancerFactory(private val config: ProjectServiceCo
 
         return listOf(
             ProjectServiceResourceEnhancer(config),
-            Enhancers.radar(authConfig),
-            Enhancers.managementPortal(authConfig),
             HibernateResourceEnhancer(dbConfig),
             Enhancers.health,
             Enhancers.exception,
