@@ -4,7 +4,7 @@ externalPrefix:
 
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
-  resourceName: res_Appserver
+  resourceName: res_appconfig
 
 routes:
   - name: project
@@ -12,11 +12,17 @@ routes:
     baseUrl: http://project-service:9010
   - name: user
     path: users
-    baseUrl: http://user-service:9011
+    baseUrl: http://user-service:9013
+  - name: github
+    path: github
+    baseUrl: http://github-service:9011
+  - name: protocol
+    path: protocols
+    baseUrl: http://protocol-service:9012
 
 server:
   # Base URI of the application.
-  baseUri: http://gateway-service:8080/
+  baseUri: http://gateway-service:8080
   # Timeout for requests to the application.
   requestTimeout: 30
   isJmxEnabled: false
