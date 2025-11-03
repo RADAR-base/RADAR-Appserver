@@ -1,31 +1,29 @@
 resourceConfig: org.radarbase.appserver.microservices.user.enhancer.factory.UserServiceResourceEnhancerFactory
 
 server:
-  baseUri: http://user-service:9014
+  baseUri: http://user-service:9013
   requestTimeout: 30
   isJmxEnabled: false
 
-auth:
-  managementPortalUrl: http://localhost:8081/managementportal
-  resourceName: res_Appserver
+db:
+  # For Development environment, use H2 database.
+  jdbcDriver: org.h2.Driver
+  jdbcUrl: jdbc:h2:mem:appserver_user
+  hibernateDialect: org.hibernate.dialect.H2Dialect
+  liquibase:
+    enabled: false
+  additionalProperties:
+    jakarta.persistence.schema-generation.database.action: drop-and-create
+    hibernate.show_sql: true
+    hibernate.format_sql: true
+#  jdbcDriver: org.postgresql.Driver
+#  jdbcUrl: jdbc:postgresql://localhost:5432/appserver_user
+#  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
+#  username: radar
+#  password: radar
 
 email:
   enabled: false
 
-db:
-  # For Development environment, use H2 database.
-  #  jdbcDriver: org.h2.Driver
-  #  jdbcUrl: jdbc:h2:mem:appserver_user
-  #  hibernateDialect: org.hibernate.dialect.H2Dialect
-  #  liquibase:
-  #    enabled: false
-  #  additionalProperties:
-  #    jakarta.persistence.schema-generation.database.action: drop-and-create
-  #    hibernate.show_sql: true
-  #    hibernate.format_sql: true
-  jdbcDriver: org.postgresql.Driver
-  jdbcUrl: jdbc:postgresql://localhost:5432/appserver_user
-  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
-  username: radar
-  password: radar
-
+contract:
+  project: http://project-service:9010
