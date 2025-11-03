@@ -209,8 +209,7 @@ class MessageSchedulerService<T : Message> @Inject constructor(
 
             val user: User = requireNotNull(message.user) { "User for message cannot be null" }
             val projectId: String = requireNotNull(
-                requireNotNull(user.project) { "Project for user in message cannot be null" }
-                    .projectId,
+                    user.projectId,
             ) { "Project Id for user in message cannot be null" }
 
             return Triple(messageId, subjectId, projectId)

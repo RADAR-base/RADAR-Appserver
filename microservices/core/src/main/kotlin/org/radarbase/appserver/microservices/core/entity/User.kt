@@ -70,11 +70,9 @@ class User(
     var fcmToken: String? = null,
 
     @field:NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "project_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Column(name = "project_id", nullable = false)
     @JsonIgnore
-    var project: Project? = null,
+    var projectId: String? = null,
 
     @field:NotNull
     @Column(name = "enrolment_date")
@@ -106,7 +104,7 @@ class User(
         User::subjectId,
         User::emailAddress,
         User::fcmToken,
-        User::project,
+        User::projectId,
         User::enrolmentDate,
         User::usermetrics,
         User::timezone,
@@ -117,11 +115,11 @@ class User(
         other,
         User::subjectId,
         User::fcmToken,
-        User::project,
+        User::projectId,
         User::enrolmentDate,
     )
 
     override fun hashCode(): Int {
-        return Objects.hash(subjectId, fcmToken, project, enrolmentDate)
+        return Objects.hash(subjectId, fcmToken, projectId, enrolmentDate)
     }
 }

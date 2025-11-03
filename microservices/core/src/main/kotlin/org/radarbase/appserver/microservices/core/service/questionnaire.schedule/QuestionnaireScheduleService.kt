@@ -204,7 +204,7 @@ class QuestionnaireScheduleService @Inject constructor(
             checkPresence(
                 this.userRepository.findBySubjectIdAndProjectId(
                     subjectId,
-                    checkNotNull(project.id) { "Project ID cannot be null." },
+                    checkNotNull(project.projectId) { "Project ID cannot be null." },
                 ),
                 "user_not_found",
             ) {
