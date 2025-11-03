@@ -17,10 +17,21 @@
 package org.radarbase.appserver.microservices.contract.utils
 
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.utils.io.CancellationException
+import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.response.ProxyResponse
+import org.radarbase.jersey.exception.HttpNotFoundException
+import org.slf4j.LoggerFactory
+import java.net.ConnectException
 
 object Utils {
+    private val logger = LoggerFactory.getLogger(Utils::class.java)
+    val jsonUtils = Json { ignoreUnknownKeys = true; coerceInputValues = true }
+
     fun normalizedPath(path: String?): String {
         val trimmed = path?.trim().orEmpty()
         if (trimmed.isBlank()) return ""
@@ -45,23 +56,33 @@ object Utils {
         )
     }
 
-    fun getEndpointFromParts(baseUrl: String, path: String, prefix: String?): String {
-        val base: String = normalizedUri(baseUrl)
-        val prefixSegment: String = normalizedPath(prefix)
-        val servicePath: String = normalizedPath(path)
+    inline fun <reified T : Any> deserializeDtoFromContract(
+        proxyResponse: ProxyResponse,
+        exceptionMessageProvider: () -> String,
+    ): T {
+        val proxyResponseBody = proxyResponse.body
+        val content = proxyResponseBody?.decodeToString()
 
-        return (base + prefixSegment + servicePath).removeSuffix("/")
+        if (content != null && proxyResponse.status in 200..299) {
+            return jsonUtils.decodeFromString<T>(content)
+        } else if (proxyResponse.status == HttpStatusCode.NotFound.value) {
+            val (code, message) = exceptionMessageProvider().split(";")
+            throw HttpNotFoundException(code.trim(), message.trim())
+        } else {
+            throw RuntimeException(content)
+        }
     }
 
-    suspend fun tryProxyRequest(request: suspend () -> ProxyResponse): ProxyResponse {
+    suspend fun tryProxyRequest(caller: String, request: suspend () -> ProxyResponse): ProxyResponse {
         return try {
             request()
         } catch (t: Throwable) {
+            logger.error("Proxy request failed for caller ({}) -> {} : {}", caller, t::class.simpleName, t)
+
             when (t) {
-                is io.ktor.client.plugins.HttpRequestTimeoutException,
-                is kotlinx.coroutines.TimeoutCancellationException,
-                is java.net.SocketTimeoutException,
-                    -> {
+                is CancellationException -> throw t
+
+                is HttpRequestTimeoutException, is SocketTimeoutException -> {
                     ProxyResponse(
                         status = 504,
                         contentType = "application/json",
@@ -69,7 +90,7 @@ object Utils {
                     )
                 }
 
-                is java.net.ConnectException -> {
+                is ConnectException -> {
                     ProxyResponse(
                         status = 502,
                         contentType = "application/json",
@@ -91,5 +112,4 @@ object Utils {
             }
         }
     }
-
 }
