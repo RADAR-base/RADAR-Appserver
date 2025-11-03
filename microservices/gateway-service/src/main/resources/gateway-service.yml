@@ -1,0 +1,22 @@
+resourceConfig: org.radarbase.appserver.microservices.gateway.enhancer.factory.GatewayServiceResourceEnhancerFactory
+
+externalPrefix:
+
+auth:
+  managementPortalUrl: http://localhost:8081/managementportal
+  resourceName: res_appconfig
+
+routes:
+  - name: project
+    path: projects
+    baseUrl: http://project-service:9010
+#  - name: user
+#    path: users
+#    baseUrl: http://user-service:9011
+
+server:
+  # Base URI of the application.
+  baseUri: http://gateway-service:8080
+  # Timeout for requests to the application.
+  requestTimeout: 30
+  isJmxEnabled: false

@@ -1,3 +1,5 @@
+import org.radarbase.gradle.plugin.radarKotlin
+
 plugins {
     idea
     id("org.radarbase.appserver-conventions")
@@ -22,3 +24,15 @@ idea {
     }
 }
 
+subprojects {
+    if (this.path.startsWith(":microservices:")) {
+        apply<org.radarbase.gradle.plugin.RadarKotlinPlugin>()
+
+        radarKotlin {
+            javaVersion.set(Versions.java)
+            kotlinVersion.set(Versions.kotlinVersion)
+            junitVersion.set(Versions.junit5Version)
+            log4j2Version.set(Versions.log4j2)
+        }
+    }
+}

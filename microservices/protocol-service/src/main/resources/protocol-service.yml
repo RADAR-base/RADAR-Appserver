@@ -1,0 +1,16 @@
+resourceConfig: org.radarbase.appserver.microservices.protocol.enhancer.factory.ProtocolServiceResourceEnhancerFactory
+
+server:
+  baseUri: http://protocol-service:9012
+  requestTimeout: 30
+  isJmxEnabled: false
+
+protocol:
+  githubProtocolRepo: RADAR-base/RADAR-aRMT-protocols
+  protocolFileName: protocol.json
+  githubBranch: master
+
+contract:
+  project: http://project-service:9010
+  user: http://user-service:9013
+  github: http://github-service:9011
