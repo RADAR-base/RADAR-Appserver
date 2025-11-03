@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.protocols.config
+package org.radarbase.appserver.microservices.protocol.config
 
-import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
-import org.radarbase.appserver.microservices.core.config.CoreServerConfig
-import org.radarbase.jersey.enhancer.EnhancerFactory
-
-data class ProtocolServiceConfig(
-    val resourceConfig: Class<out EnhancerFactory>,
-    val server: CoreServerConfig,
-    val auth: CoreAuthConfig,
+data class QuestionnaireProtocolConfig(
+    val githubProtocolRepo: String = "RADAR-base/RADAR-aRMT-protocols",
+    val protocolFileName: String = "protocol.json",
+    val githubBranch: String = "master",
 )
