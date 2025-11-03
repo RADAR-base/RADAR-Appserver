@@ -17,9 +17,6 @@
 package org.radarbase.appserver.microservices.contract.calls
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
@@ -27,117 +24,90 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
+import org.radarbase.appserver.microservices.contract.client.ClientsContract
 import org.radarbase.appserver.microservices.contract.response.ProxyResponse
 import org.radarbase.appserver.microservices.contract.utils.Utils.createProxyFromResponse
-import org.radarbase.appserver.microservices.contract.utils.Utils.getEndpointFromParts
+import org.radarbase.appserver.microservices.contract.utils.Utils.normalizedUri
 import org.radarbase.appserver.microservices.contract.utils.Utils.tryProxyRequest
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
-import kotlin.time.Duration.Companion.seconds
 
 @Suppress("unused")
 object ProjectServiceContract {
-    val client: HttpClient = HttpClient(CIO) {
-        expectSuccess = true
-
-        install(HttpTimeout) {
-            connectTimeoutMillis = 15.seconds.inWholeMilliseconds
-            socketTimeoutMillis = 15.seconds.inWholeMilliseconds
-            requestTimeoutMillis = 15.seconds.inWholeMilliseconds
-        }
-
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                    coerceInputValues = true
-                },
-            )
-        }
-    }
+    private const val PROJECT_SERVICE = "project-service"
+    private val client: HttpClient = ClientsContract.retrieveClientForService(PROJECT_SERVICE)
 
     suspend fun addProject(
         project: ProjectDto,
         baseUrl: String,
-        path: String,
-        prefix: String? = null,
     ): ProxyResponse {
-        return getEndpointFromParts(baseUrl, path, prefix).let { endpoint ->
-            tryProxyRequest {
-                return@tryProxyRequest client.post(endpoint) {
-                    setBody(project)
-                    contentType(ContentType.Application.Json)
-                }.let { response -> createProxyFromResponse(response) }
-            }
+        return tryProxyRequest("ProjectClient::addProject") {
+            client.post(normalizedUri(baseUrl)) {
+                url {
+                    appendPathSegments("projects")
+                }
+                setBody(project)
+                contentType(ContentType.Application.Json)
+            }.let { response -> createProxyFromResponse(response) }
         }
     }
 
     suspend fun updateProject(
+        projectId: String,
         project: ProjectDto,
         baseUrl: String,
-        path: String,
-        prefix: String? = null,
     ): ProxyResponse {
-        return getEndpointFromParts(baseUrl, path, prefix).let { endpoint ->
-            tryProxyRequest {
-                return@tryProxyRequest client.put(endpoint) {
-                    setBody(project)
-                    contentType(ContentType.Application.Json)
-                }.let { response -> createProxyFromResponse(response) }
-            }
+        return tryProxyRequest("ProjectClient::updateProject") {
+            client.put(normalizedUri(baseUrl)) {
+                url {
+                    appendPathSegments("projects", projectId)
+                }
+                setBody(project)
+                contentType(ContentType.Application.Json)
+            }.let { response -> createProxyFromResponse(response) }
         }
     }
 
     suspend fun getAllProjects(
         baseUrl: String,
-        path: String,
-        prefix: String? = null,
     ): ProxyResponse {
-        return getEndpointFromParts(baseUrl, path, prefix).let { endpoint ->
-            tryProxyRequest {
-                return@tryProxyRequest createProxyFromResponse(client.get(endpoint))
-            }
+        return tryProxyRequest("ProjectClient::getAllProject") {
+            client.get(normalizedUri(baseUrl)) {
+                url {
+                    appendPathSegments("projects")
+                }
+            }.let { response -> createProxyFromResponse(response) }
         }
+
     }
 
     suspend fun getProjectUsingId(
         id: Long,
         baseUrl: String,
-        path: String,
-        prefix: String? = null,
     ): ProxyResponse {
-        return getEndpointFromParts(baseUrl, path, prefix).let { endpoint ->
-            tryProxyRequest {
-                return@tryProxyRequest client.get(endpoint) {
-                    url {
-                        appendPathSegments("project")
-                        parameters.append("id", id.toString())
-                    }
-                }.let { response -> createProxyFromResponse(response) }
-            }
+        return tryProxyRequest("ProjectClient::getProjectUsingId") {
+            client.get(normalizedUri(baseUrl)) {
+                url {
+                    appendPathSegments("projects", "project")
+                    parameters.append("id", id.toString())
+                }
+            }.let { response -> createProxyFromResponse(response) }
         }
     }
 
     suspend fun getProjectUsingProjectId(
         projectId: String,
         baseUrl: String,
-        path: String,
-        prefix: String? = null,
     ): ProxyResponse {
-        return getEndpointFromParts(baseUrl, path, prefix).let { endpoint ->
-            tryProxyRequest {
-                return@tryProxyRequest client.get(endpoint) {
-                    url {
-                        appendPathSegments("project", projectId)
-                    }
-                }.let { response -> createProxyFromResponse(response) }
-            }
+        return tryProxyRequest("ProjectClient::getProjectUsingProjectId") {
+            return@tryProxyRequest client.get(normalizedUri(baseUrl)) {
+                url {
+                    appendPathSegments("projects", projectId)
+                }
+            }.let { response -> createProxyFromResponse(response) }
         }
     }
 
     fun close() {
-        client.close()
+        ClientsContract.closeServiceClient(PROJECT_SERVICE)
     }
-
 }
