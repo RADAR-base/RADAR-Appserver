@@ -88,7 +88,7 @@ class TaskStateEventService(
 
     @Transactional
     @Throws(SizeLimitExceededException::class)
-    fun publishNotificationStateEventExternal(
+    fun publishTaskStateEventExternal(
         projectId: String,
         subjectId: String,
         taskId: Long,
