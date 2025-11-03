@@ -22,7 +22,9 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.utils.io.CancellationException
+import jakarta.ws.rs.core.Response
 import kotlinx.serialization.json.Json
+import org.radarbase.appserver.microservices.contract.exception.ProxyResponseException
 import org.radarbase.appserver.microservices.contract.response.ProxyResponse
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.slf4j.LoggerFactory
@@ -70,6 +72,19 @@ object Utils {
             throw HttpNotFoundException(code.trim(), message.trim())
         } else {
             throw RuntimeException(content)
+        }
+    }
+
+    fun checkProxyResponse(proxyResponse: ProxyResponse, client: String) {
+        if (proxyResponse.status !in 200..299) {
+            var message = proxyResponse.body?.decodeToString().orEmpty()
+            if (message.isBlank()) {
+                message = "Request failed for client ${client.substringBefore("::")}"
+            }
+            throw ProxyResponseException(
+                Response.Status.fromStatusCode(proxyResponse.status),
+                message,
+            )
         }
     }
 
