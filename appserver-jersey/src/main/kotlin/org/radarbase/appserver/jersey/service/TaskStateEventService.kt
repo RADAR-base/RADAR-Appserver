@@ -94,7 +94,7 @@ class TaskStateEventService @Inject constructor(
 
     @Suppress("UNUSED_PARAMETER")
     @Throws(SizeLimitExceededException::class)
-    suspend fun publishNotificationStateEventExternal(
+    suspend fun publishTaskStateEventExternal(
         projectId: String,
         subjectId: String,
         taskId: Long,
