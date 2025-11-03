@@ -51,9 +51,9 @@ class UserRepositoryImpl(
 
     override suspend fun existsBySubjectId(subjectId: String): Boolean = findBySubjectId(subjectId) != null
 
-    override suspend fun findByProjectId(projectId: Long): List<User> = transact {
+    override suspend fun findByProjectId(projectId: String): List<User> = transact {
         createQuery(
-            "SELECT u FROM User u WHERE u.project.id = :projectId",
+            "SELECT u FROM User u WHERE u.projectId = :projectId",
             User::class.java,
         )
             .setParameter("projectId", projectId)
@@ -62,13 +62,13 @@ class UserRepositoryImpl(
 
     override suspend fun findBySubjectIdAndProjectId(
         subjectId: String,
-        projectId: Long,
+        projectId: String,
     ): User? = transact {
         createQuery(
             """SELECT u 
                         FROM User u 
                         WHERE u.subjectId = :subjectId 
-                        AND u.project.id = :projectId
+                        AND u.projectId = :projectId
             """.trimIndent(),
             User::class.java,
         )

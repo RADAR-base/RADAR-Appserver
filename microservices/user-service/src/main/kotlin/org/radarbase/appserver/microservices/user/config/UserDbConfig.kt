@@ -18,11 +18,18 @@ package org.radarbase.appserver.microservices.user.config
 
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
+import org.radarbase.appserver.microservices.core.entity.Project
+import org.radarbase.appserver.microservices.core.entity.User
+import org.radarbase.appserver.microservices.core.entity.UserMetrics
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class UserDbConfig(
-    val classes: List<String> = emptyList(),
+    val classes: List<String> = listOf(
+        User::class.qualifiedName!!,
+        Project::class.qualifiedName!!,
+        UserMetrics::class.qualifiedName!!,
+    ),
     val jdbcDriver: String = "org.postgresql.Driver",
     val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_user",
     val username: String = "radar",
@@ -31,17 +38,6 @@ data class UserDbConfig(
     val additionalProperties: Map<String, String> = emptyMap(),
     val liquibase: CoreLiquibaseConfig = CoreLiquibaseConfig(),
 ) : Validation {
-    override fun validate() {
-        checkInvalidDetails<IllegalStateException>(
-            {
-                jdbcDriver.isBlank() || jdbcUrl.isBlank()
-            },
-            {
-                "JDBC driver and URL must not be null or empty"
-            },
-        )
-    }
-
     fun withEnv(): UserDbConfig = this
         .copyEnv("APPSERVER_USER_JDBC_URL") {
             copy(jdbcUrl = it)
@@ -58,5 +54,17 @@ data class UserDbConfig(
         .copyEnv("APPSERVER_USER_JDBC_DRIVER") {
             copy(jdbcDriver = it)
         }
+
+
+    override fun validate() {
+        checkInvalidDetails<IllegalStateException>(
+            {
+                jdbcDriver.isBlank() || jdbcUrl.isBlank()
+            },
+            {
+                "JDBC driver and URL must not be null or empty"
+            },
+        )
+    }
 
 }

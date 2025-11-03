@@ -18,26 +18,15 @@ package org.radarbase.appserver.microservices.user.enhancer.factory
 
 import org.radarbase.appserver.microservices.user.config.UserServiceConfig
 import org.radarbase.appserver.microservices.user.enhancer.UserServiceResourceEnhancer
-import org.radarbase.jersey.auth.AuthConfig
-import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
+import org.radarbase.jersey.hibernate.config.LiquibaseConfig
 
 class UserServiceResourceEnhancerFactory(private val config: UserServiceConfig) : EnhancerFactory {
-
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
-        val authConfig = AuthConfig(
-            managementPortal = MPConfig(
-                url = config.auth.managementPortalUrl,
-            ),
-            jwtResourceName = config.auth.resourceName,
-            jwtIssuer = config.auth.issuer,
-            jwksUrls = config.auth.publicKeyUrls ?: emptyList(),
-        )
-
         val dbConfig = DatabaseConfig(
             managedClasses = config.db.classes,
             url = config.db.jdbcUrl,
@@ -46,15 +35,13 @@ class UserServiceResourceEnhancerFactory(private val config: UserServiceConfig) 
             password = config.db.password,
             dialect = config.db.hibernateDialect,
             properties = config.db.additionalProperties,
-            liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
+            liquibase = LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
             ),
         )
 
         return listOf(
             UserServiceResourceEnhancer(config),
-            Enhancers.radar(authConfig),
-            Enhancers.managementPortal(authConfig),
             HibernateResourceEnhancer(dbConfig),
             Enhancers.health,
             Enhancers.exception,

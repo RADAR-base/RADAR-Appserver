@@ -16,14 +16,47 @@
 
 package org.radarbase.appserver.microservices.user.config
 
-import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
-import org.radarbase.appserver.microservices.core.config.CoreServerConfig
+import org.radarbase.appserver.microservices.core.config.Validation
+import org.radarbase.appserver.microservices.gateway.config.UserServerConfig
+import org.radarbase.jersey.config.ConfigLoader.copyOnChange
 import org.radarbase.jersey.enhancer.EnhancerFactory
 
 data class UserServiceConfig(
     val resourceConfig: Class<out EnhancerFactory>,
-    val server: CoreServerConfig,
-    val auth: CoreAuthConfig,
+    val server: UserServerConfig,
     val db: UserDbConfig,
     val email: EmailConfig,
-)
+    val contract: ContractConfig,
+) : Validation {
+
+    override fun validate() {
+        listOf(server, db).forEach {
+            it.validate()
+        }
+    }
+
+    fun withEnv(): UserServiceConfig = this.copyOnChange(
+        db,
+        {
+            it.withEnv()
+        },
+        {
+            copy(db = it)
+        },
+    ).copyOnChange(
+        server,
+        {
+            it.withEnv()
+        },
+        {
+            copy(server = it)
+        },
+    ).copyOnChange(
+        contract,
+        {
+            it.withEnv()
+        }, {
+            copy(contract = it)
+        }
+    )
+}
