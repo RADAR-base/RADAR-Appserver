@@ -24,9 +24,9 @@ import org.radarbase.appserver.microservices.core.entity.Project
 import org.radarbase.appserver.microservices.core.exception.AlreadyExistsException
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.repository.ProjectRepository
+import org.radarbase.appserver.microservices.core.utils.Const.PROJECT_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkInvalidProjectDetails
 import org.radarbase.appserver.microservices.core.utils.checkPresence
-import org.radarbase.appserver.microservices.project.enhancer.ProjectServiceResourceEnhancer.Companion.PROJECT_MAPPER
 import org.slf4j.LoggerFactory
 
 /**

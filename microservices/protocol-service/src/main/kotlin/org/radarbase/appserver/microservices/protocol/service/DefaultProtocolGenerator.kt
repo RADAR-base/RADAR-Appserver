@@ -145,10 +145,10 @@ class DefaultProtocolGenerator @Inject constructor(
             )
             return cachedProtocolMap.getCachedMap()[subjectId]!!
         } catch (_: NoSuchElementException) {
-            logger.warn("Subject does not exist in map. Fetching..")
+            logger.warn("Protocol for subject does not exist in map. Fetching..")
             return forceGetProtocolForSubject(subjectId)
         } catch (ex: Exception) {
-            logger.warn(
+            logger.error(
                 "Exception while fetching protocols for subject {}",
                 subjectId,
                 ex,

@@ -23,6 +23,7 @@ data class ProtocolServiceConfig(
     val resourceConfig: Class<out EnhancerFactory>,
     val server: ProtocolServerConfig,
     val protocol: QuestionnaireProtocolConfig,
+    val contract: ContractConfig,
 ) {
     fun withEnv(): ProtocolServiceConfig = this
         .copyOnChange(
@@ -32,6 +33,15 @@ data class ProtocolServiceConfig(
             },
             {
                 copy(server = it)
+            },
+        )
+        .copyOnChange(
+            contract,
+            {
+                it.withEnv()
+            },
+            {
+                copy(contract = it)
             },
         )
 }
