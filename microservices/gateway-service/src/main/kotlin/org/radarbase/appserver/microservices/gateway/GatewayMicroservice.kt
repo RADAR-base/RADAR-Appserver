@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    val logger = LoggerFactory.getLogger("org.radarbase.appserver.microservices.project.GatewayService")
+    val logger = LoggerFactory.getLogger("org.radarbase.appserver.microservices.gateway.GatewayService")
 
     logger.info("Starting Gateway Service")
 
@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
                 "/etc/project-service/gateway-service.yml",
             ),
             args,
-        )
+        ).withEnv()
     } catch (_: IllegalArgumentException) {
         logger.info("No configuration file (gateway-service.yml) found. Exiting...")
         exitProcess(1)
