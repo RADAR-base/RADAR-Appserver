@@ -22,7 +22,11 @@ import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.github.config.GithubServiceConfig
+import org.radarbase.appserver.microservices.github.service.GithubService
+import org.radarbase.appserver.microservices.github.service.client.GithubClient
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
+import org.radarbase.jersey.service.AsyncCoroutineService
+import org.radarbase.jersey.service.ScopedAsyncCoroutineService
 
 class GithubServiceResourceEnhancer(private val config: GithubServiceConfig) : JerseyResourceEnhancer {
     override val packages: Array<String>
@@ -33,6 +37,18 @@ class GithubServiceResourceEnhancer(private val config: GithubServiceConfig) : J
     override fun AbstractBinder.enhance() {
         bind(config)
             .to(GithubServiceConfig::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(GithubService::class.java)
+            .to(GithubService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(GithubClient::class.java)
+            .to(GithubClient::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(ScopedAsyncCoroutineService::class.java)
+            .to(AsyncCoroutineService::class.java)
             .`in`(Singleton::class.java)
     }
 

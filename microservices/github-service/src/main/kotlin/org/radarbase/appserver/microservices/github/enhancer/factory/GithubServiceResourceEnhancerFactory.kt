@@ -18,28 +18,15 @@ package org.radarbase.appserver.microservices.github.enhancer.factory
 
 import org.radarbase.appserver.microservices.github.config.GithubServiceConfig
 import org.radarbase.appserver.microservices.github.enhancer.GithubServiceResourceEnhancer
-import org.radarbase.jersey.auth.AuthConfig
-import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class GithubServiceResourceEnhancerFactory(private val config: GithubServiceConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
-        val authConfig = AuthConfig(
-            managementPortal = MPConfig(
-                url = config.auth.managementPortalUrl,
-            ),
-            jwtResourceName = config.auth.resourceName,
-            jwtIssuer = config.auth.issuer,
-            jwksUrls = config.auth.publicKeyUrls ?: emptyList(),
-        )
-
 
         return listOf(
             GithubServiceResourceEnhancer(config),
-            Enhancers.radar(authConfig),
-            Enhancers.managementPortal(authConfig),
             Enhancers.health,
             Enhancers.exception,
         )
