@@ -17,7 +17,9 @@
 package org.radarbase.appserver.microservices.core.dto
 
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ProjectDtos(
     @field:Size(max = 500)
     val projects: MutableList<ProjectDto> = mutableListOf(),

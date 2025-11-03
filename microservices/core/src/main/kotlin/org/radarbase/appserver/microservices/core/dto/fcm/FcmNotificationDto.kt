@@ -20,12 +20,18 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.radarbase.appserver.microservices.core.entity.Notification
+import org.radarbase.appserver.microservices.core.serialization.InstantSerializer
 import org.radarbase.appserver.microservices.core.utils.equalTo
 import java.time.Instant
 import java.util.Objects
 
-class FcmNotificationDto(notificationEntity: Notification? = null) {
+@Serializable
+class FcmNotificationDto(
+    @Transient private val notificationEntity: Notification? = null
+) {
     var id: Long? = notificationEntity?.id
 
     @field:NotNull
@@ -34,6 +40,7 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var scheduledTime: Instant? = notificationEntity?.scheduledTime
 
     var delivered: Boolean = notificationEntity?.delivered == true
@@ -112,6 +119,7 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var createdAt: Instant? = notificationEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
@@ -119,6 +127,7 @@ class FcmNotificationDto(notificationEntity: Notification? = null) {
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var updatedAt: Instant? = notificationEntity?.updatedAt?.toInstant()
 
     override fun equals(other: Any?): Boolean = equalTo(

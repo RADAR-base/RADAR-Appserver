@@ -21,9 +21,12 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.Serializable
 import org.radarbase.appserver.microservices.core.entity.User
+import org.radarbase.appserver.microservices.core.serialization.InstantSerializer
 import java.time.Instant
 
+@Serializable
 @Suppress("unused")
 data class FcmUserDto(
     var id: Long? = null,
@@ -48,11 +51,13 @@ data class FcmUserDto(
     /**
      * The most recent time when the app was opened
      */
+    @Serializable(with = InstantSerializer::class)
     var lastOpened: Instant? = null,
 
     /**
      * The most recent time when a notification for the app was delivered
      */
+    @Serializable(with = InstantSerializer::class)
     var lastDelivered: Instant? = null,
 
     @field:JsonFormat(
@@ -60,6 +65,7 @@ data class FcmUserDto(
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var createdAt: Instant? = null,
 
     @field:JsonFormat(
@@ -67,6 +73,7 @@ data class FcmUserDto(
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var updatedAt: Instant? = null,
 
     @field:NotNull
@@ -75,6 +82,7 @@ data class FcmUserDto(
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var enrolmentDate: Instant? = null,
 
     @field:NotNull
