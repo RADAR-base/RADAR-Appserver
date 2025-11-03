@@ -14,49 +14,42 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.user.config
+package org.radarbase.appserver.microservices.task_state_event.config
 
-import org.radarbase.appserver.microservices.contract.utils.Env.USER_HIBERNATE_DIALECT
-import org.radarbase.appserver.microservices.contract.utils.Env.USER_JDBC_DRIVER
-import org.radarbase.appserver.microservices.contract.utils.Env.USER_JDBC_PASSWORD
-import org.radarbase.appserver.microservices.contract.utils.Env.USER_JDBC_URL
-import org.radarbase.appserver.microservices.contract.utils.Env.USER_JDBC_USERNAME
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_STATE_EVENT_HIBERNATE_DIALECT
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_STATE_EVENT_JDBC_DRIVER
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_STATE_EVENT_JDBC_PASSWORD
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_STATE_EVENT_JDBC_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_STATE_EVENT_JDBC_USERNAME
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
-import org.radarbase.appserver.microservices.core.entity.Project
-import org.radarbase.appserver.microservices.core.entity.User
-import org.radarbase.appserver.microservices.core.entity.UserMetrics
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
-data class UserDbConfig(
-    val classes: List<String> = listOf(
-        User::class.qualifiedName!!,
-        Project::class.qualifiedName!!,
-        UserMetrics::class.qualifiedName!!,
-    ),
+data class TaskStateEventDbConfig(
+    val classes: List<String> = listOf(),
     val jdbcDriver: String = "org.postgresql.Driver",
-    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_user",
+    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_task_state_event",
     val username: String = "radar",
     val password: String = "radar",
     val hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",
     val additionalProperties: Map<String, String> = emptyMap(),
     val liquibase: CoreLiquibaseConfig = CoreLiquibaseConfig(),
 ) : Validation {
-    fun withEnv(): UserDbConfig = this
-        .copyEnv(USER_JDBC_URL) {
+    fun withEnv(): TaskStateEventDbConfig = this
+        .copyEnv(TASK_STATE_EVENT_JDBC_URL) {
             copy(jdbcUrl = it)
         }
-        .copyEnv(USER_JDBC_USERNAME) {
+        .copyEnv(TASK_STATE_EVENT_JDBC_USERNAME) {
             copy(username = it)
         }
-        .copyEnv(USER_JDBC_PASSWORD) {
+        .copyEnv(TASK_STATE_EVENT_JDBC_PASSWORD) {
             copy(password = it)
         }
-        .copyEnv(USER_HIBERNATE_DIALECT) {
+        .copyEnv(TASK_STATE_EVENT_HIBERNATE_DIALECT) {
             copy(hibernateDialect = it)
         }
-        .copyEnv(USER_JDBC_DRIVER) {
+        .copyEnv(TASK_STATE_EVENT_JDBC_DRIVER) {
             copy(jdbcDriver = it)
         }
 
