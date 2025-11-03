@@ -25,6 +25,8 @@ import org.radarbase.appserver.microservices.github.config.GithubServiceConfig
 import org.radarbase.appserver.microservices.github.service.GithubService
 import org.radarbase.appserver.microservices.github.service.client.GithubClient
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
+import org.radarbase.jersey.service.AsyncCoroutineService
+import org.radarbase.jersey.service.ScopedAsyncCoroutineService
 
 class GithubServiceResourceEnhancer(private val config: GithubServiceConfig) : JerseyResourceEnhancer {
     override val packages: Array<String>
@@ -43,6 +45,10 @@ class GithubServiceResourceEnhancer(private val config: GithubServiceConfig) : J
 
         bind(GithubClient::class.java)
             .to(GithubClient::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(ScopedAsyncCoroutineService::class.java)
+            .to(AsyncCoroutineService::class.java)
             .`in`(Singleton::class.java)
     }
 
