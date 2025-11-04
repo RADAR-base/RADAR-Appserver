@@ -1,7 +1,7 @@
 resourceConfig: org.radarbase.appserver.microservices.task.enhancer.factory.TaskServiceResourceEnhancerFactory
 
 server:
-  baseUri: http://task-service:9014
+  baseUri: http://task-service:9015
   requestTimeout: 30
   isJmxEnabled: false
 

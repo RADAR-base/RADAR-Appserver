@@ -22,3 +22,5 @@ db:
 #  username: radar
 #  password: radar
 
+eventBus:
+  numThreads: 3
