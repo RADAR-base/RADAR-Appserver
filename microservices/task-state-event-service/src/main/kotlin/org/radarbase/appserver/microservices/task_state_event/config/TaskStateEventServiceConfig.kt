@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.microservices.task_state_event.config
 
+import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.jersey.config.ConfigLoader.copyOnChange
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -24,10 +25,11 @@ data class TaskStateEventServiceConfig(
     val resourceConfig: Class<out EnhancerFactory>,
     val server: TaskStateEventServerConfig,
     val db: TaskStateEventDbConfig,
+    val eventBus: CoreEventBusConfig,
 ) : Validation {
 
     override fun validate() {
-        listOf(server, db).forEach {
+        listOf(server, db, eventBus).forEach {
             it.validate()
         }
     }

@@ -16,12 +16,20 @@
 
 package org.radarbase.appserver.microservices.task_state_event.enhancer
 
+import com.google.common.eventbus.EventBus
 import jakarta.inject.Singleton
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
+import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
+import org.radarbase.appserver.microservices.core.repository.TaskStateEventRepository
+import org.radarbase.appserver.microservices.core.service.TaskStateEventService
+import org.radarbase.appserver.microservices.task_state_event.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.task_state_event.config.TaskStateEventServiceConfig
+import org.radarbase.appserver.microservices.task_state_event.repository.TaskStateEventRepositoryImpl
+import org.radarbase.appserver.microservices.task_state_event.service.TaskStateEventServiceImpl
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -37,6 +45,22 @@ class TaskStateEventServiceResourceEnhancer(private val config: TaskStateEventSe
             .to(TaskStateEventServiceConfig::class.java)
             .`in`(Singleton::class.java)
 
+        bindFactory(EventBusFactory::class.java)
+            .to(EventBus::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(config.eventBus)
+            .to(CoreEventBusConfig::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskStateEventServiceImpl::class.java)
+            .to(TaskStateEventService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskStateEventRepositoryImpl::class.java)
+            .to(TaskStateEventRepository::class.java)
+            .`in`(Singleton::class.java)
+
         bind(ScopedAsyncCoroutineService::class.java)
             .to(AsyncCoroutineService::class.java)
             .`in`(Singleton::class.java)
@@ -46,6 +70,6 @@ class TaskStateEventServiceResourceEnhancer(private val config: TaskStateEventSe
     override fun ResourceConfig.enhance() {
         register(ValidationFeature::class.java)
         register(UnhandledExceptionMapper::class.java)
+        register(EventBusStartupListener::class.java)
     }
-
 }
