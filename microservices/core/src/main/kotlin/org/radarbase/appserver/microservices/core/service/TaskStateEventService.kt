@@ -28,7 +28,7 @@ interface TaskStateEventService {
     suspend fun getTaskStateEventsByTaskId(taskId: Long): List<TaskStateEventDto>
 
     @Throws(SizeLimitExceededException::class)
-    suspend fun publishNotificationStateEventExternal(
+    suspend fun publishTaskStateEventExternal(
         projectId: String,
         subjectId: String,
         taskId: Long,
