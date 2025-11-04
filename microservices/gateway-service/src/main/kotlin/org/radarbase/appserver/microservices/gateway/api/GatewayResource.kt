@@ -41,15 +41,20 @@ import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
+import org.radarbase.appserver.microservices.contract.calls.TaskStateEventServiceContract
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
+import org.radarbase.appserver.microservices.core.dto.TaskStateEventDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUsers
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.PROTOCOLS_PATH
+import org.radarbase.appserver.microservices.core.utils.Paths.QUESTIONNAIRE_SCHEDULE
+import org.radarbase.appserver.microservices.core.utils.Paths.QUESTIONNAIRE_STATE_EVENTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.SUBJECT_ID
+import org.radarbase.appserver.microservices.core.utils.Paths.TASK_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
 import org.radarbase.appserver.microservices.core.utils.tokenForCurrentRequest
 import org.radarbase.appserver.microservices.gateway.config.GatewayConfig
@@ -82,6 +87,7 @@ class GatewayResource @Inject constructor(
     private val protocolServiceRoute: ServiceRoute = config.routes.first { it.name == "protocol" }
     private val userServiceRoute: ServiceRoute = config.routes.first { it.name == "user" }
     private val githubServiceRoute: ServiceRoute = config.routes.first { it.name == "github" }
+    private val taskStateEventServiceRoute: ServiceRoute = config.routes.first { it.name == "taskStateEvent" }
 
 //-------------------------------------------------Project Service------------------------------------------------------
 
@@ -607,6 +613,68 @@ class GatewayResource @Inject constructor(
                     userServiceRoute.baseUrl,
                 ),
             )
+        }
+    }
+
+//----------------------------------------Task State Event Service------------------------------------------------------
+
+    @GET
+    @Path("/$QUESTIONNAIRE_SCHEDULE/$TASK_ID/$QUESTIONNAIRE_STATE_EVENTS_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ)
+    fun getTaskStateEventsByTaskId(
+        @PathParam("taskId") taskId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            handleProxyResponse(
+            TaskStateEventServiceContract.getTaskStateEventsByTaskId(taskId, taskStateEventServiceRoute.baseUrl)
+            )
+        }
+    }
+
+    @GET
+    @Path("/$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE/$TASK_ID/$QUESTIONNAIRE_STATE_EVENTS_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun getTaskStateEvents(
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @PathParam("taskId") taskId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            TaskStateEventServiceContract.getTaskStateEvents(
+                projectId,
+                subjectId,
+                taskId,
+                taskStateEventServiceRoute.baseUrl
+            ).let(::handleProxyResponse)
+        }
+    }
+
+    @POST
+    @Path("/$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE/$TASK_ID/$QUESTIONNAIRE_STATE_EVENTS_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun postTaskStateEvents(
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @PathParam("taskId") taskId: Long,
+        taskStateEventDto: TaskStateEventDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            TaskStateEventServiceContract.postTaskStateEvent(
+                projectId,
+                subjectId,
+                taskId,
+                taskStateEventDto,
+                taskStateEventServiceRoute.baseUrl
+            ).let(::handleProxyResponse)
         }
     }
 
