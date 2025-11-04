@@ -79,7 +79,7 @@ object Utils {
         if (proxyResponse.status !in 200..299) {
             var message = proxyResponse.body?.decodeToString().orEmpty()
             if (message.isBlank()) {
-                message = "Request failed for client ${client.substringBefore("::")}"
+                message = "Request failed for client $client"
             }
             throw ProxyResponseException(
                 Response.Status.fromStatusCode(proxyResponse.status),
