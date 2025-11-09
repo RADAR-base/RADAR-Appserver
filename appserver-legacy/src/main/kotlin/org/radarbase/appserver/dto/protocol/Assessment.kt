@@ -34,7 +34,7 @@ import jakarta.persistence.Column
 data class Assessment(
     var name: String? = null,
     private var _type: AssessmentType? = null,
-    var showIntroduction: String? = null,
+    var showIntroduction: Boolean? = null,
     var questionnaire: DefinitionInfo? = null,
     var startText: LanguageText? = null,
     var endText: LanguageText? = null,
