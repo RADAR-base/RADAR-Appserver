@@ -110,8 +110,8 @@ class TaskStateEventService @Inject constructor(
                     MapSerializer(String.serializer(), String.serializer()),
                     taskStateEventDto.associatedInfo!!,
                 )
-            } catch (exc: IOException) {
-                throw IllegalStateException(
+            } catch (exc: IllegalArgumentException) {
+                throw IllegalArgumentException(
                     "Cannot convert additionalInfo to Map<String, String>. Please check its format.",
                     exc,
                 )
