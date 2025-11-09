@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task_state_event.repository
+package org.radarbase.appserver.microservices.task.repository
 
 import jakarta.inject.Provider
 import jakarta.persistence.EntityManager
@@ -62,14 +62,14 @@ class TaskStateEventRepositoryImpl(
 
     override suspend fun findByTaskId(taskId: Long): List<TaskStateEvent> = transact {
         createQuery(
-            "SELECT e FROM TaskStateEvent e WHERE e.taskId = :taskId",
+            "SELECT e FROM TaskStateEvent e WHERE e.task.id = :taskId",
             TaskStateEvent::class.java,
         ).setParameter("taskId", taskId)
             .resultList
     }
 
     override suspend fun countByTaskId(taskId: Long): Long = transact {
-        createQuery("SELECT COUNT(e) FROM TaskStateEvent e WHERE e.taskId = :taskId", Long::class.java)
+        createQuery("SELECT COUNT(e) FROM TaskStateEvent e WHERE e.task.id = :taskId", Long::class.java)
             .setParameter("taskId", taskId)
             .singleResult
     }

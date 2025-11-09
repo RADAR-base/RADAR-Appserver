@@ -76,7 +76,7 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
                     }
                     val taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, period, timezone)
                     taskGeneratorService.buildTask(assessment, taskTime, completionWindow).apply {
-                        this.user = user
+                        this.userId = user.id
                     }
                 }
             }.awaitAll()

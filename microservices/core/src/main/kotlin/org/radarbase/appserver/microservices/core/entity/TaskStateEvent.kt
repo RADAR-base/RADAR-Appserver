@@ -56,15 +56,17 @@ class TaskStateEvent {
 
     @field:NotNull
     @field:JsonIgnore
-    @Column(name = "task_id", nullable = false)
-    var taskId: Long? = null
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "task_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    var task: Task? = null
 
     constructor()
 
-    constructor(taskId: Long, state: TaskState?, time: Instant?, associatedInfo: String?) {
+    constructor(task: Task?, state: TaskState?, time: Instant?, associatedInfo: String?) {
         this.state = state
         this.time = time
         this.associatedInfo = associatedInfo
-        this.taskId = taskId
+        this.task = task
     }
 }

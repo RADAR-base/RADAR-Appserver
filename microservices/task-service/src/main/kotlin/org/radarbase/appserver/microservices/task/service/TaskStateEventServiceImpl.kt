@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task_state_event.service
+package org.radarbase.appserver.microservices.task.service
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
@@ -31,14 +31,13 @@ import org.radarbase.appserver.microservices.core.service.FcmNotificationService
 import org.radarbase.appserver.microservices.core.service.TaskService
 import org.radarbase.appserver.microservices.core.service.TaskStateEventService
 import org.slf4j.LoggerFactory
-import java.io.IOException
 import javax.naming.SizeLimitExceededException
 
 @Suppress("unused")
 class TaskStateEventServiceImpl @Inject constructor(
     private val taskStateEventRepository: TaskStateEventRepository,
-    private val taskService: TaskService,
-    private val notificationService: FcmNotificationService,
+//    private val taskService: TaskService,
+//    private val notificationService: FcmNotificationService,
     private val serviceLocator: ServiceLocator,
 ) : TaskStateEventService {
     private var taskStateEventBus: EventBus? = null
@@ -52,7 +51,7 @@ class TaskStateEventServiceImpl @Inject constructor(
 
     override suspend fun addTaskStateEvent(taskStateEvent: TaskStateEvent) {
         taskStateEventRepository.add(taskStateEvent)
-        val task = checkNotNull(taskStateEvent.taskId) { "Task in task state event can't be null" }
+        val task = checkNotNull(taskStateEvent.task) { "Task in task state event can't be null" }
         val state = checkNotNull(taskStateEvent.state) { "State in task state event can't be null" }
 
         taskService.updateTaskStatus(task, state)
@@ -87,7 +86,7 @@ class TaskStateEventServiceImpl @Inject constructor(
         return stateEvents.map { ts ->
             TaskStateEventDto(
                 id = ts.id,
-                taskId = ts.taskId,
+                taskId = ts.task?.id,
                 state = ts.state,
                 time = ts.time,
                 associatedInfo = ts.associatedInfo,
@@ -113,8 +112,8 @@ class TaskStateEventServiceImpl @Inject constructor(
                     MapSerializer(String.serializer(), String.serializer()),
                     taskStateEventDto.associatedInfo!!,
                 )
-            } catch (exc: IOException) {
-                throw IllegalStateException(
+            } catch (exc: IllegalArgumentException) {
+                throw IllegalArgumentException(
                     "Cannot convert additionalInfo to Map<String, String>. Please check its format.",
                     exc,
                 )

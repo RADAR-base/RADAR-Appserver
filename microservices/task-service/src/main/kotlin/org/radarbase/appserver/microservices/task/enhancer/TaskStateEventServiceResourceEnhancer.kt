@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task_state_event.enhancer
+package org.radarbase.appserver.microservices.task.enhancer
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Singleton
@@ -26,15 +26,15 @@ import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExc
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
 import org.radarbase.appserver.microservices.core.repository.TaskStateEventRepository
 import org.radarbase.appserver.microservices.core.service.TaskStateEventService
-import org.radarbase.appserver.microservices.task_state_event.application.event.EventBusStartupListener
-import org.radarbase.appserver.microservices.task_state_event.config.TaskStateEventServiceConfig
-import org.radarbase.appserver.microservices.task_state_event.repository.TaskStateEventRepositoryImpl
-import org.radarbase.appserver.microservices.task_state_event.service.TaskStateEventServiceImpl
+import org.radarbase.appserver.microservices.task.application.event.EventBusStartupListener
+import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
+import org.radarbase.appserver.microservices.task.repository.TaskStateEventRepositoryImpl
+import org.radarbase.appserver.microservices.task.service.TaskStateEventServiceImpl
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
 
-class TaskStateEventServiceResourceEnhancer(private val config: TaskStateEventServiceConfig) : JerseyResourceEnhancer {
+class TaskStateEventServiceResourceEnhancer(private val config: TaskServiceConfig) : JerseyResourceEnhancer {
     override val packages: Array<String>
         get() = arrayOf(
             "org.radarbase.appserver.microservices.task_state_event.api",
@@ -42,7 +42,7 @@ class TaskStateEventServiceResourceEnhancer(private val config: TaskStateEventSe
 
     override fun AbstractBinder.enhance() {
         bind(config)
-            .to(TaskStateEventServiceConfig::class.java)
+            .to(TaskServiceConfig::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(EventBusFactory::class.java)

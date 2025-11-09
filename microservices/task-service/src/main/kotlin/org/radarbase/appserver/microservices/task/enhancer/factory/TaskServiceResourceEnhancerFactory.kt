@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task_state_event.enhancer.factory
+package org.radarbase.appserver.microservices.task.enhancer.factory
 
-import org.radarbase.appserver.microservices.task_state_event.config.TaskStateEventServiceConfig
-import org.radarbase.appserver.microservices.task_state_event.enhancer.TaskStateEventServiceResourceEnhancer
+import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
+import org.radarbase.appserver.microservices.task.enhancer.TaskStateEventServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
-class TaskStateEventServiceResourceEnhancerFactory(private val config: TaskStateEventServiceConfig) : EnhancerFactory {
+class TaskServiceResourceEnhancerFactory(private val config: TaskServiceConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
         val dbConfig = DatabaseConfig(
             managedClasses = config.db.classes,

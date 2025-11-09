@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task_state_event.api
+package org.radarbase.appserver.microservices.task.api
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET
@@ -35,7 +35,7 @@ import org.radarbase.appserver.microservices.core.utils.Paths.QUESTIONNAIRE_STAT
 import org.radarbase.appserver.microservices.core.utils.Paths.SUBJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.TASK_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
-import org.radarbase.appserver.microservices.task_state_event.config.TaskStateEventServiceConfig
+import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
 import org.radarbase.jersey.service.AsyncCoroutineService
 import kotlin.time.Duration.Companion.seconds
 
@@ -44,9 +44,9 @@ import kotlin.time.Duration.Companion.seconds
 class TaskStateEventResource @Inject constructor(
     private val taskStateEventService: TaskStateEventService,
     private val asyncService: AsyncCoroutineService,
-    taskStateEventServiceConfig: TaskStateEventServiceConfig,
+    taskServiceConfig: TaskServiceConfig,
 ) {
-    private val requestTimeout = taskStateEventServiceConfig.server.requestTimeout.seconds
+    private val requestTimeout = taskServiceConfig.server.requestTimeout.seconds
 
     @GET
     @Path("/$QUESTIONNAIRE_SCHEDULE/$TASK_ID/$QUESTIONNAIRE_STATE_EVENTS_PATH")

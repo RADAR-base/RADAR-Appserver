@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task_state_event.application.event
+package org.radarbase.appserver.microservices.task.application.event
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
@@ -23,7 +23,7 @@ import org.glassfish.jersey.server.monitoring.ApplicationEvent
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener
 import org.glassfish.jersey.server.monitoring.RequestEvent
 import org.glassfish.jersey.server.monitoring.RequestEventListener
-import org.radarbase.appserver.microservices.core.event.listener.TaskStateEventListener
+import org.radarbase.appserver.microservices.task.event.listener.TaskStateEventListener
 
 class EventBusStartupListener @Inject constructor(
     private val eventBus: EventBus,
