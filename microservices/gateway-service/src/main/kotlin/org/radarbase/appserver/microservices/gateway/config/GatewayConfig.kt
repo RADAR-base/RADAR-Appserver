@@ -117,9 +117,6 @@ data class GatewayConfig(
             require(!baseUri.scheme.isNullOrBlank() && !baseUri.host.isNullOrBlank()) {
                 "route '${route.name}' has invalid baseUrl (must include scheme and host): ${route.baseUrl}"
             }
-
-            val normalizedPath = route.path.trim().trim('/')
-            require(normalizedPath.isNotBlank()) { "route '${route.name}' path cannot be empty" }
         }
     }
 }

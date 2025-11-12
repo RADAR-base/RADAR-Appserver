@@ -46,7 +46,6 @@ data class ProjectDto(
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
-
     @Serializable(with = InstantSerializer::class)
     var createdAt: Instant? = null,
 

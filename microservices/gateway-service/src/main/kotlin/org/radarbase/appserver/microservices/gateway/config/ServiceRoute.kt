@@ -16,19 +16,8 @@
 
 package org.radarbase.appserver.microservices.gateway.config
 
-import java.net.URI
-
 data class ServiceRoute(
     val name: String,
     val baseUrl: String,
-    val path: String,
-) {
-    fun baseUri(): URI {
-        val normalized = if (baseUrl.endsWith("/")) baseUrl.removeSuffix("/") else baseUrl
-        return URI.create(normalized)
-    }
-
-    fun normalizedPath(): String {
-        return if(path.startsWith("/")) path else "/$path"
-    }
-}
+    val path: String?,
+)
