@@ -36,7 +36,7 @@ import javax.naming.SizeLimitExceededException
 @Suppress("unused")
 class TaskStateEventServiceImpl @Inject constructor(
     private val taskStateEventRepository: TaskStateEventRepository,
-//    private val taskService: TaskService,
+    private val taskService: TaskService,
 //    private val notificationService: FcmNotificationService,
     private val serviceLocator: ServiceLocator,
 ) : TaskStateEventService {

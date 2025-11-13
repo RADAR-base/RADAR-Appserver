@@ -71,7 +71,14 @@ object Utils {
             val (code, message) = exceptionMessageProvider().split(";")
             throw HttpNotFoundException(code.trim(), message.trim())
         } else {
-            throw RuntimeException(content)
+            var message = content.orEmpty()
+            if (message.isBlank()) {
+                message = "Upstream sent an incorrect response"
+            }
+            throw ProxyResponseException(
+                Response.Status.fromStatusCode(proxyResponse.status),
+                message,
+            )
         }
     }
 

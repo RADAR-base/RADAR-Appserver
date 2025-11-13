@@ -18,17 +18,27 @@ package org.radarbase.appserver.microservices.task.enhancer
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Singleton
+import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
+import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
+import org.radarbase.appserver.microservices.core.mapper.Mapper
+import org.radarbase.appserver.microservices.core.mapper.UserMapper
+import org.radarbase.appserver.microservices.core.repository.TaskRepository
 import org.radarbase.appserver.microservices.core.repository.TaskStateEventRepository
+import org.radarbase.appserver.microservices.core.service.TaskService
 import org.radarbase.appserver.microservices.core.service.TaskStateEventService
+import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.task.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
+import org.radarbase.appserver.microservices.task.repository.TaskRepositoryImpl
 import org.radarbase.appserver.microservices.task.repository.TaskStateEventRepositoryImpl
+import org.radarbase.appserver.microservices.task.service.TaskServiceImpl
 import org.radarbase.appserver.microservices.task.service.TaskStateEventServiceImpl
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
@@ -53,12 +63,25 @@ class TaskStateEventServiceResourceEnhancer(private val config: TaskServiceConfi
             .to(CoreEventBusConfig::class.java)
             .`in`(Singleton::class.java)
 
+        bind(TaskStateEventRepositoryImpl::class.java)
+            .to(TaskStateEventRepository::class.java)
+            .`in`(Singleton::class.java)
+
         bind(TaskStateEventServiceImpl::class.java)
             .to(TaskStateEventService::class.java)
             .`in`(Singleton::class.java)
 
-        bind(TaskStateEventRepositoryImpl::class.java)
-            .to(TaskStateEventRepository::class.java)
+        bind(TaskRepositoryImpl::class.java)
+            .to(TaskRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(UserMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
+            .named(USER_MAPPER)
+            .`in`(Singleton::class.java)
+
+        bind(TaskServiceImpl::class.java)
+            .to(TaskService::class.java)
             .`in`(Singleton::class.java)
 
         bind(ScopedAsyncCoroutineService::class.java)

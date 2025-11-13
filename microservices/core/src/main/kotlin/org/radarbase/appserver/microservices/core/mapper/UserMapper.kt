@@ -31,6 +31,7 @@ class UserMapper : Mapper<FcmUserDto, User> {
         this.timezone = dto.timezone
         this.language = dto.language
         this.attributes = dto.attributes
+        this.projectId = dto.projectId
     }
 
     override suspend fun entityToDto(entity: User): FcmUserDto = FcmUserDto(entity)
