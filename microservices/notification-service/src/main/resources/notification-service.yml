@@ -1,7 +1,7 @@
 resourceConfig: org.radarbase.appserver.microservices.notification.enhancer.factory.NotificationServiceResourceEnhancerFactory
 
 server:
-  baseUri: http://notification-service:9014
+  baseUri: http://notification-service:9015
   requestTimeout: 30
   isJmxEnabled: false
 
@@ -26,4 +26,5 @@ eventBus:
   numThreads: 3
 
 contract:
+  project: http://project-service:9010
   user: http://user-service:9013

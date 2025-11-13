@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task.config
+package org.radarbase.appserver.microservices.notification.config
 
-import org.radarbase.appserver.microservices.contract.utils.Env.TASK_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 import org.slf4j.LoggerFactory
 import java.net.URI
 
-data class TaskServerConfig(
+data class NotificationServerConfig(
     /** Base URL to serve data with. This will determine the base path and the port. */
-    val baseUri: URI = URI.create("http://task-service:9014"),
+    val baseUri: URI = URI.create("http://notification-service:9015"),
     /**
      * Maximum time in seconds to wait for a request to complete.
      * This timeout is applied to the co-routine context, not to the Grizzly server.
@@ -35,13 +35,13 @@ data class TaskServerConfig(
      */
     val isJmxEnabled: Boolean = false,
 ) : Validation {
-    fun withEnv(): TaskServerConfig = this
-        .copyEnv(TASK_SERVICE_BASE_URL) {
+    fun withEnv(): NotificationServerConfig = this
+        .copyEnv(NOTIFICATION_SERVICE_BASE_URL) {
             try {
                 copy(baseUri = URI.create(it))
             } catch (e: Exception) {
-                logger.error("Not a valid url from env APPSERVER_TASK_SERVICE_BASE_URL", e)
-                this@TaskServerConfig
+                logger.error("Not a valid url from env APPSERVER_NOTIFICATION_SERVICE_BASE_URL", e)
+                this@NotificationServerConfig
             }
         }
 
@@ -50,6 +50,6 @@ data class TaskServerConfig(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(TaskServerConfig::class.java)
+        private val logger = LoggerFactory.getLogger(NotificationServerConfig::class.java)
     }
 }
