@@ -24,3 +24,6 @@ db:
 
 eventBus:
   numThreads: 3
+
+contract:
+  user: http://user-service:9013

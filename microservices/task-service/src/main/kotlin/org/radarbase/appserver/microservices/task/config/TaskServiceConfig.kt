@@ -25,6 +25,7 @@ data class TaskServiceConfig(
     val resourceConfig: Class<out EnhancerFactory>,
     val server: TaskServerConfig,
     val db: TaskDbConfig,
+    val contract: ContractConfig,
     val eventBus: CoreEventBusConfig,
 ) : Validation {
 
@@ -49,6 +50,14 @@ data class TaskServiceConfig(
         },
         {
             copy(server = it)
+        },
+    ).copyOnChange(
+        contract,
+        {
+            it.withEnv()
+        },
+        {
+            copy(contract = it)
         },
     )
 }
