@@ -43,6 +43,7 @@ import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContra
 import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
 import org.radarbase.appserver.microservices.contract.calls.TaskStateEventServiceContract
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
+import org.radarbase.appserver.microservices.contract.exception.InvalidUpstreamResponseException
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.core.dto.TaskStateEventDto
@@ -175,20 +176,16 @@ class GatewayResource @Inject constructor(
                 null
             }
 
-            if (decoded == null) {
-                return@runAsCoroutine handleProxyResponse(proxyResponse)
-            }
+            if (decoded == null) throw InvalidUpstreamResponseException()
 
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            val filtered: MutableList<ProjectDto> = decoded.projects
-                .filter { project ->
-                    authService.hasPermission(
-                        Permission.PROJECT_READ,
-                        EntityDetails(project = project.projectId),
-                        token,
-                    )
-                }
-                .toMutableList()
+            val filtered: MutableList<ProjectDto> = decoded.projects.filter { project ->
+                authService.hasPermission(
+                    Permission.PROJECT_READ,
+                    EntityDetails(project = project.projectId),
+                    token,
+                )
+            }.toMutableList()
 
             Response.ok(ProjectDtos(filtered)).build()
         }
@@ -209,17 +206,23 @@ class GatewayResource @Inject constructor(
                 projectServiceRoute.baseUrl,
             )
 
+            if (proxyResponse.status !in 200..299) {
+                return@runAsCoroutine handleProxyResponse(proxyResponse)
+            }
+
             val proxyResponseBody: ByteArray? = proxyResponse.body
-            val decodedProject: ProjectDto = try {
-                if (proxyResponse.status in 200..299 && proxyResponseBody != null) {
+            val decodedProject: ProjectDto? = try {
+                if (proxyResponseBody != null) {
                     val bodyString = proxyResponseBody.decodeToString()
                     json.decodeFromString<ProjectDto>(bodyString)
                 } else {
-                    return@runAsCoroutine handleProxyResponse(proxyResponse)
+                    null
                 }
             } catch (_: Exception) {
-                return@runAsCoroutine handleProxyResponse(proxyResponse)
+                null
             }
+
+            if (decodedProject == null) throw InvalidUpstreamResponseException()
 
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
@@ -247,9 +250,13 @@ class GatewayResource @Inject constructor(
                 projectServiceRoute.baseUrl,
             )
 
+            if (proxyResponse.status !in 200..299) {
+                return@runAsCoroutine handleProxyResponse(proxyResponse)
+            }
+
             val projectResponseBody = proxyResponse.body
             val decodedProject: ProjectDto? = try {
-                if (proxyResponse.status in 200..299 && projectResponseBody != null) {
+                if (projectResponseBody != null) {
                     (proxyResponse.body?.decodeToString() ?: "").let { bodyString ->
                         json.decodeFromString<ProjectDto>(bodyString)
                     }
@@ -260,9 +267,7 @@ class GatewayResource @Inject constructor(
                 null
             }
 
-            if (decodedProject == null) {
-                return@runAsCoroutine handleProxyResponse(proxyResponse)
-            }
+            if (decodedProject == null) throw InvalidUpstreamResponseException()
 
             val projectIdForAuth = decodedProject.projectId ?: projectId
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
@@ -458,21 +463,20 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val usersProxyResponse = UserServiceContract.getAllUsers(userServiceRoute.baseUrl)
+            if (usersProxyResponse.status !in 200..299) {
+                return@runAsCoroutine handleProxyResponse(usersProxyResponse)
+            }
+
             val proxyResponseBody = usersProxyResponse.body
 
             val decodedUsers: FcmUsers = try {
-                if (proxyResponseBody != null && usersProxyResponse.status in 200..299) {
-                    proxyResponseBody.decodeToString().let {
-                        json.decodeFromString<FcmUsers>(it)
-                    }
-                } else {
-                    null
+                proxyResponseBody?.decodeToString()?.let {
+                    json.decodeFromString<FcmUsers>(it)
                 }
             } catch (_: Exception) {
                 null
-            } ?: run {
-                return@runAsCoroutine handleProxyResponse(usersProxyResponse)
-            }
+            } ?: throw InvalidUpstreamResponseException()
+
 
             decodedUsers.users.asFlow().filter {
                 authService.hasPermission(
@@ -499,20 +503,19 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val userProxyResponse = UserServiceContract.getUserUsingId(id, userServiceRoute.baseUrl)
+
+            if (userProxyResponse.status !in 200..299) {
+                return@runAsCoroutine handleProxyResponse(userProxyResponse)
+            }
+
             val proxyResponseBody = userProxyResponse.body
             val user: FcmUserDto = try {
-                if (proxyResponseBody != null && userProxyResponse.status in 200..299) {
-                    proxyResponseBody.decodeToString().let {
-                        json.decodeFromString<FcmUserDto>(it)
-                    }
-                } else {
-                    null
+                proxyResponseBody?.decodeToString()?.let {
+                    json.decodeFromString<FcmUserDto>(it)
                 }
             } catch (_: Exception) {
                 null
-            } ?: run {
-                return@runAsCoroutine handleProxyResponse(userProxyResponse)
-            }
+            } ?: throw InvalidUpstreamResponseException()
             gatewayService.fcmUserDtoAsResponseIfAuthorized(user)
         }
     }
@@ -532,10 +535,13 @@ class GatewayResource @Inject constructor(
                 userServiceRoute.baseUrl,
             )
 
+            if (proxyUserResponse.status !in 200..299) {
+                return@runAsCoroutine handleProxyResponse(proxyUserResponse)
+            }
+
             gatewayService.run {
-                (dtoFromProxyResponse<FcmUserDto>(json, proxyUserResponse) ?: run {
-                    return@runAsCoroutine handleProxyResponse(proxyUserResponse)
-                }).let {
+                (dtoFromProxyResponse<FcmUserDto>(json, proxyUserResponse)
+                    ?: throw InvalidUpstreamResponseException()).let {
                     gatewayService.fcmUserDtoAsResponseIfAuthorized(it)
                 }
             }
@@ -554,10 +560,12 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val users = UserServiceContract.getUsersUsingProjectId(projectId, userServiceRoute.baseUrl).let {
+                if (it.status !in 200..299) {
+                    return@runAsCoroutine handleProxyResponse(it)
+                }
+
                 gatewayService.run {
-                    (dtoFromProxyResponse<FcmUsers>(json, it) ?: run {
-                        return@runAsCoroutine handleProxyResponse(it)
-                    })
+                    (dtoFromProxyResponse<FcmUsers>(json, it) ?: throw InvalidUpstreamResponseException())
                 }
             }
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
@@ -584,10 +592,15 @@ class GatewayResource @Inject constructor(
             val user =
                 UserServiceContract.getUserUsingProjectIdAndSubjectId(projectId, subjectId, userServiceRoute.baseUrl)
                     .let {
+
+                        if (it.status !in 200..299) {
+                            return@runAsCoroutine handleProxyResponse(it)
+                        }
+
                         gatewayService.run {
-                            (dtoFromProxyResponse<FcmUserDto>(json, it) ?: run {
-                                return@runAsCoroutine handleProxyResponse(it)
-                            })
+                            (dtoFromProxyResponse<FcmUserDto>(json, it) ?:
+                            throw InvalidUpstreamResponseException()
+                            )
                         }
                     }
 
@@ -629,7 +642,7 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             handleProxyResponse(
-            TaskStateEventServiceContract.getTaskStateEventsByTaskId(taskId, taskStateEventServiceRoute.baseUrl)
+                TaskStateEventServiceContract.getTaskStateEventsByTaskId(taskId, taskStateEventServiceRoute.baseUrl),
             )
         }
     }
@@ -650,7 +663,7 @@ class GatewayResource @Inject constructor(
                 projectId,
                 subjectId,
                 taskId,
-                taskStateEventServiceRoute.baseUrl
+                taskStateEventServiceRoute.baseUrl,
             ).let(::handleProxyResponse)
         }
     }
@@ -673,7 +686,7 @@ class GatewayResource @Inject constructor(
                 subjectId,
                 taskId,
                 taskStateEventDto,
-                taskStateEventServiceRoute.baseUrl
+                taskStateEventServiceRoute.baseUrl,
             ).let(::handleProxyResponse)
         }
     }
