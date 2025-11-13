@@ -23,11 +23,16 @@ import org.radarbase.appserver.microservices.contract.utils.Env.TASK_JDBC_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.TASK_JDBC_USERNAME
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
+import org.radarbase.appserver.microservices.core.entity.Task
+import org.radarbase.appserver.microservices.core.entity.TaskStateEvent
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class TaskDbConfig(
-    val classes: List<String> = listOf(),
+    val classes: List<String> = listOf(
+        Task::class.qualifiedName!!,
+        TaskStateEvent::class.qualifiedName!!,
+    ),
     val jdbcDriver: String = "org.postgresql.Driver",
     val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_task",
     val username: String = "radar",

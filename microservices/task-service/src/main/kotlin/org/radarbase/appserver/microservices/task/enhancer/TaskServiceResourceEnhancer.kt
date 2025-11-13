@@ -44,10 +44,10 @@ import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
 
-class TaskStateEventServiceResourceEnhancer(private val config: TaskServiceConfig) : JerseyResourceEnhancer {
+class TaskServiceResourceEnhancer(private val config: TaskServiceConfig) : JerseyResourceEnhancer {
     override val packages: Array<String>
         get() = arrayOf(
-            "org.radarbase.appserver.microservices.task_state_event.api",
+            "org.radarbase.appserver.microservices.task.api",
         )
 
     override fun AbstractBinder.enhance() {

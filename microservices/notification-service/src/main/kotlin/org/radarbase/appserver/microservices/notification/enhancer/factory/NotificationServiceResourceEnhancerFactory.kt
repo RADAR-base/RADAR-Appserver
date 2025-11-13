@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.task.enhancer.factory
+package org.radarbase.appserver.microservices.notification.enhancer.factory
 
-import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
-import org.radarbase.appserver.microservices.task.enhancer.TaskServiceResourceEnhancer
+import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
+import org.radarbase.appserver.microservices.notification.enhancer.NotificationServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.hibernate.config.DatabaseConfig
 import org.radarbase.jersey.hibernate.config.HibernateResourceEnhancer
 
-class TaskServiceResourceEnhancerFactory(private val config: TaskServiceConfig) : EnhancerFactory {
+class NotificationServiceResourceEnhancerFactory(private val config: NotificationServiceConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
         val dbConfig = DatabaseConfig(
             managedClasses = config.db.classes,
@@ -40,7 +40,7 @@ class TaskServiceResourceEnhancerFactory(private val config: TaskServiceConfig) 
         )
 
         return listOf(
-            TaskServiceResourceEnhancer(config),
+            NotificationServiceResourceEnhancer(config),
             HibernateResourceEnhancer(dbConfig),
             Enhancers.health,
             Enhancers.exception,
