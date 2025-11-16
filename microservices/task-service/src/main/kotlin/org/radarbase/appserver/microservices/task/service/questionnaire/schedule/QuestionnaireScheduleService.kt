@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.service.questionnaire.schedule
+package org.radarbase.appserver.microservices.task.service.questionnaire.schedule
 
 import jakarta.inject.Inject
+import jakarta.inject.Named
+import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
+import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
+import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
+import org.radarbase.appserver.microservices.contract.utils.Utils.deserializeDtoFromContract
+import org.radarbase.appserver.microservices.core.dto.ProjectDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmUsers
 import org.radarbase.appserver.microservices.core.dto.protocol.Assessment
 import org.radarbase.appserver.microservices.core.dto.protocol.AssessmentType
 import org.radarbase.appserver.microservices.core.dto.protocol.Protocol
@@ -25,15 +33,15 @@ import org.radarbase.appserver.microservices.core.dto.questionnaire.Schedule
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.entity.Task
 import org.radarbase.appserver.microservices.core.entity.User
-import org.radarbase.appserver.microservices.core.repository.ProjectRepository
-import org.radarbase.appserver.microservices.core.repository.UserRepository
-import org.radarbase.appserver.microservices.core.search.TaskSpecificationsBuilder
-import org.radarbase.appserver.microservices.core.service.FcmNotificationService
+import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.service.TaskService
-import org.radarbase.appserver.microservices.core.service.github.protocol.ProtocolGenerator
-import org.radarbase.appserver.microservices.core.service.scheduling.SchedulingService
+import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.ScheduleGeneratorService
+import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
-import org.radarbase.appserver.microservices.core.utils.checkPresence
+import org.radarbase.appserver.microservices.core.utils.requireNotNullField
+import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
+import org.radarbase.appserver.microservices.task.search.TaskSpecificationsBuilder
+import org.radarbase.appserver.microservices.task.service.scheduling.SchedulingService
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.Logger
@@ -44,16 +52,18 @@ import java.time.Instant
 
 @Suppress("unused")
 class QuestionnaireScheduleService @Inject constructor(
-    private val protocolGenerator: ProtocolGenerator,
     private val scheduleGeneratorService: ScheduleGeneratorService,
-    private val userRepository: UserRepository,
-    private val projectRepository: ProjectRepository,
     private val taskService: TaskService,
-    private val notificationService: FcmNotificationService,
+    @param:Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
     schedulingService: SchedulingService,
     asyncService: AsyncCoroutineService,
+    config: TaskServiceConfig,
 ) {
     private val subjectScheduleMap: HashMap<String, Schedule> = hashMapOf()
+
+    private val protocolServiceUrl = config.contract.protocol
+    private val projectServiceUrl = config.contract.project
+    private val userServiceUrl = config.contract.user
 
     private val cleanScheduleRef: SchedulingService.RepeatReference = schedulingService.repeat(
         Duration.ofMillis(3_600_000),
@@ -112,7 +122,19 @@ class QuestionnaireScheduleService @Inject constructor(
     suspend fun generateScheduleForUser(user: User): Schedule {
         val subjectId: String? = user.subjectId
         checkNotNull(subjectId) { "Subject ID cannot be null in questionnaire scheduler service." }
-        val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
+        val protocol: Protocol? = try {
+            ProtocolServiceContract.getProtocolForSubject(
+                requireNotNullField(user.projectId, "User's projectId"),
+                subjectId,
+                protocolServiceUrl,
+            ).let {
+                deserializeDtoFromContract<Protocol>(it) {
+                    "protocol_not_found ; No protocol found for user $subjectId and project ${user.projectId}"
+                }
+            }
+        } catch (ex: Exception) {
+            null
+        }
 
         val newSchedule: Schedule = protocol?.let {
             val prevSchedule: Schedule = getScheduleForSubject(subjectId)
@@ -154,7 +176,19 @@ class QuestionnaireScheduleService @Inject constructor(
         assessment: Assessment,
     ): Schedule {
         val user: User = subjectAndProjectExistsElseThrow(subjectId, projectId)
-        val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
+        val protocol: Protocol? = try {
+            ProtocolServiceContract.getProtocolForSubject(
+                requireNotNullField(user.projectId, "User's projectId"),
+                subjectId,
+                protocolServiceUrl,
+            ).let {
+                deserializeDtoFromContract<Protocol>(it) {
+                    "protocol_not_found ; No protocol found for user $subjectId and project ${user.projectId}"
+                }
+            }
+        } catch (ex: Exception) {
+            null
+        }
 
         checkInvalidDetails<HttpNotFoundException>(
             { protocol == null || !protocol.hasAssessment(assessment.name) },
@@ -181,11 +215,19 @@ class QuestionnaireScheduleService @Inject constructor(
 
     suspend fun generateAllSchedules() {
         logger.info("Generating all schedules")
-        userRepository.findAll().also { users: List<User> ->
-            users.forEach {
-                generateScheduleForUser(it)
+        UserServiceContract.getAllUsers(userServiceUrl).let { users ->
+            deserializeDtoFromContract<FcmUsers>(users) {
+                "users_not_found ; No users found"
             }
-        }
+        }.users
+            .let {
+                userMapper.dtosToEntities(it)
+            }
+            .also { users: List<User> ->
+                users.forEach {
+                    generateScheduleForUser(it)
+                }
+            }
     }
 
     fun getScheduleForSubject(subjectId: String): Schedule {
@@ -198,17 +240,21 @@ class QuestionnaireScheduleService @Inject constructor(
     }
 
     suspend fun subjectAndProjectExistsElseThrow(subjectId: String, projectId: String): User {
-        return checkPresence(this.projectRepository.findByProjectId(projectId), "project_not_found") {
-            "Project with projectId $projectId not found. Please create the project first."
-        }.let { project ->
-            checkPresence(
-                this.userRepository.findBySubjectIdAndProjectId(
-                    subjectId,
-                    checkNotNull(project.projectId) { "Project ID cannot be null." },
-                ),
-                "user_not_found",
-            ) {
-                "User with subjectId $subjectId not found. Please create the user first."
+        return ProjectServiceContract.getProjectUsingProjectId(projectId, projectServiceUrl).let {
+            deserializeDtoFromContract<ProjectDto>(it) {
+                "project_not_found ; No project found for projectId $projectId"
+            }
+        }.let {
+            UserServiceContract.getUserUsingProjectIdAndSubjectId(
+                projectId,
+                subjectId,
+                userServiceUrl,
+            ).let {
+                deserializeDtoFromContract<FcmUserDto>(it) {
+                    "user_not_found ; User with subjectId $subjectId not found. Please create a user first"
+                }
+            }.let {
+                userMapper.dtoToEntity(it)
             }
         }
     }

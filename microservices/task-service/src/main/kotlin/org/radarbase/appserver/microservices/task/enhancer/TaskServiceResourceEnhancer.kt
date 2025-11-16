@@ -36,10 +36,12 @@ import org.radarbase.appserver.microservices.core.service.TaskStateEventService
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.task.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
+import org.radarbase.appserver.microservices.task.factory.scheduling.SchedulingServiceFactory
 import org.radarbase.appserver.microservices.task.repository.TaskRepositoryImpl
 import org.radarbase.appserver.microservices.task.repository.TaskStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.task.service.TaskServiceImpl
 import org.radarbase.appserver.microservices.task.service.TaskStateEventServiceImpl
+import org.radarbase.appserver.microservices.task.service.scheduling.SchedulingService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -87,6 +89,11 @@ class TaskServiceResourceEnhancer(private val config: TaskServiceConfig) : Jerse
         bind(ScopedAsyncCoroutineService::class.java)
             .to(AsyncCoroutineService::class.java)
             .`in`(Singleton::class.java)
+
+        bindFactory(SchedulingServiceFactory::class.java)
+            .to(SchedulingService::class.java)
+            .`in`(Singleton::class.java)
+
 
     }
 

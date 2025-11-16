@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.service.scheduling
+package org.radarbase.appserver.microservices.task.service.scheduling
 
 import org.slf4j.LoggerFactory
 import java.io.Closeable
@@ -41,7 +41,7 @@ class SchedulingService : Closeable {
             if (ref.cancel(false)) {
                 try {
                     ref.get()
-                } catch (ex: CancellationException) {
+                } catch (_: CancellationException) {
                     // this is expected
                 } catch (ex: Exception) {
                     logger.warn("Failed to get repeating job result", ex)
@@ -62,7 +62,7 @@ class SchedulingService : Closeable {
                     logger.error("SchedulingService did not terminate")
                 }
             }
-        } catch (ie: InterruptedException) {
+        } catch (_: InterruptedException) {
             // (Re-)Cancel if current thread also interrupted
             scheduler.shutdownNow()
             // Preserve interrupt status

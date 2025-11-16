@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.factory.scheduling
+package org.radarbase.appserver.microservices.task.factory.scheduling
 
 import org.glassfish.jersey.internal.inject.DisposableSupplier
-import org.radarbase.appserver.microservices.core.service.scheduling.SchedulingService
+import org.radarbase.appserver.microservices.task.service.scheduling.SchedulingService
 
 class SchedulingServiceFactory : DisposableSupplier<SchedulingService> {
     override fun get() = SchedulingService()
