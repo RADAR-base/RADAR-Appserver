@@ -36,7 +36,7 @@ import java.time.Instant
  * Messaging(FCM) system.
  *
  * @see Scheduled
- * @see org.radarbase.appserver.service.scheduler.DataMessageSchedulerService
+ * @see org.radarbase.appserver.microservices.core.service.scheduler.DataMessageSchedulerService
  */
 @Suppress("unused")
 @Entity
@@ -61,7 +61,9 @@ class DataMessage : Message() {
 
     class DataMessageBuilder(dataMessage: DataMessage? = null) {
         var id: Long? = dataMessage?.id
-        var user: User? = dataMessage?.user
+        var userId: Long? = dataMessage?.userId
+        var subjectId: String? = dataMessage?.subjectId
+        var projectId: String? = dataMessage?.projectId
         var sourceId: String? = dataMessage?.sourceId
         var scheduledTime: Instant? = dataMessage?.scheduledTime
         var ttlSeconds: Int = dataMessage?.ttlSeconds ?: 0
@@ -81,8 +83,16 @@ class DataMessage : Message() {
             this.id = id
         }
 
-        fun user(user: User?): DataMessageBuilder = apply {
-            this.user = user
+        fun userId(userId: Long?): DataMessageBuilder = apply {
+            this.userId = userId
+        }
+
+        fun subjectId(subjectId: String?): DataMessageBuilder = apply {
+            this.subjectId = subjectId
+        }
+
+        fun projectId(projectId: String?): DataMessageBuilder = apply {
+            this.projectId = projectId
         }
 
         fun sourceId(sourceId: String?): DataMessageBuilder = apply {
@@ -140,7 +150,9 @@ class DataMessage : Message() {
         fun build(): DataMessage {
             val dataMessage = DataMessage()
             dataMessage.id = this.id
-            dataMessage.user = this.user
+            dataMessage.userId = this.userId
+            dataMessage.subjectId = this.subjectId
+            dataMessage.projectId = this.projectId
             dataMessage.sourceId = this.sourceId
             dataMessage.scheduledTime = this.scheduledTime
             dataMessage.ttlSeconds = this.ttlSeconds

@@ -88,7 +88,8 @@ class SimpleNotificationHandler : ProtocolHandler {
                     body,
                     emailEnabled,
                 ).apply {
-                    this.user = user
+                    this.userId = user.id
+                    this.subjectId = user.subjectId
                 }
             }
         }.filterNotNull().filter { notification: Notification ->
