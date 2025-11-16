@@ -22,6 +22,11 @@ import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.radarbase.appserver.jersey.event.listener.TaskStateEventListener
+import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
+import org.radarbase.appserver.jersey.service.quartz.SimpleQuartzNamingStrategy
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService
+import org.radarbase.appserver.jersey.service.questionnaire.schedule.ScheduleGeneratorService
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.entity.User
@@ -41,6 +46,7 @@ import org.radarbase.appserver.microservices.task.repository.TaskRepositoryImpl
 import org.radarbase.appserver.microservices.task.repository.TaskStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.task.service.TaskServiceImpl
 import org.radarbase.appserver.microservices.task.service.TaskStateEventServiceImpl
+import org.radarbase.appserver.microservices.task.service.questionnaire.schedule.QuestionnaireScheduleService
 import org.radarbase.appserver.microservices.task.service.scheduling.SchedulingService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
@@ -57,16 +63,20 @@ class TaskServiceResourceEnhancer(private val config: TaskServiceConfig) : Jerse
             .to(TaskServiceConfig::class.java)
             .`in`(Singleton::class.java)
 
-        bindFactory(EventBusFactory::class.java)
-            .to(EventBus::class.java)
-            .`in`(Singleton::class.java)
-
         bind(config.eventBus)
             .to(CoreEventBusConfig::class.java)
             .`in`(Singleton::class.java)
 
+        bindFactory(EventBusFactory::class.java)
+            .to(EventBus::class.java)
+            .`in`(Singleton::class.java)
+
         bind(TaskStateEventRepositoryImpl::class.java)
             .to(TaskStateEventRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(TaskStateEventListener::class.java)
+            .to(TaskStateEventListener::class.java)
             .`in`(Singleton::class.java)
 
         bind(TaskStateEventServiceImpl::class.java)
@@ -94,6 +104,17 @@ class TaskServiceResourceEnhancer(private val config: TaskServiceConfig) : Jerse
             .to(SchedulingService::class.java)
             .`in`(Singleton::class.java)
 
+        bind(QuestionnaireScheduleService::class.java)
+            .to(QuestionnaireScheduleService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(QuestionnaireScheduleGeneratorService::class.java)
+            .to(ScheduleGeneratorService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(SimpleQuartzNamingStrategy::class.java)
+            .to(QuartzNamingStrategy::class.java)
+            .`in`(Singleton::class.java)
 
     }
 
