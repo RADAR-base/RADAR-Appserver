@@ -137,6 +137,20 @@ class UserResource @Inject constructor(
     }
 
     @GET
+    @Path("$USERS_PATH/fcmToken/{token}")
+    @Produces(APPLICATION_JSON)
+    fun getUserUsingFcmToken(
+        @PathParam("fcmToken") fcmToken: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            userService.findByFcmToken(fcmToken).let { user ->
+                Response.ok(user).build()
+            }
+        }
+    }
+
+    @GET
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH")
     @Produces(APPLICATION_JSON)
     fun getUsersUsingProjectId(

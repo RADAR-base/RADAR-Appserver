@@ -123,6 +123,22 @@ object UserServiceContract {
         }
     }
 
+    suspend fun getUserUsingFcmToken(
+        fcmToken: String,
+        baseUrl: String,
+    ): ProxyResponse {
+        return tryProxyRequest("UserClient::getUserUsingFcmToken") {
+            client.get(normalizedUri(baseUrl)) {
+                url {
+                    appendPathSegments(USERS_PATH, "fcmToken", fcmToken)
+                }
+                accept(ContentType.Application.Json)
+            }.let {
+                createProxyFromResponse(it)
+            }
+        }
+    }
+
     suspend fun getUsersUsingProjectId(
         projectId: String,
         baseUrl: String,

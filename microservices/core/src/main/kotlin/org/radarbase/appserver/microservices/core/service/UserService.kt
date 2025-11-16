@@ -28,6 +28,8 @@ interface UserService {
     /** Retrieve all users across projects as DTO wrapper. */
     suspend fun getAllRadarUsers(): FcmUsers
 
+    suspend fun findByFcmToken(fcmToken: String): FcmUserDto?
+
     /**
      * Retrieve a user by internal DB id.
      * @throws org.radarbase.jersey.exception.HttpNotFoundException if not found
