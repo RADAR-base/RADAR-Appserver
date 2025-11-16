@@ -28,7 +28,6 @@ import org.quartz.TriggerKey
 import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.entity.Message
 import org.radarbase.appserver.microservices.core.entity.Notification
-import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
 import org.radarbase.appserver.microservices.core.service.quartz.MessageJob
 import org.radarbase.appserver.microservices.core.service.quartz.MessageType
@@ -102,7 +101,7 @@ class MessageSchedulerService<T : Message> @Inject constructor(
     }
 
     fun deleteScheduled(message: T) {
-        JobKey(NAMING_STRATEGY.getJobKeyName(message.user!!.subjectId!!, message.id.toString()))
+        JobKey(NAMING_STRATEGY.getJobKeyName(message.subjectId!!, message.id.toString()))
             .let(schedulerService::deleteScheduledJob)
     }
 
@@ -207,9 +206,8 @@ class MessageSchedulerService<T : Message> @Inject constructor(
         fun nonNullJobUtils(message: Message): Triple<Long, String, String> {
             val (messageId: Long, subjectId: String) = nonNullMessageIdAndSubjectId(message)
 
-            val user: User = requireNotNull(message.user) { "User for message cannot be null" }
             val projectId: String = requireNotNull(
-                    user.projectId,
+                message.projectId,
             ) { "Project Id for user in message cannot be null" }
 
             return Triple(messageId, subjectId, projectId)
@@ -224,7 +222,7 @@ class MessageSchedulerService<T : Message> @Inject constructor(
         fun nonNullMessageIdAndSubjectId(message: Message): Pair<Long, String> {
             val messageId: Long = requireNotNull(message.id) { "Message Id cannot be null" }
             val subjectId: String = requireNotNull(
-                requireNotNull(message.user) { "User for message cannot be null" }.subjectId,
+                message.subjectId,
             ) { "Subject Id in message cannot be null" }
 
             return Pair(messageId, subjectId)

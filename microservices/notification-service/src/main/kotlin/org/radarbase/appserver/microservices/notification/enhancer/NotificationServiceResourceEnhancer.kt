@@ -23,16 +23,23 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
+import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
 import org.radarbase.appserver.microservices.core.mapper.Mapper
+import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
+import org.radarbase.appserver.microservices.core.repository.NotificationRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
+import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
+import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.notification.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
+import org.radarbase.appserver.microservices.notification.repository.NotificationRepositoryImpl
 import org.radarbase.appserver.microservices.notification.repository.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.notification.service.NotificationStateEventServiceImpl
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
@@ -72,9 +79,17 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
             .`in`(Singleton::class.java)
 
         bind(NotificationStateEventServiceImpl::class.java)
-            .to(NotificationStateEventServiceImpl::class.java)
+            .to(NotificationStateEventService::class.java)
             .`in`(Singleton::class.java)
 
+        bind(NotificationRepositoryImpl::class.java)
+            .to(NotificationRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
+            .named(NOTIFICATION_MAPPER)
+            .`in`(Singleton::class.java)
 
     }
 
