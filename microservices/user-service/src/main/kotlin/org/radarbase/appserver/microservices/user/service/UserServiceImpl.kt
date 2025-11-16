@@ -63,6 +63,12 @@ class UserServiceImpl @Inject constructor(
         return FcmUsers(userMapper.entitiesToDtos(userRepository.findAll()))
     }
 
+    override suspend fun findByFcmToken(fcmToken: String): FcmUserDto {
+        return userMapper.entityToDto(
+            userRepository.findByFcmToken(fcmToken) ?: throw InvalidUserDetailsException("The user with the given Fcm Token does not exist")
+        )
+    }
+
     /**
      * Retrieves a user by their id.
      *
