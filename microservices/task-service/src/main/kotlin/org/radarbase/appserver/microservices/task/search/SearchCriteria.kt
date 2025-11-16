@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.search
+package org.radarbase.appserver.microservices.task.search
 
 data class SearchCriteria(
     val key: String,

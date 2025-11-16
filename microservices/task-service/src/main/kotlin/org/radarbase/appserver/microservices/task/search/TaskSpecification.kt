@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.search
+package org.radarbase.appserver.microservices.task.search
 
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import org.radarbase.appserver.microservices.core.entity.Task
+import org.radarbase.appserver.microservices.core.search.QuerySpecification
 
 @Suppress("UNCHECKED_CAST")
 class TaskSpecification(
