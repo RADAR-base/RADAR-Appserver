@@ -31,6 +31,7 @@ import org.radarbase.appserver.microservices.core.exception.AlreadyExistsExcepti
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.repository.TaskRepository
 import org.radarbase.appserver.microservices.core.search.QuerySpecification
+import org.radarbase.appserver.microservices.core.service.TaskService
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkPresence
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
@@ -44,14 +45,14 @@ class TaskServiceImpl @Inject constructor(
     private val eventPublisher: EventBus,
     @param:Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
     config: TaskServiceConfig,
-) {
+) : TaskService {
     private val userServiceUrl = config.contract.user
 
-    suspend fun getAllTasks(): List<Task> {
+    override suspend fun getAllTasks(): List<Task> {
         return taskRepository.findAll()
     }
 
-    suspend fun getTaskById(id: Long): Task {
+    override suspend fun getTaskById(id: Long): Task {
         val task = taskRepository.find(id)
 
         return checkPresence(task, "task_not_found") {
@@ -59,7 +60,7 @@ class TaskServiceImpl @Inject constructor(
         }
     }
 
-    suspend fun getTasksBySubjectId(subjectId: String): List<Task> {
+    override suspend fun getTasksBySubjectId(subjectId: String): List<Task> {
         val user = getUserBySubjectId(subjectId)
         checkPresence(user, "user_not_found") {
             INVALID_SUBJECT_ID_MESSAGE
@@ -68,7 +69,7 @@ class TaskServiceImpl @Inject constructor(
         return taskRepository.findByUserId(user.let(::nonNullUserId))
     }
 
-    suspend fun getTasksBySubjectIdAndType(subjectId: String, type: AssessmentType): List<Task> {
+    override suspend fun getTasksBySubjectIdAndType(subjectId: String, type: AssessmentType): List<Task> {
         val user = getUserBySubjectId(subjectId)
         checkPresence(user, "user_not_found") {
             INVALID_SUBJECT_ID_MESSAGE
@@ -77,24 +78,24 @@ class TaskServiceImpl @Inject constructor(
         return taskRepository.findByUserIdAndType(nonNullUserId(user), type)
     }
 
-    suspend fun getTasksByUser(user: User): List<Task> {
+    override suspend fun getTasksByUser(user: User): List<Task> {
         return taskRepository.findByUserId(nonNullUserId(user))
     }
 
-    suspend fun getTasksBySpecification(spec: QuerySpecification<Task>): List<Task> {
+    override suspend fun getTasksBySpecification(spec: QuerySpecification<Task>): List<Task> {
         return taskRepository.findAll(spec)
     }
 
-    suspend fun deleteTasksBySpecification(spec: QuerySpecification<Task>) {
+    override suspend fun deleteTasksBySpecification(spec: QuerySpecification<Task>) {
         val tasks = taskRepository.findAll(spec)
         taskRepository.deleteAll(tasks)
     }
 
-    suspend fun deleteTasksByUserId(userId: Long) {
+    override suspend fun deleteTasksByUserId(userId: Long) {
         taskRepository.deleteByUserId(userId)
     }
 
-    suspend fun addTask(task: Task): Task {
+    override suspend fun addTask(task: Task): Task {
         val (user, taskName, taskTimestamp) = validateUserTaskNameAndTaskTimestamp(task)
         val alreadyExists = this.taskRepository.existsByUserIdAndNameAndTimestamp(
             nonNullUserId(user),
@@ -130,7 +131,7 @@ class TaskServiceImpl @Inject constructor(
         }
     }
 
-    suspend fun addTasks(tasks: List<Task>, user: User): List<Task> {
+    override suspend fun addTasks(tasks: List<Task>, user: User): List<Task> {
         val newTasks = tasks.filter { task ->
             val taskName = checkNotNull(task.name) { "Task name cannot be null" }
             val taskTimestamp = checkNotNull(task.timestamp) { "Task timestamp cannot be null" }
@@ -158,7 +159,7 @@ class TaskServiceImpl @Inject constructor(
         eventPublisher.post(taskStateEventDto)
     }
 
-    suspend fun updateTaskStatus(oldTask: Task, state: TaskState): Task? {
+    override suspend fun updateTaskStatus(oldTask: Task, state: TaskState): Task? {
         val (user, taskName, taskTimestamp) = validateUserTaskNameAndTaskTimestamp(oldTask)
 
         val doesntExists = !this.taskRepository.existsByUserIdAndNameAndTimestamp(

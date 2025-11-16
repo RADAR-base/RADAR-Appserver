@@ -22,11 +22,6 @@ import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
-import org.radarbase.appserver.jersey.event.listener.TaskStateEventListener
-import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
-import org.radarbase.appserver.jersey.service.quartz.SimpleQuartzNamingStrategy
-import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService
-import org.radarbase.appserver.jersey.service.questionnaire.schedule.ScheduleGeneratorService
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.entity.User
@@ -38,9 +33,14 @@ import org.radarbase.appserver.microservices.core.repository.TaskRepository
 import org.radarbase.appserver.microservices.core.repository.TaskStateEventRepository
 import org.radarbase.appserver.microservices.core.service.TaskService
 import org.radarbase.appserver.microservices.core.service.TaskStateEventService
+import org.radarbase.appserver.microservices.core.service.quartz.QuartzNamingStrategy
+import org.radarbase.appserver.microservices.core.service.quartz.SimpleQuartzNamingStrategy
+import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService
+import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.ScheduleGeneratorService
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.task.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
+import org.radarbase.appserver.microservices.task.event.listener.TaskStateEventListener
 import org.radarbase.appserver.microservices.task.factory.scheduling.SchedulingServiceFactory
 import org.radarbase.appserver.microservices.task.repository.TaskRepositoryImpl
 import org.radarbase.appserver.microservices.task.repository.TaskStateEventRepositoryImpl

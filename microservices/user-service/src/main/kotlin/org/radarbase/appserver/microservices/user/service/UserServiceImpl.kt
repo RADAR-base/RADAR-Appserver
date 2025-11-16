@@ -18,8 +18,11 @@ package org.radarbase.appserver.microservices.user.service
 
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import jakarta.ws.rs.core.Response
 import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
+import org.radarbase.appserver.microservices.contract.calls.QuestionnaireScheduleContract
+import org.radarbase.appserver.microservices.contract.exception.ProxyResponseException
 import org.radarbase.appserver.microservices.contract.utils.Utils.deserializeDtoFromContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
@@ -31,7 +34,6 @@ import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
 import org.radarbase.appserver.microservices.core.repository.UserRepository
 import org.radarbase.appserver.microservices.core.service.UserService
-import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.QuestionnaireScheduleService
 import org.radarbase.appserver.microservices.core.utils.Const.PROJECT_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
@@ -51,6 +53,7 @@ class UserServiceImpl @Inject constructor(
 ) : UserService {
     private val sendEmailNotifications: Boolean = config.email.enabled
     private val projectServiceUrl = config.contract.project
+    private val taskServiceUrl = config.contract.task
 
     private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
 
@@ -242,7 +245,18 @@ class UserServiceImpl @Inject constructor(
             userRepository.add(this)
         }
 
-//        this.scheduleService.generateScheduleForUser(savedUser)
+        QuestionnaireScheduleContract.generateScheduleUsingProjectIdAndSubjectId(
+            requireNotNull(savedUser.projectId) { "User's Project id must not be null" },
+            requireNotNull(savedUser.subjectId) { "Subject id must not be null" },
+            taskServiceUrl
+        ).let {
+            if (it.status !in 200 .. 299) {
+                throw ProxyResponseException(
+                    Response.Status.fromStatusCode(it.status),
+                    it.body?.decodeToString() ?: "Upstream sent an incorrect response",
+                )
+            }
+        }
 
         return userMapper.entityToDto(savedUser)
     }
@@ -305,7 +319,18 @@ class UserServiceImpl @Inject constructor(
             userDto.timezone ||
             user.enrolmentDate?.equals(userDto.enrolmentDate) != true  ||
             user.language != userDto.language) {
-//            this.scheduleService.generateScheduleForUser(savedUser)
+            QuestionnaireScheduleContract.generateScheduleUsingProjectIdAndSubjectId(
+                requireNotNull(savedUser.projectId) { "User's Project id must not be null" },
+                requireNotNull(savedUser.subjectId) { "Subject id must not be null" },
+                taskServiceUrl
+            ).let {
+                if (it.status !in 200 .. 299) {
+                    throw ProxyResponseException(
+                        Response.Status.fromStatusCode(it.status),
+                        it.body?.decodeToString() ?: "Upstream sent an incorrect response",
+                    )
+                }
+            }
         }
 
         return userMapper.entityToDto(savedUser)

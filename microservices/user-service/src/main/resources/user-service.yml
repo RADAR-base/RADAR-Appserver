@@ -27,3 +27,4 @@ email:
 
 contract:
   project: http://project-service:9010
+  task: http://task-service:9014
