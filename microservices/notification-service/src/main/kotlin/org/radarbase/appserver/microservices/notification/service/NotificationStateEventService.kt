@@ -1,0 +1,152 @@
+package org.radarbase.appserver.microservices.notification.service
+
+import com.google.common.eventbus.EventBus
+import jakarta.inject.Inject
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import org.glassfish.hk2.api.ServiceLocator
+import org.radarbase.appserver.microservices.core.dto.NotificationStateEventDto
+import org.radarbase.appserver.microservices.core.entity.Notification
+import org.radarbase.appserver.microservices.core.entity.NotificationStateEvent
+import org.radarbase.appserver.microservices.core.event.state.MessageState
+import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
+import org.radarbase.appserver.microservices.core.service.FcmNotificationService
+import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
+import java.io.IOException
+
+@Suppress("unused")
+class NotificationStateEventServiceImpl @Inject constructor(
+    private val notificationStateEventRepository: NotificationStateEventRepository,
+    private val notificationService: FcmNotificationService,
+    private val serviceLocator: ServiceLocator,
+) : NotificationStateEventService{
+    private var notificationStateEventBus: EventBus? = null
+        get() {
+            if (field == null) {
+                return serviceLocator.getService(EventBus::class.java)
+                    ?.also { field = it }
+            }
+            return field
+        }
+
+    override suspend fun addNotificationStateEvent(notificationStateEvent: NotificationStateEvent) {
+        if (notificationStateEvent.state == MessageState.CANCELLED) {
+            // the notification will be removed shortly
+            return
+        }
+        notificationStateEventRepository.add(notificationStateEvent)
+    }
+
+    override suspend fun getNotificationStateEvents(
+        projectId: String,
+        subjectId: String,
+        notificationId: Long,
+    ): List<NotificationStateEventDto> {
+        notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+            projectId,
+            subjectId,
+            notificationId,
+        )
+        val stateEvents: List<NotificationStateEvent> =
+            notificationStateEventRepository.findByNotificationId(notificationId)
+        return stateEvents.map { notificationStateEvent: NotificationStateEvent ->
+            NotificationStateEventDto(
+                notificationStateEvent.id,
+                nonNullNotification(notificationStateEvent).id,
+                notificationStateEvent.state,
+                notificationStateEvent.time,
+                notificationStateEvent.associatedInfo,
+            )
+        }
+    }
+
+    override suspend fun getNotificationStateEventsByNotificationId(
+        notificationId: Long,
+    ): List<NotificationStateEventDto> {
+        val stateEvents = notificationStateEventRepository.findByNotificationId(notificationId)
+        return stateEvents.map { notificationStateEvent: NotificationStateEvent ->
+            NotificationStateEventDto(
+                notificationStateEvent.id,
+                nonNullNotification(notificationStateEvent).id,
+                notificationStateEvent.state,
+                notificationStateEvent.time,
+                notificationStateEvent.associatedInfo,
+            )
+        }
+    }
+
+    override suspend fun publishNotificationStateEventExternal(
+        projectId: String,
+        subjectId: String,
+        notificationId: Long,
+        notificationStateEventDto: NotificationStateEventDto,
+    ) {
+        checkState(notificationId, notificationStateEventDto.state)
+        val notification = notificationService.getNotificationByProjectIdAndSubjectIdAndNotificationId(
+            projectId,
+            subjectId,
+            notificationId,
+        )
+
+        var additionalInfo: Map<String, String>? = null
+        if (!notificationStateEventDto.associatedInfo.isNullOrEmpty()) {
+            try {
+                additionalInfo = Json.decodeFromString(
+                    MapSerializer(String.serializer(), String.serializer()),
+                    notificationStateEventDto.associatedInfo!!,
+                )
+            } catch (_: IOException) {
+                throw IllegalStateException(
+                    "Cannot convert additionalInfo to Map<String, String>. Please check its format.",
+                )
+            }
+        }
+
+        val messageState = requireNotNull(notificationStateEventDto.state) {
+            "Notification state event's state can't be null."
+        }
+        val messageTime = requireNotNull(notificationStateEventDto.time) {
+            "Notification state event's time can't be null."
+        }
+
+        val stateEvent = org.radarbase.appserver.microservices.core.event.state.dto.NotificationStateEventDto(
+            notification,
+            messageState,
+            additionalInfo,
+            messageTime,
+        )
+        notificationStateEventBus?.post(stateEvent) ?: log.error("Event bus is not initialized")
+    }
+
+    @Throws(IllegalStateException::class)
+    private suspend fun checkState(notificationId: Long, state: MessageState?) {
+        if (EXTERNAL_EVENTS.contains(state)) {
+            if (notificationStateEventRepository.countByNotificationId(notificationId)
+                >= MAX_NUMBER_OF_STATES
+            ) {
+                throw IllegalStateException("The max limit of state changes($MAX_NUMBER_OF_STATES) has been reached. Cannot add new states.")
+            }
+        } else {
+            throw IllegalStateException("The state $state is not an external state and cannot be updated by this endpoint.")
+        }
+    }
+
+    companion object {
+        private val log = org.slf4j.LoggerFactory.getLogger(NotificationStateEventService::class.java)
+        private const val MAX_NUMBER_OF_STATES = 20
+
+        private val EXTERNAL_EVENTS = setOf<MessageState>(
+            MessageState.DELIVERED,
+            MessageState.DISMISSED,
+            MessageState.OPENED,
+            MessageState.UNKNOWN,
+            MessageState.ERRORED,
+        )
+
+        private fun nonNullNotification(stateEvent: NotificationStateEvent): Notification =
+            checkNotNull(stateEvent.notification) {
+                "DataMessage in state event data can't be null"
+            }
+    }
+}

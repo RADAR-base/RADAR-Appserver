@@ -29,9 +29,12 @@ import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExc
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
+import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.notification.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
+import org.radarbase.appserver.microservices.notification.repository.NotificationStateEventRepositoryImpl
+import org.radarbase.appserver.microservices.notification.service.NotificationStateEventServiceImpl
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -63,6 +66,15 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
         bind(ScopedAsyncCoroutineService::class.java)
             .to(AsyncCoroutineService::class.java)
             .`in`(Singleton::class.java)
+
+        bind(NotificationStateEventRepositoryImpl::class.java)
+            .to(NotificationStateEventRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationStateEventServiceImpl::class.java)
+            .to(NotificationStateEventServiceImpl::class.java)
+            .`in`(Singleton::class.java)
+
 
     }
 
