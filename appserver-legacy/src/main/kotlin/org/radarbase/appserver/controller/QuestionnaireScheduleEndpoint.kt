@@ -68,7 +68,7 @@ class QuestionnaireScheduleEndpoint @Autowired constructor(@field:Transient @fie
         @PathVariable @Valid projectId: String,
         @PathVariable @Valid subjectId: String,
     ): ResponseEntity<Any> {
-        this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(projectId, subjectId)
+        this.scheduleService.generateScheduleUsingProjectIdAndSubjectId(subjectId, projectId)
         return ResponseEntity.created(
             URI("/" + PathsUtil.QUESTIONNAIRE_SCHEDULE_PATH + "/"),
         ).build()

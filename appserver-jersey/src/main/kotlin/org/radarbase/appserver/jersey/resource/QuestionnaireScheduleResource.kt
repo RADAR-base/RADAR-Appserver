@@ -71,8 +71,8 @@ class QuestionnaireScheduleResource @Inject constructor(
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             try {
                 scheduleService.generateScheduleUsingProjectIdAndSubjectId(
-                    projectId,
                     subjectId,
+                    projectId,
                 )
                 Response.created(
                     URI("$PROJECTS_PATH/$projectId/$USERS_PATH/$subjectId/$QUESTIONNAIRE_SCHEDULE"),

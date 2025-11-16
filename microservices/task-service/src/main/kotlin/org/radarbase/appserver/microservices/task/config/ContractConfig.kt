@@ -31,9 +31,9 @@ data class ContractConfig(
             copy(user = it)
         }
         .copyEnv(PROJECT_SERVICE_BASE_URL) {
-            copy(user = it)
+            copy(project = it)
         }
         .copyEnv(PROTOCOL_SERVICE_BASE_URL) {
-            copy(user = it)
+            copy(protocol = it)
         }
 }

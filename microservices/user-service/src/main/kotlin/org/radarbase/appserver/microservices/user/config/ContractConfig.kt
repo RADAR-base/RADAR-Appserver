@@ -17,13 +17,18 @@
 package org.radarbase.appserver.microservices.user.config
 
 import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_SERVICE_BASE_URL
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class ContractConfig(
     val project: String,
+    val task: String
 ) {
     fun withEnv(): ContractConfig = this
         .copyEnv(PROJECT_SERVICE_BASE_URL) {
             copy(project = it)
+        }
+        .copyEnv(TASK_SERVICE_BASE_URL) {
+            copy(task = it)
         }
 }

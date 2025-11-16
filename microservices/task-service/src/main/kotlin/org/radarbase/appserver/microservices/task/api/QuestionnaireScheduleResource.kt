@@ -38,9 +38,6 @@ import org.radarbase.appserver.microservices.core.utils.Paths.SUBJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
 import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
 import org.radarbase.appserver.microservices.task.service.questionnaire.schedule.QuestionnaireScheduleService
-import org.radarbase.auth.authorization.Permission
-import org.radarbase.jersey.auth.Authenticated
-import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.net.MalformedURLException
 import java.net.URI
@@ -60,8 +57,6 @@ class QuestionnaireScheduleResource @Inject constructor(
 
     @POST
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
     fun generateScheduleUsingProjectIdAndSubjectId(
         @PathParam("projectId") projectId: String,
         @PathParam("subjectId") subjectId: String,
@@ -70,9 +65,9 @@ class QuestionnaireScheduleResource @Inject constructor(
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             try {
                 scheduleService.generateScheduleUsingProjectIdAndSubjectId(
-                    projectId,
                     subjectId,
-                )
+                    projectId,
+                    )
                 Response.created(
                     URI("$PROJECTS_PATH/$projectId/$USERS_PATH/$subjectId/$QUESTIONNAIRE_SCHEDULE"),
                 ).build()
@@ -86,8 +81,6 @@ class QuestionnaireScheduleResource @Inject constructor(
 
     @PUT
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
     fun generateScheduleUsingProtocol(
         @Valid assessment: Assessment,
         @PathParam("projectId") projectId: String,
@@ -114,8 +107,6 @@ class QuestionnaireScheduleResource @Inject constructor(
 
     @GET
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
     fun getScheduleUsingProjectIdAndSubjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Valid @PathParam("subjectId") subjectId: String,
@@ -161,8 +152,6 @@ class QuestionnaireScheduleResource @Inject constructor(
 
     @DELETE
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
-    @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
     fun deleteScheduleForUser(
         @PathParam("projectId") projectId: String,
         @PathParam("subjectId") subjectId: String,
