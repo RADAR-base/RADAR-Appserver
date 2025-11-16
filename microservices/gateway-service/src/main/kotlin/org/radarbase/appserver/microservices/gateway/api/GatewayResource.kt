@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
+import org.radarbase.appserver.microservices.contract.calls.NotificationServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
 import org.radarbase.appserver.microservices.contract.calls.QuestionnaireScheduleContract
@@ -48,15 +49,21 @@ import org.radarbase.appserver.microservices.contract.exception.InvalidUpstreamR
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.core.dto.TaskStateEventDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotifications
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUsers
 import org.radarbase.appserver.microservices.core.dto.protocol.Assessment
+import org.radarbase.appserver.microservices.core.utils.Paths.ALL_KEYWORD
+import org.radarbase.appserver.microservices.core.utils.Paths.MESSAGING_NOTIFICATION_PATH
+import org.radarbase.appserver.microservices.core.utils.Paths.NOTIFICATION_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.PROTOCOLS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.QUESTIONNAIRE_SCHEDULE
 import org.radarbase.appserver.microservices.core.utils.Paths.QUESTIONNAIRE_STATE_EVENTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.SUBJECT_ID
+import org.radarbase.appserver.microservices.core.utils.Paths.TASKS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.TASK_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
 import org.radarbase.appserver.microservices.core.utils.tokenForCurrentRequest
@@ -72,7 +79,9 @@ import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
+import java.net.URI
 import java.time.Instant
+import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
@@ -92,6 +101,7 @@ class GatewayResource @Inject constructor(
     private val userServiceRoute: ServiceRoute = config.routes.first { it.name == "user" }
     private val githubServiceRoute: ServiceRoute = config.routes.first { it.name == "github" }
     private val taskServiceRoute: ServiceRoute = config.routes.first { it.name == "task" }
+    private val notificationServiceRoute: ServiceRoute = config.routes.first { it.name == "notification" }
 
 //-------------------------------------------------Project Service------------------------------------------------------
 
@@ -601,8 +611,7 @@ class GatewayResource @Inject constructor(
                         }
 
                         gatewayService.run {
-                            (dtoFromProxyResponse<FcmUserDto>(json, it) ?: throw InvalidUpstreamResponseException()
-                                )
+                            (dtoFromProxyResponse<FcmUserDto>(json, it) ?: throw InvalidUpstreamResponseException())
                         }
                     }
 
@@ -747,16 +756,14 @@ class GatewayResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val startTime: Instant? = startTimeStr?.let { Instant.parse(it) }
-            val endTime: Instant? = endTimeStr?.let { Instant.parse(it) }
 
             QuestionnaireScheduleContract.getScheduleUsingProjectIdAndSubjectId(
                 projectId,
                 subjectId,
                 type,
                 search,
-                startTime,
-                endTime,
+                startTimeStr,
+                endTimeStr,
                 taskServiceRoute.baseUrl,
             ).let { handleProxyResponse(it) }
         }
@@ -780,7 +787,286 @@ class GatewayResource @Inject constructor(
                 type,
                 search,
                 taskServiceRoute.baseUrl,
+            ).let { handleProxyResponse(it) }
+        }
+    }
+
+
+    @GET
+    @Path(MESSAGING_NOTIFICATION_PATH)
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.PROJECT_READ)
+    fun getAllNotifications(
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            handleProxyResponse(
+                NotificationServiceContract.getAllNotifications(
+                    notificationServiceRoute.baseUrl,
+                ),
             )
+        }
+    }
+
+    @GET
+    @Path("$MESSAGING_NOTIFICATION_PATH/{id}")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
+    fun getNotificationUsingId(
+        @Valid @PathParam("id") id: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            handleProxyResponse(
+                NotificationServiceContract.getNotificationUsingId(id, taskServiceRoute.baseUrl),
+            )
+        }
+    }
+
+    @GET
+    @Path("$MESSAGING_NOTIFICATION_PATH/filter")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.PROJECT_READ)
+    fun getFilteredNotifications(
+        @Valid @QueryParam("type") type: String?,
+        @Valid @QueryParam("delivered") delivered: Boolean?,
+        @Valid @QueryParam("ttlSeconds") ttlSeconds: Int?,
+        @Valid @QueryParam("startTime") startTimeStr: String?,
+        @Valid @QueryParam("endTime") endTimeStr: String?,
+        @Valid @QueryParam("limit") limit: Int?,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.getFilteredNotifications(
+                type,
+                delivered,
+                ttlSeconds,
+                startTimeStr,
+                endTimeStr,
+                limit,
+                notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @GET
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun getNotificationsUsingProjectIdAndSubjectId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.getNotificationsUsingProjectIdAndSubjectId(
+                projectId,
+                subjectId,
+                notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @GET
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/$MESSAGING_NOTIFICATION_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
+    fun getNotificationsUsingProjectId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
+
+            NotificationServiceContract.getNotificationsUsingProjectId(projectId, notificationServiceRoute.baseUrl)
+        }
+    }
+
+    @POST
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun addSingleNotification(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmNotification: FcmNotificationDto,
+        @QueryParam("schedule") @DefaultValue("true") schedule: Boolean,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.addSingleNotification(
+                projectId,
+                subjectId,
+                fcmNotification,
+                schedule,
+                notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @POST
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH/schedule")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun scheduleUserNotifications(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.scheduleUserNotifications(
+                projectId,
+                subjectId,
+                notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @POST
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID/schedule")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun scheduleUserNotification(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid @PathParam("notificationId") notificationId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.scheduleUserNotification(
+                projectId,
+                subjectId, notificationId, notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @POST
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH/batch")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun addBatchNotifications(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @QueryParam("schedule") @DefaultValue("false") schedule: Boolean,
+        @Valid fcmNotification: FcmNotifications,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.addBatchNotifications(
+                projectId, subjectId, schedule, fcmNotification, notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @PUT
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun updateNotification(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmNotification: FcmNotificationDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.updateNotification(
+                projectId,
+                subjectId,
+                fcmNotification,
+                notificationServiceRoute.baseUrl,
+            )
+        }
+    }
+
+    @DELETE
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH/$ALL_KEYWORD")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteNotificationsForUser(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.deleteNotificationsForUser(
+                projectId,
+                subjectId,
+                notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @DELETE
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID")
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteNotificationUsingProjectIdAndSubjectIdAndNotificationId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @PathParam("notificationId") id: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.deleteNotificationUsingProjectIdAndSubjectIdAndNotificationId(
+                projectId,
+                subjectId,
+                id,
+                notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @DELETE
+    @Path("${PROJECTS_PATH}/${PROJECT_ID}/${USERS_PATH}/${SUBJECT_ID}/$MESSAGING_NOTIFICATION_PATH/$TASKS_PATH/{id}")
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteNotificationUsingProjectIdAndSubjectIdAndTaskId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @PathParam("id") id: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationServiceContract.deleteNotificationUsingProjectIdAndSubjectIdAndTaskId(
+                projectId,
+                subjectId,
+                id,
+                notificationServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
         }
     }
 }
