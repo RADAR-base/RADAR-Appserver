@@ -17,6 +17,7 @@
 package org.radarbase.appserver.microservices.gateway.config
 
 import org.radarbase.appserver.microservices.contract.utils.Env.GITHUB_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROTOCOL_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.TASK_SERVICE_BASE_URL
@@ -90,9 +91,20 @@ data class GatewayConfig(
             }
         }
         .copyEnv(TASK_SERVICE_BASE_URL) { userBase ->
-            updateOrAddRoute("taskStateEvent") { prevConfig ->
+            updateOrAddRoute("task") { prevConfig ->
                 ServiceRoute(
-                    name = prevConfig?.name ?: "taskStateEvent",
+                    name = prevConfig?.name ?: "task",
+                    baseUrl = userBase,
+                    path = prevConfig?.path ?: "",
+                )
+            }.let {
+                copy(routes = it)
+            }
+        }
+        .copyEnv(NOTIFICATION_SERVICE_BASE_URL) { userBase ->
+            updateOrAddRoute("notification") { prevConfig ->
+                ServiceRoute(
+                    name = prevConfig?.name ?: "notification",
                     baseUrl = userBase,
                     path = prevConfig?.path ?: "",
                 )

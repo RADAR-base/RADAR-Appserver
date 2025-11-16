@@ -22,6 +22,9 @@ routes:
   - name: task
     path:
     baseUrl: http://task-service:9014
+  - name: notification
+    path:
+    baseUrl: http://notification-service:9015
 
 server:
   # Base URI of the application.
