@@ -41,6 +41,7 @@ import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
+import org.radarbase.appserver.microservices.contract.calls.QuestionnaireScheduleContract
 import org.radarbase.appserver.microservices.contract.calls.TaskStateEventServiceContract
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
 import org.radarbase.appserver.microservices.contract.exception.InvalidUpstreamResponseException
@@ -49,6 +50,7 @@ import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.core.dto.TaskStateEventDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUsers
+import org.radarbase.appserver.microservices.core.dto.protocol.Assessment
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.PROTOCOLS_PATH
@@ -70,6 +72,7 @@ import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
+import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
@@ -88,7 +91,7 @@ class GatewayResource @Inject constructor(
     private val protocolServiceRoute: ServiceRoute = config.routes.first { it.name == "protocol" }
     private val userServiceRoute: ServiceRoute = config.routes.first { it.name == "user" }
     private val githubServiceRoute: ServiceRoute = config.routes.first { it.name == "github" }
-    private val taskStateEventServiceRoute: ServiceRoute = config.routes.first { it.name == "taskStateEvent" }
+    private val taskServiceRoute: ServiceRoute = config.routes.first { it.name == "task" }
 
 //-------------------------------------------------Project Service------------------------------------------------------
 
@@ -598,9 +601,8 @@ class GatewayResource @Inject constructor(
                         }
 
                         gatewayService.run {
-                            (dtoFromProxyResponse<FcmUserDto>(json, it) ?:
-                            throw InvalidUpstreamResponseException()
-                            )
+                            (dtoFromProxyResponse<FcmUserDto>(json, it) ?: throw InvalidUpstreamResponseException()
+                                )
                         }
                     }
 
@@ -642,7 +644,7 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             handleProxyResponse(
-                TaskStateEventServiceContract.getTaskStateEventsByTaskId(taskId, taskStateEventServiceRoute.baseUrl),
+                TaskStateEventServiceContract.getTaskStateEventsByTaskId(taskId, taskServiceRoute.baseUrl),
             )
         }
     }
@@ -663,7 +665,7 @@ class GatewayResource @Inject constructor(
                 projectId,
                 subjectId,
                 taskId,
-                taskStateEventServiceRoute.baseUrl,
+                taskServiceRoute.baseUrl,
             ).let(::handleProxyResponse)
         }
     }
@@ -686,11 +688,101 @@ class GatewayResource @Inject constructor(
                 subjectId,
                 taskId,
                 taskStateEventDto,
-                taskStateEventServiceRoute.baseUrl,
+                taskServiceRoute.baseUrl,
             ).let(::handleProxyResponse)
         }
     }
 
+    @POST
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun generateScheduleUsingProjectIdAndSubjectId(
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            QuestionnaireScheduleContract.generateScheduleUsingProjectIdAndSubjectId(
+                projectId,
+                subjectId,
+                taskServiceRoute.baseUrl,
+            ).let(::handleProxyResponse)
+        }
+    }
+
+    @PUT
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun generateScheduleUsingProtocol(
+        @Valid assessment: Assessment,
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            QuestionnaireScheduleContract.generateScheduleUsingProtocol(
+                assessment,
+                projectId,
+                subjectId,
+                taskServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @GET
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun getScheduleUsingProjectIdAndSubjectId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @QueryParam("type") @DefaultValue("all") type: String,
+        @QueryParam("search") @DefaultValue("") search: String,
+        @QueryParam("startTime") startTimeStr: String?,
+        @QueryParam("endTime") endTimeStr: String?,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val startTime: Instant? = startTimeStr?.let { Instant.parse(it) }
+            val endTime: Instant? = endTimeStr?.let { Instant.parse(it) }
+
+            QuestionnaireScheduleContract.getScheduleUsingProjectIdAndSubjectId(
+                projectId,
+                subjectId,
+                type,
+                search,
+                startTime,
+                endTime,
+                taskServiceRoute.baseUrl,
+            ).let { handleProxyResponse(it) }
+        }
+    }
+
+    @DELETE
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE")
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteScheduleForUser(
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @QueryParam("type") @DefaultValue("all") type: String,
+        @QueryParam("search") @DefaultValue("") search: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            QuestionnaireScheduleContract.deleteScheduleForUser(
+                projectId,
+                subjectId,
+                type,
+                search,
+                taskServiceRoute.baseUrl,
+            )
+        }
+    }
 }
 
 

@@ -19,7 +19,7 @@ package org.radarbase.appserver.microservices.gateway.config
 import org.radarbase.appserver.microservices.contract.utils.Env.GITHUB_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROTOCOL_SERVICE_BASE_URL
-import org.radarbase.appserver.microservices.contract.utils.Env.TASK_STATE_EVENT_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.USER_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
 import org.radarbase.appserver.microservices.core.config.Validation
@@ -89,7 +89,7 @@ data class GatewayConfig(
                 copy(routes = it)
             }
         }
-        .copyEnv(TASK_STATE_EVENT_SERVICE_BASE_URL) { userBase ->
+        .copyEnv(TASK_SERVICE_BASE_URL) { userBase ->
             updateOrAddRoute("taskStateEvent") { prevConfig ->
                 ServiceRoute(
                     name = prevConfig?.name ?: "taskStateEvent",

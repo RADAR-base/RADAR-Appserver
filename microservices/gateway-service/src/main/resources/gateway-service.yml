@@ -19,9 +19,9 @@ routes:
   - name: protocol
     path:
     baseUrl: http://protocol-service:9012
-  - name: taskStateEvent
+  - name: task
     path:
-    baseUrl: http://taskstate-service:9014
+    baseUrl: http://task-service:9014
 
 server:
   # Base URI of the application.

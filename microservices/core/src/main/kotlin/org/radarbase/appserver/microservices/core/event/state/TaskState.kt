@@ -16,6 +16,9 @@
 
 package org.radarbase.appserver.microservices.core.event.state
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class TaskState {
     ADDED, UPDATED, CANCELLED, SCHEDULED,
     COMPLETED,

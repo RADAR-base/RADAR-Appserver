@@ -23,6 +23,7 @@ import java.time.Instant
 
 class UserMapper : Mapper<FcmUserDto, User> {
     override suspend fun dtoToEntity(dto: FcmUserDto): User = User().apply {
+        this.id = dto.id
         this.fcmToken = dto.fcmToken
         this.subjectId = dto.subjectId
         this.emailAddress = dto.email
