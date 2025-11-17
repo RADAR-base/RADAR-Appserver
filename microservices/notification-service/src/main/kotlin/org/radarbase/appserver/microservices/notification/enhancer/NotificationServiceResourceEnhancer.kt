@@ -34,13 +34,16 @@ import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
 import org.radarbase.appserver.microservices.core.repository.NotificationRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
+import org.radarbase.appserver.microservices.core.service.FcmNotificationService
 import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
+import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.MessageSchedulerService
 import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.notification.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
 import org.radarbase.appserver.microservices.notification.repository.NotificationRepositoryImpl
 import org.radarbase.appserver.microservices.notification.repository.NotificationStateEventRepositoryImpl
+import org.radarbase.appserver.microservices.notification.service.FcmNotificationServiceImpl
 import org.radarbase.appserver.microservices.notification.service.NotificationStateEventServiceImpl
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
@@ -70,6 +73,10 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
             .named(USER_MAPPER)
             .`in`(Singleton::class.java)
 
+        bind(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
         bind(ScopedAsyncCoroutineService::class.java)
             .to(AsyncCoroutineService::class.java)
             .`in`(Singleton::class.java)
@@ -84,6 +91,10 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
 
         bind(NotificationRepositoryImpl::class.java)
             .to(NotificationRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(FcmNotificationServiceImpl::class.java)
+            .to(FcmNotificationService::class.java)
             .`in`(Singleton::class.java)
 
         bind(NotificationMapper::class.java)

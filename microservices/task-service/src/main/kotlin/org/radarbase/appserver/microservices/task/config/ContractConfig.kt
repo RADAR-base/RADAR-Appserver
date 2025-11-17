@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.microservices.task.config
 
+import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROTOCOL_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.USER_SERVICE_BASE_URL
@@ -25,6 +26,7 @@ data class ContractConfig(
     val user: String,
     val protocol: String,
     val project: String,
+    val notification: String
 ) {
     fun withEnv() = this
         .copyEnv(USER_SERVICE_BASE_URL) {
@@ -34,6 +36,9 @@ data class ContractConfig(
             copy(project = it)
         }
         .copyEnv(PROTOCOL_SERVICE_BASE_URL) {
+            copy(protocol = it)
+        }
+        .copyEnv(   NOTIFICATION_SERVICE_BASE_URL) {
             copy(protocol = it)
         }
 }

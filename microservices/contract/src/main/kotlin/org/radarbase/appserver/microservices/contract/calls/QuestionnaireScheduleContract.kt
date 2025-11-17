@@ -30,7 +30,6 @@ import org.radarbase.appserver.microservices.core.dto.protocol.Assessment
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.QUESTIONNAIRE_SCHEDULE
 import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
-import java.time.Instant
 
 @Suppress("unused")
 object QuestionnaireScheduleContract {
@@ -76,14 +75,16 @@ object QuestionnaireScheduleContract {
         subjectId: String,
         type: String,
         search: String,
-        startTime: Instant?,
-        endTime: Instant?,
+        startTime: String?,
+        endTime: String?,
         baseUrl: String,
     ): ProxyResponse {
         return tryProxyRequest("QuestionnaireScheduleClient::generateScheduleUsingProtocol") {
             client.get(normalizedUri(baseUrl)) {
                 url {
                     appendPathSegments(PROJECTS_PATH, projectId, USERS_PATH, subjectId, QUESTIONNAIRE_SCHEDULE)
+                    startTime?.let { parameters.append("startTime", it) }
+                    endTime?.let { parameters.append("endTime", it) }
                 }
             }.let {
                 createProxyFromResponse(it)

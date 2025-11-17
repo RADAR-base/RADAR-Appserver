@@ -23,11 +23,14 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
+import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
 import org.radarbase.appserver.microservices.core.mapper.Mapper
+import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
 import org.radarbase.appserver.microservices.core.repository.TaskRepository
 import org.radarbase.appserver.microservices.core.repository.TaskStateEventRepository
@@ -37,6 +40,7 @@ import org.radarbase.appserver.microservices.core.service.quartz.QuartzNamingStr
 import org.radarbase.appserver.microservices.core.service.quartz.SimpleQuartzNamingStrategy
 import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.QuestionnaireScheduleGeneratorService
 import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.ScheduleGeneratorService
+import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.task.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
@@ -91,6 +95,12 @@ class TaskServiceResourceEnhancer(private val config: TaskServiceConfig) : Jerse
             .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
             .named(USER_MAPPER)
             .`in`(Singleton::class.java)
+
+        bind(NotificationMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
+            .named(NOTIFICATION_MAPPER)
+            .`in`(Singleton::class.java)
+
 
         bind(TaskServiceImpl::class.java)
             .to(TaskService::class.java)

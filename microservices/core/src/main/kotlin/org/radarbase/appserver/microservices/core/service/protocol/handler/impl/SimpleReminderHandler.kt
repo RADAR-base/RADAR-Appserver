@@ -106,6 +106,7 @@ class SimpleReminderHandler : ProtocolHandler {
                     ).also {
                         it.userId = user.id
                         it.subjectId = user.subjectId
+                        it.projectId = user.projectId
                     }
                 }
             }.awaitAll()
