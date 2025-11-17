@@ -17,19 +17,23 @@
 package org.radarbase.appserver.microservices.notification.enhancer
 
 import com.google.common.eventbus.EventBus
+import com.google.firebase.FirebaseOptions
 import jakarta.inject.Singleton
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
+import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
-import org.radarbase.appserver.microservices.core.enhancer.AppserverMapperResourceEnhancer
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
+import org.radarbase.appserver.microservices.core.factory.fcm.FcmSenderFactory
+import org.radarbase.appserver.microservices.core.factory.fcm.FirebaseOptionsFactory
+import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
@@ -60,6 +64,10 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
     override fun AbstractBinder.enhance() {
         bind(config)
             .to(NotificationServiceConfig::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(config.fcm)
+            .to(CoreFcmServerConfig::class.java)
             .`in`(Singleton::class.java)
 
         bind(config.eventBus)
@@ -107,6 +115,15 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
             .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
             .named(NOTIFICATION_MAPPER)
             .`in`(Singleton::class.java)
+
+        bindFactory(FirebaseOptionsFactory::class.java)
+            .to(FirebaseOptions::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(FcmSenderFactory::class.java)
+            .to(FcmSender::class.java)
+            .`in`(Singleton::class.java)
+
     }
 
     override fun ResourceConfig.enhance() {

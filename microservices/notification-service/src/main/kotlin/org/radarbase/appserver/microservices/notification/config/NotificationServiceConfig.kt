@@ -17,6 +17,7 @@
 package org.radarbase.appserver.microservices.notification.config
 
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
+import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.jersey.config.ConfigLoader.copyOnChange
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -27,6 +28,7 @@ data class NotificationServiceConfig(
     val db: NotificationDbConfig,
     val contract: ContractConfig,
     val eventBus: CoreEventBusConfig,
+    val fcm: CoreFcmServerConfig,
 ) : Validation {
 
     override fun validate() {
