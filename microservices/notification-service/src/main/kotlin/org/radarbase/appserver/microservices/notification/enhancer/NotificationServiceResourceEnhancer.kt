@@ -19,20 +19,25 @@ package org.radarbase.appserver.microservices.notification.enhancer
 import com.google.common.eventbus.EventBus
 import com.google.firebase.FirebaseOptions
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.quartz.Scheduler
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
+import org.radarbase.appserver.microservices.core.config.CoreSchedulerConfig
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
+import org.radarbase.appserver.microservices.core.factory.coroutines.SchedulerScopedCoroutine
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
 import org.radarbase.appserver.microservices.core.factory.fcm.FcmSenderFactory
 import org.radarbase.appserver.microservices.core.factory.fcm.FirebaseOptionsFactory
+import org.radarbase.appserver.microservices.core.factory.quartz.QuartzSchedulerFactory
 import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
@@ -72,6 +77,10 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
 
         bind(config.eventBus)
             .to(CoreEventBusConfig::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(config.quartz)
+            .to(CoreSchedulerConfig::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(EventBusFactory::class.java)
@@ -122,6 +131,14 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
 
         bindFactory(FcmSenderFactory::class.java)
             .to(FcmSender::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(QuartzSchedulerFactory::class.java)
+            .to(Scheduler::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(SchedulerScopedCoroutine::class.java)
+            .to(CoroutineScope::class.java)
             .`in`(Singleton::class.java)
 
     }
