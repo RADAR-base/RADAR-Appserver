@@ -18,11 +18,16 @@ package org.radarbase.appserver.microservices.task.service.questionnaire.schedul
 
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import jakarta.ws.rs.core.Response
+import org.radarbase.appserver.microservices.contract.calls.NotificationServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
+import org.radarbase.appserver.microservices.contract.exception.ProxyResponseException
 import org.radarbase.appserver.microservices.contract.utils.Utils.deserializeDtoFromContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotifications
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUsers
 import org.radarbase.appserver.microservices.core.dto.protocol.Assessment
@@ -36,6 +41,7 @@ import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.service.TaskService
 import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.ScheduleGeneratorService
+import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
@@ -55,6 +61,7 @@ class QuestionnaireScheduleService @Inject constructor(
     private val scheduleGeneratorService: ScheduleGeneratorService,
     private val taskService: TaskService,
     @param:Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
+    @param:Named(NOTIFICATION_MAPPER) val notificationMapper: Mapper<FcmNotificationDto, Notification>,
     schedulingService: SchedulingService,
     asyncService: AsyncCoroutineService,
     config: TaskServiceConfig,
@@ -64,6 +71,7 @@ class QuestionnaireScheduleService @Inject constructor(
     private val protocolServiceUrl = config.contract.protocol
     private val projectServiceUrl = config.contract.project
     private val userServiceUrl = config.contract.user
+    private val notificationServiceUrl = config.contract.notification
 
     private val cleanScheduleRef: SchedulingService.RepeatReference = schedulingService.repeat(
         Duration.ofMillis(3_600_000),
@@ -165,8 +173,46 @@ class QuestionnaireScheduleService @Inject constructor(
                 )
 
                 taskService.addTasks(tasks, user)
-                notificationService.addNotifications(notifications, user)
-                notificationService.addNotifications(reminders, user)
+                val projectId = requireNotNullField(user.projectId, "User's projectId")
+                val subjectId = requireNotNullField(user.subjectId, "User's subjectId")
+                val notificationDtos = FcmNotifications(
+                    notificationMapper.entitiesToDtos(notifications).toMutableList(),
+                )
+                val reminderDtos = FcmNotifications(
+                    notificationMapper.entitiesToDtos(reminders).toMutableList(),
+                )
+
+                NotificationServiceContract.addBatchNotifications(
+                    projectId,
+                    subjectId,
+                    true,
+                    notificationDtos,
+                    notificationServiceUrl,
+                ).let {
+                    if (it.status !in 200..299) {
+                        throw ProxyResponseException(
+                            Response.Status.fromStatusCode(it.status),
+                            it.body?.decodeToString() ?: "Upstream sent an incorrect response",
+
+                        )
+                    }
+                }
+
+                NotificationServiceContract.addBatchNotifications(
+                    projectId,
+                    subjectId,
+                    true,
+                    reminderDtos,
+                    notificationServiceUrl
+                ).let {
+                    if (it.status !in 200..299) {
+                        throw ProxyResponseException(
+                            Response.Status.fromStatusCode(it.status),
+                            it.body?.decodeToString() ?: "Upstream sent an incorrect response",
+
+                            )
+                    }
+                }
             }
     }
 
