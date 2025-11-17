@@ -214,7 +214,7 @@ object NotificationServiceContract {
         notifications: FcmNotifications,
         baseUrl: String,
     ): ProxyResponse {
-        return tryProxyRequest("NotificationServiceClient::scheduleUserNotification") {
+        return tryProxyRequest("NotificationServiceClient::addBatchNotifications") {
             client.post(normalizedUri(baseUrl)) {
                 url {
                     appendPathSegments(

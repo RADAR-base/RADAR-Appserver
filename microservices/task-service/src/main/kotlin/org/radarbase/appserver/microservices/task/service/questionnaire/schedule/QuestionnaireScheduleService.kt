@@ -176,10 +176,10 @@ class QuestionnaireScheduleService @Inject constructor(
                 val projectId = requireNotNullField(user.projectId, "User's projectId")
                 val subjectId = requireNotNullField(user.subjectId, "User's subjectId")
                 val notificationDtos = FcmNotifications(
-                    notificationMapper.entitiesToDtos(notifications).toMutableList(),
+                    notificationMapper.entitiesToDtos(notifications),
                 )
                 val reminderDtos = FcmNotifications(
-                    notificationMapper.entitiesToDtos(reminders).toMutableList(),
+                    notificationMapper.entitiesToDtos(reminders),
                 )
 
                 NotificationServiceContract.addBatchNotifications(

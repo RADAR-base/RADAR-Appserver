@@ -21,114 +21,125 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.serialization.InstantSerializer
-import org.radarbase.appserver.microservices.core.utils.equalTo
 import java.time.Instant
+import org.radarbase.appserver.microservices.core.entity.Notification
+import org.radarbase.appserver.microservices.core.utils.equalTo
 import java.util.Objects
 
 @Serializable
 class FcmNotificationDto(
-    @Transient private val notificationEntity: Notification? = null
-) {
-    var id: Long? = notificationEntity?.id
+    var id: Long? = null,
 
     @field:NotNull
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
     @Serializable(with = InstantSerializer::class)
-    var scheduledTime: Instant? = notificationEntity?.scheduledTime
+    var scheduledTime: Instant? = null,
 
-    var delivered: Boolean = notificationEntity?.delivered == true
-
-    @field:NotEmpty
-    var title: String? = notificationEntity?.title
-
-    var body: String? = notificationEntity?.body
-
-    var ttlSeconds: Int = notificationEntity?.ttlSeconds ?: 0
+    var delivered: Boolean = false,
 
     @field:NotEmpty
-    var sourceId: String? = notificationEntity?.sourceId
+    var title: String? = null,
 
-    var fcmMessageId: String? = notificationEntity?.fcmMessageId
+    var body: String? = null,
 
-    var fcmTopic: String? = notificationEntity?.fcmTopic
-
-    // for use with the FCM admin SDK
-    var fcmCondition: String? = notificationEntity?.fcmCondition
+    var ttlSeconds: Int = 0,
 
     @field:NotEmpty
-    var type: String? = notificationEntity?.type
+    var sourceId: String? = null,
+
+    var fcmMessageId: String? = null,
+
+    var fcmTopic: String? = null,
+
+    var fcmCondition: String? = null,
 
     @field:NotEmpty
-    var appPackage: String? = notificationEntity?.appPackage
+    var type: String? = null,
 
     @field:NotEmpty
-    var sourceType: String? = notificationEntity?.sourceType
+    var appPackage: String? = null,
+
+    @field:NotEmpty
+    var sourceType: String? = null,
 
     @field:Size(max = 100)
-    var additionalData: Map<String?, String?>? = notificationEntity?.additionalData
+    var additionalData: Map<String?, String?>? = null,
 
-    var priority: String? = notificationEntity?.priority
+    var priority: String? = null,
 
-    var sound: String? = notificationEntity?.sound
+    var sound: String? = null,
 
-    // For IOS
-    var badge: String? = notificationEntity?.badge
+    var badge: String? = null,
 
-    // For IOS
-    var subtitle: String? = notificationEntity?.subtitle
+    var subtitle: String? = null,
 
-    // For android
-    var icon: String? = notificationEntity?.icon
+    var icon: String? = null,
 
-    // For android. Color of the icon
-    var color: String? = notificationEntity?.color
+    var color: String? = null,
 
-    var bodyLocKey: String? = notificationEntity?.bodyLocKey
+    var bodyLocKey: String? = null,
 
-    var bodyLocArgs: String? = notificationEntity?.bodyLocArgs
+    var bodyLocArgs: String? = null,
 
-    var titleLocKey: String? = notificationEntity?.titleLocKey
+    var titleLocKey: String? = null,
 
-    var titleLocArgs: String? = notificationEntity?.titleLocArgs
+    var titleLocArgs: String? = null,
 
-    // For android
-    var androidChannelId: String? = notificationEntity?.androidChannelId
+    var androidChannelId: String? = null,
 
-    // For android
-    var tag: String? = notificationEntity?.tag
+    var tag: String? = null,
 
-    var clickAction: String? = notificationEntity?.clickAction
+    var clickAction: String? = null,
 
-    var emailEnabled: Boolean = notificationEntity?.emailEnabled == true
+    var emailEnabled: Boolean = false,
 
-    var emailTitle: String? = notificationEntity?.emailTitle
+    var emailTitle: String? = null,
 
-    var emailBody: String? = notificationEntity?.emailBody
+    var emailBody: String? = null,
 
-    var mutableContent: Boolean = notificationEntity?.mutableContent == true
+    var mutableContent: Boolean = false,
 
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
     @Serializable(with = InstantSerializer::class)
-    var createdAt: Instant? = notificationEntity?.createdAt?.toInstant()
+    var createdAt: Instant? = null,
 
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
     @Serializable(with = InstantSerializer::class)
-    var updatedAt: Instant? = notificationEntity?.updatedAt?.toInstant()
+    var updatedAt: Instant? = null
+) {
+    constructor(notification: Notification) : this(
+        id = notification.id,
+        scheduledTime = notification.scheduledTime,
+        delivered = notification.delivered == true,
+        title = notification.title,
+        body = notification.body,
+        ttlSeconds = notification.ttlSeconds ?: 0,
+        sourceId = notification.sourceId,
+        fcmMessageId = notification.fcmMessageId,
+        fcmTopic = notification.fcmTopic,
+        fcmCondition = notification.fcmCondition,
+        type = notification.type,
+        appPackage = notification.appPackage,
+        sourceType = notification.sourceType,
+        additionalData = notification.additionalData,
+        priority = notification.priority,
+        sound = notification.sound,
+        badge = notification.badge,
+        subtitle = notification.subtitle,
+        icon = notification.icon,
+        color = notification.color,
+        bodyLocKey = notification.bodyLocKey,
+        bodyLocArgs = notification.bodyLocArgs,
+        titleLocKey = notification.titleLocKey,
+        titleLocArgs = notification.titleLocArgs,
+        androidChannelId = notification.androidChannelId,
+        tag = notification.tag,
+        clickAction = notification.clickAction,
+        emailEnabled = notification.emailEnabled == true,
+        emailTitle = notification.emailTitle,
+        emailBody = notification.emailBody,
+        mutableContent = notification.mutableContent == true,
+        createdAt = notification.createdAt?.toInstant(),
+        updatedAt = notification.updatedAt?.toInstant()
+    )
 
     override fun equals(other: Any?): Boolean = equalTo(
         other,

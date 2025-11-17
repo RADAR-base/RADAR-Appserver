@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.microservices.notification.api
 
+import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.DefaultValue
@@ -50,7 +51,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
-class FcmNotificationResource(
+class FcmNotificationResource @Inject constructor(
     private val asyncService: AsyncCoroutineService,
     private val fcmNotificationService: FcmNotificationService,
     config: NotificationServiceConfig,

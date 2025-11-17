@@ -24,6 +24,7 @@ class NotificationMapper : Mapper<FcmNotificationDto, Notification> {
     // UserId, SubjectId, TaskId and ProjectId should be added explicitly, as these fields are only present in entity
     override suspend fun dtoToEntity(dto: FcmNotificationDto): Notification {
         return Notification.NotificationBuilder().apply {
+            id(dto.id)
             body(dto.body)
             scheduledTime(dto.scheduledTime)
             title(dto.title)

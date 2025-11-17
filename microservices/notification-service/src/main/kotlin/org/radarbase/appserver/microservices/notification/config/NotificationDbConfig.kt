@@ -23,11 +23,16 @@ import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_JDB
 import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_JDBC_USERNAME
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
+import org.radarbase.appserver.microservices.core.entity.Notification
+import org.radarbase.appserver.microservices.core.entity.NotificationStateEvent
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class NotificationDbConfig(
-    val classes: List<String> = listOf(),
+    val classes: List<String> = listOf(
+        Notification::class.qualifiedName!!,
+        NotificationStateEvent::class.qualifiedName!!,
+    ),
     val jdbcDriver: String = "org.postgresql.Driver",
     val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_notification",
     val username: String = "radar",

@@ -892,7 +892,9 @@ class GatewayResource @Inject constructor(
                 token,
             )
 
-            NotificationServiceContract.getNotificationsUsingProjectId(projectId, notificationServiceRoute.baseUrl)
+            NotificationServiceContract.getNotificationsUsingProjectId(projectId, notificationServiceRoute.baseUrl).let {
+                handleProxyResponse(it)
+            }
         }
     }
 

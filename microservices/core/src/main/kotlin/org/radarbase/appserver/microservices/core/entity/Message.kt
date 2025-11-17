@@ -47,7 +47,7 @@ class Message(
     @Column(name = "project_id", nullable = false)
     var projectId: String? = null,
 
-    @Column(name = "task_id", nullable = false)
+    @Column(name = "task_id", nullable = true)
     var taskId: Long? = null,
 
     @Column(name = "source_id")
