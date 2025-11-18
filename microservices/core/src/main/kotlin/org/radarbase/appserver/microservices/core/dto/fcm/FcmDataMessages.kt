@@ -17,11 +17,13 @@
 package org.radarbase.appserver.microservices.core.dto.fcm
 
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.Serializable
 import org.radarbase.appserver.microservices.core.utils.equalTo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.Objects
 
+@Serializable
 class FcmDataMessages(
     @field:Size(max = 200)
     private val _dataMessages: MutableList<FcmDataMessageDto>,

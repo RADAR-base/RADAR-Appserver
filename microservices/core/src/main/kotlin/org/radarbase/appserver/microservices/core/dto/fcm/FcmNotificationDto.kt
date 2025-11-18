@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
 import org.radarbase.appserver.microservices.core.serialization.InstantSerializer
 import java.time.Instant
 import org.radarbase.appserver.microservices.core.entity.Notification
+import org.radarbase.appserver.microservices.core.serialization.InstantSerializer
 import org.radarbase.appserver.microservices.core.utils.equalTo
 import java.util.Objects
 
