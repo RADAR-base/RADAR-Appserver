@@ -24,7 +24,9 @@ import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
+import org.quartz.JobListener
 import org.quartz.Scheduler
+import org.quartz.SchedulerListener
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.config.CoreSchedulerConfig
@@ -46,12 +48,16 @@ import org.radarbase.appserver.microservices.core.repository.NotificationReposit
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
 import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
+import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
+import org.radarbase.appserver.microservices.core.service.quartz.SchedulerServiceImpl
 import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.MessageSchedulerService
 import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.notification.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
 import org.radarbase.appserver.microservices.notification.event.listener.NotificationStateEventListener
+import org.radarbase.appserver.microservices.notification.event.listener.quartz.QuartzNotificationJobListener
+import org.radarbase.appserver.microservices.notification.event.listener.quartz.QuartzNotificationSchedulerListener
 import org.radarbase.appserver.microservices.notification.repository.NotificationRepositoryImpl
 import org.radarbase.appserver.microservices.notification.repository.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.notification.service.FcmNotificationServiceImpl
@@ -90,10 +96,6 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
         bind(UserMapper::class.java)
             .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
             .named(USER_MAPPER)
-            .`in`(Singleton::class.java)
-
-        bind(MessageSchedulerService::class.java)
-            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
             .`in`(Singleton::class.java)
 
         bind(ScopedAsyncCoroutineService::class.java)
@@ -139,6 +141,22 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
 
         bindFactory(SchedulerScopedCoroutine::class.java)
             .to(CoroutineScope::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(SchedulerServiceImpl::class.java)
+            .to(SchedulerService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
+        bind(QuartzNotificationSchedulerListener::class.java)
+            .to(SchedulerListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(QuartzNotificationJobListener::class.java)
+            .to(JobListener::class.java)
             .`in`(Singleton::class.java)
 
     }

@@ -29,8 +29,8 @@ import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.entity.Message
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
-import org.radarbase.appserver.microservices.core.service.quartz.MessageJob
 import org.radarbase.appserver.microservices.core.service.quartz.MessageType
+import org.radarbase.appserver.microservices.core.service.quartz.NotificationJob
 import org.radarbase.appserver.microservices.core.service.quartz.QuartzNamingStrategy
 import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
 import org.radarbase.appserver.microservices.core.service.quartz.SimpleQuartzNamingStrategy
@@ -169,19 +169,37 @@ class MessageSchedulerService<T : Message> @Inject constructor(
                 ),
             )
 
-            return JobBuilder.newJob(MessageJob::class.java)
-                .withIdentity(
-                    JobKey(
-                        NAMING_STRATEGY.getJobKeyName(
-                            subjectId,
-                            messageId.toString(),
+            return when(messageType) {
+                MessageType.NOTIFICATION -> JobBuilder.newJob(NotificationJob::class.java)
+                    .withIdentity(
+                        JobKey(
+                            NAMING_STRATEGY.getJobKeyName(
+                                subjectId,
+                                messageId.toString(),
+                            ),
                         ),
-                    ),
-                )
-                .withDescription("Send message at scheduled time...")
-                .setJobData(dataMap)
-                .storeDurably(true)
-                .build()
+                    )
+                    .withDescription("Send message at scheduled time...")
+                    .setJobData(dataMap)
+                    .storeDurably(true)
+                    .build()
+
+//                MessageType.DATA -> JobBuilder.newJob(DataMessageJob::class.java)
+//                    .withIdentity(
+//                        JobKey(
+//                            NAMING_STRATEGY.getJobKeyName(
+//                                subjectId,
+//                                messageId.toString(),
+//                            ),
+//                        ),
+//                    )
+//                    .withDescription("Send message at scheduled time...")
+//                    .setJobData(dataMap)
+//                    .storeDurably(true)
+//                    .build()
+
+                else -> throw IllegalStateException("Unexpected message type $messageType")
+            }
         }
 
         /**
