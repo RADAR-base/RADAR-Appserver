@@ -17,7 +17,6 @@
 package org.radarbase.appserver.microservices.core.service.questionnaire.schedule
 
 import jakarta.inject.Inject
-import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.JobKey
@@ -30,7 +29,6 @@ import org.radarbase.appserver.microservices.core.entity.Message
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
 import org.radarbase.appserver.microservices.core.service.quartz.MessageType
-import org.radarbase.appserver.microservices.core.service.quartz.NotificationJob
 import org.radarbase.appserver.microservices.core.service.quartz.QuartzNamingStrategy
 import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
 import org.radarbase.appserver.microservices.core.service.quartz.SimpleQuartzNamingStrategy
@@ -39,10 +37,11 @@ import java.time.Instant
 import java.util.Date
 
 @Suppress("unused")
-class MessageSchedulerService<T : Message> @Inject constructor(
-    val fcmSender: FcmSender,
-    val schedulerService: SchedulerService,
-) {
+abstract class MessageSchedulerService<T : Message> {
+
+    abstract val fcmSender: FcmSender
+    abstract val schedulerService: SchedulerService
+
     fun schedule(message: T) {
         logger.debug("Scheduling message with id {}", message.id)
         val jobDetail = getJobDetailForMessage(message, getMessageType(message))
@@ -111,6 +110,8 @@ class MessageSchedulerService<T : Message> @Inject constructor(
         else -> MessageType.UNKNOWN
     }
 
+    abstract fun getJobDetailForMessage(message: Message, messageType: MessageType): JobDetail
+
     companion object {
         private val logger = LoggerFactory.getLogger(MessageSchedulerService::class.java)
 
@@ -148,43 +149,30 @@ class MessageSchedulerService<T : Message> @Inject constructor(
                 .build()
         }
 
-        /**
-         * Build a Quartz [JobDetail] that carries the message payload.
-         *
-         * @param message      the [Message] whose fields must be non-null
-         * @param messageType  the type of the message
-         * @return a durable [JobDetail] with its [JobDataMap] populated from `message` and `messageType`
-         * @throws IllegalArgumentException if any of `message.id`, `message.user?.subjectId`,
-         *                                  `message.user?.project?.projectId` is null
-         */
-        fun getJobDetailForMessage(message: Message, messageType: MessageType): JobDetail {
-            val (messageId: Long, subjectId: String, projectId: String) = nonNullJobUtils(message)
 
-            val dataMap = JobDataMap(
-                mapOf(
-                    "subjectId" to subjectId,
-                    "projectId" to projectId,
-                    "messageId" to messageId,
-                    "messageType" to messageType.toString(),
-                ),
-            )
-
-            return when(messageType) {
-                MessageType.NOTIFICATION -> JobBuilder.newJob(NotificationJob::class.java)
-                    .withIdentity(
-                        JobKey(
-                            NAMING_STRATEGY.getJobKeyName(
-                                subjectId,
-                                messageId.toString(),
-                            ),
-                        ),
-                    )
-                    .withDescription("Send message at scheduled time...")
-                    .setJobData(dataMap)
-                    .storeDurably(true)
-                    .build()
-
-//                MessageType.DATA -> JobBuilder.newJob(DataMessageJob::class.java)
+//        /**
+//         * Build a Quartz [JobDetail] that carries the message payload.
+//         *
+//         * @param message      the [Message] whose fields must be non-null
+//         * @param messageType  the type of the message
+//         * @return a durable [JobDetail] with its [JobDataMap] populated from `message` and `messageType`
+//         * @throws IllegalArgumentException if any of `message.id`, `message.user?.subjectId`,
+//         *                                  `message.user?.project?.projectId` is null
+//         */
+//        fun getJobDetailForMessage(message: Message, messageType: MessageType): JobDetail {
+//            val (messageId: Long, subjectId: String, projectId: String) = nonNullJobUtils(message)
+//
+//            val dataMap = JobDataMap(
+//                mapOf(
+//                    "subjectId" to subjectId,
+//                    "projectId" to projectId,
+//                    "messageId" to messageId,
+//                    "messageType" to messageType.toString(),
+//                ),
+//            )
+//
+//            return when (messageType) {
+//                MessageType.NOTIFICATION -> JobBuilder.newJob(NotificationJob::class.java)
 //                    .withIdentity(
 //                        JobKey(
 //                            NAMING_STRATEGY.getJobKeyName(
@@ -197,10 +185,24 @@ class MessageSchedulerService<T : Message> @Inject constructor(
 //                    .setJobData(dataMap)
 //                    .storeDurably(true)
 //                    .build()
-
-                else -> throw IllegalStateException("Unexpected message type $messageType")
-            }
-        }
+//
+////                MessageType.DATA -> JobBuilder.newJob(DataMessageJob::class.java)
+////                    .withIdentity(
+////                        JobKey(
+////                            NAMING_STRATEGY.getJobKeyName(
+////                                subjectId,
+////                                messageId.toString(),
+////                            ),
+////                        ),
+////                    )
+////                    .withDescription("Send message at scheduled time...")
+////                    .setJobData(dataMap)
+////                    .storeDurably(true)
+////                    .build()
+//
+//                else -> throw IllegalStateException("Unexpected message type $messageType")
+//            }
+//        }
 
         /**
          * Extract and validate the three mandatory scheduling fields from [message].

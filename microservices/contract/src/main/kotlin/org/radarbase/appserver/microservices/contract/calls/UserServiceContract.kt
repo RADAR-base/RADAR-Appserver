@@ -146,7 +146,7 @@ object UserServiceContract {
         return tryProxyRequest("UserClient::getUserUsingFcmToken") {
             client.put(normalizedUri(baseUrl)) {
                 url {
-                    appendPathSegments(USERS_PATH, subjectId, fcmToken)
+                    appendPathSegments(USERS_PATH, subjectId, "fcmToken")
                 }
             }.let {
                 createProxyFromResponse(it)

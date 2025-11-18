@@ -38,13 +38,13 @@ import org.radarbase.appserver.microservices.core.exception.InvalidNotificationD
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.repository.NotificationRepository
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
-import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.MessageSchedulerService
 import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.appserver.microservices.core.utils.checkPresence
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
 import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
+import org.radarbase.appserver.microservices.notification.service.questionnaire.schedule.NotificationMessageSchedulerService
 import java.time.Instant
 import java.time.LocalDateTime
 import kotlin.contracts.ExperimentalContracts
@@ -53,7 +53,7 @@ import kotlin.contracts.contract
 @Suppress("unused")
 class FcmNotificationServiceImpl @Inject constructor(
     private val notificationRepository: NotificationRepository,
-    private val schedulerService: MessageSchedulerService<Notification>,
+    private val schedulerService: NotificationMessageSchedulerService,
     @param:Named(NOTIFICATION_MAPPER) private val notificationMapper: Mapper<FcmNotificationDto, Notification>,
     @param:Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
     private val notificationStateEventPublisher: EventBus,

@@ -3,26 +3,25 @@ package org.radarbase.appserver.microservices.notification.service.transmitter
 import com.google.firebase.ErrorCode
 import com.google.firebase.messaging.FirebaseMessagingException
 import com.google.firebase.messaging.MessagingErrorCode
+import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
 import org.radarbase.appserver.microservices.contract.exception.ProxyResponseException
 import org.radarbase.appserver.microservices.contract.utils.Utils.deserializeDtoFromContract
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
-import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.entity.Message
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.exception.FcmMessageTransmitException
 import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
 import org.radarbase.appserver.microservices.core.fcm.model.FcmNotificationMessage
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
-import org.radarbase.appserver.microservices.core.service.transmitter.FcmTransmitter
 import org.radarbase.appserver.microservices.core.service.transmitter.NotificationTransmitter
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
 import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
 import org.slf4j.LoggerFactory
 import java.util.Objects
 
-class FcmNotificationTransmitterImpl(
+class FcmNotificationTransmitterImpl @Inject constructor(
     private val fcmSender: FcmSender,
     private val notificationService: FcmNotificationService,
     config: NotificationServiceConfig,
@@ -145,7 +144,7 @@ class FcmNotificationTransmitterImpl(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(FcmTransmitter::class.java)
+        private val logger = LoggerFactory.getLogger(FcmNotificationTransmitterImpl::class.java)
 
         private const val IS_DELIVERY_RECEIPT_REQUESTED: Boolean = true
         private const val DEFAULT_TIME_TO_LIVE: Int = 2419200 // 4 weeks

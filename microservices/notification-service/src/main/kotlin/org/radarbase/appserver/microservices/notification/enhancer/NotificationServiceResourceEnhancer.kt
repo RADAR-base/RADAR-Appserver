@@ -50,7 +50,7 @@ import org.radarbase.appserver.microservices.core.service.FcmNotificationService
 import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
 import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
 import org.radarbase.appserver.microservices.core.service.quartz.SchedulerServiceImpl
-import org.radarbase.appserver.microservices.core.service.questionnaire.schedule.MessageSchedulerService
+import org.radarbase.appserver.microservices.core.service.transmitter.NotificationTransmitter
 import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.notification.application.event.EventBusStartupListener
@@ -62,6 +62,8 @@ import org.radarbase.appserver.microservices.notification.repository.Notificatio
 import org.radarbase.appserver.microservices.notification.repository.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.notification.service.FcmNotificationServiceImpl
 import org.radarbase.appserver.microservices.notification.service.NotificationStateEventServiceImpl
+import org.radarbase.appserver.microservices.notification.service.questionnaire.schedule.NotificationMessageSchedulerService
+import org.radarbase.appserver.microservices.notification.service.transmitter.FcmNotificationTransmitterImpl
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -147,8 +149,8 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
             .to(SchedulerService::class.java)
             .`in`(Singleton::class.java)
 
-        bind(MessageSchedulerService::class.java)
-            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
+        bind(NotificationMessageSchedulerService::class.java)
+            .to(NotificationMessageSchedulerService::class.java)
             .`in`(Singleton::class.java)
 
         bind(QuartzNotificationSchedulerListener::class.java)
@@ -159,6 +161,9 @@ class NotificationServiceResourceEnhancer(private val config: NotificationServic
             .to(JobListener::class.java)
             .`in`(Singleton::class.java)
 
+        bind(FcmNotificationTransmitterImpl::class.java)
+            .to(NotificationTransmitter::class.java)
+            .`in`(Singleton::class.java)
     }
 
     override fun ResourceConfig.enhance() {
