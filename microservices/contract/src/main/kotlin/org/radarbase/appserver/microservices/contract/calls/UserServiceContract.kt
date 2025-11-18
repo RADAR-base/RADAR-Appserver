@@ -138,6 +138,21 @@ object UserServiceContract {
             }
         }
     }
+    suspend fun checkFcmTokenExistsAndReplace(
+        subjectId: String,
+        userDto: FcmUserDto,
+        baseUrl: String,
+    ): ProxyResponse {
+        return tryProxyRequest("UserClient::getUserUsingFcmToken") {
+            client.put(normalizedUri(baseUrl)) {
+                url {
+                    appendPathSegments(USERS_PATH, subjectId, fcmToken)
+                }
+            }.let {
+                createProxyFromResponse(it)
+            }
+        }
+    }
 
     suspend fun getUsersUsingProjectId(
         projectId: String,

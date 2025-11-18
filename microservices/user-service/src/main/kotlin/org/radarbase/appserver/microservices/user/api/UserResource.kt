@@ -150,6 +150,19 @@ class UserResource @Inject constructor(
         }
     }
 
+    @PUT
+    @Path("$USERS_PATH/${SUBJECT_ID}/fcmToken")
+    fun checkFcmTokenExistsAndReplace(
+        userDto: FcmUserDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            userService.checkFcmTokenExistsAndReplace(userDto).let {
+                Response.ok().build()
+            }
+        }
+    }
+
     @GET
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH")
     @Produces(APPLICATION_JSON)
