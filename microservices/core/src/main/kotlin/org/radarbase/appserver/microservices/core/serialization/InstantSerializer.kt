@@ -22,13 +22,31 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import java.time.Instant
+import kotlin.math.floor
 
 object InstantSerializer : KSerializer<Instant> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Instant {
-        return Instant.parse(decoder.decodeString())
+        val jsonDecoder = decoder as? JsonDecoder
+            ?: throw IllegalStateException("This serializer only works with JSON")
+        val element = jsonDecoder.decodeJsonElement().jsonPrimitive
+
+        return when {
+            element.isString -> Instant.parse(element.content) 
+            element.doubleOrNull != null -> {
+                val d = element.double
+                val secs = floor(d).toLong()
+                val nanos = ((d - secs) * 1e9).toLong()
+                Instant.ofEpochSecond(secs, nanos)
+            }
+            else -> throw IllegalArgumentException("Unsupported Instant format: $element")
+        }
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {

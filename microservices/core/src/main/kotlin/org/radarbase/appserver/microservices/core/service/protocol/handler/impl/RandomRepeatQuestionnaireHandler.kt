@@ -67,7 +67,7 @@ class RandomRepeatQuestionnaireHandler : ProtocolHandler {
                 timePeriod.amount = getRandomAmountInRange(range)
                 val taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone)
                 val task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow).apply {
-                    this.user = user
+                    this.userId = user.id
                 }
                 tasks.add(task)
             }

@@ -29,7 +29,7 @@ import java.time.LocalDateTime
  * Implementations are expected to perform validation, persistence and scheduling
  * as appropriate for the concrete environment (e.g. FCM-backed scheduler).
  */
-interface FcmNotificationService {
+interface FcmNotificationService : NotificationService {
 
     /** Get all notifications wrapped as DTO. */
     suspend fun getAllNotifications(): FcmNotifications

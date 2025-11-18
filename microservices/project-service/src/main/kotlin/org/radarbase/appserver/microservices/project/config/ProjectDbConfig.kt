@@ -16,6 +16,11 @@
 
 package org.radarbase.appserver.microservices.project.config
 
+import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_HIBERNATE_DIALECT
+import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_JDBC_DRIVER
+import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_JDBC_PASSWORD
+import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_JDBC_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_JDBC_USERNAME
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.appserver.microservices.core.entity.Project
@@ -33,19 +38,19 @@ data class ProjectDbConfig(
     val liquibase: CoreLiquibaseConfig = CoreLiquibaseConfig(),
 ) : Validation {
     fun withEnv(): ProjectDbConfig = this
-        .copyEnv("APPSERVER_PROJECT_JDBC_URL") {
+        .copyEnv(PROJECT_JDBC_URL) {
             copy(jdbcUrl = it)
         }
-        .copyEnv("APPSERVER_PROJECT_JDBC_USERNAME") {
+        .copyEnv(PROJECT_JDBC_USERNAME) {
             copy(username = it)
         }
-        .copyEnv("APPSERVER_PROJECT_JDBC_PASSWORD") {
+        .copyEnv(PROJECT_JDBC_PASSWORD) {
             copy(password = it)
         }
-        .copyEnv("APPSERVER_PROJECT_HIBERNATE_DIALECT") {
+        .copyEnv(PROJECT_HIBERNATE_DIALECT) {
             copy(hibernateDialect = it)
         }
-        .copyEnv("APPSERVER_PROJECT_JDBC_DRIVER") {
+        .copyEnv(PROJECT_JDBC_DRIVER) {
             copy(jdbcDriver = it)
         }
 

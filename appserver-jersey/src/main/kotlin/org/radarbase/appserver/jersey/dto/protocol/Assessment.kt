@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.dto.protocol
 
 import jakarta.persistence.Column
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -30,8 +31,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Assessment(
     var name: String? = null,
-    private var _type: AssessmentType? = null,
-    var showIntroduction: String? = null,
+    @SerialName("type") private var _type: AssessmentType? = null,
+    var showIntroduction: Boolean? = null,
     var questionnaire: DefinitionInfo? = null,
     var startText: LanguageText? = null,
     var endText: LanguageText? = null,

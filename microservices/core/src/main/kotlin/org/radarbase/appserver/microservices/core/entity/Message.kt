@@ -16,20 +16,13 @@
 
 package org.radarbase.appserver.microservices.core.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.annotation.Nullable
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
-import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
 import jakarta.persistence.MappedSuperclass
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.OnDelete
-import org.hibernate.annotations.OnDeleteAction
 import org.radarbase.appserver.microservices.core.utils.equalTo
 import java.io.Serial
 import java.io.Serializable
@@ -43,17 +36,19 @@ class Message(
     var id: Long? = null,
 
     @field:NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    var user: User? = null,
+    @Column(name = "user_id", nullable = false)
+    var userId: Long? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "task_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    var task: Task? = null,
+    @field:NotNull
+    @Column(name = "subject_id", nullable = false)
+    var subjectId: String? = null,
+
+    @field:NotNull
+    @Column(name = "project_id", nullable = false)
+    var projectId: String? = null,
+
+    @Column(name = "task_id", nullable = true)
+    var taskId: Long? = null,
 
     @Column(name = "source_id")
     @field:Nullable
@@ -106,7 +101,9 @@ class Message(
         Message::ttlSeconds,
         Message::delivered,
         Message::dryRun,
-        Message::user,
+        Message::userId,
+        Message::subjectId,
+        Message::projectId,
         Message::scheduledTime,
         Message::sourceId,
         Message::appPackage,
@@ -115,7 +112,9 @@ class Message(
 
     override fun hashCode(): Int {
         return Objects.hash(
-            user,
+            userId,
+            subjectId,
+            projectId,
             sourceId,
             scheduledTime,
             ttlSeconds,
@@ -127,7 +126,7 @@ class Message(
     }
 
     override fun toString(): String {
-        return "Message(id=$id, user=$user, task=$task, sourceId=$sourceId, scheduledTime=$scheduledTime, ttlSeconds=$ttlSeconds, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, delivered=$delivered, validated=$validated, appPackage=$appPackage, sourceType=$sourceType, dryRun=$dryRun, priority=$priority, mutableContent=$mutableContent)"
+        return "Message(id=$id, userId=$userId, subjectId=$subjectId, projectId=$projectId, taskId=$taskId, sourceId=$sourceId, scheduledTime=$scheduledTime, ttlSeconds=$ttlSeconds, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, delivered=$delivered, validated=$validated, appPackage=$appPackage, sourceType=$sourceType, dryRun=$dryRun, priority=$priority, mutableContent=$mutableContent)"
     }
 
     companion object {

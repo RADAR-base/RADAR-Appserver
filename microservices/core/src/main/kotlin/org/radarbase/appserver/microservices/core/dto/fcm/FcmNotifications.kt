@@ -16,7 +16,9 @@
 
 package org.radarbase.appserver.microservices.core.dto.fcm
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.radarbase.appserver.microservices.core.utils.equalTo
 import org.radarbase.appserver.microservices.core.utils.stringRepresentation
@@ -25,36 +27,7 @@ import org.slf4j.LoggerFactory
 import java.util.Objects
 
 @Serializable
-class FcmNotifications(
+data class FcmNotifications(
     @field:Size(max = 200)
-    private val _notifications: MutableList<FcmNotificationDto>,
-) {
-
-    val notifications: List<FcmNotificationDto>
-        get() = _notifications.toMutableList()
-
-    fun addNotification(notificationDto: FcmNotificationDto): FcmNotifications = apply {
-        if (!_notifications.contains(notificationDto)) {
-            this._notifications.add(notificationDto)
-        } else {
-            logger.info("Notification {} already exists in the Fcm Notifications.", notificationDto)
-        }
-    }
-
-    override fun equals(other: Any?): Boolean = equalTo(
-        other,
-        FcmNotifications::_notifications,
-    )
-
-    override fun toString(): String = stringRepresentation(
-        FcmNotifications::_notifications,
-    )
-
-    override fun hashCode(): Int {
-        return Objects.hash(_notifications)
-    }
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(FcmNotifications::class.java)
-    }
-}
+    val notifications: List<FcmNotificationDto>,
+)

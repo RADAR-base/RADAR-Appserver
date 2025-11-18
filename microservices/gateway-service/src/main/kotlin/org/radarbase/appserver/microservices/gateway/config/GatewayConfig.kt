@@ -16,6 +16,12 @@
 
 package org.radarbase.appserver.microservices.gateway.config
 
+import org.radarbase.appserver.microservices.contract.utils.Env.GITHUB_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.PROTOCOL_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.TASK_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.USER_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
@@ -40,7 +46,7 @@ data class GatewayConfig(
                 copy(server = it)
             },
         )
-        .copyEnv("APPSERVER_PROJECT_SERVICE_BASE_URL") { projectBase ->
+        .copyEnv(PROJECT_SERVICE_BASE_URL) { projectBase ->
             updateOrAddRoute("project") { prevConfig ->
                 ServiceRoute(
                     name = prevConfig?.name ?: "project",
@@ -51,12 +57,56 @@ data class GatewayConfig(
                 copy(routes = updated)
             }
         }
-        .copyEnv("APPSERVER_USER_SERVICE_BASE_URL") { userBase ->
+        .copyEnv(USER_SERVICE_BASE_URL) { userBase ->
             updateOrAddRoute("user") { prevConfig ->
                 ServiceRoute(
                     name = prevConfig?.name ?: "user",
                     baseUrl = userBase,
-                    path = prevConfig?.path ?: "users",
+                    path = prevConfig?.path ?: "",
+                )
+            }.let {
+                copy(routes = it)
+            }
+        }
+        .copyEnv(GITHUB_SERVICE_BASE_URL) { userBase ->
+            updateOrAddRoute("github") { prevConfig ->
+                ServiceRoute(
+                    name = prevConfig?.name ?: "github",
+                    baseUrl = userBase,
+                    path = prevConfig?.path ?: "github/content",
+                )
+            }.let {
+                copy(routes = it)
+            }
+        }
+        .copyEnv(PROTOCOL_SERVICE_BASE_URL) { userBase ->
+            updateOrAddRoute("protocol") { prevConfig ->
+                ServiceRoute(
+                    name = prevConfig?.name ?: "protocol",
+                    baseUrl = userBase,
+                    path = prevConfig?.path ?: "",
+                )
+            }.let {
+                copy(routes = it)
+            }
+        }
+        .copyEnv(TASK_SERVICE_BASE_URL) { userBase ->
+            updateOrAddRoute("task") { prevConfig ->
+                ServiceRoute(
+                    name = prevConfig?.name ?: "task",
+                    baseUrl = userBase,
+                    path = prevConfig?.path ?: "",
+                )
+            }.let {
+                copy(routes = it)
+            }
+        }
+        .copyEnv(NOTIFICATION_SERVICE_BASE_URL) { userBase ->
+            updateOrAddRoute("notification") { prevConfig ->
+                ServiceRoute(
+                    name = prevConfig?.name ?: "notification",
+                    baseUrl = userBase,
+                    path = prevConfig?.path ?: "",
                 )
             }.let {
                 copy(routes = it)
@@ -79,9 +129,6 @@ data class GatewayConfig(
             require(!baseUri.scheme.isNullOrBlank() && !baseUri.host.isNullOrBlank()) {
                 "route '${route.name}' has invalid baseUrl (must include scheme and host): ${route.baseUrl}"
             }
-
-            val normalizedPath = route.path.trim().trim('/')
-            require(normalizedPath.isNotBlank()) { "route '${route.name}' path cannot be empty" }
         }
     }
 }

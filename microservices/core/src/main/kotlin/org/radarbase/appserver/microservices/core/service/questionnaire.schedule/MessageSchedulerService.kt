@@ -17,7 +17,6 @@
 package org.radarbase.appserver.microservices.core.service.questionnaire.schedule
 
 import jakarta.inject.Inject
-import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.JobKey
@@ -28,9 +27,7 @@ import org.quartz.TriggerKey
 import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.entity.Message
 import org.radarbase.appserver.microservices.core.entity.Notification
-import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
-import org.radarbase.appserver.microservices.core.service.quartz.MessageJob
 import org.radarbase.appserver.microservices.core.service.quartz.MessageType
 import org.radarbase.appserver.microservices.core.service.quartz.QuartzNamingStrategy
 import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
@@ -40,10 +37,11 @@ import java.time.Instant
 import java.util.Date
 
 @Suppress("unused")
-class MessageSchedulerService<T : Message> @Inject constructor(
-    val fcmSender: FcmSender,
-    val schedulerService: SchedulerService,
-) {
+abstract class MessageSchedulerService<T : Message> {
+
+    abstract val fcmSender: FcmSender
+    abstract val schedulerService: SchedulerService
+
     fun schedule(message: T) {
         logger.debug("Scheduling message with id {}", message.id)
         val jobDetail = getJobDetailForMessage(message, getMessageType(message))
@@ -102,7 +100,7 @@ class MessageSchedulerService<T : Message> @Inject constructor(
     }
 
     fun deleteScheduled(message: T) {
-        JobKey(NAMING_STRATEGY.getJobKeyName(message.user!!.subjectId!!, message.id.toString()))
+        JobKey(NAMING_STRATEGY.getJobKeyName(message.subjectId!!, message.id.toString()))
             .let(schedulerService::deleteScheduledJob)
     }
 
@@ -111,6 +109,8 @@ class MessageSchedulerService<T : Message> @Inject constructor(
         is DataMessage -> MessageType.DATA
         else -> MessageType.UNKNOWN
     }
+
+    abstract fun getJobDetailForMessage(message: Message, messageType: MessageType): JobDetail
 
     companion object {
         private val logger = LoggerFactory.getLogger(MessageSchedulerService::class.java)
@@ -149,41 +149,60 @@ class MessageSchedulerService<T : Message> @Inject constructor(
                 .build()
         }
 
-        /**
-         * Build a Quartz [JobDetail] that carries the message payload.
-         *
-         * @param message      the [Message] whose fields must be non-null
-         * @param messageType  the type of the message
-         * @return a durable [JobDetail] with its [JobDataMap] populated from `message` and `messageType`
-         * @throws IllegalArgumentException if any of `message.id`, `message.user?.subjectId`,
-         *                                  `message.user?.project?.projectId` is null
-         */
-        fun getJobDetailForMessage(message: Message, messageType: MessageType): JobDetail {
-            val (messageId: Long, subjectId: String, projectId: String) = nonNullJobUtils(message)
 
-            val dataMap = JobDataMap(
-                mapOf(
-                    "subjectId" to subjectId,
-                    "projectId" to projectId,
-                    "messageId" to messageId,
-                    "messageType" to messageType.toString(),
-                ),
-            )
-
-            return JobBuilder.newJob(MessageJob::class.java)
-                .withIdentity(
-                    JobKey(
-                        NAMING_STRATEGY.getJobKeyName(
-                            subjectId,
-                            messageId.toString(),
-                        ),
-                    ),
-                )
-                .withDescription("Send message at scheduled time...")
-                .setJobData(dataMap)
-                .storeDurably(true)
-                .build()
-        }
+//        /**
+//         * Build a Quartz [JobDetail] that carries the message payload.
+//         *
+//         * @param message      the [Message] whose fields must be non-null
+//         * @param messageType  the type of the message
+//         * @return a durable [JobDetail] with its [JobDataMap] populated from `message` and `messageType`
+//         * @throws IllegalArgumentException if any of `message.id`, `message.user?.subjectId`,
+//         *                                  `message.user?.project?.projectId` is null
+//         */
+//        fun getJobDetailForMessage(message: Message, messageType: MessageType): JobDetail {
+//            val (messageId: Long, subjectId: String, projectId: String) = nonNullJobUtils(message)
+//
+//            val dataMap = JobDataMap(
+//                mapOf(
+//                    "subjectId" to subjectId,
+//                    "projectId" to projectId,
+//                    "messageId" to messageId,
+//                    "messageType" to messageType.toString(),
+//                ),
+//            )
+//
+//            return when (messageType) {
+//                MessageType.NOTIFICATION -> JobBuilder.newJob(NotificationJob::class.java)
+//                    .withIdentity(
+//                        JobKey(
+//                            NAMING_STRATEGY.getJobKeyName(
+//                                subjectId,
+//                                messageId.toString(),
+//                            ),
+//                        ),
+//                    )
+//                    .withDescription("Send message at scheduled time...")
+//                    .setJobData(dataMap)
+//                    .storeDurably(true)
+//                    .build()
+//
+////                MessageType.DATA -> JobBuilder.newJob(DataMessageJob::class.java)
+////                    .withIdentity(
+////                        JobKey(
+////                            NAMING_STRATEGY.getJobKeyName(
+////                                subjectId,
+////                                messageId.toString(),
+////                            ),
+////                        ),
+////                    )
+////                    .withDescription("Send message at scheduled time...")
+////                    .setJobData(dataMap)
+////                    .storeDurably(true)
+////                    .build()
+//
+//                else -> throw IllegalStateException("Unexpected message type $messageType")
+//            }
+//        }
 
         /**
          * Extract and validate the three mandatory scheduling fields from [message].
@@ -207,10 +226,8 @@ class MessageSchedulerService<T : Message> @Inject constructor(
         fun nonNullJobUtils(message: Message): Triple<Long, String, String> {
             val (messageId: Long, subjectId: String) = nonNullMessageIdAndSubjectId(message)
 
-            val user: User = requireNotNull(message.user) { "User for message cannot be null" }
             val projectId: String = requireNotNull(
-                requireNotNull(user.project) { "Project for user in message cannot be null" }
-                    .projectId,
+                message.projectId,
             ) { "Project Id for user in message cannot be null" }
 
             return Triple(messageId, subjectId, projectId)
@@ -225,7 +242,7 @@ class MessageSchedulerService<T : Message> @Inject constructor(
         fun nonNullMessageIdAndSubjectId(message: Message): Pair<Long, String> {
             val messageId: Long = requireNotNull(message.id) { "Message Id cannot be null" }
             val subjectId: String = requireNotNull(
-                requireNotNull(message.user) { "User for message cannot be null" }.subjectId,
+                message.subjectId,
             ) { "Subject Id in message cannot be null" }
 
             return Pair(messageId, subjectId)

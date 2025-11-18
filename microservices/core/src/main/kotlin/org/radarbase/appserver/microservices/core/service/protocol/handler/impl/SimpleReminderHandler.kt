@@ -104,7 +104,9 @@ class SimpleReminderHandler : ProtocolHandler {
                         body,
                         emailEnabled,
                     ).also {
-                        it.user = user
+                        it.userId = user.id
+                        it.subjectId = user.subjectId
+                        it.projectId = user.projectId
                     }
                 }
             }.awaitAll()

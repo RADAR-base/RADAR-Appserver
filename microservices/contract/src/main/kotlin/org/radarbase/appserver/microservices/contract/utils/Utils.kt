@@ -20,13 +20,19 @@ import io.ktor.client.call.body
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
 import io.ktor.utils.io.CancellationException
+import jakarta.ws.rs.core.Response
+import kotlinx.serialization.json.Json
+import org.radarbase.appserver.microservices.contract.exception.ProxyResponseException
 import org.radarbase.appserver.microservices.contract.response.ProxyResponse
+import org.radarbase.jersey.exception.HttpNotFoundException
 import org.slf4j.LoggerFactory
 import java.net.ConnectException
 
 object Utils {
     private val logger = LoggerFactory.getLogger(Utils::class.java)
+    val jsonUtils = Json { ignoreUnknownKeys = true; coerceInputValues = true }
 
     fun normalizedPath(path: String?): String {
         val trimmed = path?.trim().orEmpty()
@@ -52,12 +58,41 @@ object Utils {
         )
     }
 
-    fun createEndpointFromParts(baseUrl: String, path: String, prefix: String? = null): String {
-        val base: String = normalizedUri(baseUrl)
-        val prefixSegment: String = normalizedPath(prefix)
-        val servicePath: String = normalizedPath(path)
+    inline fun <reified T : Any> deserializeDtoFromContract(
+        proxyResponse: ProxyResponse,
+        exceptionMessageProvider: () -> String,
+    ): T {
+        val proxyResponseBody = proxyResponse.body
+        val content = proxyResponseBody?.decodeToString()
 
-        return (base + prefixSegment + servicePath).removeSuffix("/")
+        if (content != null && proxyResponse.status in 200..299) {
+            return jsonUtils.decodeFromString<T>(content)
+        } else if (proxyResponse.status == HttpStatusCode.NotFound.value) {
+            val (code, message) = exceptionMessageProvider().split(";")
+            throw HttpNotFoundException(code.trim(), message.trim())
+        } else {
+            var message = content.orEmpty()
+            if (message.isBlank()) {
+                message = "Upstream sent an incorrect response"
+            }
+            throw ProxyResponseException(
+                Response.Status.fromStatusCode(proxyResponse.status),
+                message,
+            )
+        }
+    }
+
+    fun checkProxyResponse(proxyResponse: ProxyResponse, client: String) {
+        if (proxyResponse.status !in 200..299) {
+            var message = proxyResponse.body?.decodeToString().orEmpty()
+            if (message.isBlank()) {
+                message = "Request failed for client $client"
+            }
+            throw ProxyResponseException(
+                Response.Status.fromStatusCode(proxyResponse.status),
+                message,
+            )
+        }
     }
 
     suspend fun tryProxyRequest(caller: String, request: suspend () -> ProxyResponse): ProxyResponse {

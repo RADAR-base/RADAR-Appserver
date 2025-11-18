@@ -2,6 +2,8 @@ plugins {
     application
 }
 
+description = "AppServer Github Microservices Implementation"
+
 dependencies {
     implementation(project(":microservices:core"))
     implementation(project(":microservices:contract"))

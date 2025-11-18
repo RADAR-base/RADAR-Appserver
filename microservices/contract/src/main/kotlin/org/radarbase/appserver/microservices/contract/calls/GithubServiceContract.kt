@@ -17,44 +17,32 @@
 package org.radarbase.appserver.microservices.contract.calls
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.client.request.accept
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
+import io.ktor.http.appendPathSegments
+import io.ktor.http.path
+import org.radarbase.appserver.microservices.contract.client.ClientsContract
 import org.radarbase.appserver.microservices.contract.response.ProxyResponse
+import org.radarbase.appserver.microservices.contract.utils.Utils.createProxyFromResponse
 import org.radarbase.appserver.microservices.contract.utils.Utils.tryProxyRequest
-import kotlin.time.Duration.Companion.seconds
+import org.radarbase.appserver.microservices.core.utils.Paths.GITHUB_CONTENT_PATH
+import org.radarbase.appserver.microservices.core.utils.Paths.GITHUB_PATH
 
 @Suppress("unused")
 object GithubServiceContract {
-    private val client: HttpClient = HttpClient(CIO) {
-        expectSuccess = true
+    private const val GITHUB_SERVICE = "github-service"
+    private val client: HttpClient = ClientsContract.retrieveClientForService(GITHUB_SERVICE)
 
-        install(HttpTimeout) {
-            connectTimeoutMillis = 15.seconds.inWholeMilliseconds
-            socketTimeoutMillis = 15.seconds.inWholeMilliseconds
-            requestTimeoutMillis = 15.seconds.inWholeMilliseconds
-        }
-
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                    coerceInputValues = true
-                },
-            )
-        }
-    }
-
-    suspend fun getGithubContent(url: String): ProxyResponse {
-        return tryProxyRequest {
-            return@tryProxyRequest client.get(url) {
+    suspend fun getGithubContent(baseUrl: String, githubContentUrl: String): ProxyResponse {
+        return tryProxyRequest("GithubClient::getGithubContent") {
+            return@tryProxyRequest client.get(baseUrl) {
+                url {
+                    appendPathSegments(GITHUB_PATH, GITHUB_CONTENT_PATH)
+                    parameters.append("url", githubContentUrl)
+                }
                 accept(ContentType.Text.Plain)
-            }.let { response -> org.radarbase.appserver.microservices.contract.utils.Utils.createProxyFromResponse(response) }
+            }.let { response -> createProxyFromResponse(response) }
         }
     }
 

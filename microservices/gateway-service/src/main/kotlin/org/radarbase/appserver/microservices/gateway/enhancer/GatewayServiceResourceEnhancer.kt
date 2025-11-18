@@ -22,6 +22,7 @@ import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.gateway.config.GatewayConfig
+import org.radarbase.appserver.microservices.gateway.service.GatewayService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class GatewayServiceResourceEnhancer(
@@ -39,6 +40,10 @@ class GatewayServiceResourceEnhancer(
 
         bind(UnverifiedProjectService::class.java)
             .to(org.radarbase.jersey.service.ProjectService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(GatewayService::class.java)
+            .to(GatewayService::class.java)
             .`in`(Singleton::class.java)
     }
 

@@ -22,16 +22,11 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.OnDelete
-import org.hibernate.annotations.OnDeleteAction
 import org.radarbase.appserver.microservices.core.dto.protocol.AssessmentType
 import org.radarbase.appserver.microservices.core.event.state.TaskState
 import java.sql.Timestamp
@@ -82,11 +77,9 @@ class Task : AuditModel() {
     var nQuestions: Int = 0
 
     @field:NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    var user: User? = null
+    @Column(name = "user_id", nullable = false)
+    var userId: Long? = null
 
     @field:NotNull
     @Enumerated(EnumType.STRING)
@@ -124,7 +117,7 @@ class Task : AuditModel() {
 
         var nQuestions: Int = task?.nQuestions ?: 0
 
-        var user: User? = task?.user
+        var userId: Long? = task?.userId
 
         fun id(id: Long?) = apply {
             this.id = id
@@ -188,8 +181,8 @@ class Task : AuditModel() {
             this.nQuestions = nQuestions
         }
 
-        fun user(user: User?) = apply {
-            this.user = user
+        fun user(userId: Long?) = apply {
+            this.userId = userId
         }
 
         fun build(): Task {
@@ -208,28 +201,12 @@ class Task : AuditModel() {
             task.isDemo = isDemo
             task.priority = priority
             task.nQuestions = nQuestions
-            task.user = user
+            task.userId = userId
             return task
         }
     }
 
     override fun toString(): String {
-        return "Task" +
-            "(id=$id, " +
-            "completed=$completed, " +
-            "timestamp=$timestamp, " +
-            "name=$name, type=$type, " +
-            "estimatedCompletionTime=$estimatedCompletionTime, " +
-            "completionWindow=$completionWindow, " +
-            "warning=$warning, " +
-            "isClinical=$isClinical, " +
-            "timeCompleted=$timeCompleted, " +
-            "showInCalendar=$showInCalendar, " +
-            "isDemo=$isDemo, " +
-            "priority=$priority, " +
-            "nQuestions=$nQuestions, " +
-            "user=$user, " +
-            "status=$status" +
-            ")"
+        return "Task" + "(id=$id, " + "completed=$completed, " + "timestamp=$timestamp, " + "name=$name, type=$type, " + "estimatedCompletionTime=$estimatedCompletionTime, " + "completionWindow=$completionWindow, " + "warning=$warning, " + "isClinical=$isClinical, " + "timeCompleted=$timeCompleted, " + "showInCalendar=$showInCalendar, " + "isDemo=$isDemo, " + "priority=$priority, " + "nQuestions=$nQuestions, " + "user=$userId, " + "status=$status" + ")"
     }
 }

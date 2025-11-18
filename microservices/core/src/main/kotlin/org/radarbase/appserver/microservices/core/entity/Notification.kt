@@ -114,7 +114,9 @@ class Notification : Message() {
 
     class NotificationBuilder(notification: Notification? = null) {
         private var id: Long? = notification?.id
-        private var user: User? = notification?.user
+        private var userId: Long? = notification?.userId
+        private var subjectId: String? = notification?.subjectId
+        private var projectId: String? = notification?.projectId
         private var sourceId: String? = notification?.sourceId
         private var scheduledTime: Instant? = notification?.scheduledTime
         private var ttlSeconds: Int = notification?.ttlSeconds ?: 0
@@ -145,184 +147,160 @@ class Notification : Message() {
         private var clickAction: String? = notification?.clickAction
         private var emailEnabled: Boolean = notification?.emailEnabled == true
         private var additionalData: Map<String?, String?>? = notification?.additionalData
-        private var task: Task? = notification?.task
+        private var taskId: Long? = notification?.taskId
         private var emailTitle: String? = notification?.emailTitle
         private var emailBody: String? = notification?.emailBody
 
         fun id(id: Long?): NotificationBuilder = apply {
             this.id = id
-            return this
         }
 
-        fun user(user: User?): NotificationBuilder = apply {
-            this.user = user
-            return this
+        fun userId(userId: Long?): NotificationBuilder = apply {
+            this.userId = userId
+        }
+
+        fun subjectId(subjectId: String?): NotificationBuilder = apply {
+            this.subjectId = subjectId
+        }
+
+        fun projectId(projectId: String?): NotificationBuilder = apply {
+            this.projectId = projectId
         }
 
         fun sourceId(sourceId: String?): NotificationBuilder = apply {
             this.sourceId = sourceId
-            return this
         }
 
         fun scheduledTime(scheduledTime: Instant?): NotificationBuilder = apply {
             this.scheduledTime = scheduledTime
-            return this
         }
 
         fun ttlSeconds(ttlSeconds: Int): NotificationBuilder = apply {
             this.ttlSeconds = ttlSeconds
-            return this
         }
 
         fun fcmMessageId(fcmMessageId: String?): NotificationBuilder = apply {
             this.fcmMessageId = fcmMessageId
-            return this
         }
 
         fun fcmTopic(fcmTopic: String?): NotificationBuilder = apply {
             this.fcmTopic = fcmTopic
-            return this
         }
 
         fun fcmCondition(fcmCondition: String?): NotificationBuilder = apply {
             this.fcmCondition = fcmCondition
-            return this
         }
 
         fun delivered(delivered: Boolean): NotificationBuilder = apply {
             this.delivered = delivered
-            return this
         }
 
         fun appPackage(appPackage: String?): NotificationBuilder = apply {
             this.appPackage = appPackage
-            return this
         }
 
         fun sourceType(sourceType: String?): NotificationBuilder = apply {
             this.sourceType = sourceType
-            return this
         }
 
         fun dryRun(dryRun: Boolean): NotificationBuilder = apply {
             this.dryRun = dryRun
-            return this
         }
 
         fun priority(priority: String?): NotificationBuilder = apply {
             this.priority = priority
-            return this
         }
 
         fun mutableContent(mutableContent: Boolean): NotificationBuilder = apply {
             this.mutableContent = mutableContent
-            return this
         }
 
         fun title(title: String?): NotificationBuilder = apply {
             this.title = title
-            return this
         }
 
         fun body(body: String?): NotificationBuilder = apply {
             this.body = body
-            return this
         }
 
         fun type(type: String?): NotificationBuilder = apply {
             this.type = type
-            return this
         }
 
         fun sound(sound: String?): NotificationBuilder = apply {
             this.sound = sound
-            return this
         }
 
         fun badge(badge: String?): NotificationBuilder = apply {
             this.badge = badge
-            return this
         }
 
         fun subtitle(subtitle: String?): NotificationBuilder = apply {
             this.subtitle = subtitle
-            return this
         }
 
         fun icon(icon: String?): NotificationBuilder = apply {
             this.icon = icon
-            return this
         }
 
         fun color(color: String?): NotificationBuilder = apply {
             this.color = color
-            return this
         }
 
         fun bodyLocKey(bodyLocKey: String?): NotificationBuilder = apply {
             this.bodyLocKey = bodyLocKey
-            return this
         }
 
         fun bodyLocArgs(bodyLocArgs: String?): NotificationBuilder = apply {
             this.bodyLocArgs = bodyLocArgs
-            return this
         }
 
         fun titleLocKey(titleLocKey: String?): NotificationBuilder = apply {
             this.titleLocKey = titleLocKey
-            return this
         }
 
         fun titleLocArgs(titleLocArgs: String?): NotificationBuilder = apply {
             this.titleLocArgs = titleLocArgs
-            return this
         }
 
         fun androidChannelId(androidChannelId: String?): NotificationBuilder = apply {
             this.androidChannelId = androidChannelId
-            return this
         }
 
         fun tag(tag: String?): NotificationBuilder = apply {
             this.tag = tag
-            return this
         }
 
         fun clickAction(clickAction: String?): NotificationBuilder = apply {
             this.clickAction = clickAction
-            return this
         }
 
         fun emailEnabled(emailEnabled: Boolean): NotificationBuilder = apply {
             this.emailEnabled = emailEnabled
-            return this
         }
 
         fun emailTitle(title: String?): NotificationBuilder = apply {
             this.emailTitle = title
-            return this
         }
 
         fun emailBody(body: String?): NotificationBuilder = apply {
             this.emailBody = body
-            return this
         }
 
         fun additionalData(additionalData: Map<String?, String?>?): NotificationBuilder = apply {
             this.additionalData = additionalData
-            return this
         }
 
-        fun task(task: Task?): NotificationBuilder = apply {
-            this.task = task
-            return this
+        fun taskId(taskId: Long?): NotificationBuilder = apply {
+            this.taskId = taskId
         }
 
         fun build(): Notification {
             val notification = Notification()
             notification.id = this.id
-            notification.user = this.user
+            notification.userId = this.userId
+            notification.subjectId = this.subjectId
+            notification.projectId = this.projectId
             notification.sourceId = this.sourceId
             notification.scheduledTime = this.scheduledTime
             notification.ttlSeconds = this.ttlSeconds
@@ -356,7 +334,7 @@ class Notification : Message() {
             notification.emailTitle = this.emailTitle
             notification.emailBody = this.emailBody
             notification.additionalData = this.additionalData
-            notification.task = this.task
+            notification.taskId = this.taskId
 
             return notification
         }

@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.microservices.protocol.service
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.utils.io.errors.IOException
 import jakarta.inject.Inject
 import jakarta.ws.rs.WebApplicationException
@@ -29,6 +30,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
+import org.radarbase.appserver.microservices.contract.response.ProxyResponse
 import org.radarbase.appserver.microservices.contract.utils.Utils.deserializeDtoFromContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
@@ -45,6 +47,7 @@ import org.radarbase.appserver.microservices.core.utils.mapParallel
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
 import org.radarbase.appserver.microservices.core.utils.withReentrantLock
 import org.radarbase.appserver.microservices.protocol.config.ProtocolServiceConfig
+import org.radarbase.jersey.exception.HttpNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -120,7 +123,8 @@ class GithubProtocolFetcherStrategy @Inject constructor(
                 pr,
             ) {
                 "user_not_found ; No users found"
-            }.users        }
+            }.users
+        }
 
         val protocolPaths: Set<String> = getProtocolPaths()
 
@@ -270,7 +274,9 @@ class GithubProtocolFetcherStrategy @Inject constructor(
             val branchJson = GithubServiceContract.getGithubContent(
                 githubServiceUrl,
                 "$GITHUB_API_URI$protocolRepo/branches/$protocolBranch",
-            ).body?.run {
+            ).also {
+                checkInvalidStatus(it)
+            }.body?.run {
                 decodeToString()
             } ?: run {
                 throw IOException(
@@ -289,7 +295,9 @@ class GithubProtocolFetcherStrategy @Inject constructor(
             val treeJson = GithubServiceContract.getGithubContent(
                 githubServiceUrl,
                 "$GITHUB_API_URI$protocolRepo/git/trees/$treeSha?recursive=true",
-            ).body?.run {
+            ).also {
+                checkInvalidStatus(it)
+            }.body?.run {
                 decodeToString()
             } ?: run {
                 throw IOException("Could not decode github response: received null response")
@@ -309,6 +317,8 @@ class GithubProtocolFetcherStrategy @Inject constructor(
             }
         } catch (e: WebApplicationException) {
             throw IOException("Failed to retrieve protocols URIs from github", e)
+        } catch (ex: HttpNotFoundException) {
+            throw ex
         } catch (e: Exception) {
             throw IOException("Exception when retrieving protocol uri map info", e)
         }
@@ -328,7 +338,9 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         val contentString = GithubServiceContract.getGithubContent(
             githubServiceUrl,
             uri.toString(),
-        ).body?.run {
+        ).also {
+            checkInvalidStatus(it)
+        }.body?.run {
             decodeToString()
         } ?: run {
             throw IOException("Could not process protocol files from github response: received null response")
@@ -336,6 +348,12 @@ class GithubProtocolFetcherStrategy @Inject constructor(
         val protocol = localJson.decodeFromString<GithubContent>(contentString).content
             ?: throw IOException("Protocol content is null")
         return localJson.decodeFromString<Protocol>(protocol)
+    }
+
+    fun checkInvalidStatus(res: ProxyResponse) {
+        if (res.status == HttpStatusCode.NotFound.value) {
+            throw HttpNotFoundException("github_endpoint_not_found", res.body?.decodeToString() ?: "")
+        }
     }
 
     companion object {

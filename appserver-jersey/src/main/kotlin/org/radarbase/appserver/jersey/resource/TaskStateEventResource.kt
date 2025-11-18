@@ -98,7 +98,7 @@ class TaskStateEventResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            taskStateEventService.publishNotificationStateEventExternal(
+            taskStateEventService.publishTaskStateEventExternal(
                 projectId,
                 subjectId,
                 taskId,

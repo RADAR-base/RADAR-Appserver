@@ -100,7 +100,7 @@ data class FcmUserDto(
 ) {
     constructor(user: User) : this(
         id = user.id,
-        projectId = user.project?.projectId,
+        projectId = user.projectId,
         subjectId = user.subjectId,
         email = user.emailAddress,
         lastOpened = user.usermetrics?.lastOpened,

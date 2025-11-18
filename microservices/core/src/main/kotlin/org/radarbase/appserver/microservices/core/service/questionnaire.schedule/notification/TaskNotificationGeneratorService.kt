@@ -36,7 +36,7 @@ class TaskNotificationGeneratorService {
             sourceType("Type")
             sourceId("id")
             appPackage("org.phidatalab.radar-armt")
-            task(task)
+            taskId(task.id)
             title(title)
             body(body)
             emailEnabled(emailEnabled)

@@ -2,6 +2,8 @@ plugins {
     application
 }
 
+description = "AppServer Protocol Microservices Implementation"
+
 dependencies {
     implementation(project(":microservices:core"))
     implementation(project(":microservices:contract"))
