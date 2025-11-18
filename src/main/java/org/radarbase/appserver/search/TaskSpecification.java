@@ -10,11 +10,14 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
+import java.io.Serial;
+
 @AllArgsConstructor
 public class TaskSpecification implements Specification<Task> {
+    @Serial
     private static final long serialVersionUID = 327842183571958L;
 
-    private SearchCriteria criteria;
+    private transient SearchCriteria criteria;
 
     @Override
     public Predicate toPredicate
