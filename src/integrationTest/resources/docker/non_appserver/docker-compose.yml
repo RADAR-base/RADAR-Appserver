@@ -39,6 +39,9 @@ services:
     extends:
       file: ../managementportal.yml
       service: managementportal
+    environment:
+      MANAGEMENTPORTAL_CATALOGUESERVER_ENABLEAUTOIMPORT: false
+      MANAGEMENTPORTAL_CATALOGUESERVER_SERVERURL: http://catalog-server:808
     networks:
       - mp
       - default

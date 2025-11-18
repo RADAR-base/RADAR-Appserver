@@ -21,7 +21,6 @@
 
 package org.radarbase.appserver.service.scheduler;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -67,13 +66,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
-        webEnvironment = NONE,
-        classes = {
-                DataSourceAutoConfiguration.class,
-                QuartzAutoConfiguration.class,
-                SchedulerConfig.class,
-                SchedulerServiceTestConfig.class
-        })
+    webEnvironment = NONE,
+    classes = {
+        DataSourceAutoConfiguration.class,
+        QuartzAutoConfiguration.class,
+        SchedulerConfig.class,
+        SchedulerServiceTestConfig.class
+    })
 class NotificationSchedulerServiceTest {
 
     private static final String TIMEZONE = "Europe/London";
