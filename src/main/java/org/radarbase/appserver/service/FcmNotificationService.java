@@ -45,6 +45,7 @@ import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.service.scheduler.MessageSchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -404,25 +405,21 @@ public class FcmNotificationService implements NotificationService {
 
     @Transactional
     public List<Notification> addNotifications(List<Notification> notifications,User user) {
-        List<Notification> newNotifications =
-                notifications.stream()
-                        .filter(notification ->
-                            notificationRepository
-                                    .findByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                                            user.getId(),
-                                            notification.getSourceId(),
-                                            notification.getScheduledTime(),
-                                            notification.getTitle(),
-                                            notification.getBody(),
-                                            notification.getType(),
-                                            notification.getTtlSeconds()).isEmpty()
-                        )
-                        .collect(Collectors.toList());
-
-        List<Notification> savedNotifications = this.notificationRepository.saveAllAndFlush(newNotifications);
-        savedNotifications.forEach(
-                n -> addNotificationStateEvent(n, MessageState.ADDED, n.getCreatedAt().toInstant()));
-        this.schedulerService.scheduleMultiple(savedNotifications);
+        // Attempt to save each notification; ignore duplicates that violate the unique constraint.
+        List<Notification> savedNotifications = new ArrayList<>();
+        for (Notification notification : notifications) {
+            try {
+                Notification saved = this.notificationRepository.saveAndFlush(notification);
+                addNotificationStateEvent(saved, MessageState.ADDED, saved.getCreatedAt().toInstant());
+                savedNotifications.add(saved);
+            } catch (DataIntegrityViolationException ex) {
+                // Duplicate key on (user_id, source_id, scheduled_time, title, body, type, ttl_seconds, delivered, dry_run)
+                // Ignore and continue; this makes batch generation idempotent under concurrency.
+            }
+        }
+        if (!savedNotifications.isEmpty()) {
+            this.schedulerService.scheduleMultiple(savedNotifications);
+        }
         return savedNotifications;
     }
 

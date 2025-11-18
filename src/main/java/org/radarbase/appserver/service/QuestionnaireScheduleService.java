@@ -32,6 +32,7 @@ import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
 import org.radarbase.appserver.exception.NotFoundException;
 import org.radarbase.appserver.repository.ProjectRepository;
+import org.radarbase.appserver.repository.LockRepository;
 import org.radarbase.appserver.repository.UserRepository;
 import org.radarbase.appserver.search.TaskSpecificationsBuilder;
 import org.radarbase.appserver.service.questionnaire.protocol.ProtocolGenerator;
@@ -73,18 +74,22 @@ public class QuestionnaireScheduleService {
     private final transient ProjectRepository projectRepository;
 
     @Autowired
+    private final transient LockRepository lockRepository;
+
+    @Autowired
     private final transient TaskService taskService;
 
     @Autowired
     private final transient FcmNotificationService notificationService;
 
     @Autowired
-    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, ProjectRepository projectRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, TaskService taskService, FcmNotificationService notificationService) {
+    public QuestionnaireScheduleService(ProtocolGenerator protocolGenerator, UserRepository userRepository, ProjectRepository projectRepository, QuestionnaireScheduleGeneratorService scheduleGeneratorService, LockRepository lockRepository, TaskService taskService, FcmNotificationService notificationService) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.taskService = taskService;
         this.protocolGenerator = protocolGenerator;
         this.scheduleGeneratorService = scheduleGeneratorService;
+        this.lockRepository = lockRepository;
         this.notificationService = notificationService;
     }
 
@@ -136,6 +141,8 @@ public class QuestionnaireScheduleService {
 
     @Transactional
     public Schedule generateScheduleForUser(User user) {
+        // Serialise schedule generation per user to avoid concurrent duplicate inserts.
+        lockRepository.lockUser(user.getId());
         Protocol protocol = protocolGenerator.getProtocolForSubject(user.getSubjectId());
         Schedule newSchedule;
 
