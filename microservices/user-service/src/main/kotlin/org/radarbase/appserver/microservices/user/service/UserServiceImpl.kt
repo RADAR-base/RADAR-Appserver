@@ -244,19 +244,7 @@ class UserServiceImpl @Inject constructor(
         }.run {
             userRepository.add(this)
         }
-
-        QuestionnaireScheduleContract.generateScheduleUsingProjectIdAndSubjectId(
-            requireNotNull(savedUser.projectId) { "User's Project id must not be null" },
-            requireNotNull(savedUser.subjectId) { "Subject id must not be null" },
-            taskServiceUrl
-        ).let {
-            if (it.status !in 200 .. 299) {
-                throw ProxyResponseException(
-                    Response.Status.fromStatusCode(it.status),
-                    it.body?.decodeToString() ?: "Upstream sent an incorrect response",
-                )
-            }
-        }
+        generateScheduleUsingProjectIdAndSubjectId(savedUser.projectId, savedUser.subjectId)
 
         return userMapper.entityToDto(savedUser)
     }
@@ -309,7 +297,7 @@ class UserServiceImpl @Inject constructor(
             }
         }
 
-        val savedUser: User = userRepository.update(user) ?: throw HttpNotFoundException(
+        val updatedUser: User = userRepository.update(user) ?: throw HttpNotFoundException(
             "user_not_found",
             "User with id ${user.id} not found.",
         )
@@ -319,21 +307,10 @@ class UserServiceImpl @Inject constructor(
             userDto.timezone ||
             user.enrolmentDate?.equals(userDto.enrolmentDate) != true  ||
             user.language != userDto.language) {
-            QuestionnaireScheduleContract.generateScheduleUsingProjectIdAndSubjectId(
-                requireNotNull(savedUser.projectId) { "User's Project id must not be null" },
-                requireNotNull(savedUser.subjectId) { "Subject id must not be null" },
-                taskServiceUrl
-            ).let {
-                if (it.status !in 200 .. 299) {
-                    throw ProxyResponseException(
-                        Response.Status.fromStatusCode(it.status),
-                        it.body?.decodeToString() ?: "Upstream sent an incorrect response",
-                    )
-                }
-            }
+            generateScheduleUsingProjectIdAndSubjectId(updatedUser.projectId, updatedUser.subjectId)
         }
 
-        return userMapper.entityToDto(savedUser)
+        return userMapper.entityToDto(updatedUser)
     }
 
     override suspend fun updateLastDelivered(fcmToken: String, lastDelivered: Instant?) {
@@ -381,6 +358,21 @@ class UserServiceImpl @Inject constructor(
         }
 
         this.userRepository.delete(user)
+    }
+
+    private suspend fun generateScheduleUsingProjectIdAndSubjectId(projectId: String?, subjectId: String?) {
+        return QuestionnaireScheduleContract.generateScheduleUsingProjectIdAndSubjectId(
+            requireNotNull(projectId) { "User's Project id must not be null" },
+            requireNotNull(subjectId) { "Subject id must not be null" },
+            taskServiceUrl
+        ).let {
+            if (it.status !in 200 .. 299) {
+                throw ProxyResponseException(
+                    Response.Status.fromStatusCode(it.status),
+                    it.body?.decodeToString() ?: "Upstream sent an incorrect response",
+                )
+            }
+        }
     }
 
     companion object {
