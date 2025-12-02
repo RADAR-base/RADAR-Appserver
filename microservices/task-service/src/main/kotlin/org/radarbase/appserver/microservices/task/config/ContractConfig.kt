@@ -16,7 +16,7 @@
 
 package org.radarbase.appserver.microservices.task.config
 
-import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROTOCOL_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.USER_SERVICE_BASE_URL
@@ -38,7 +38,7 @@ data class ContractConfig(
         .copyEnv(PROTOCOL_SERVICE_BASE_URL) {
             copy(protocol = it)
         }
-        .copyEnv(   NOTIFICATION_SERVICE_BASE_URL) {
+        .copyEnv(   CLOUD_MESSAGING_SERVICE_BASE_URL) {
             copy(protocol = it)
         }
 }

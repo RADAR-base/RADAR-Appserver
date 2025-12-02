@@ -1,0 +1,35 @@
+resourceConfig: org.radarbase.appserver.microservices.notification.enhancer.factory.NotificationServiceResourceEnhancerFactory
+
+server:
+  baseUri: http://notification-service:9015
+  requestTimeout: 30
+  isJmxEnabled: false
+
+db:
+  # For Development environment, use H2 database.
+  jdbcDriver: org.h2.Driver
+  jdbcUrl: jdbc:h2:mem:appserver_notification
+  hibernateDialect: org.hibernate.dialect.H2Dialect
+  liquibase:
+    enabled: false
+  additionalProperties:
+    jakarta.persistence.schema-generation.database.action: drop-and-create
+#    hibernate.show_sql: true
+#    hibernate.format_sql: true
+#  jdbcDriver: org.postgresql.Driver
+#  jdbcUrl: jdbc:postgresql://localhost:5432/appserver_notification
+#  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
+#  username: radar
+#  password: radar
+
+eventBus:
+  numThreads: 3
+
+contract:
+  project: http://project-service:9010
+  user: http://user-service:9013
+
+fcm:
+  fcmsender: org.radarbase.appserver.jersey.fcm.downstream.AdminSdkFcmSender
+  credentials:
+
