@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.service.quartz
+package org.radarbase.appserver.microservices.cloud.messaging.service.quartz
 
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -30,8 +30,10 @@ import org.quartz.Trigger
 import org.quartz.TriggerKey
 import org.quartz.impl.triggers.SimpleTriggerImpl
 import org.radarbase.appserver.microservices.core.entity.Scheduled
+import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
 import org.slf4j.LoggerFactory
 import java.util.Date
+import kotlin.collections.forEach
 
 class SchedulerServiceImpl @Inject constructor(
     private val scheduler: Scheduler,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.event.listener.quartz
+package org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
@@ -92,8 +92,8 @@ class QuartzMessageJobListener @Inject constructor(
                 }
                 if (jobException != null) {
                     val additionalInfo: MutableMap<String, String> = hashMapOf()
-                    additionalInfo.put("error", jobException.message!!)
-                    additionalInfo.put("error_description", jobException.toString())
+                    additionalInfo["error"] = jobException.message!!
+                    additionalInfo["error_description"] = jobException.toString()
                     val notificationStateEventError = NotificationStateEventDto(
                         notification,
                         MessageState.ERRORED,
@@ -125,8 +125,8 @@ class QuartzMessageJobListener @Inject constructor(
 
                 if (jobException != null) {
                     val additionalInfo: MutableMap<String, String> = hashMapOf()
-                    additionalInfo.put("error", jobException.message!!)
-                    additionalInfo.put("error_description", jobException.toString())
+                    additionalInfo["error"] = jobException.message!!
+                    additionalInfo["error_description"] = jobException.toString()
                     val dataMessageStateEventError = DataMessageStateEventDto(
                         dataMessage,
                         MessageState.ERRORED,
