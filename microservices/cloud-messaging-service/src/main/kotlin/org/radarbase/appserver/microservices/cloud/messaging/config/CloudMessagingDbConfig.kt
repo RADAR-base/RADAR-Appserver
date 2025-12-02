@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.notification.config
+package org.radarbase.appserver.microservices.cloud.messaging.config
 
-import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_HIBERNATE_DIALECT
-import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_JDBC_DRIVER
-import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_JDBC_PASSWORD
-import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_JDBC_URL
-import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_JDBC_USERNAME
+import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_HIBERNATE_DIALECT
+import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_JDBC_DRIVER
+import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_JDBC_PASSWORD
+import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_JDBC_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_JDBC_USERNAME
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.appserver.microservices.core.entity.Notification
@@ -28,33 +28,33 @@ import org.radarbase.appserver.microservices.core.entity.NotificationStateEvent
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
-data class NotificationDbConfig(
+data class CloudMessagingDbConfig(
     val classes: List<String> = listOf(
         Notification::class.qualifiedName!!,
         NotificationStateEvent::class.qualifiedName!!,
     ),
     val jdbcDriver: String = "org.postgresql.Driver",
-    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_notification",
+    val jdbcUrl: String = "jdbc:postgresql://localhost:5432/appserver_cloud_messaging",
     val username: String = "radar",
     val password: String = "radar",
     val hibernateDialect: String = "org.hibernate.dialect.PostgreSQLDialect",
     val additionalProperties: Map<String, String> = emptyMap(),
     val liquibase: CoreLiquibaseConfig = CoreLiquibaseConfig(),
 ) : Validation {
-    fun withEnv(): NotificationDbConfig  = this
-        .copyEnv(NOTIFICATION_JDBC_URL) {
+    fun withEnv(): CloudMessagingDbConfig  = this
+        .copyEnv(CLOUD_MESSAGING_JDBC_URL) {
             copy(jdbcUrl = it)
         }
-        .copyEnv(NOTIFICATION_JDBC_USERNAME) {
+        .copyEnv(CLOUD_MESSAGING_JDBC_USERNAME) {
             copy(username = it)
         }
-        .copyEnv(NOTIFICATION_JDBC_PASSWORD) {
+        .copyEnv(CLOUD_MESSAGING_JDBC_PASSWORD) {
             copy(password = it)
         }
-        .copyEnv(NOTIFICATION_HIBERNATE_DIALECT) {
+        .copyEnv(CLOUD_MESSAGING_HIBERNATE_DIALECT) {
             copy(hibernateDialect = it)
         }
-        .copyEnv(NOTIFICATION_JDBC_DRIVER) {
+        .copyEnv(CLOUD_MESSAGING_JDBC_DRIVER) {
             copy(jdbcDriver = it)
         }
 

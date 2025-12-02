@@ -14,30 +14,31 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.notification
+package org.radarbase.appserver.microservices.cloud.messaging
 
+import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
 import org.radarbase.appserver.microservices.core.config.Validation
-import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
 import org.radarbase.jersey.GrizzlyServer
 import org.radarbase.jersey.config.ConfigLoader
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    val logger = LoggerFactory.getLogger("org.radarbase.appserver.microservices.notification.NotificationMicroservice")
+    val logger =
+        LoggerFactory.getLogger("org.radarbase.appserver.microservices.cloud.messaging.CloudMessagingMicroservice")
 
-    logger.info("Starting Notification Service")
+    logger.info("Starting Cloud Messaging Service")
 
     val config = try {
-        ConfigLoader.loadConfig<NotificationServiceConfig>(
+        ConfigLoader.loadConfig<CloudMessagingServiceConfig>(
             listOf(
-                "microservices/notification-service/src/main/resources/notification-service.yml",
-                "/etc/notification-service/notification-service.yml",
+                "microservices/cloud-messaging-service/src/main/resources/cloud-messaging-service.yml",
+                "/etc/cloud-messaging-service/cloud-messaging-service.yml",
             ),
             args,
-        ).withEnv()
+        )
     } catch (_: IllegalArgumentException) {
-        logger.error("No configuration file (notification-service.yml) found. Exiting...")
+        logger.error("No configuration file (cloud-messaging-service.yml) found. Exiting...")
         exitProcess(1)
     }
 

@@ -1,14 +1,14 @@
-resourceConfig: org.radarbase.appserver.microservices.notification.enhancer.factory.NotificationServiceResourceEnhancerFactory
+resourceConfig: org.radarbase.appserver.microservices.cloud.messaging.enhancer.factory.CloudMessagingServiceResourceEnhancerFactory
 
 server:
-  baseUri: http://notification-service:9015
+  baseUri: http://cloud-messaging-service:9015
   requestTimeout: 30
   isJmxEnabled: false
 
 db:
   # For Development environment, use H2 database.
   jdbcDriver: org.h2.Driver
-  jdbcUrl: jdbc:h2:mem:appserver_notification
+  jdbcUrl: jdbc:h2:mem:appserver_cloud_messaging
   hibernateDialect: org.hibernate.dialect.H2Dialect
   liquibase:
     enabled: false
@@ -17,7 +17,7 @@ db:
 #    hibernate.show_sql: true
 #    hibernate.format_sql: true
 #  jdbcDriver: org.postgresql.Driver
-#  jdbcUrl: jdbc:postgresql://localhost:5432/appserver_notification
+#  jdbcUrl: jdbc:postgresql://localhost:5432/appserver_cloud_messaging
 #  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
 #  username: radar
 #  password: radar

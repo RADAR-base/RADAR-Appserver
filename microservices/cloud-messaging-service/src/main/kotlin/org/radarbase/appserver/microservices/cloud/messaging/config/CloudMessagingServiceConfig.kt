@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.notification.config
+package org.radarbase.appserver.microservices.cloud.messaging.config
 
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
@@ -23,23 +23,22 @@ import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.jersey.config.ConfigLoader.copyOnChange
 import org.radarbase.jersey.enhancer.EnhancerFactory
 
-data class NotificationServiceConfig(
+data class CloudMessagingServiceConfig(
     val resourceConfig: Class<out EnhancerFactory>,
-    val server: NotificationServerConfig,
-    val db: NotificationDbConfig,
+    val server: CloudMessagingServerConfig,
+    val db: CloudMessagingDbConfig,
     val contract: ContractConfig,
     val eventBus: CoreEventBusConfig,
     val fcm: CoreFcmServerConfig,
     val quartz: CoreSchedulerConfig = CoreSchedulerConfig(),
 ) : Validation {
-
     override fun validate() {
         listOf(server, db, eventBus).forEach {
             it.validate()
         }
     }
 
-    fun withEnv(): NotificationServiceConfig = this.copyOnChange(
+    fun withEnv() = this.copyOnChange(
         db,
         {
             it.withEnv()

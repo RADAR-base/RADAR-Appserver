@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.notification.config
+package org.radarbase.appserver.microservices.cloud.messaging.config
 
-import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
-import org.radarbase.appserver.microservices.contract.utils.Env.USER_SERVICE_BASE_URL
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
+import org.radarbase.appserver.microservices.contract.utils.Env.USER_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
 
 data class ContractConfig(
     val user: String,
     val project: String,
 ) {
-    fun withEnv() = this
-        .copyEnv(USER_SERVICE_BASE_URL) {
+    fun withEnv() = this.
+        copyEnv(USER_SERVICE_BASE_URL) {
             copy(user = it)
         }
         .copyEnv(PROJECT_SERVICE_BASE_URL) {
