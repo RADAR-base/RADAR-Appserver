@@ -25,6 +25,10 @@ db:
 eventBus:
   numThreads: 3
 
+quartz:
+  coroutineDispatcher: io
+  coroutineJob: supervisor-job
+
 contract:
   project: http://project-service:9010
   user: http://user-service:9013

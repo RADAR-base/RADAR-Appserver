@@ -18,15 +18,26 @@ package org.radarbase.appserver.microservices.cloud.messaging.enhancer
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.quartz.JobListener
 import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.MessageStateEventListener
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz.QuartzMessageJobListener
+import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationRepositoryImpl
+import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.config.CoreSchedulerConfig
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
+import org.radarbase.appserver.microservices.core.entity.Notification
+import org.radarbase.appserver.microservices.core.factory.coroutines.SchedulerScopedCoroutine
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
+import org.radarbase.appserver.microservices.core.mapper.Mapper
+import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
+import org.radarbase.appserver.microservices.core.repository.NotificationRepository
+import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -69,5 +80,22 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
         bind(QuartzMessageJobListener::class.java)
             .to(JobListener::class.java)
             .`in`(Singleton::class.java)
+
+        bind(NotificationStateEventRepositoryImpl::class.java)
+            .to(NotificationStateEventRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationRepositoryImpl::class.java)
+            .to(NotificationRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
+        bindFactory(SchedulerScopedCoroutine::class.java)
+            .to(CoroutineScope::class.java)
+            .`in`(Singleton::class.java)
+
     }
 }
