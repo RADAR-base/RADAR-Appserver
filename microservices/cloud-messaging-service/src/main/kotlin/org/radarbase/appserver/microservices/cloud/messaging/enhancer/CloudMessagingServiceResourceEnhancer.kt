@@ -21,7 +21,10 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.internal.inject.AbstractBinder
+import org.glassfish.jersey.server.ResourceConfig
+import org.glassfish.jersey.server.validation.ValidationFeature
 import org.quartz.JobListener
+import org.radarbase.appserver.microservices.cloud.messaging.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.MessageStateEventListener
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz.QuartzMessageJobListener
@@ -34,11 +37,15 @@ import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.config.CoreSchedulerConfig
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.entity.Notification
+import org.radarbase.appserver.microservices.core.entity.User
+import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.core.factory.coroutines.SchedulerScopedCoroutine
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
+import org.radarbase.appserver.microservices.core.mapper.UserMapper
 import org.radarbase.appserver.microservices.core.repository.NotificationRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
@@ -72,6 +79,10 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
 
         bindFactory(EventBusFactory::class.java)
             .to(EventBus::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(UserMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
             .`in`(Singleton::class.java)
 
         bind(MessageStateEventListener::class.java)
@@ -113,5 +124,11 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
         bind(NotificationStateEventServiceImpl::class.java)
             .to(NotificationStateEventService::class.java)
             .`in`(Singleton::class.java)
+    }
+
+    override fun ResourceConfig.enhance() {
+        register(ValidationFeature::class.java)
+        register(UnhandledExceptionMapper::class.java)
+        register(EventBusStartupListener::class.java)
     }
 }

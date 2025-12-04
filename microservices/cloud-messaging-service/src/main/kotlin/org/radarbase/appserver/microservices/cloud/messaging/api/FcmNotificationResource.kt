@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.notification.api
+package org.radarbase.appserver.microservices.cloud.messaging.api
 
 import jakarta.inject.Inject
 import jakarta.validation.Valid
@@ -31,6 +31,7 @@ import jakarta.ws.rs.container.AsyncResponse
 import jakarta.ws.rs.container.Suspended
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.core.Response
+import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotifications
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
@@ -42,7 +43,6 @@ import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.SUBJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.TASKS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.USERS_PATH
-import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
 import org.radarbase.jersey.service.AsyncCoroutineService
 import java.net.URI
 import java.time.LocalDateTime
@@ -54,7 +54,7 @@ import kotlin.time.Duration.Companion.seconds
 class FcmNotificationResource @Inject constructor(
     private val asyncService: AsyncCoroutineService,
     private val fcmNotificationService: FcmNotificationService,
-    config: NotificationServiceConfig,
+    config: CloudMessagingServiceConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
 
