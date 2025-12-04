@@ -57,8 +57,6 @@ public class UserService {
   private final transient UserRepository userRepository;
   private final transient ProjectRepository projectRepository;
 
-  @Autowired
-  private final transient QuestionnaireScheduleService scheduleService;
 
   private static final String FCM_TOKEN_PREFIX = "unregistered_";
 
@@ -66,12 +64,10 @@ public class UserService {
   public UserService(
       UserConverter userConverter,
       UserRepository userRepository,
-      ProjectRepository projectRepository,
-      QuestionnaireScheduleService scheduleService) {
+      ProjectRepository projectRepository) {
     this.userConverter = userConverter;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
-    this.scheduleService = scheduleService;
   }
 
   @Transactional(readOnly = true)

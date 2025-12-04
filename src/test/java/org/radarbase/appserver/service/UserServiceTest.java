@@ -65,9 +65,6 @@ class UserServiceTest {
     @MockBean
     private transient ProjectRepository projectRepository;
 
-    @MockBean
-    private transient QuestionnaireScheduleService scheduleService;
-
     private transient Instant enrolmentDate = Instant.now().plus(Duration.ofSeconds(100));
     private static final String TIMEZONE = "Europe/Bucharest";
 
@@ -217,14 +214,11 @@ class UserServiceTest {
         @Autowired
         private transient ProjectRepository projectRepository;
 
-        @Autowired
-        private transient QuestionnaireScheduleService scheduleService;
-
         private final transient UserConverter userConverter = new UserConverter();
 
         @Bean
         public UserService userServiceBeanConfig() {
-            return new UserService(userConverter, userRepository, projectRepository, scheduleService);
+            return new UserService(userConverter, userRepository, projectRepository);
         }
     }
 }
