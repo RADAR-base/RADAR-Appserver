@@ -1,20 +1,4 @@
-/*
- * Copyright 2025 King's College London
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package org.radarbase.appserver.microservices.core.service.quartz
+package org.radarbase.appserver.microservices.cloud.messaging.service.quartz
 
 import jakarta.inject.Inject
 import org.quartz.Job
@@ -24,13 +8,14 @@ import org.radarbase.appserver.microservices.core.exception.FcmMessageTransmitEx
 import org.radarbase.appserver.microservices.core.exception.MessageTransmitException
 import org.radarbase.appserver.microservices.core.service.FcmDataMessageService
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
+import org.radarbase.appserver.microservices.core.service.quartz.MessageType
 import org.radarbase.appserver.microservices.core.service.transmitter.DataMessageTransmitter
 import org.radarbase.appserver.microservices.core.service.transmitter.NotificationTransmitter
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.LoggerFactory
 
 /**
- * A [Job] that sends notification/message to the device or email when executed.
+ * A [org.quartz.Job] that sends notification/message to the device or email when executed.
  */
 class MessageJob @Inject constructor(
     private val notificationTransmitter: NotificationTransmitter,
@@ -43,13 +28,13 @@ class MessageJob @Inject constructor(
      * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.Trigger]
      `*  fires that is associated with the `Job`.
      *
-     * The implementation may wish to set a [result][JobExecutionContext.setResult]
-     * object on the [JobExecutionContext] before this method exits. The result itself is
+     * The implementation may wish to set a [result][org.quartz.JobExecutionContext.setResult]
+     * object on the [org.quartz.JobExecutionContext] before this method exits. The result itself is
      * meaningless to Quartz, but may be informative to `[org.quartz.JobListener]s`
      * or `[org.quartz.TriggerListener]s` that are watching the job's execution.
      *
      * @param context context containing jobs details and data added when creating the job.
-     * @throws JobExecutionException if an error occurred while executing.
+     * @throws org.quartz.JobExecutionException if an error occurred while executing.
      */
     @Throws(JobExecutionException::class)
     override fun execute(context: JobExecutionContext) {

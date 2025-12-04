@@ -29,7 +29,7 @@ import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.entity.Message
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
-import org.radarbase.appserver.microservices.core.service.quartz.MessageJob
+import org.radarbase.appserver.microservices.cloud.messaging.service.quartz.MessageJob
 import org.radarbase.appserver.microservices.core.service.quartz.MessageType
 import org.radarbase.appserver.microservices.core.service.quartz.QuartzNamingStrategy
 import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
