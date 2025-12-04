@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.notification.service
+package org.radarbase.appserver.microservices.cloud.messaging.service
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
+import org.radarbase.appserver.microservices.cloud.messaging.service.schedule.MessageSchedulerService
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
 import org.radarbase.appserver.microservices.contract.utils.Utils.deserializeDtoFromContract
@@ -43,21 +45,20 @@ import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.appserver.microservices.core.utils.checkPresence
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
-import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
-import org.radarbase.appserver.microservices.notification.service.questionnaire.schedule.NotificationMessageSchedulerService
 import java.time.Instant
 import java.time.LocalDateTime
+import kotlin.collections.forEach
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @Suppress("unused")
 class FcmNotificationServiceImpl @Inject constructor(
     private val notificationRepository: NotificationRepository,
-    private val schedulerService: NotificationMessageSchedulerService,
+    private val schedulerService: MessageSchedulerService<Notification>,
     @param:Named(NOTIFICATION_MAPPER) private val notificationMapper: Mapper<FcmNotificationDto, Notification>,
     @param:Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
     private val notificationStateEventPublisher: EventBus,
-    config: NotificationServiceConfig,
+    config: CloudMessagingServiceConfig,
 ) : FcmNotificationService {
 
     private val userServiceUrl = config.contract.user

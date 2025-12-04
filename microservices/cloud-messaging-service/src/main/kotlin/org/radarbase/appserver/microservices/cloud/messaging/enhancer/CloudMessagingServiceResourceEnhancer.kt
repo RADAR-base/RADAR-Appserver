@@ -27,6 +27,9 @@ import org.radarbase.appserver.microservices.cloud.messaging.event.listener.Mess
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz.QuartzMessageJobListener
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationStateEventRepositoryImpl
+import org.radarbase.appserver.microservices.cloud.messaging.service.FcmNotificationServiceImpl
+import org.radarbase.appserver.microservices.cloud.messaging.service.NotificationStateEventServiceImpl
+import org.radarbase.appserver.microservices.cloud.messaging.service.schedule.MessageSchedulerService
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.config.CoreSchedulerConfig
@@ -38,6 +41,8 @@ import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
 import org.radarbase.appserver.microservices.core.repository.NotificationRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
+import org.radarbase.appserver.microservices.core.service.FcmNotificationService
+import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -97,5 +102,16 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
             .to(CoroutineScope::class.java)
             .`in`(Singleton::class.java)
 
+        bind(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
+        bind(FcmNotificationServiceImpl::class.java)
+            .to(FcmNotificationService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(NotificationStateEventServiceImpl::class.java)
+            .to(NotificationStateEventService::class.java)
+            .`in`(Singleton::class.java)
     }
 }

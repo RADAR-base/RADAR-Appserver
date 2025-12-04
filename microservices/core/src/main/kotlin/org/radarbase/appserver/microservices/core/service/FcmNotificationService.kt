@@ -86,7 +86,7 @@ interface FcmNotificationService : NotificationService {
     ): FcmNotificationDto
 
     /**
-     * Add a notification entity and publish its state event; returns the saved Notification entity.
+     * Add a notification entity and publish its state event, returns the saved Notification entity.
      */
     suspend fun addNotificationAndItsStateEvent(notificationDto: FcmNotificationDto, user: User): Notification
 
@@ -141,7 +141,7 @@ interface FcmNotificationService : NotificationService {
     suspend fun addNotifications(notificationDtos: FcmNotifications, subjectId: String, projectId: String): FcmNotifications
 
     /**
-     * Create and persist new notifications (entities) without scheduling; returns saved entities.
+     * Create and persist new notifications (entities) without scheduling, returns saved entities.
      */
     suspend fun addNewNotifications(notificationDtos: FcmNotifications, subjectId: String, projectId: String): List<Notification>
 
