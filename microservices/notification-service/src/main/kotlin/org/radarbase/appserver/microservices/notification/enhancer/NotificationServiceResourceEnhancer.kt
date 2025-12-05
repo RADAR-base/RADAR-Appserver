@@ -55,7 +55,6 @@ import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPE
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.notification.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.notification.config.NotificationServiceConfig
-import org.radarbase.appserver.microservices.notification.event.listener.NotificationStateEventListener
 import org.radarbase.appserver.microservices.notification.event.listener.quartz.QuartzNotificationJobListener
 import org.radarbase.appserver.microservices.notification.event.listener.quartz.QuartzNotificationSchedulerListener
 import org.radarbase.appserver.microservices.notification.repository.NotificationRepositoryImpl

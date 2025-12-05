@@ -43,7 +43,7 @@ import java.util.Objects
 class FcmTransmitter @Inject constructor(
     private val fcmSender: FcmSender,
     private val notificationService: FcmNotificationService,
-    private val dataMessageService: FcmDataMessageService,
+//    private val dataMessageService: FcmDataMessageService,
     config: CloudMessagingServiceConfig,
 ) : DataMessageTransmitter, NotificationTransmitter {
 
@@ -123,10 +123,10 @@ class FcmTransmitter @Inject constructor(
                     projectId,
                     subjectId,
                 )
-                dataMessageService.removeDataMessagesForUser(
-                    projectId,
-                    subjectId,
-                )
+//                dataMessageService.removeDataMessagesForUser(
+//                    projectId,
+//                    subjectId,
+//                )
 
                 val userId = requireNotNullField(message.userId, "Notification's UserId")
                 val user = deserializeDtoFromContract<FcmUserDto>(

@@ -76,6 +76,7 @@ class DataMessage : Message() {
         var sourceType: String? = dataMessage?.sourceType
         var dryRun: Boolean = dataMessage?.dryRun == true
         var priority: String? = dataMessage?.priority
+        var taskId: Long? = dataMessage?.taskId
         var mutableContent: Boolean = dataMessage?.mutableContent == true
         var dataMap: MutableMap<String?, String?>? = dataMessage?.dataMap
 
@@ -147,6 +148,10 @@ class DataMessage : Message() {
             this.dataMap = dataMap
         }
 
+        fun taskId(taskId: Long) = apply {
+            this.taskId = taskId
+        }
+
         fun build(): DataMessage {
             val dataMessage = DataMessage()
             dataMessage.id = this.id
@@ -165,6 +170,7 @@ class DataMessage : Message() {
             dataMessage.sourceType = this.sourceType
             dataMessage.dryRun = this.dryRun
             dataMessage.priority = this.priority
+            dataMessage.taskId = this.taskId
             dataMessage.mutableContent = this.mutableContent
             dataMessage.dataMap = this.dataMap
 

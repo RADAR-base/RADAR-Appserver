@@ -30,6 +30,8 @@ import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagi
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.MessageStateEventListener
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz.QuartzMessageJobListener
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz.QuartzMessageSchedulerListener
+import org.radarbase.appserver.microservices.cloud.messaging.repository.DataMessageRepositoryImpl
+import org.radarbase.appserver.microservices.cloud.messaging.repository.DataMessageStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.FcmNotificationServiceImpl
@@ -52,6 +54,8 @@ import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFacto
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
+import org.radarbase.appserver.microservices.core.repository.DataMessageRepository
+import org.radarbase.appserver.microservices.core.repository.DataMessageStateEventRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
@@ -106,6 +110,14 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
 
         bind(NotificationRepositoryImpl::class.java)
             .to(NotificationRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(DataMessageStateEventRepositoryImpl::class.java)
+            .to(DataMessageStateEventRepository::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(DataMessageRepositoryImpl::class.java)
+            .to(DataMessageRepository::class.java)
             .`in`(Singleton::class.java)
 
         bindFactory(SchedulerScopedCoroutine::class.java)
