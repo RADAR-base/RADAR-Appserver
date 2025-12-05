@@ -24,15 +24,21 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.quartz.JobListener
+import org.quartz.SchedulerListener
 import org.radarbase.appserver.microservices.cloud.messaging.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.MessageStateEventListener
 import org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz.QuartzMessageJobListener
+import org.radarbase.appserver.microservices.cloud.messaging.event.listener.quartz.QuartzMessageSchedulerListener
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.FcmNotificationServiceImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.NotificationStateEventServiceImpl
+import org.radarbase.appserver.microservices.cloud.messaging.service.quartz.SchedulerServiceImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.schedule.MessageSchedulerService
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.DataMessageTransmitter
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.FcmTransmitter
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.NotificationTransmitter
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.config.CoreSchedulerConfig
@@ -50,6 +56,7 @@ import org.radarbase.appserver.microservices.core.repository.NotificationReposit
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
 import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
+import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -77,24 +84,20 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
             .to(CoreSchedulerConfig::class.java)
             .`in`(Singleton::class.java)
 
-        bindFactory(EventBusFactory::class.java)
-            .to(EventBus::class.java)
-            .`in`(Singleton::class.java)
-
         bind(UserMapper::class.java)
             .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
             .`in`(Singleton::class.java)
 
-        bind(MessageStateEventListener::class.java)
-            .to(MessageStateEventListener::class.java)
+        bind(NotificationMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
+        bindFactory(EventBusFactory::class.java)
+            .to(EventBus::class.java)
             .`in`(Singleton::class.java)
 
         bind(ScopedAsyncCoroutineService::class.java)
             .to(AsyncCoroutineService::class.java)
-            .`in`(Singleton::class.java)
-
-        bind(QuartzMessageJobListener::class.java)
-            .to(JobListener::class.java)
             .`in`(Singleton::class.java)
 
         bind(NotificationStateEventRepositoryImpl::class.java)
@@ -105,16 +108,8 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
             .to(NotificationRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bind(NotificationMapper::class.java)
-            .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
-            .`in`(Singleton::class.java)
-
         bindFactory(SchedulerScopedCoroutine::class.java)
             .to(CoroutineScope::class.java)
-            .`in`(Singleton::class.java)
-
-        bind(MessageSchedulerService::class.java)
-            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
             .`in`(Singleton::class.java)
 
         bind(FcmNotificationServiceImpl::class.java)
@@ -123,6 +118,34 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
 
         bind(NotificationStateEventServiceImpl::class.java)
             .to(NotificationStateEventService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(MessageStateEventListener::class.java)
+            .to(MessageStateEventListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
+            .`in`(Singleton::class.java)
+
+        bind(QuartzMessageJobListener::class.java)
+            .to(JobListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(QuartzMessageSchedulerListener::class.java)
+            .to(SchedulerListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(SchedulerServiceImpl::class.java)
+            .to(SchedulerService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(FcmTransmitter::class.java)
+            .to(DataMessageTransmitter::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(FcmTransmitter::class.java)
+            .to(NotificationTransmitter::class.java)
             .`in`(Singleton::class.java)
     }
 

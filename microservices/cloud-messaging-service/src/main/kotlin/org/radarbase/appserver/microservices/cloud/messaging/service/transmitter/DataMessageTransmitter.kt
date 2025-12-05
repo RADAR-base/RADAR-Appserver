@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.microservices.core.service.transmitter
+package org.radarbase.appserver.microservices.cloud.messaging.service.transmitter
 
 import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.exception.MessageTransmitException
