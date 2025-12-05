@@ -40,12 +40,14 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
 import org.radarbase.appserver.microservices.contract.calls.NotificationServiceContract
+import org.radarbase.appserver.microservices.contract.calls.NotificationStateEventServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
 import org.radarbase.appserver.microservices.contract.calls.QuestionnaireScheduleContract
 import org.radarbase.appserver.microservices.contract.calls.TaskStateEventServiceContract
 import org.radarbase.appserver.microservices.contract.calls.UserServiceContract
 import org.radarbase.appserver.microservices.contract.exception.InvalidUpstreamResponseException
+import org.radarbase.appserver.microservices.core.dto.NotificationStateEventDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.core.dto.TaskStateEventDto
@@ -57,6 +59,7 @@ import org.radarbase.appserver.microservices.core.dto.protocol.Assessment
 import org.radarbase.appserver.microservices.core.utils.Paths.ALL_KEYWORD
 import org.radarbase.appserver.microservices.core.utils.Paths.MESSAGING_NOTIFICATION_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.NOTIFICATION_ID
+import org.radarbase.appserver.microservices.core.utils.Paths.NOTIFICATION_STATE_EVENTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.PROTOCOLS_PATH
@@ -79,9 +82,6 @@ import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
-import java.net.URI
-import java.time.Instant
-import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
@@ -101,7 +101,7 @@ class GatewayResource @Inject constructor(
     private val userServiceRoute: ServiceRoute = config.routes.first { it.name == "user" }
     private val githubServiceRoute: ServiceRoute = config.routes.first { it.name == "github" }
     private val taskServiceRoute: ServiceRoute = config.routes.first { it.name == "task" }
-    private val notificationServiceRoute: ServiceRoute = config.routes.first { it.name == "notification" }
+    private val cloudMessagingServiceRoute: ServiceRoute = config.routes.first { it.name == "messaging" }
 
 //-------------------------------------------------Project Service------------------------------------------------------
 
@@ -791,7 +791,7 @@ class GatewayResource @Inject constructor(
         }
     }
 
-
+    //---------------------------------------Notification Service-----------------------------------------------------------
     @GET
     @Path(MESSAGING_NOTIFICATION_PATH)
     @Produces(APPLICATION_JSON)
@@ -803,7 +803,7 @@ class GatewayResource @Inject constructor(
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             handleProxyResponse(
                 NotificationServiceContract.getAllNotifications(
-                    notificationServiceRoute.baseUrl,
+                    cloudMessagingServiceRoute.baseUrl,
                 ),
             )
         }
@@ -847,7 +847,7 @@ class GatewayResource @Inject constructor(
                 startTimeStr,
                 endTimeStr,
                 limit,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -868,7 +868,7 @@ class GatewayResource @Inject constructor(
             NotificationServiceContract.getNotificationsUsingProjectIdAndSubjectId(
                 projectId,
                 subjectId,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -892,9 +892,10 @@ class GatewayResource @Inject constructor(
                 token,
             )
 
-            NotificationServiceContract.getNotificationsUsingProjectId(projectId, notificationServiceRoute.baseUrl).let {
-                handleProxyResponse(it)
-            }
+            NotificationServiceContract.getNotificationsUsingProjectId(projectId, cloudMessagingServiceRoute.baseUrl)
+                .let {
+                    handleProxyResponse(it)
+                }
         }
     }
 
@@ -916,7 +917,7 @@ class GatewayResource @Inject constructor(
                 subjectId,
                 fcmNotification,
                 schedule,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -937,7 +938,7 @@ class GatewayResource @Inject constructor(
             NotificationServiceContract.scheduleUserNotifications(
                 projectId,
                 subjectId,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -958,7 +959,7 @@ class GatewayResource @Inject constructor(
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             NotificationServiceContract.scheduleUserNotification(
                 projectId,
-                subjectId, notificationId, notificationServiceRoute.baseUrl,
+                subjectId, notificationId, cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -979,7 +980,7 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             NotificationServiceContract.addBatchNotifications(
-                projectId, subjectId, schedule, fcmNotification, notificationServiceRoute.baseUrl,
+                projectId, subjectId, schedule, fcmNotification, cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -1002,7 +1003,7 @@ class GatewayResource @Inject constructor(
                 projectId,
                 subjectId,
                 fcmNotification,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             )
         }
     }
@@ -1021,7 +1022,7 @@ class GatewayResource @Inject constructor(
             NotificationServiceContract.deleteNotificationsForUser(
                 projectId,
                 subjectId,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -1043,7 +1044,7 @@ class GatewayResource @Inject constructor(
                 projectId,
                 subjectId,
                 id,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
@@ -1065,12 +1066,80 @@ class GatewayResource @Inject constructor(
                 projectId,
                 subjectId,
                 id,
-                notificationServiceRoute.baseUrl,
+                cloudMessagingServiceRoute.baseUrl,
             ).let {
                 handleProxyResponse(it)
             }
         }
     }
+
+// ------------------------------------------Notification State Event Service-------------------------------------------
+
+    @GET
+    @Path("/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID/$NOTIFICATION_STATE_EVENTS_PATH")
+    @Produces(APPLICATION_JSON)
+    fun getNotificationStateEventsByNotificationId(
+        @PathParam("notificationId") notificationId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationStateEventServiceContract.getNotificationStateEventsByNotificationId(
+                notificationId,
+                cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                Response.ok(it).build()
+            }
+        }
+    }
+
+    @GET
+    @Path("/$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID/$NOTIFICATION_STATE_EVENTS_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun getNotificationStateEvents(
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @PathParam("notificationId") notificationId: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationStateEventServiceContract.getNotificationStateEvents(
+                projectId,
+                subjectId,
+                notificationId,
+                cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                Response.ok(it).build()
+            }
+        }
+    }
+
+    @POST
+    @Path("/$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID/$NOTIFICATION_STATE_EVENTS_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun postNotificationStateEvent(
+        @PathParam("projectId") projectId: String,
+        @PathParam("subjectId") subjectId: String,
+        @PathParam("notificationId") notificationId: Long,
+        notificationStateEventDto: NotificationStateEventDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            NotificationStateEventServiceContract.postNotificationStateEvents(
+                projectId,
+                subjectId,
+                notificationId,
+                notificationStateEventDto,
+                cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                Response.ok(it)
+            }
+        }
+    }
+
 }
 
 
