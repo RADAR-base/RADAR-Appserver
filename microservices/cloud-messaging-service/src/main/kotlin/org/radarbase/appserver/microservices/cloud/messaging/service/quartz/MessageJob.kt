@@ -4,13 +4,13 @@ import jakarta.inject.Inject
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.DataMessageTransmitter
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.NotificationTransmitter
 import org.radarbase.appserver.microservices.core.exception.FcmMessageTransmitException
 import org.radarbase.appserver.microservices.core.exception.MessageTransmitException
 import org.radarbase.appserver.microservices.core.service.FcmDataMessageService
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
 import org.radarbase.appserver.microservices.core.service.quartz.MessageType
-import org.radarbase.appserver.microservices.core.service.transmitter.DataMessageTransmitter
-import org.radarbase.appserver.microservices.core.service.transmitter.NotificationTransmitter
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.LoggerFactory
 

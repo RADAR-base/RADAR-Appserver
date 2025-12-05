@@ -44,6 +44,8 @@ class FcmNotificationDto(
 
     var ttlSeconds: Int = 0,
 
+    var taskId: Long? = null,
+
     @field:NotEmpty
     var sourceId: String? = null,
 
@@ -103,7 +105,7 @@ class FcmNotificationDto(
     var createdAt: Instant? = null,
 
     @Serializable(with = InstantSerializer::class)
-    var updatedAt: Instant? = null
+    var updatedAt: Instant? = null,
 ) {
     constructor(notification: Notification) : this(
         id = notification.id,
@@ -138,7 +140,7 @@ class FcmNotificationDto(
         emailBody = notification.emailBody,
         mutableContent = notification.mutableContent == true,
         createdAt = notification.createdAt?.toInstant(),
-        updatedAt = notification.updatedAt?.toInstant()
+        updatedAt = notification.updatedAt?.toInstant(),
     )
 
     override fun equals(other: Any?): Boolean = equalTo(
@@ -167,6 +169,6 @@ class FcmNotificationDto(
     }
 
     override fun toString(): String {
-        return "FcmNotificationDto(id=$id, scheduledTime=$scheduledTime, delivered=$delivered, title=$title, body=$body, ttlSeconds=$ttlSeconds, sourceId=$sourceId, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, type=$type, appPackage=$appPackage, sourceType=$sourceType, additionalData=$additionalData, priority=$priority, sound=$sound, badge=$badge, subtitle=$subtitle, icon=$icon, color=$color, bodyLocKey=$bodyLocKey, bodyLocArgs=$bodyLocArgs, titleLocKey=$titleLocKey, titleLocArgs=$titleLocArgs, androidChannelId=$androidChannelId, tag=$tag, clickAction=$clickAction, emailEnabled=$emailEnabled, emailTitle=$emailTitle, emailBody=$emailBody, mutableContent=$mutableContent, createdAt=$createdAt, updatedAt=$updatedAt)"
+        return "FcmNotificationDto(id=$id, scheduledTime=$scheduledTime, delivered=$delivered, title=$title, body=$body, taskId=$taskId, ttlSeconds=$ttlSeconds, sourceId=$sourceId, fcmMessageId=$fcmMessageId, fcmTopic=$fcmTopic, fcmCondition=$fcmCondition, type=$type, appPackage=$appPackage, sourceType=$sourceType, additionalData=$additionalData, priority=$priority, sound=$sound, badge=$badge, subtitle=$subtitle, icon=$icon, color=$color, bodyLocKey=$bodyLocKey, bodyLocArgs=$bodyLocArgs, titleLocKey=$titleLocKey, titleLocArgs=$titleLocArgs, androidChannelId=$androidChannelId, tag=$tag, clickAction=$clickAction, emailEnabled=$emailEnabled, emailTitle=$emailTitle, emailBody=$emailBody, mutableContent=$mutableContent, createdAt=$createdAt, updatedAt=$updatedAt)"
     }
 }

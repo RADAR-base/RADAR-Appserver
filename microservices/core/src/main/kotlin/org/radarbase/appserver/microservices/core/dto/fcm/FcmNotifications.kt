@@ -16,15 +16,8 @@
 
 package org.radarbase.appserver.microservices.core.dto.fcm
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.Size
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.radarbase.appserver.microservices.core.utils.equalTo
-import org.radarbase.appserver.microservices.core.utils.stringRepresentation
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.util.Objects
 
 @Serializable
 data class FcmNotifications(
