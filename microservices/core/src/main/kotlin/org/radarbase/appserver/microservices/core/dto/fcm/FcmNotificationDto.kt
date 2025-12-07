@@ -16,7 +16,6 @@
 
 package org.radarbase.appserver.microservices.core.dto.fcm
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
@@ -110,10 +109,10 @@ class FcmNotificationDto(
     constructor(notification: Notification) : this(
         id = notification.id,
         scheduledTime = notification.scheduledTime,
-        delivered = notification.delivered == true,
+        delivered = notification.delivered,
         title = notification.title,
         body = notification.body,
-        ttlSeconds = notification.ttlSeconds ?: 0,
+        ttlSeconds = notification.ttlSeconds,
         sourceId = notification.sourceId,
         fcmMessageId = notification.fcmMessageId,
         fcmTopic = notification.fcmTopic,
@@ -135,10 +134,10 @@ class FcmNotificationDto(
         androidChannelId = notification.androidChannelId,
         tag = notification.tag,
         clickAction = notification.clickAction,
-        emailEnabled = notification.emailEnabled == true,
+        emailEnabled = notification.emailEnabled,
         emailTitle = notification.emailTitle,
         emailBody = notification.emailBody,
-        mutableContent = notification.mutableContent == true,
+        mutableContent = notification.mutableContent,
         createdAt = notification.createdAt?.toInstant(),
         updatedAt = notification.updatedAt?.toInstant(),
     )

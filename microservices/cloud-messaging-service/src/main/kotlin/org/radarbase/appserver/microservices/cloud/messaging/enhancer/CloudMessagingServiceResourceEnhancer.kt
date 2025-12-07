@@ -34,6 +34,8 @@ import org.radarbase.appserver.microservices.cloud.messaging.repository.DataMess
 import org.radarbase.appserver.microservices.cloud.messaging.repository.DataMessageStateEventRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationRepositoryImpl
 import org.radarbase.appserver.microservices.cloud.messaging.repository.NotificationStateEventRepositoryImpl
+import org.radarbase.appserver.microservices.cloud.messaging.service.DataMessageStateEventServiceImpl
+import org.radarbase.appserver.microservices.cloud.messaging.service.FcmDataMessageServiceImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.FcmNotificationServiceImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.NotificationStateEventServiceImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.quartz.SchedulerServiceImpl
@@ -44,13 +46,16 @@ import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
 import org.radarbase.appserver.microservices.core.config.CoreFcmServerConfig
 import org.radarbase.appserver.microservices.core.config.CoreSchedulerConfig
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmDataMessageDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
+import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.core.factory.coroutines.SchedulerScopedCoroutine
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
+import org.radarbase.appserver.microservices.core.mapper.DataMessageMapper
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
 import org.radarbase.appserver.microservices.core.mapper.UserMapper
@@ -58,9 +63,14 @@ import org.radarbase.appserver.microservices.core.repository.DataMessageReposito
 import org.radarbase.appserver.microservices.core.repository.DataMessageStateEventRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationRepository
 import org.radarbase.appserver.microservices.core.repository.NotificationStateEventRepository
+import org.radarbase.appserver.microservices.core.service.DataMessageStateEventService
+import org.radarbase.appserver.microservices.core.service.FcmDataMessageService
 import org.radarbase.appserver.microservices.core.service.FcmNotificationService
 import org.radarbase.appserver.microservices.core.service.NotificationStateEventService
 import org.radarbase.appserver.microservices.core.service.quartz.SchedulerService
+import org.radarbase.appserver.microservices.core.utils.Const.DATA_MESSAGE_MAPPER
+import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPER
+import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
@@ -90,10 +100,17 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
 
         bind(UserMapper::class.java)
             .to(object : TypeLiteral<Mapper<FcmUserDto, User>>() {}.type)
+            .named(USER_MAPPER)
             .`in`(Singleton::class.java)
 
         bind(NotificationMapper::class.java)
             .to(object : TypeLiteral<Mapper<FcmNotificationDto, Notification>>() {}.type)
+            .named(NOTIFICATION_MAPPER)
+            .`in`(Singleton::class.java)
+
+        bind(DataMessageMapper::class.java)
+            .to(object : TypeLiteral<Mapper<FcmDataMessageDto, DataMessage>>() {}.type)
+            .named(DATA_MESSAGE_MAPPER)
             .`in`(Singleton::class.java)
 
         bindFactory(EventBusFactory::class.java)
@@ -120,10 +137,6 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
             .to(DataMessageRepository::class.java)
             .`in`(Singleton::class.java)
 
-        bindFactory(SchedulerScopedCoroutine::class.java)
-            .to(CoroutineScope::class.java)
-            .`in`(Singleton::class.java)
-
         bind(FcmNotificationServiceImpl::class.java)
             .to(FcmNotificationService::class.java)
             .`in`(Singleton::class.java)
@@ -132,8 +145,20 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
             .to(NotificationStateEventService::class.java)
             .`in`(Singleton::class.java)
 
+        bind(FcmDataMessageServiceImpl::class.java)
+            .to(FcmDataMessageService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(DataMessageStateEventServiceImpl::class.java)
+            .to(DataMessageStateEventService::class.java)
+            .`in`(Singleton::class.java)
+
         bind(MessageStateEventListener::class.java)
             .to(MessageStateEventListener::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(SchedulerScopedCoroutine::class.java)
+            .to(CoroutineScope::class.java)
             .`in`(Singleton::class.java)
 
         bind(MessageSchedulerService::class.java)

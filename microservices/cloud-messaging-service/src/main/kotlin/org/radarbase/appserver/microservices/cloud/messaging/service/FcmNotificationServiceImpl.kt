@@ -30,7 +30,6 @@ import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotifications
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUsers
 import org.radarbase.appserver.microservices.core.entity.Notification
-import org.radarbase.appserver.microservices.core.entity.Project
 import org.radarbase.appserver.microservices.core.entity.Task
 import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.event.state.MessageState
@@ -44,6 +43,8 @@ import org.radarbase.appserver.microservices.core.utils.Const.NOTIFICATION_MAPPE
 import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
 import org.radarbase.appserver.microservices.core.utils.checkPresence
+import org.radarbase.appserver.microservices.core.utils.nonNullProjectId
+import org.radarbase.appserver.microservices.core.utils.nonNullUserId
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
 import java.time.Instant
 import java.time.LocalDateTime
@@ -162,7 +163,7 @@ class FcmNotificationServiceImpl @Inject constructor(
         schedule: Boolean,
     ): FcmNotificationDto {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
-        val notificationExists: Boolean = checkNotificationExists(notificationDto, subjectId, projectId)
+        val notificationExists: Boolean = checkNotificationExists(notificationDto, user, subjectId, projectId)
 
         if (!notificationExists) {
             val notificationSaved = addNotificationAndItsStateEvent(notificationDto, user)
@@ -183,8 +184,8 @@ class FcmNotificationServiceImpl @Inject constructor(
         subjectId: String,
         projectId: String,
     ): FcmNotificationDto {
-        val notificationExists = checkNotificationExists(notificationDto, subjectId, projectId)
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
+        val notificationExists = checkNotificationExists(notificationDto, user, subjectId, projectId)
 
         if (!notificationExists) {
             val savedNotification = addNotificationAndItsStateEvent(notificationDto, user)
@@ -196,72 +197,6 @@ class FcmNotificationServiceImpl @Inject constructor(
                 "The Notification Already exists. Please Use update endpoint",
             )
         }
-    }
-
-    override suspend fun addNotificationAndItsStateEvent(
-        notificationDto: FcmNotificationDto,
-        user: User,
-    ): Notification {
-        val projectId = requireNotNullField(user.projectId, "User's Project Id")
-        val subjectId = requireNotNullField(user.subjectId, "User's SubjectId")
-
-        val savedNotification = this.notificationRepository.add(
-            Notification.NotificationBuilder(notificationMapper.dtoToEntity(notificationDto))
-                .userId(user.id)
-                .projectId(projectId)
-                .subjectId(subjectId)
-                .build(),
-        )
-        requireNotNullField(user.usermetrics, "User's user metrics").lastOpened = Instant.now()
-        UserServiceContract.updateUser(
-            userMapper.entityToDto(user),
-            projectId,
-            subjectId,
-            false,
-            userServiceUrl,
-        ).also {
-            deserializeDtoFromContract<FcmUserDto>(it) {
-                "user_not_found ; user with subjectId $subjectId not found"
-            }
-        }
-
-        addNotificationStateEvent(
-            savedNotification,
-            MessageState.ADDED,
-            requireNotNullField(
-                savedNotification.createdAt,
-                "Notification creation timestamp",
-            ).toInstant(),
-        )
-
-        return savedNotification
-    }
-
-    override suspend fun checkNotificationExists(
-        notificationDto: FcmNotificationDto,
-        subjectId: String,
-        projectId: String,
-    ): Boolean {
-        return subjectAndProjectExistElseThrow(subjectId, projectId).let { user ->
-            notificationRepository.existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                nonNullUserId(user),
-                requireNotNullField(notificationDto.sourceId, "Notification Source Id"),
-                requireNotNullField(notificationDto.scheduledTime, "Notification Scheduled time"),
-                requireNotNullField(notificationDto.title, "Notification Title"),
-                requireNotNullField(notificationDto.body, "Notification Body"),
-                requireNotNullField(notificationDto.type, "Notification Type"),
-                requireNotNullField(notificationDto.ttlSeconds, "Notification TTL seconds"),
-            )
-        }
-    }
-
-    private fun addNotificationStateEvent(
-        notification: Notification,
-        state: MessageState,
-        time: Instant,
-    ) {
-        val notificationStateEvent = NotificationStateEventDto(notification, state, null, time)
-        notificationStateEventPublisher.post(notificationStateEvent)
     }
 
     override suspend fun updateNotification(
@@ -310,7 +245,11 @@ class FcmNotificationServiceImpl @Inject constructor(
         )
     }
 
-    override suspend fun scheduleNotification(subjectId: String, projectId: String, notificationId: Long): FcmNotificationDto {
+    override suspend fun scheduleNotification(
+        subjectId: String,
+        projectId: String,
+        notificationId: Long,
+    ): FcmNotificationDto {
         val user = subjectAndProjectExistElseThrow(subjectId, projectId)
         val notification = notificationRepository.findByIdAndUserId(notificationId, nonNullUserId(user))
         checkPresence(notification, "notification_not_found") {
@@ -371,10 +310,11 @@ class FcmNotificationServiceImpl @Inject constructor(
     }
 
     override suspend fun removeNotificationsForUserUsingFcmToken(fcmToken: String) {
-        val user =
-            deserializeDtoFromContract<FcmUserDto>(UserServiceContract.getUserUsingFcmToken(fcmToken, userServiceUrl)) {
-                "invalid_user_details ; The user with the given Fcm Token does not exist"
-            }
+        val user = deserializeDtoFromContract<FcmUserDto>(
+            UserServiceContract.getUserUsingFcmToken(fcmToken, userServiceUrl),
+        ) {
+            "invalid_user_details ; The user with the given Fcm Token does not exist"
+        }
         val userId = nonNullUserId(user)
         this.schedulerService.deleteScheduledMultiple(
             this.notificationRepository.findByUserId(userId),
@@ -416,9 +356,14 @@ class FcmNotificationServiceImpl @Inject constructor(
 
     override suspend fun addNotifications(notifications: List<Notification>?, user: User): List<Notification> {
         notifications ?: return listOf()
+        notifications.forEach { notification: Notification ->
+            notification.userId = nonNullUserId(user)
+            notification.subjectId = requireNotNullField(user.subjectId, "User's Subject Id")
+            notification.projectId = requireNotNullField(user.projectId, "User's Project Id")
+        }
         val newNotifications: List<Notification> = notifications.filter { notification: Notification ->
             !notificationRepository.existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
-                requireNotNullField(user.id, "User id"),
+                nonNullUserId(user),
                 requireNotNullField(notification.sourceId, "Notification Source Id"),
                 requireNotNullField(notification.scheduledTime, "Notification Scheduled time"),
                 requireNotNullField(notification.title, "Notification Title"),
@@ -462,7 +407,7 @@ class FcmNotificationServiceImpl @Inject constructor(
         )
     }
 
-    override suspend fun addNewNotifications(
+    private suspend fun addNewNotifications(
         notificationDtos: FcmNotifications,
         subjectId: String,
         projectId: String,
@@ -488,17 +433,87 @@ class FcmNotificationServiceImpl @Inject constructor(
         }
     }
 
+    private suspend fun addNotificationAndItsStateEvent(
+        notificationDto: FcmNotificationDto,
+        user: User,
+    ): Notification {
+        val projectId = requireNotNullField(user.projectId, "User's Project Id")
+        val subjectId = requireNotNullField(user.subjectId, "User's SubjectId")
+
+        val savedNotification = this.notificationRepository.add(
+            Notification.NotificationBuilder(notificationMapper.dtoToEntity(notificationDto))
+                .userId(user.id)
+                .projectId(projectId)
+                .subjectId(subjectId)
+                .build(),
+        )
+        requireNotNullField(user.usermetrics, "User's user metrics").lastOpened = Instant.now()
+        UserServiceContract.updateUser(
+            userMapper.entityToDto(user),
+            projectId,
+            subjectId,
+            false,
+            userServiceUrl,
+        ).also {
+            deserializeDtoFromContract<FcmUserDto>(it) {
+                "user_not_found ; user with subjectId $subjectId not found"
+            }
+        }
+
+        addNotificationStateEvent(
+            savedNotification,
+            MessageState.ADDED,
+            requireNotNullField(
+                savedNotification.createdAt,
+                "Notification creation timestamp",
+            ).toInstant(),
+        )
+
+        return savedNotification
+    }
+
+    private suspend fun checkNotificationExists(
+        notificationDto: FcmNotificationDto,
+        user: User,
+        subjectId: String,
+        projectId: String,
+    ): Boolean {
+        return notificationRepository.existsByUserIdAndSourceIdAndScheduledTimeAndTitleAndBodyAndTypeAndTtlSeconds(
+            nonNullUserId(user),
+            requireNotNullField(notificationDto.sourceId, "Notification Source Id"),
+            requireNotNullField(notificationDto.scheduledTime, "Notification Scheduled time"),
+            requireNotNullField(notificationDto.title, "Notification Title"),
+            requireNotNullField(notificationDto.body, "Notification Body"),
+            requireNotNullField(notificationDto.type, "Notification Type"),
+            requireNotNullField(notificationDto.ttlSeconds, "Notification TTL seconds"),
+        )
+    }
+
+    private fun addNotificationStateEvent(
+        notification: Notification,
+        state: MessageState,
+        time: Instant,
+    ) {
+        val notificationStateEvent = NotificationStateEventDto(notification, state, null, time)
+        notificationStateEventPublisher.post(notificationStateEvent)
+    }
+
     suspend fun subjectAndProjectExistElseThrow(subjectId: String, projectId: String): User {
-        return deserializeDtoFromContract<ProjectDto>(ProjectServiceContract.getProjectUsingProjectId(projectId, projectServiceUrl)) {
+        return deserializeDtoFromContract<ProjectDto>(
+            ProjectServiceContract.getProjectUsingProjectId(
+                projectId,
+                projectServiceUrl,
+            ),
+        ) {
             "project_not_found ; Project Id $projectId does not exist. Please create a project with the ID first"
         }.let { project ->
             UserServiceContract.getUserUsingProjectIdAndSubjectId(
                 projectId,
                 subjectId,
-                userServiceUrl
+                userServiceUrl,
             ).let {
                 deserializeDtoFromContract<FcmUserDto>(
-                    it
+                    it,
                 ) {
                     "user_not_found ; $INVALID_SUBJECT_ID_MESSAGE"
                 }
@@ -548,21 +563,5 @@ class FcmNotificationServiceImpl @Inject constructor(
         checkPresence(user, "user_not_found") {
             INVALID_SUBJECT_ID_MESSAGE
         }
-    }
-
-    fun nonNullProjectId(project: Project): Long = checkNotNull(project.id) {
-        "User id cannot be null"
-    }
-
-    fun nonNullProjectId(project: ProjectDto): String = checkNotNull(project.projectId) {
-        "User id cannot be null"
-    }
-
-    fun nonNullUserId(user: FcmUserDto): Long = checkNotNull(user.id) {
-        "User id cannot be null"
-    }
-
-    fun nonNullUserId(user: User): Long = checkNotNull(user.id) {
-        "User id cannot be null"
     }
 }

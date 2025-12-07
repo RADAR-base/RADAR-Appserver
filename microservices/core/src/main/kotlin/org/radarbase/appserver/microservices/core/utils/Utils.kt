@@ -18,6 +18,9 @@ package org.radarbase.appserver.microservices.core.utils
 
 import jakarta.inject.Provider
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
+import org.radarbase.appserver.microservices.core.entity.Project
+import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.InvalidProjectDetailsException
 import org.radarbase.auth.token.DataRadarToken
 import org.radarbase.auth.token.RadarToken
@@ -31,6 +34,7 @@ import kotlin.contracts.contract
  * Throws [HttpNotFoundException] with the result of calling [messageProvider] if the value is null.
  * Otherwise, returns the not null value.
  */
+@Suppress("unused")
 @OptIn(ExperimentalContracts::class)
 inline fun <T : Any> checkPresence(value: T?, code: String, messageProvider: () -> String): T {
     contract {
@@ -124,3 +128,20 @@ suspend inline fun tokenForCurrentRequest(
         throw HttpForbiddenException("unauthorized", "User without authentication does not have permission.")
     }
 }
+
+fun nonNullProjectId(project: Project): Long = checkNotNull(project.id) {
+    "User id cannot be null"
+}
+
+fun nonNullProjectId(project: ProjectDto): String = checkNotNull(project.projectId) {
+    "User id cannot be null"
+}
+
+fun nonNullUserId(user: FcmUserDto): Long = checkNotNull(user.id) {
+    "User id cannot be null"
+}
+
+fun nonNullUserId(user: User): Long = checkNotNull(user.id) {
+    "User id cannot be null"
+}
+

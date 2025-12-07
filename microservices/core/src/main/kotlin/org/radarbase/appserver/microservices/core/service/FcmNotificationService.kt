@@ -18,6 +18,7 @@ package org.radarbase.appserver.microservices.core.service
 
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotifications
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.entity.Notification
 import org.radarbase.appserver.microservices.core.entity.Task
 import org.radarbase.appserver.microservices.core.entity.User
@@ -85,16 +86,6 @@ interface FcmNotificationService : NotificationService {
         projectId: String,
     ): FcmNotificationDto
 
-    /**
-     * Add a notification entity and publish its state event, returns the saved Notification entity.
-     */
-    suspend fun addNotificationAndItsStateEvent(notificationDto: FcmNotificationDto, user: User): Notification
-
-    /**
-     * Check if a notification for given (subjectId, projectId) already exists using all relevant fields.
-     */
-    suspend fun checkNotificationExists(notificationDto: FcmNotificationDto, subjectId: String, projectId: String): Boolean
-
     /** Update an existing notification. Returns the updated DTO. */
     suspend fun updateNotification(notificationDto: FcmNotificationDto, subjectId: String, projectId: String): FcmNotificationDto
 
@@ -139,11 +130,6 @@ interface FcmNotificationService : NotificationService {
      * Add multiple notifications (DTO wrapper) for a user and schedule them. Returns saved DTO wrapper.
      */
     suspend fun addNotifications(notificationDtos: FcmNotifications, subjectId: String, projectId: String): FcmNotifications
-
-    /**
-     * Create and persist new notifications (entities) without scheduling, returns saved entities.
-     */
-    suspend fun addNewNotifications(notificationDtos: FcmNotifications, subjectId: String, projectId: String): List<Notification>
 
     /**
      * Get a Notification entity by (projectId, subjectId, notificationId). Throws if not found.
