@@ -322,7 +322,7 @@ class FcmDataMessageServiceImpl @Inject constructor(
             ),
         ) {
             "project_not_found ; Project Id $projectId does not exist. Please create a project with the ID first."
-        }.let { project ->
+        }.let {
             UserServiceContract.getUserUsingProjectIdAndSubjectId(
                 projectId,
                 subjectId,
@@ -420,6 +420,7 @@ class FcmDataMessageServiceImpl @Inject constructor(
         dataMessageStateEventPublisher.post(dataMessageStateEvent)
     }
 
+    @Suppress("unused")
     private suspend fun checkDataMessageExists(
         dataMessageDto: FcmDataMessageDto,
         user: User,

@@ -148,7 +148,7 @@ class DataMessage : Message() {
             this.dataMap = dataMap
         }
 
-        fun taskId(taskId: Long) = apply {
+        fun taskId(taskId: Long?) = apply {
             this.taskId = taskId
         }
 

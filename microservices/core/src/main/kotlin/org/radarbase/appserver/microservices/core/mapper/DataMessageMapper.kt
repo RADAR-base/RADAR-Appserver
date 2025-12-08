@@ -33,7 +33,7 @@ class DataMessageMapper : Mapper<FcmDataMessageDto, DataMessage> {
             sourceId(dto.sourceId)
             ttlSeconds(dto.ttlSeconds)
             scheduledTime(dto.scheduledTime)
-            dataMap(dto.dataMap)
+            dataMap(dto.dataMap?.toMutableMap())
         }.build()
     }
 

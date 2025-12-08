@@ -54,6 +54,8 @@ class FcmDataMessageDto(
     @field:NotEmpty
     var sourceType: String? = null,
 
+    var taskId: Long? = null,
+
     @field:Size(max = 100)
     var dataMap: Map<String?, String?>? = null,
 
