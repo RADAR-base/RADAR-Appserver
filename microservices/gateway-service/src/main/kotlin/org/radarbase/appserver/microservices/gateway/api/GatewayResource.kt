@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.json.Json
+import org.radarbase.appserver.microservices.contract.calls.DataMessageServiceContract
 import org.radarbase.appserver.microservices.contract.calls.GithubServiceContract
 import org.radarbase.appserver.microservices.contract.calls.NotificationServiceContract
 import org.radarbase.appserver.microservices.contract.calls.NotificationStateEventServiceContract
@@ -51,12 +52,15 @@ import org.radarbase.appserver.microservices.core.dto.NotificationStateEventDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.ProjectDtos
 import org.radarbase.appserver.microservices.core.dto.TaskStateEventDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmDataMessageDto
+import org.radarbase.appserver.microservices.core.dto.fcm.FcmDataMessages
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmNotifications
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUsers
 import org.radarbase.appserver.microservices.core.dto.protocol.Assessment
 import org.radarbase.appserver.microservices.core.utils.Paths.ALL_KEYWORD
+import org.radarbase.appserver.microservices.core.utils.Paths.MESSAGING_DATA_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.MESSAGING_NOTIFICATION_PATH
 import org.radarbase.appserver.microservices.core.utils.Paths.NOTIFICATION_ID
 import org.radarbase.appserver.microservices.core.utils.Paths.NOTIFICATION_STATE_EVENTS_PATH
@@ -82,6 +86,8 @@ import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
+import java.net.URI
+import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
@@ -892,10 +898,11 @@ class GatewayResource @Inject constructor(
                 token,
             )
 
-            NotificationServiceContract.getNotificationsUsingProjectId(projectId, cloudMessagingServiceRoute.baseUrl)
-                .let {
-                    handleProxyResponse(it)
-                }
+            handleProxyResponse(
+                NotificationServiceContract.getNotificationsUsingProjectId(
+                    projectId, cloudMessagingServiceRoute.baseUrl,
+                ),
+            )
         }
     }
 
@@ -1004,7 +1011,9 @@ class GatewayResource @Inject constructor(
                 subjectId,
                 fcmNotification,
                 cloudMessagingServiceRoute.baseUrl,
-            )
+            ).let {
+                handleProxyResponse(it)
+            }
         }
     }
 
@@ -1087,7 +1096,7 @@ class GatewayResource @Inject constructor(
                 notificationId,
                 cloudMessagingServiceRoute.baseUrl,
             ).let {
-                Response.ok(it).build()
+                handleProxyResponse(it)
             }
         }
     }
@@ -1110,7 +1119,7 @@ class GatewayResource @Inject constructor(
                 notificationId,
                 cloudMessagingServiceRoute.baseUrl,
             ).let {
-                Response.ok(it).build()
+                handleProxyResponse(it)
             }
         }
     }
@@ -1135,11 +1144,222 @@ class GatewayResource @Inject constructor(
                 notificationStateEventDto,
                 cloudMessagingServiceRoute.baseUrl,
             ).let {
-                Response.ok(it)
+                handleProxyResponse(it)
             }
         }
     }
 
+//-----------------------------------------------------Data Message Service---------------------------------------------
+
+    @GET
+    @Path(MESSAGING_DATA_PATH)
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.PROJECT_READ)
+    fun getAllDataMessages(
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            handleProxyResponse(
+                DataMessageServiceContract.getAllDataMessages(
+                    cloudMessagingServiceRoute.baseUrl,
+                ),
+            )
+        }
+    }
+
+    @GET
+    @Path("$MESSAGING_DATA_PATH/{id}")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ)
+    fun getDataMessageUsingId(
+        @PathParam("id") id: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            handleProxyResponse(
+                DataMessageServiceContract.getDataMessageUsingId(id, taskServiceRoute.baseUrl),
+            )
+        }
+    }
+
+    @GET
+    @Path("$MESSAGING_DATA_PATH/filtered")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.PROJECT_READ)
+    fun getFilteredDataMessages(
+        @Valid @QueryParam("type") type: String?,
+        @Valid @QueryParam("delivered") delivered: Boolean?,
+        @Valid @QueryParam("ttlSeconds") ttlSeconds: Int?,
+        @Valid @QueryParam("startTime") startTimeStr: String?,
+        @Valid @QueryParam("endTime") endTimeStr: String?,
+        @Valid @QueryParam("limit") limit: Int?,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            DataMessageServiceContract.getFilteredDataMessages(
+                type,
+                delivered,
+                ttlSeconds,
+                startTimeStr,
+                endTimeStr,
+                limit,
+                cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @GET
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun getDataMessagesUsingProjectIdAndSubjectId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            DataMessageServiceContract.getDataMessageUsingProjectIdAndSubjectId(
+                projectId,
+                subjectId,
+                cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @GET
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$MESSAGING_DATA_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_READ)
+    fun getDataMessagesUsingProjectId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
+
+            DataMessageServiceContract.getDataMessagesUsingProjectId(
+                projectId, cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @POST
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun addSingleDataMessage(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmDataMessage: FcmDataMessageDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            DataMessageServiceContract.addSingleDataMessage(
+                projectId, subjectId, fcmDataMessage, cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @POST
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/batch")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun addBatchDataMessages(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmDataMessages: FcmDataMessages,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            DataMessageServiceContract.addBatchDataMessages(
+                projectId, subjectId, fcmDataMessages, cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @PUT
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun updateDataMessage(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Valid fcmDataMessage: FcmDataMessageDto,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            DataMessageServiceContract.updateDataMessage(
+                projectId, subjectId, fcmDataMessage, cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
+
+    @DELETE
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/$ALL_KEYWORD")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteDataMessageForUser(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            handleProxyResponse(
+                DataMessageServiceContract.deleteDataMessageForUser(
+                    projectId,
+                    subjectId,
+                    cloudMessagingServiceRoute.baseUrl,
+                ),
+            )
+        }
+    }
+
+    @DELETE
+    @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$MESSAGING_DATA_PATH/{id}")
+    @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
+    fun deleteDataMessageUsingProjectIdAndSubjectIdAndDataMessageId(
+        @Valid @PathParam("projectId") projectId: String,
+        @Valid @PathParam("subjectId") subjectId: String,
+        @PathParam("id") id: Long,
+        @Suspended asyncResponse: AsyncResponse,
+    ) {
+        asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            DataMessageServiceContract.deleteDataMessageUsingProjectIdAndSubjectIdAndNotificationId(
+                projectId,
+                subjectId,
+                id,
+                cloudMessagingServiceRoute.baseUrl,
+            ).let {
+                handleProxyResponse(it)
+            }
+        }
+    }
 }
-
-

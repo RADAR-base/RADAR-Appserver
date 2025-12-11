@@ -61,7 +61,7 @@ class Message(
     @Column(name = "ttl_seconds")
     var ttlSeconds: Int = 0,
 
-    @Column(name = "fcm_message_id", unique = true)
+    @Column(name = "fcm_message_id")
     var fcmMessageId: String? = null,
 
     // for use with the FCM admin SDK

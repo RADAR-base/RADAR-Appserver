@@ -17,6 +17,7 @@
 package org.radarbase.appserver.microservices.cloud.messaging.enhancer
 
 import com.google.common.eventbus.EventBus
+import com.google.firebase.FirebaseOptions
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import org.glassfish.hk2.api.TypeLiteral
@@ -24,6 +25,7 @@ import org.glassfish.jersey.internal.inject.AbstractBinder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.validation.ValidationFeature
 import org.quartz.JobListener
+import org.quartz.Scheduler
 import org.quartz.SchedulerListener
 import org.radarbase.appserver.microservices.cloud.messaging.application.event.EventBusStartupListener
 import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
@@ -55,6 +57,10 @@ import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.exception.handler.UnhandledExceptionMapper
 import org.radarbase.appserver.microservices.core.factory.coroutines.SchedulerScopedCoroutine
 import org.radarbase.appserver.microservices.core.factory.eventBus.EventBusFactory
+import org.radarbase.appserver.microservices.core.factory.fcm.FcmSenderFactory
+import org.radarbase.appserver.microservices.core.factory.fcm.FirebaseOptionsFactory
+import org.radarbase.appserver.microservices.core.factory.quartz.QuartzSchedulerFactory
+import org.radarbase.appserver.microservices.core.fcm.downstream.FcmSender
 import org.radarbase.appserver.microservices.core.mapper.DataMessageMapper
 import org.radarbase.appserver.microservices.core.mapper.Mapper
 import org.radarbase.appserver.microservices.core.mapper.NotificationMapper
@@ -165,6 +171,10 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
             .to(object : TypeLiteral<MessageSchedulerService<Notification>>() {}.type)
             .`in`(Singleton::class.java)
 
+        bind(MessageSchedulerService::class.java)
+            .to(object : TypeLiteral<MessageSchedulerService<DataMessage>>() {}.type)
+            .`in`(Singleton::class.java)
+
         bind(QuartzMessageJobListener::class.java)
             .to(JobListener::class.java)
             .`in`(Singleton::class.java)
@@ -183,6 +193,18 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
 
         bind(FcmTransmitter::class.java)
             .to(NotificationTransmitter::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(FirebaseOptionsFactory::class.java)
+            .to(FirebaseOptions::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(FcmSenderFactory::class.java)
+            .to(FcmSender::class.java)
+            .`in`(Singleton::class.java)
+
+        bindFactory(QuartzSchedulerFactory::class.java)
+            .to(Scheduler::class.java)
             .`in`(Singleton::class.java)
     }
 
