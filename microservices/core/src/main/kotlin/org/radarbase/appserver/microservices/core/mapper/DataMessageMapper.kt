@@ -25,6 +25,7 @@ class DataMessageMapper : Mapper<FcmDataMessageDto, DataMessage> {
             mutableContent(dto.mutableContent)
             priority(dto.priority)
             fcmCondition(dto.fcmCondition)
+            taskId(dto.taskId)
             fcmTopic(dto.fcmTopic)
             fcmMessageId(dto.hashCode().toString())
             appPackage(dto.appPackage)
@@ -32,7 +33,7 @@ class DataMessageMapper : Mapper<FcmDataMessageDto, DataMessage> {
             sourceId(dto.sourceId)
             ttlSeconds(dto.ttlSeconds)
             scheduledTime(dto.scheduledTime)
-            dataMap(dto.dataMap)
+            dataMap(dto.dataMap?.toMutableMap())
         }.build()
     }
 

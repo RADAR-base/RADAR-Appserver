@@ -22,9 +22,9 @@ routes:
   - name: task
     path:
     baseUrl: http://task-service:9014
-  - name: notification
+  - name: messaging
     path:
-    baseUrl: http://notification-service:9015
+    baseUrl: http://cloud-messaging-service:9015
 
 server:
   # Base URI of the application.

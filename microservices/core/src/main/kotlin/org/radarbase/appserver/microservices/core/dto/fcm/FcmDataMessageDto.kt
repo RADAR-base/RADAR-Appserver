@@ -16,82 +16,85 @@
 
 package org.radarbase.appserver.microservices.core.dto.fcm
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.radarbase.appserver.microservices.core.entity.DataMessage
 import org.radarbase.appserver.microservices.core.serialization.InstantSerializer
+import org.radarbase.appserver.microservices.core.utils.equalTo
 import java.time.Instant
 import java.util.Objects
 
 @Serializable
 class FcmDataMessageDto(
-    @Transient private val dataMessageEntity: DataMessage? = null
-) {
-    var id: Long? = dataMessageEntity?.id
+    var id: Long? = null,
 
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
+    @field:NotNull
     @Serializable(with = InstantSerializer::class)
-    var scheduledTime: @NotNull Instant? = dataMessageEntity?.scheduledTime
+    var scheduledTime: Instant? = null,
 
-    var delivered: Boolean = dataMessageEntity?.delivered == true
+    var delivered: Boolean = false,
 
-    var ttlSeconds: Int = dataMessageEntity?.ttlSeconds ?: 0
+    var ttlSeconds: Int = 0,
 
     @field:NotEmpty
-    var sourceId: String? = dataMessageEntity?.sourceId
+    var sourceId: String? = null,
 
-    var fcmMessageId: String? = dataMessageEntity?.fcmMessageId
+    var fcmMessageId: String? = null,
 
-    var fcmTopic: String? = dataMessageEntity?.fcmTopic
+    var fcmTopic: String? = null,
 
     // for use with the FCM admin SDK
-    var fcmCondition: String? = dataMessageEntity?.fcmCondition
+    var fcmCondition: String? = null,
 
     @field:NotEmpty
-    var appPackage: String? = dataMessageEntity?.appPackage
+    var appPackage: String? = null,
 
     @field:NotEmpty
-    var sourceType: String? = dataMessageEntity?.sourceType
+    var sourceType: String? = null,
+
+    var taskId: Long? = null,
 
     @field:Size(max = 100)
-    var dataMap: MutableMap<String?, String?>? = dataMessageEntity?.dataMap
+    var dataMap: Map<String?, String?>? = null,
 
-    var priority: String? = dataMessageEntity?.priority
+    var priority: String? = null,
 
-    var mutableContent: Boolean = dataMessageEntity?.mutableContent == true
+    var mutableContent: Boolean = false,
 
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
     @Serializable(with = InstantSerializer::class)
-    var createdAt: Instant? = dataMessageEntity?.createdAt?.toInstant()
+    var createdAt: Instant? = null,
 
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
     @Serializable(with = InstantSerializer::class)
-    var updatedAt: Instant? = dataMessageEntity?.updatedAt?.toInstant()
+    var updatedAt: Instant? = null,
+) {
+    constructor(dataMessage: DataMessage) : this(
+        id = dataMessage.id,
+        scheduledTime = dataMessage.scheduledTime,
+        delivered = dataMessage.delivered,
+        ttlSeconds = dataMessage.ttlSeconds,
+        sourceId = dataMessage.sourceId,
+        fcmMessageId = dataMessage.fcmMessageId,
+        fcmTopic = dataMessage.fcmTopic,
+        fcmCondition = dataMessage.fcmCondition,
+        appPackage = dataMessage.appPackage,
+        sourceType = dataMessage.sourceType,
+        dataMap = dataMessage.dataMap?.toMap(),
+        priority = dataMessage.priority,
+        mutableContent = dataMessage.mutableContent,
+        createdAt = dataMessage.createdAt?.toInstant(),
+        updatedAt = dataMessage.updatedAt?.toInstant(),
+    )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is FcmDataMessageDto) return false
-        val that = other
-        return delivered == that.delivered && ttlSeconds == that.ttlSeconds && scheduledTime == that.scheduledTime &&
-            appPackage == that.appPackage &&
-            sourceType == that.sourceType
-    }
+    override fun equals(other: Any?): Boolean = equalTo(
+        other,
+        FcmDataMessageDto::delivered,
+        FcmDataMessageDto::ttlSeconds,
+        FcmDataMessageDto::scheduledTime,
+        FcmDataMessageDto::appPackage,
+        FcmDataMessageDto::sourceType,
+    )
 
     override fun hashCode(): Int {
         return Objects.hash(

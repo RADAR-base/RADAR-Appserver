@@ -16,8 +16,8 @@
 
 package org.radarbase.appserver.microservices.gateway.config
 
+import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.GITHUB_SERVICE_BASE_URL
-import org.radarbase.appserver.microservices.contract.utils.Env.NOTIFICATION_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROTOCOL_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.TASK_SERVICE_BASE_URL
@@ -101,10 +101,10 @@ data class GatewayConfig(
                 copy(routes = it)
             }
         }
-        .copyEnv(NOTIFICATION_SERVICE_BASE_URL) { userBase ->
-            updateOrAddRoute("notification") { prevConfig ->
+        .copyEnv(CLOUD_MESSAGING_SERVICE_BASE_URL) { userBase ->
+            updateOrAddRoute("messaging") { prevConfig ->
                 ServiceRoute(
-                    name = prevConfig?.name ?: "notification",
+                    name = prevConfig?.name ?: "messaging",
                     baseUrl = userBase,
                     path = prevConfig?.path ?: "",
                 )

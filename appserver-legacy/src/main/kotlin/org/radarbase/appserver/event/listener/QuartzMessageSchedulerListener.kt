@@ -76,8 +76,7 @@ class QuartzMessageSchedulerListener(
                     log.warn("The notification does not exist in database and yet was scheduled.")
                     return
                 }
-                val notificationStateEvent =
-                    NotificationStateEventDto(
+                val notificationStateEvent = NotificationStateEventDto(
                         this,
                         notification,
                         MessageState.SCHEDULED,

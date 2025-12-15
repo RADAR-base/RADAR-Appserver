@@ -31,6 +31,7 @@ class NotificationMapper : Mapper<FcmNotificationDto, Notification> {
             sourceId(dto.sourceId)
             type(dto.type)
             ttlSeconds(dto.ttlSeconds)
+            taskId(dto.taskId)
             fcmMessageId(dto.hashCode().toString())
             appPackage(dto.appPackage)
             sourceType(dto.sourceType)
