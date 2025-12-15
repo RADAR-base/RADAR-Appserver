@@ -256,6 +256,10 @@ class FcmDataMessageServiceImpl @Inject constructor(
     ) {
         val userId = nonNullUserId(subjectAndProjectExistElseThrow(subjectId, projectId))
         if (dataMessageRepository.existsByIdAndUserId(id, userId)) {
+            schedulerService.deleteScheduled(
+                dataMessageRepository.findByIdAndUserId(id, userId)!!
+            )
+
             this.dataMessageRepository.deleteByIdAndUserId(id, userId)
         } else {
             throw InvalidNotificationDetailsException(
@@ -270,6 +274,9 @@ class FcmDataMessageServiceImpl @Inject constructor(
         ) {
             "invalid_user_details ; The user with the given Fcm Token does not exist"
         }
+
+        val userId = nonNullUserId(user)
+        schedulerService.deleteScheduledMultiple(dataMessageRepository.findByUserId(userId))
         this.dataMessageRepository.deleteByUserId(nonNullUserId(user))
         /*User newUser = user1.setFcmToken("");
       this.userRepository.save(newUser);*/
