@@ -114,12 +114,12 @@ class TaskServiceResourceEnhancer(private val config: TaskServiceConfig) : Jerse
             .to(SchedulingService::class.java)
             .`in`(Singleton::class.java)
 
-        bind(QuestionnaireScheduleService::class.java)
-            .to(QuestionnaireScheduleService::class.java)
-            .`in`(Singleton::class.java)
-
         bind(QuestionnaireScheduleGeneratorService::class.java)
             .to(ScheduleGeneratorService::class.java)
+            .`in`(Singleton::class.java)
+
+        bind(QuestionnaireScheduleService::class.java)
+            .to(QuestionnaireScheduleService::class.java)
             .`in`(Singleton::class.java)
 
         bind(SimpleQuartzNamingStrategy::class.java)

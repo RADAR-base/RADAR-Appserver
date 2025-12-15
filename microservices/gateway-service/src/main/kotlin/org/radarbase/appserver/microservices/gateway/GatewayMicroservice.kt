@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
         ConfigLoader.loadConfig<GatewayConfig>(
             listOf(
                 "microservices/gateway-service/src/main/resources/gateway-service.yml",
-                "/etc/project-service/gateway-service.yml",
+                "/etc/gateway-service/gateway-service.yml",
             ),
             args,
         ).withEnv()
