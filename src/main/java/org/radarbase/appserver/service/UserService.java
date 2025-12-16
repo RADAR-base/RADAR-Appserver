@@ -57,8 +57,6 @@ public class UserService {
   private final transient UserRepository userRepository;
   private final transient ProjectRepository projectRepository;
 
-  @Autowired
-  private final transient QuestionnaireScheduleService scheduleService;
 
   private static final String FCM_TOKEN_PREFIX = "unregistered_";
 
@@ -66,12 +64,10 @@ public class UserService {
   public UserService(
       UserConverter userConverter,
       UserRepository userRepository,
-      ProjectRepository projectRepository,
-      QuestionnaireScheduleService scheduleService) {
+      ProjectRepository projectRepository) {
     this.userConverter = userConverter;
     this.userRepository = userRepository;
     this.projectRepository = projectRepository;
-    this.scheduleService = scheduleService;
   }
 
   @Transactional(readOnly = true)
@@ -165,8 +161,6 @@ public class UserService {
     // maintain a bi-directional relationship
     newUser.getUsermetrics().setUser(newUser);
     User savedUser = this.userRepository.saveAndFlush(newUser);
-    // Generate schedule for user
-    this.scheduleService.generateScheduleForUser(savedUser);
     return userConverter.entityToDto(savedUser);
   }
 
@@ -195,14 +189,6 @@ public class UserService {
     // maintain a bi-directional relationship
     user.getUsermetrics().setUser(user);
     User savedUser = this.userRepository.saveAndFlush(user);
-    // Generate schedule for user
-    if (!user.getAttributes().equals(userDto.getAttributes())
-            || !user.getTimezone().equals(userDto.getTimezone())
-            || !user.getEnrolmentDate().equals(userDto.getEnrolmentDate())
-            || !user.getLanguage().equals(userDto.getLanguage()))
-    {
-      this.scheduleService.generateScheduleForUser(savedUser);
-    }
     return userConverter.entityToDto(savedUser);
   }
 

@@ -571,6 +571,24 @@ Deploying the Spring Boot Admin server and the client as different components ma
 used to register multiple client apps and the server's lifecycle is not associated with the client. This also means that
 our client app is lighter and production ready.
 
+### Sentry monitoring
+
+To enable Sentry monitoring:
+
+1. Add the `sentry` profile to active spring profiles.
+2. Set a `SENTRY_DSN` environment variable that points to the desired Sentry DSN.
+3. (Optional) Set the `SENTRY_LOG_LEVEL` environment variable to control the minimum log level of events sent to Sentry.
+   The default log level for Sentry is `ERROR`. Possible values are `TRACE`, `DEBUG`, `INFO`, `WARN`, and `ERROR`.
+
+For further configuration of Sentry via environmental variables see [here](https://docs.sentry.io/platforms/java/configuration/#configuration-via-the-runtime-environment). For instance:
+
+```
+SENTRY_LOG_LEVEL: 'ERROR'
+SENTRY_DSN: 'https://000000000000.ingest.de.sentry.io/000000000000'
+SENTRY_ATTACHSTACKTRACE: true
+SENTRY_STACKTRACE_APP_PACKAGES: org.radarbase.appserver
+```
+
 ## Performance Testing
 
 The app server supports performance testing using Gatling and Scala. The simulations are located in the
