@@ -2,6 +2,10 @@ plugins {
     application
 }
 
+application {
+    mainClass.set("org.radarbase.appserver.microservices.cloud.messaging.CloudMessagingMicroserviceKt")
+}
+
 description = "AppServer Notification State Event Microservices Implementation"
 
 dependencies {

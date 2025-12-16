@@ -6,6 +6,10 @@ plugins {
 
 description = "AppServer Project Microservices Implementation"
 
+application {
+    mainClass.set("org.radarbase.appserver.microservices.project.ProjectMicroserviceKt")
+}
+
 dependencies {
     implementation("com.h2database:h2:${Versions.h2Version}")
 

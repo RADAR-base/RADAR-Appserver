@@ -2,6 +2,10 @@ plugins {
     application
 }
 
+application {
+    mainClass.set("org.radarbase.appserver.microservices.user.UserMicroserviceKt")
+}
+
 description = "AppServer User Microservices Implementation"
 
 dependencies {
