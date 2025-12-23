@@ -48,7 +48,7 @@ jobs:
 
       - name: Decrypt google application credentials
         run: |
-          gpg --pinentry-mode loopback --local-user "Mishra Aditya" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-jersey/src/integrationTest/resources/docker/fcm/google-credentials.json --decrypt src/integrationTest/resources/docker/fcm/google-credentials.enc.gpg
+          gpg --pinentry-mode loopback --local-user "Mishra Aditya" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-jersey/src/integrationTest/resources/docker/fcm/google-credentials.json --decrypt appserver-jersey/src/integrationTest/resources/docker/fcm/google-credentials.enc.gpg
 
       - name: Integration test
 #          echo "RADAR_APPSERVER_TAG=${{ steps.docker_meta.outputs.version }}" >> appserver-jersey/src/integrationTest/resources/docker/.env

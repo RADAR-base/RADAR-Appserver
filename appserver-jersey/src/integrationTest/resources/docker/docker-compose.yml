@@ -68,6 +68,6 @@ services:
       APPSERVER_JDBC_DRIVER: org.postgresql.Driver
       APPSERVER_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       MANAGEMENTPORTAL_BASE_URL: http://managementportal:8081/managementportal
-      GOOGLE_APPLICATION_CREDENTIALS: /appserver-includes/google-application-credentials.json
+      GOOGLE_APPLICATION_CREDENTIALS: /appserver-includes/google-credentials.json
     volumes:
       - ./fcm:/appserver-includes/
