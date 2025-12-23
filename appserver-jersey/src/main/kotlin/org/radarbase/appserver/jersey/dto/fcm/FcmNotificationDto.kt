@@ -20,106 +20,133 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import kotlinx.serialization.Serializable
 import org.radarbase.appserver.jersey.entity.Notification
+import org.radarbase.appserver.jersey.serialization.InstantSerializer
 import org.radarbase.appserver.jersey.utils.equalTo
 import java.time.Instant
 import java.util.Objects
 
-class FcmNotificationDto(notificationEntity: Notification? = null) {
-    var id: Long? = notificationEntity?.id
+@Serializable
+class FcmNotificationDto(
+    var id: Long? = null,
 
     @field:NotNull
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
-    var scheduledTime: Instant? = notificationEntity?.scheduledTime
+    @Serializable(with = InstantSerializer::class)
+    var scheduledTime: Instant? = null,
 
-    var delivered: Boolean = notificationEntity?.delivered == true
+    var delivered: Boolean = false,
 
     @field:NotEmpty
-    var title: String? = notificationEntity?.title
+    var title: String? = null,
 
-    var body: String? = notificationEntity?.body
+    var body: String? = null,
 
-    var ttlSeconds: Int = notificationEntity?.ttlSeconds ?: 0
+    var ttlSeconds: Int = 0,
 
     @field:NotEmpty
-    var sourceId: String? = notificationEntity?.sourceId
+    var sourceId: String? = null,
 
-    var fcmMessageId: String? = notificationEntity?.fcmMessageId
+    var fcmMessageId: String? = null,
 
-    var fcmTopic: String? = notificationEntity?.fcmTopic
+    var fcmTopic: String? = null,
 
     // for use with the FCM admin SDK
-    var fcmCondition: String? = notificationEntity?.fcmCondition
+    var fcmCondition: String? = null,
 
     @field:NotEmpty
-    var type: String? = notificationEntity?.type
+    var type: String? = null,
 
     @field:NotEmpty
-    var appPackage: String? = notificationEntity?.appPackage
+    var appPackage: String? = null,
 
     @field:NotEmpty
-    var sourceType: String? = notificationEntity?.sourceType
+    var sourceType: String? = null,
 
     @field:Size(max = 100)
-    var additionalData: Map<String?, String?>? = notificationEntity?.additionalData
+    var additionalData: Map<String?, String?>? = null,
 
-    var priority: String? = notificationEntity?.priority
+    var priority: String? = null,
 
-    var sound: String? = notificationEntity?.sound
-
-    // For IOS
-    var badge: String? = notificationEntity?.badge
+    var sound: String? = null,
 
     // For IOS
-    var subtitle: String? = notificationEntity?.subtitle
+    var badge: String? = null,
+
+    // For IOS
+    var subtitle: String? = null,
 
     // For android
-    var icon: String? = notificationEntity?.icon
+    var icon: String? = null,
 
     // For android. Color of the icon
-    var color: String? = notificationEntity?.color
+    var color: String? = null,
 
-    var bodyLocKey: String? = notificationEntity?.bodyLocKey
+    var bodyLocKey: String? = null,
 
-    var bodyLocArgs: String? = notificationEntity?.bodyLocArgs
+    var bodyLocArgs: String? = null,
 
-    var titleLocKey: String? = notificationEntity?.titleLocKey
+    var titleLocKey: String? = null,
 
-    var titleLocArgs: String? = notificationEntity?.titleLocArgs
-
-    // For android
-    var androidChannelId: String? = notificationEntity?.androidChannelId
+    var titleLocArgs: String? = null,
 
     // For android
-    var tag: String? = notificationEntity?.tag
+    var androidChannelId: String? = null,
 
-    var clickAction: String? = notificationEntity?.clickAction
+    // For android
+    var tag: String? = null,
 
-    var emailEnabled: Boolean = notificationEntity?.emailEnabled == true
+    var clickAction: String? = null,
 
-    var emailTitle: String? = notificationEntity?.emailTitle
+    var emailEnabled: Boolean = false,
 
-    var emailBody: String? = notificationEntity?.emailBody
+    var emailTitle: String? = null,
 
-    var mutableContent: Boolean = notificationEntity?.mutableContent == true
+    var emailBody: String? = null,
 
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
+    var mutableContent: Boolean = false,
+
+    @Serializable(with = InstantSerializer::class)
+    var createdAt: Instant? = null,
+
+    @Serializable(with = InstantSerializer::class)
+    var updatedAt: Instant? = null,
+) {
+    constructor(notification: Notification) : this(
+        id = notification.id,
+        scheduledTime = notification.scheduledTime,
+        delivered = notification.delivered,
+        title = notification.title,
+        body = notification.body,
+        ttlSeconds = notification.ttlSeconds,
+        sourceId = notification.sourceId,
+        fcmMessageId = notification.fcmMessageId,
+        fcmTopic = notification.fcmTopic,
+        fcmCondition = notification.fcmCondition,
+        type = notification.type,
+        appPackage = notification.appPackage,
+        sourceType = notification.sourceType,
+        additionalData = notification.additionalData,
+        priority = notification.priority,
+        sound = notification.sound,
+        badge = notification.badge,
+        subtitle = notification.subtitle,
+        icon = notification.icon,
+        color = notification.color,
+        bodyLocKey = notification.bodyLocKey,
+        bodyLocArgs = notification.bodyLocArgs,
+        titleLocKey = notification.titleLocKey,
+        titleLocArgs = notification.titleLocArgs,
+        androidChannelId = notification.androidChannelId,
+        tag = notification.tag,
+        clickAction = notification.clickAction,
+        emailEnabled = notification.emailEnabled,
+        emailTitle = notification.emailTitle,
+        emailBody = notification.emailBody,
+        mutableContent = notification.mutableContent,
+        createdAt = notification.createdAt?.toInstant(),
+        updatedAt = notification.updatedAt?.toInstant(),
     )
-    var createdAt: Instant? = notificationEntity?.createdAt?.toInstant()
-
-    @field:JsonFormat(
-        shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
-        timezone = "UTC",
-    )
-    var updatedAt: Instant? = notificationEntity?.updatedAt?.toInstant()
 
     override fun equals(other: Any?): Boolean = equalTo(
         other,

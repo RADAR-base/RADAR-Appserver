@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
                 "/etc/appserver-jersey/appserver.yml",
             ),
             args,
-        )
+        ).withEnv()
     } catch (ex: IllegalArgumentException) {
         logger.error("No configuration file (appserver.yml) was found.")
         exitProcess(1)

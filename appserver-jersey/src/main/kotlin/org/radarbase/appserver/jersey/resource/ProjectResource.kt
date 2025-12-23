@@ -171,13 +171,13 @@ class ProjectResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val project = projectService.getProjectByProjectId(projectId)
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_READ,
-                EntityDetails(project = project.projectId, subject = token.subject),
+                EntityDetails(project = projectId, subject = token.subject),
                 token,
             )
+            val project = projectService.getProjectByProjectId(projectId)
             Response.ok(project).build()
         }
     }

@@ -16,12 +16,17 @@
 
 package org.radarbase.appserver.jersey.config
 
+import org.radarbase.jersey.config.ConfigLoader.copyEnv
+
 data class AuthConfig(
     val resourceName: String = "res_Appserver",
     val issuer: String? = null,
     val managementPortalUrl: String = "http://localhost:8081/managementportal",
     val publicKeyUrls: List<String>? = null,
 ) : Validation {
+    fun withEnv() = this.
+        copyEnv("MANAGEMENTPORTAL_BASE_URL") { copy(managementPortalUrl = it) }
+
     override fun validate() {
         check(managementPortalUrl.isBlank() || publicKeyUrls.isNullOrEmpty()) {
             "At least one of auth.publicKeyUrls or auth.managementPortalUrl must be configured"

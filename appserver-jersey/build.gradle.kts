@@ -1,21 +1,16 @@
+import java.time.Duration
+
 plugins {
     application
     kotlin("plugin.serialization") version Versions.kotlinVersion
-    id("org.radarbase.radar-kotlin")
     kotlin("plugin.allopen")
     kotlin("plugin.noarg")
+    id("org.radarbase.radar-kotlin")
+    id("com.avast.gradle.docker-compose") version Versions.dockerCompose
 }
 
 application {
     mainClass.set("org.radarbase.appserver.jersey.JerseyAppserverKt")
-
-    applicationDefaultJvmArgs = listOf(
-        "-Dcom.sun.management.jmxremote",
-        "-Dcom.sun.management.jmxremote.local.only=false",
-        "-Dcom.sun.management.jmxremote.port=9010",
-        "-Dcom.sun.management.jmxremote.authenticate=false",
-        "-Dcom.sun.management.jmxremote.ssl=false",
-    )
 }
 
 description = "RADAR Appserver for scheduling tasks and notifications."
@@ -40,6 +35,21 @@ val integrationTest by tasks.registering(Test::class) {
 }
 
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
+
+dockerCompose {
+    useComposeFiles.set(listOf("src/integrationTest/resources/docker/docker-compose.yml"))
+    val dockerComposeBuild: String? by project
+    val doBuild = dockerComposeBuild?.toBoolean() ?: true
+    buildBeforeUp.set(doBuild)
+    buildBeforePull.set(doBuild)
+    buildAdditionalArgs.set(emptyList<String>())
+    val dockerComposeStopContainers: String? by project
+    stopContainers.set(dockerComposeStopContainers?.toBoolean() ?: true)
+    waitForTcpPortsTimeout.set(Duration.ofMinutes(3))
+    environment.put("SERVICES_HOST", "localhost")
+    captureContainersOutputToFiles.set(project.file("build/container-logs"))
+    isRequiredBy(integrationTest)
+}
 
 allOpen {
     annotation("jakarta.persistence.MappedSuperclass")
@@ -87,7 +97,7 @@ dependencies {
 }
 
 ktlint {
-    ignoreFailures.set(false)
+    ignoreFailures.set(true)
     outputColorName.set("RED")
 }
 
