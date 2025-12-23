@@ -45,9 +45,9 @@ jobs:
       - name: Integration test
 #          echo "RADAR_GATEWAY_TAG=${{ steps.docker_meta.outputs.version }}" >> radar-gateway/src/integrationTest/docker/.env
         run: |
-          ./gradlew composeUp -PdockerComposeBuild=false
+          ./gradlew :appserver-jersey:composeUp -PdockerComposeBuild=false
           sleep 15
-          ./gradlew integrationTest -PdockerComposeBuild=false
+          ./gradlew :appserver-jersey:integrationTest -PdockerComposeBuild=false
 
       - uses: actions/upload-artifact@v4
         if: always()
