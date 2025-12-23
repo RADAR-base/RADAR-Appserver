@@ -1,0 +1,57 @@
+name: CI jersey-main
+on:
+  push:
+    branches: [ main, dev, ci-setup ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  REGISTRY: ghcr.io
+  REPOSITORY: ${{ github.repository }}
+  IMAGE_NAME: radar-appserver
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Compile code
+        run: ./gradlew :appserver-jersey:assemble
+
+      - name: Check
+        run: ./gradlew :appserver-jersey:check
+
+  # Check that the docker image builds correctly
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+
+
+      # Gradle check
+      - name: Integration test
+#          echo "RADAR_GATEWAY_TAG=${{ steps.docker_meta.outputs.version }}" >> radar-gateway/src/integrationTest/docker/.env
+        run: |
+          ./gradlew composeUp -PdockerComposeBuild=false
+          sleep 15
+          ./gradlew integrationTest -PdockerComposeBuild=false
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-logs
+          path: appserver-jersey/build/container-logs/
+          retention-days: 7
