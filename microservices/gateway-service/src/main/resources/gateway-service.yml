@@ -3,7 +3,7 @@ resourceConfig: org.radarbase.appserver.microservices.gateway.enhancer.factory.G
 externalPrefix:
 
 auth:
-  managementPortalUrl: http://managementportal:8081/managementportal
+  managementPortalUrl: http://localhost:8081/managementportal
   resourceName: res_appconfig
 
 routes:

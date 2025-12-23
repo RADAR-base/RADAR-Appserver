@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import kotlinx.serialization.Serializable
+import org.radarbase.appserver.jersey.serialization.InstantSerializer
 import java.time.Instant
 
 /**
@@ -30,6 +32,7 @@ import java.time.Instant
  * creation and updates. The timestamps follow ISO date-time format.
  *
  */
+@Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ProjectDto(
     var id: Long? = null,
@@ -43,6 +46,7 @@ data class ProjectDto(
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var createdAt: Instant? = null,
 
     @field:JsonFormat(
@@ -50,5 +54,6 @@ data class ProjectDto(
         pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
         timezone = "UTC",
     )
+    @Serializable(with = InstantSerializer::class)
     var updatedAt: Instant? = null,
 )

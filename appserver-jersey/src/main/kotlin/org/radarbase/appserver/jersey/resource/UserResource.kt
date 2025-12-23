@@ -199,13 +199,14 @@ class UserResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val users = userService.getUsersByProjectId(projectId)
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_READ,
                 EntityDetails(project = projectId, subject = token.subject),
                 token,
             )
+
+            val users = userService.getUsersByProjectId(projectId)
             Response.ok(users).build()
         }
     }

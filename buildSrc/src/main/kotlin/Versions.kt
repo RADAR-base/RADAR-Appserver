@@ -7,6 +7,7 @@ object Versions {
     const val benMenesVersion = "0.46.0"
     const val kotlinVersion = "1.9.25"
     const val sentryVersion = "4.11.0"
+    const val dockerCompose = "0.17.6"
 
     const val springSecurityVersion = "6.0.5"
     const val springOauth2AutoconfigureVersion = "2.6.8"

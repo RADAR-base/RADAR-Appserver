@@ -86,6 +86,7 @@ services:
       APPSERVER_PROTOCOL_SERVICE_BASE_URL: http://protocol-service:9012
       APPSERVER_TASK_SERVICE_BASE_URL: http://task-service:9014
       APPSERVER_CLOUD_MESSAGING_SERVICE_BASE_URL: http://cloud-messaging-service:9015
+      APPSERVER_MANAGEMENTPORTAL_BASE_URL: http://managementportal:8081/managementportal
 
   #---------------------------------------------------------------------------#
   # Project Service                                                           #
@@ -155,6 +156,7 @@ services:
     image: radarbase/appserver-github-service:test
     networks:
       - microservice
+      - public
 
   #---------------------------------------------------------------------------#
   # Protocol Service                                                          #

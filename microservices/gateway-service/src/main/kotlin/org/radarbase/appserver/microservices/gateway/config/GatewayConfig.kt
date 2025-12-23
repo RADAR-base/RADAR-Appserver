@@ -18,11 +18,11 @@ package org.radarbase.appserver.microservices.gateway.config
 
 import org.radarbase.appserver.microservices.contract.utils.Env.CLOUD_MESSAGING_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.GITHUB_SERVICE_BASE_URL
+import org.radarbase.appserver.microservices.contract.utils.Env.MANAGEMENTPORTAL_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROJECT_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.PROTOCOL_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.TASK_SERVICE_BASE_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.USER_SERVICE_BASE_URL
-import org.radarbase.appserver.microservices.core.config.CoreAuthConfig
 import org.radarbase.appserver.microservices.core.config.Validation
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 import org.radarbase.jersey.config.ConfigLoader.copyOnChange
@@ -31,7 +31,7 @@ import java.net.URI
 
 data class GatewayConfig(
     val resourceConfig: Class<out EnhancerFactory>,
-    val auth: CoreAuthConfig,
+    val auth: AuthConfig,
     val externalPrefix: String = "",
     val routes: Set<ServiceRoute>,
     val server: GatewayServerConfig,
@@ -44,6 +44,15 @@ data class GatewayConfig(
             },
             {
                 copy(server = it)
+            },
+        )
+        .copyOnChange(
+            auth,
+            {
+                it.withEnv()
+            },
+            {
+                copy(auth = it)
             },
         )
         .copyEnv(PROJECT_SERVICE_BASE_URL) { projectBase ->
