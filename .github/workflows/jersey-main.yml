@@ -41,9 +41,17 @@ jobs:
       - uses: actions/checkout@v5
 
 
-      # Gradle check
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Decrypt google application credentials
+        run: |
+          gpg --pinentry-mode loopback --local-user "Mishra Aditya" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-jersey/src/integrationTest/resources/docker/fcm/google-credentials.json --decrypt src/integrationTest/resources/docker/fcm/google-credentials.enc.gpg
+
       - name: Integration test
-#          echo "RADAR_GATEWAY_TAG=${{ steps.docker_meta.outputs.version }}" >> radar-gateway/src/integrationTest/docker/.env
+#          echo "RADAR_APPSERVER_TAG=${{ steps.docker_meta.outputs.version }}" >> appserver-jersey/src/integrationTest/resources/docker/.env
         run: |
           ./gradlew :appserver-jersey:composeUp -PdockerComposeBuild=false
           sleep 15
