@@ -41,7 +41,6 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import org.radarbase.appserver.jersey.auth.commons.MpOAuthSupport
-import org.radarbase.appserver.jersey.auth.testSupport.IntegrationTestBase
 import org.radarbase.appserver.jersey.dto.ProjectDto
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
