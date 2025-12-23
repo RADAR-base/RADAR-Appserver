@@ -130,7 +130,6 @@ class ProjectEndpointAuthTest {
         @BeforeAll
         @JvmStatic
         fun init() {
-            println("Running the init block")
             httpClient = HttpClient(CIO) {
                 install(ContentNegotiation) {
                     json(
