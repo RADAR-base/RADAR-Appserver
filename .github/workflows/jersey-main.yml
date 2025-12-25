@@ -105,9 +105,9 @@ jobs:
         run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help
 
       # Push the image on the dev and master branches
-#      - name: Push image
-#        if: ${{ github.event_name != 'pull_request' }}
-#        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+      - name: Push image
+        if: ${{ github.event_name != 'pull_request' }}
+        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
 
       - name: Move docker build cache
         if: steps.cache-buildx.outputs.cache-hit != 'true'
@@ -134,7 +134,7 @@ jobs:
 
       - name: Integration test
         run: |
-          echo "RADAR_APPSERVER_TAG=${{ steps.docker_meta.outputs.version }}" >> appserver-jersey/src/integrationTest/resources/docker/.env
+          echo "RADAR_APPSERVER_IMAGE_NAME=${{ env.DOCKER_IMAGE }}" >> appserver-jersey/src/integrationTest/resources/docker/.env
           ./gradlew :appserver-jersey:composeUp -PdockerComposeBuild=false
           sleep 15
           ./gradlew :appserver-jersey:integrationTest -PdockerComposeBuild=false
