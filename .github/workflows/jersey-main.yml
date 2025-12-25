@@ -135,6 +135,7 @@ jobs:
       - name: Integration test
         run: |
           echo "RADAR_APPSERVER_IMAGE_NAME=${{ env.DOCKER_IMAGE }}" >> appserver-jersey/src/integrationTest/resources/docker/.env
+          echo "RADAR_APPSERVER_TAG=${{ steps.docker_meta.outputs.version }}" >> appserver-jersey/src/integrationTest/resources/docker/.env
           ./gradlew :appserver-jersey:composeUp -PdockerComposeBuild=false
           sleep 15
           ./gradlew :appserver-jersey:integrationTest -PdockerComposeBuild=false
