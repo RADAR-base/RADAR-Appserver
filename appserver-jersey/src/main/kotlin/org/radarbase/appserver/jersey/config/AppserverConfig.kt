@@ -51,6 +51,15 @@ data class AppserverConfig(
                 copy(auth = it)
             },
         )
+        .copyOnChange(
+            github,
+            {
+                it.withEnv()
+            },
+            {
+                copy(github = it)
+            },
+        )
 
     override fun validate() {
         listOf(auth, server, db).forEach { validation: Validation ->

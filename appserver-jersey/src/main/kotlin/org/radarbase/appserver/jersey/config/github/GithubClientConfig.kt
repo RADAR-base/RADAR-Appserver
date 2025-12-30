@@ -17,10 +17,16 @@
 package org.radarbase.appserver.jersey.config.github
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.radarbase.jersey.config.ConfigLoader.copyEnv
 
 data class GithubClientConfig(
     val maxContentLength: Long = 10_00_000,
     @field:JsonProperty("timeoutSec")
     val timeout: Long = 10L,
     val githubToken: String? = null,
-)
+) {
+    fun withEnv() = this.
+        copyEnv("SECURITY_GITHUB_CLIENT_TOKEN") {
+            copy(githubToken = it)
+        }
+}

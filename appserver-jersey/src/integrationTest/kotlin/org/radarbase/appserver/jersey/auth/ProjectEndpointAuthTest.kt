@@ -86,7 +86,6 @@ class ProjectEndpointAuthTest {
     @Order(1)
     fun createSingleProjectWithAuth() = runBlocking {
         val project = ProjectDto(projectId = "radar")
-        println("Headers:createSingleProjectWithAuth ${AUTH_HEADERS[HttpHeaders.Authorization]}")
 
         val response = httpClient.post(PROJECT_PATH) {
             contentType(ContentType.Application.Json)
@@ -103,7 +102,6 @@ class ProjectEndpointAuthTest {
     @Test
     @Order(2)
     fun getSingleProjectWithAuth() = runBlocking {
-        println("Headers:getSingleProjectWithAuth ${AUTH_HEADERS[HttpHeaders.Authorization]}")
 
         val response = httpClient.get("$PROJECT_PATH/radar") {
             accept(ContentType.Application.Json)

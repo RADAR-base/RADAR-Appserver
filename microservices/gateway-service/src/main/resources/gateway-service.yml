@@ -4,7 +4,7 @@ externalPrefix:
 
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
-  resourceName: res_appconfig
+  resourceName: res_AppServer
 
 routes:
   - name: project

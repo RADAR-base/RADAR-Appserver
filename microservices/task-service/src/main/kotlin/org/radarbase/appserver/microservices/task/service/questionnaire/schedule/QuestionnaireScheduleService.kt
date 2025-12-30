@@ -19,6 +19,8 @@ package org.radarbase.appserver.microservices.task.service.questionnaire.schedul
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.ws.rs.core.Response
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.radarbase.appserver.microservices.contract.calls.NotificationServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
 import org.radarbase.appserver.microservices.contract.calls.ProtocolServiceContract
@@ -73,6 +75,7 @@ class QuestionnaireScheduleService @Inject constructor(
     private val userServiceUrl = config.contract.user
     private val notificationServiceUrl = config.contract.notification
 
+    private val scheduleGeneratorMutex = Mutex()
     private val cleanScheduleRef: SchedulingService.RepeatReference = schedulingService.repeat(
         Duration.ofMillis(3_600_000),
         Duration.ofMillis(5_000),
@@ -128,37 +131,39 @@ class QuestionnaireScheduleService @Inject constructor(
     }
 
     suspend fun generateScheduleForUser(user: User): Schedule {
-        val subjectId: String? = user.subjectId
-        checkNotNull(subjectId) { "Subject ID cannot be null in questionnaire scheduler service." }
-        val protocol: Protocol? = try {
-            ProtocolServiceContract.getProtocolForSubject(
-                requireNotNullField(user.projectId, "User's projectId"),
-                subjectId,
-                protocolServiceUrl,
-            ).let {
-                deserializeDtoFromContract<Protocol>(it) {
-                    "protocol_not_found ; No protocol found for user $subjectId and project ${user.projectId}"
+        scheduleGeneratorMutex.withLock {
+            val subjectId: String? = user.subjectId
+            checkNotNull(subjectId) { "Subject ID cannot be null in questionnaire scheduler service." }
+            val protocol: Protocol? = try {
+                ProtocolServiceContract.getProtocolForSubject(
+                    requireNotNullField(user.projectId, "User's projectId"),
+                    subjectId,
+                    protocolServiceUrl,
+                ).let {
+                    deserializeDtoFromContract<Protocol>(it) {
+                        "protocol_not_found ; No protocol found for user $subjectId and project ${user.projectId}"
+                    }
                 }
-            }
-        } catch (ex: Exception) {
-            null
-        }
-
-        val newSchedule: Schedule = protocol?.let {
-            val prevSchedule: Schedule = getScheduleForSubject(subjectId)
-            val prevTimeZone: String = prevSchedule.timezone ?: checkNotNull(user.timezone) {
-                "User timezone cannot be null in questionnaire scheduler service."
+            } catch (ex: Exception) {
+                null
             }
 
-            if ((prevSchedule.version != it.version) || (prevTimeZone != user.timezone)) {
-                removeScheduleForUser(user)
-            }
-            scheduleGeneratorService.generateScheduleForUser(user, it, prevSchedule)
-        } ?: Schedule()
+            val newSchedule: Schedule = protocol?.let {
+                val prevSchedule: Schedule = getScheduleForSubject(subjectId)
+                val prevTimeZone: String = prevSchedule.timezone ?: checkNotNull(user.timezone) {
+                    "User timezone cannot be null in questionnaire scheduler service."
+                }
 
-        return newSchedule.also {
-            subjectScheduleMap[subjectId] = it
-            saveTasksAndNotifications(user, newSchedule.assessmentSchedules)
+                if ((prevSchedule.version != it.version) || (prevTimeZone != user.timezone)) {
+                    removeScheduleForUser(user)
+                }
+                scheduleGeneratorService.generateScheduleForUser(user, it, prevSchedule)
+            } ?: Schedule()
+
+            return newSchedule.also {
+                subjectScheduleMap[subjectId] = it
+                saveTasksAndNotifications(user, newSchedule.assessmentSchedules)
+            }
         }
     }
 
@@ -229,7 +234,7 @@ class QuestionnaireScheduleService @Inject constructor(
                 protocolServiceUrl,
             ).let {
                 deserializeDtoFromContract<Protocol>(it) {
-                    "protocol_not_found ; No protocol found for user $subjectId and project ${user.projectId}"
+                    "protocol_not_found ; No protocol found for user $subjectId, and project ${user.projectId}"
                 }
             }
         } catch (ex: Exception) {
