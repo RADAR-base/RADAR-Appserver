@@ -72,7 +72,7 @@ services:
     build:
       context: ../
       dockerfile: microservices/gateway-service/Dockerfile
-    image: radarbase/appserver-gateway-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_GATEWAY_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_GATEWAY_SERVICE_IMAGE_TAG}
     ports:
       - "8080:8080"
     networks:
@@ -104,7 +104,7 @@ services:
     build:
       context: ..
       dockerfile: microservices/project-service/Dockerfile
-    image: radarbase/appserver-project-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_PROJECT_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_PROJECT_SERVICE_IMAGE_TAG}
     networks:
       - microservice
       - project-service-internal
@@ -133,7 +133,7 @@ services:
     build:
       context: ..
       dockerfile: microservices/user-service/Dockerfile
-    image: radarbase/appserver-user-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_USER_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_USER_SERVICE_IMAGE_TAG}
     networks:
       - microservice
       - user-service-internal
@@ -153,7 +153,7 @@ services:
     build:
       context: ..
       dockerfile: microservices/github-service/Dockerfile
-    image: radarbase/appserver-github-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_GITHUB_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_GITHUB_SERVICE_IMAGE_TAG}
     networks:
       - microservice
       - public
@@ -165,7 +165,7 @@ services:
     build:
       context: ..
       dockerfile: microservices/protocol-service/Dockerfile
-    image: radarbase/appserver-protocol-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_PROTOCOL_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_PROTOCOL_SERVICE_IMAGE_TAG}
     networks:
       - microservice
 
@@ -185,7 +185,7 @@ services:
     build:
       context: ..
       dockerfile: microservices/task-service/Dockerfile
-    image: radarbase/appserver-task-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_TASK_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_TASK_SERVICE_IMAGE_TAG}
     networks:
       - microservice
       - task-service-internal
@@ -214,7 +214,7 @@ services:
     build:
       context: ..
       dockerfile: microservices/cloud-messaging-service/Dockerfile
-    image: radarbase/appserver-cloud-messaging-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_CLOUD_MESSAGING_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_CLOUD_MESSAGING_SERVICE_IMAGE_TAG}
     networks:
       - microservice
       - cloud-messaging-service-internal
