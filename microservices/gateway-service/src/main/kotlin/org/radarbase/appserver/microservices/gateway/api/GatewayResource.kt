@@ -264,6 +264,14 @@ class GatewayResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            tokenForCurrentRequest(asyncService, tokenProvider).also {
+                authService.checkPermission(
+                    Permission.SUBJECT_READ,
+                    EntityDetails(project = projectId, subject = it.subject),
+                    it,
+                )
+            }
+
             val proxyResponse = ProjectServiceContract.getProjectUsingProjectId(
                 projectId,
                 projectServiceRoute.baseUrl,
@@ -287,15 +295,6 @@ class GatewayResource @Inject constructor(
             }
 
             if (decodedProject == null) throw InvalidUpstreamResponseException()
-
-            val projectIdForAuth = decodedProject.projectId ?: projectId
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = projectIdForAuth, subject = token.subject),
-                token,
-            )
-
             Response.ok(decodedProject).build()
         }
     }
@@ -578,6 +577,13 @@ class GatewayResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
+
             val users = UserServiceContract.getUsersUsingProjectId(projectId, userServiceRoute.baseUrl).let {
                 if (it.status !in 200..299) {
                     return@runAsCoroutine handleProxyResponse(it)
@@ -587,12 +593,6 @@ class GatewayResource @Inject constructor(
                     (dtoFromProxyResponse<FcmUsers>(json, it) ?: throw InvalidUpstreamResponseException())
                 }
             }
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
             Response.ok(users).build()
         }
     }
@@ -885,7 +885,7 @@ class GatewayResource @Inject constructor(
     @Path("${PROJECTS_PATH}/${PROJECT_ID}/$MESSAGING_NOTIFICATION_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun getNotificationsUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
