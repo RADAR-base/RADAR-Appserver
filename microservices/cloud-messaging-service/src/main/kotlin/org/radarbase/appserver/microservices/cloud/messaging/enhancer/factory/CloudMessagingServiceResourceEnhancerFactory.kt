@@ -17,7 +17,10 @@
 package org.radarbase.appserver.microservices.cloud.messaging.enhancer.factory
 
 import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
+import org.radarbase.appserver.microservices.cloud.messaging.config.EmailConfig
 import org.radarbase.appserver.microservices.cloud.messaging.enhancer.CloudMessagingServiceResourceEnhancer
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.EmailTransmitter
+import org.radarbase.appserver.microservices.cloud.messaging.utils.mail.MailSessionFactory
 import org.radarbase.jersey.enhancer.EnhancerFactory
 import org.radarbase.jersey.enhancer.Enhancers
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
@@ -39,8 +42,40 @@ class CloudMessagingServiceResourceEnhancerFactory(private val config: CloudMess
             ),
         )
 
+        val emailConfig: EmailConfig? = if (config.email.enabled) {
+            EmailConfig(
+                enabled = config.email.enabled,
+                smtpHost = config.email.smtpHost,
+                smtpPort = config.email.smtpPort,
+                smtpUser = config.email.smtpUser,
+                smtpPassword = config.email.smtpPassword,
+                fromAddress = config.email.fromAddress,
+                connectTimeout = config.email.connectTimeout,
+                readTimeout = config.email.readTimeout,
+                enableTls = config.email.enableTls,
+            )
+        } else null
+
+        val emailTransmitter = emailConfig?.let {
+            MailSessionFactory.createMailSession(
+                it.smtpHost,
+                it.smtpPort,
+                it.smtpUser,
+                it.smtpPassword,
+                it.enableTls,
+                it.connectTimeout,
+                it.readTimeout,
+            )
+        }?.let { session ->
+            EmailTransmitter(
+                session,
+                emailConfig.fromAddress,
+                config,
+            )
+        }
+
         return listOf(
-            CloudMessagingServiceResourceEnhancer(config),
+            CloudMessagingServiceResourceEnhancer(config, emailTransmitter),
             HibernateResourceEnhancer(dbConfig),
             Enhancers.health,
             Enhancers.exception,
