@@ -69,9 +69,9 @@ dependencies {
 
     implementation("io.ktor:ktor-client-core:${Versions.ktorVersion}")
     implementation("io.ktor:ktor-client-cio:${Versions.ktorVersion}")
-    implementation("org.glassfish.jersey.ext:jersey-bean-validation:3.1.10")
+    implementation("org.glassfish.jersey.ext:jersey-bean-validation:${Versions.jerseyBeanValidationVersion}")
 
-    implementation("com.google.firebase:firebase-admin:9.3.0") {
+    implementation("com.google.firebase:firebase-admin:${Versions.firebaseAdminVersion}") {
         constraints {
             implementation("com.google.protobuf:protobuf-java:3.25.5") {
                 because("Provided version of protobuf has security vulnerabilities")
@@ -83,8 +83,9 @@ dependencies {
     }
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    implementation("com.google.guava:guava:32.1.3-jre")
-    implementation("org.quartz-scheduler:quartz:2.5.0")
+    implementation("com.sun.mail:jakarta.mail:${Versions.jakartaMailVersion}")
+    implementation("com.google.guava:guava:${Versions.guavaVersion}")
+    implementation("org.quartz-scheduler:quartz:${Versions.quartzVersion}")
 
     testImplementation("io.mockk:mockk:1.14.4")
     testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
