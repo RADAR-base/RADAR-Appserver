@@ -16,7 +16,48 @@
 
 package org.radarbase.appserver.jersey.config
 
-// TODO: The email work needs to be done, not sure should we use smtp server here in jersey?
+import org.radarbase.jersey.config.ConfigLoader.copyEnv
+
 data class EmailConfig(
     val enabled: Boolean = false,
-)
+    val smtpHost: String = "smtp.gmail.com",
+    val smtpPort: Int = 587,
+    val smtpUser: String? = null,
+    val smtpPassword: String? = null,
+    val fromAddress: String = "radar-base@kcl.ac.uk",
+    val connectTimeout: Int = 10000,
+    val readTimeout: Int = 10000,
+    val enableTls: Boolean = true,
+) {
+    fun withEnv() = this.
+        copyEnv("RADAR_APPSERVER_NOTIFICATION_EMAIL_ENABLED") {
+            copy(enabled = it.toBoolean())
+        }
+        .copyEnv("RADAR_APPSERVER_NOTIFICATION_EMAIL_FROM") {
+            copy(fromAddress = it)
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_SMTP_HOST") {
+            copy(smtpHost = it)
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_SMTP_PORT") {
+            copy(smtpPort = it.toInt())
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_SMTP_USERNAME") {
+            copy(smtpUser = it)
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_SMTP_PASSWORD") {
+            copy(smtpPassword = it)
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_FROM_ADDRESS") {
+            copy(fromAddress = it)
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_CONNECT_TIMEOUT") {
+            copy(connectTimeout = it.toIntOrNull() ?: 10000)
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_READ_TIMEOUT") {
+            copy(readTimeout = it.toIntOrNull() ?: 10000)
+        }
+        .copyEnv("RADAR_APPSERVER_EMAIL_TLS_ENABLED") {
+            copy(enableTls = it.toBoolean())
+        }
+}
