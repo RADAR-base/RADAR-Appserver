@@ -226,4 +226,8 @@ services:
       APPSERVER_CLOUD_MESSAGING_JDBC_PASSWORD: radar
       APPSERVER_CLOUD_MESSAGING_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       APPSERVER_CLOUD_MESSAGING_JDBC_DRIVER: org.postgresql.Driver
+      GOOGLE_APPLICATION_CREDENTIALS: /appserver-includes/google-credentials.json
+    volumes:
+      - ./integration-tests/src/integrationTest/resources/docker/fcm:/appserver-includes/
+
 
