@@ -10,6 +10,7 @@ jobs:
     name: Build ${{ matrix.service }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         service:
           - project-service
@@ -47,6 +48,7 @@ jobs:
       packages: write
 
     strategy:
+      fail-fast: false
       matrix:
         service:
           - project-service
@@ -94,7 +96,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.service }}-${{ hashFiles(
+          key: ${{ runner.os }}-buildx-${{ hashFiles(
             format('microservices/{0}/Dockerfile', matrix.service),
             'settings.gradle.kts',
             'buildSrc/src/main/kotlin/Versions.kt',
@@ -103,7 +105,7 @@ jobs:
             format('microservices/{0}/src/main/**', matrix.service)
             ) }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ matrix.service }}-
+            ${{ runner.os }}-buildx-
 
       - name: Cache parameters
         id: cache-parameters

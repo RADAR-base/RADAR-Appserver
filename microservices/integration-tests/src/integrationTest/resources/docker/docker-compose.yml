@@ -1,29 +1,29 @@
 version: '3.8'
 
-networks:
-  public:
-    driver: bridge
-  mp:
-    driver: bridge
-    internal: true
-  mp-db:
-    driver: bridge
-    internal: true
-  microservice:
-    driver: bridge
-    internal: true
-  project-service-internal:
-    driver: bridge
-    internal: true
-  user-service-internal:
-    driver: bridge
-    internal: true
-  task-service-internal:
-    driver: bridge
-    internal: true
-  cloud-messaging-service-internal:
-    driver: bridge
-    internal: true
+#networks:
+#  public:
+#    driver: bridge
+#  mp:
+#    driver: bridge
+#    internal: true
+#  mp-db:
+#    driver: bridge
+#    internal: true
+#  microservice:
+#    driver: bridge
+#    internal: true
+#  project-service-internal:
+#    driver: bridge
+#    internal: true
+#  user-service-internal:
+#    driver: bridge
+#    internal: true
+#  task-service-internal:
+#    driver: bridge
+#    internal: true
+#  cloud-messaging-service-internal:
+#    driver: bridge
+#    internal: true
 
 services:
   #---------------------------------------------------------------------------#

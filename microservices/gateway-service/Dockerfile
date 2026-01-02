@@ -5,7 +5,6 @@ WORKDIR /code
 
 ENV GRADLE_USER_HOME=/code/.gradlecache \
     GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork -Dorg.gradle.vfs.watch=false"
-#    "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx1g -Dorg.gradle.workers.max=2"
 
 COPY buildSrc /code/buildSrc
 COPY build.gradle.kts settings.gradle.kts /code/
