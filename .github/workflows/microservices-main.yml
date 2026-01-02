@@ -40,7 +40,7 @@ jobs:
         run: ./gradlew :microservices:${{ matrix.service }}:check
 
   docker:
-    name: Build and push docker image for $${{ matrix.service }}
+    name: Docker setup for ${{ matrix.service }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -118,7 +118,7 @@ jobs:
           cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
           load: true
           context: .
-          file: microservices/${{ env.MODULE }}/Dockerfile
+          file: microservices/${{ matrix.service }}/Dockerfile
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: |
             ${{ steps.docker_meta.outputs.labels }}
