@@ -1,0 +1,229 @@
+name: CI microservices-main
+on:
+  push:
+    branches: [ main, dev, ci-setup ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  build:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - project-service
+          - user-service
+          - gateway-service
+          - github-service
+          - protocol-service
+          - task-service
+          - cloud-messaging-service
+
+    steps:
+      - name: Perform checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Compile code
+        run: ./gradlew :microservices:${{ matrix.service }}:assemble
+
+      - name: Check
+        run: ./gradlew :microservices:${{ matrix.service }}:check
+
+  docker:
+    name: Build and push docker image for $${{ matrix.service }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service:
+          - project-service
+          - user-service
+          - gateway-service
+          - protocol-service
+          - github-service
+          - task-service
+          - cloud-messaging-service
+    env:
+      REGISTRY: ghcr.io
+      REPOSITORY: ${{ github.repository }}
+
+    steps:
+      - name: Login to Container Registry (${{ env.REGISTRY }})
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase image name
+        run: |
+          MODULE=${{ matrix.service }}
+          IMAGE_NAME=${MODULE}
+          echo "DOCKER_IMAGE=${REGISTRY}/${REPOSITORY,,}/${IMAGE_NAME}" >>${GITHUB_ENV}
+
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        id: cache-buildx
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.service }}-${{ hashFiles(
+            format('microservices/{0}/Dockerfile', matrix.service),
+            'settings.gradle.kts',
+            'buildSrc/src/main/kotlin/Versions.kt',
+            'build.gradle.kts',
+            format('microservices/{0}/build.gradle.kts', matrix.service),
+            format('microservices/{0}/src/main/**', matrix.service)
+            ) }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ matrix.service }}-
+
+      - name: Cache parameters
+        id: cache-parameters
+        run: |
+          if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
+            echo "cache-to=" >> $GITHUB_OUTPUT
+          else
+            echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build docker
+        uses: docker/build-push-action@v3
+        with:
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
+          load: true
+          context: .
+          file: microservices/${{ env.MODULE }}/Dockerfile
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: |
+            ${{ steps.docker_meta.outputs.labels }}
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+            
+      - name: Inspect docker image
+        run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      - name: Check docker image
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help || true
+
+      - name: Push image
+        if: ${{ github.event_name != 'pull_request' }}
+        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      - name: Move docker build cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache || true
+
+      - name: Write image metadata file
+        run: |
+          mkdir -p image-meta
+          cat > image-meta/${{ matrix.service }}.json <<EOF
+          {
+            "service": "${{ matrix.service }}",
+            "image": "${{ env.DOCKER_IMAGE }}",
+            "tag": "${{ steps.docker_meta.outputs.version }}"
+          }
+          EOF
+
+      - name: Upload image metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-meta-${{ matrix.service }}
+          path: image-meta/${{ matrix.service }}.json
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: docker
+    if: ${{ always() }}  # Running this job even if the docker job fails. It will build the image from source, and collect the logs
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Download all image metadata artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./image-meta
+
+      - name: Prepare microservice .env for integration tests
+        run: |
+          set -euo pipefail
+          OUTFILE=microservices/integration-tests/src/integrationTest/resources/docker/.env
+          rm -f $OUTFILE
+          touch $OUTFILE
+
+          for f in image-meta/*.json; do
+            service=$(jq -r '.service' "$f")
+            image=$(jq -r '.image' "$f")
+            tag=$(jq -r '.tag' "$f")
+
+            svc_upper=$(echo "$service" | tr '[:lower:]-' '[:upper:]_' )
+
+            # variable names for microservices images
+            echo "RADAR_APPSERVER_${svc_upper}_IMAGE_NAME=${image}" >> $OUTFILE
+            echo "RADAR_APPSERVER_${svc_upper}_IMAGE_TAG=${tag}" >> $OUTFILE
+
+            echo "Wrote RADAR_APPSERVER_${svc_upper}_IMAGE_NAME=${image}"
+          done
+
+          cat $OUTFILE
+
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.GPG_SECRET_KEY }}") | gpg --batch --import || true
+          gpg --list-secret-keys --keyid-format LONG || true
+
+      - name: Decrypt google application credentials
+        run: |
+          # adjust path to encrypted file if needed
+          gpg --pinentry-mode loopback --local-user "Adi Mishra" --batch --yes \
+            --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" \
+            --output microservices/integration-tests/src/integrationTest/resources/docker/fcm/google-credentials.json \
+            --decrypt microservices/integration-tests/src/integrationTest/resources/docker/fcm/google-credentials.enc.gpg
+
+      - name: Integration test
+        run: |
+          ./gradlew :microservices:integration-tests:composeUp -PdockerComposeBuild=false
+          sleep 15
+          ./gradlew :microservices:integration-tests:integrationTest -PdockerComposeBuild=false
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-logs
+          path: appserver-jersey/build/container-logs/
+          retention-days: 7

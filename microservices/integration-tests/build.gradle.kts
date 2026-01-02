@@ -1,3 +1,5 @@
+import java.time.Duration
+
 plugins {
     kotlin("plugin.serialization") version Versions.kotlinVersion
     id("com.avast.gradle.docker-compose") version Versions.dockerCompose
@@ -22,6 +24,21 @@ val integrationTest by tasks.registering(Test::class) {
     testLogging.showStandardStreams = true
     shouldRunAfter("test")
     outputs.upToDateWhen { false }
+}
+
+dockerCompose {
+    useComposeFiles.set(listOf("src/integrationTest/resources/docker/docker-compose.yml"))
+    val dockerComposeBuild: String? by project
+    val doBuild = dockerComposeBuild?.toBoolean() ?: true
+    buildBeforeUp.set(doBuild)
+    buildBeforePull.set(doBuild)
+    buildAdditionalArgs.set(emptyList<String>())
+    val dockerComposeStopContainers: String? by project
+    stopContainers.set(dockerComposeStopContainers?.toBoolean() ?: true)
+    waitForTcpPortsTimeout.set(Duration.ofMinutes(3))
+    environment.put("SERVICES_HOST", "localhost")
+    captureContainersOutputToFiles.set(project.file("build/container-logs"))
+    isRequiredBy(integrationTest)
 }
 
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
