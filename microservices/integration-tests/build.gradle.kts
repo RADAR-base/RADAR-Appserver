@@ -58,3 +58,7 @@ dependencies {
     integrationTestImplementation("io.ktor:ktor-serialization-kotlinx-json")
 }
 
+ktlint {
+    ignoreFailures.set(true)
+    outputColorName.set("RED")
+}

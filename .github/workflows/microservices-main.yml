@@ -182,6 +182,12 @@ jobs:
         with:
           path: ./image-meta
 
+      - name: Flatten downloaded image-meta artifacts
+        run: |
+          mkdir -p image-meta-flat
+          find image-meta -type f -name '*.json' -exec cp {} image-meta-flat/ \;
+          ls -la image-meta-flat
+
       - name: Prepare microservice .env for integration tests
         run: |
           set -euo pipefail
@@ -189,7 +195,7 @@ jobs:
           rm -f $OUTFILE
           touch $OUTFILE
 
-          for f in image-meta/*.json; do
+          for f in image-meta-flat/*.json; do
             service=$(jq -r '.service' "$f")
             image=$(jq -r '.image' "$f")
             tag=$(jq -r '.tag' "$f")
