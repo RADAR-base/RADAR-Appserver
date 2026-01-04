@@ -66,6 +66,14 @@ jobs:
       - name: Perform checkout
         uses: actions/checkout@v5
 
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Login to Container Registry (${{ env.REGISTRY }})
         uses: docker/login-action@v3
         with:
@@ -115,6 +123,9 @@ jobs:
           else
             echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUT
           fi
+
+      - name: Assemble ${{ matrix.service }}
+        run: ./gradlew --no-daemon :microservices:${{ matrix.service }}:assemble
 
       - name: Build docker
         uses: docker/build-push-action@v3
