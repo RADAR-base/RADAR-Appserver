@@ -95,11 +95,15 @@ import org.radarbase.appserver.jersey.service.questionnaire.schedule.Questionnai
 import org.radarbase.appserver.jersey.service.questionnaire.schedule.ScheduleGeneratorService
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.service.transmitter.DataMessageTransmitter
+import org.radarbase.appserver.jersey.service.transmitter.EmailTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.FcmTransmitter
 import org.radarbase.appserver.jersey.service.transmitter.NotificationTransmitter
 import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
-class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyResourceEnhancer {
+class AppserverResourceEnhancer(
+    private val appserverConfig: AppserverConfig,
+    private val emailTransmitter: EmailTransmitter?,
+) : JerseyResourceEnhancer {
 
     override val packages: Array<String>
         get() = arrayOf(
@@ -110,11 +114,11 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
         get() = super.classes
 
     override fun AbstractBinder.enhance() {
-        bind(config)
+        bind(appserverConfig)
             .to(AppserverConfig::class.java)
             .`in`(Singleton::class.java)
 
-        bind(config.fcm)
+        bind(appserverConfig.fcm)
             .to(FcmServerConfig::class.java)
             .`in`(Singleton::class.java)
 
@@ -281,6 +285,12 @@ class AppserverResourceEnhancer(private val config: AppserverConfig) : JerseyRes
         bindFactory(SchedulingServiceFactory::class.java)
             .to(SchedulingService::class.java)
             .`in`(Singleton::class.java)
+
+        if (appserverConfig.email.enabled && emailTransmitter != null) {
+            bind(emailTransmitter)
+                .to(EmailTransmitter::class.java)
+                .`in`(Singleton::class.java)
+        }
 
         bindFactory(FirebaseOptionsFactory::class.java)
             .to(FirebaseOptions::class.java)

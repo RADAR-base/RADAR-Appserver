@@ -16,8 +16,12 @@
 
 package org.radarbase.appserver.jersey.enhancer.factory
 
+import jakarta.mail.Session
 import org.radarbase.appserver.jersey.config.AppserverConfig
+import org.radarbase.appserver.jersey.config.EmailConfig
 import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer
+import org.radarbase.appserver.jersey.service.transmitter.EmailTransmitter
+import org.radarbase.appserver.jersey.utils.mail.MailSessionFactory
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -50,8 +54,40 @@ class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : En
             ),
         )
 
+        val emailConfig: EmailConfig? = if (config.email.enabled) {
+            EmailConfig(
+                enabled = config.email.enabled,
+                smtpHost = config.email.smtpHost,
+                smtpPort = config.email.smtpPort,
+                smtpUser = config.email.smtpUser,
+                smtpPassword = config.email.smtpPassword,
+                fromAddress = config.email.fromAddress,
+                connectTimeout = config.email.connectTimeout,
+                readTimeout = config.email.readTimeout,
+                enableTls = config.email.enableTls,
+            )
+        } else null
+
+        val emailTransmitter = emailConfig?.let {
+            MailSessionFactory.createMailSession(
+                it.smtpHost,
+                it.smtpPort,
+                it.smtpUser,
+                it.smtpPassword,
+                it.enableTls,
+                it.connectTimeout,
+                it.readTimeout,
+            )
+        }?.let { session ->
+            EmailTransmitter(
+                session,
+                emailConfig.fromAddress,
+                config,
+            )
+        }
+
         return listOf(
-            AppserverResourceEnhancer(config),
+            AppserverResourceEnhancer(config, emailTransmitter),
             Enhancers.radar(authConfig),
             Enhancers.managementPortal(authConfig),
             HibernateResourceEnhancer(dbConfig),

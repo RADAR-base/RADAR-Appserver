@@ -65,6 +65,14 @@ protocol:
 
 email:
   enabled: false
+  smtpHost: smtp.gmail.com
+  smtpPort: 587
+  smtpUser:
+  smtpPassword:
+  fromAddress: radar-base@kcl.ac.uk
+  connectTimeout: 10000
+  readTimeout: 10000
+  enableTls: true
 
 fcm:
   fcmsender: org.radarbase.appserver.jersey.fcm.downstream.AdminSdkFcmSender

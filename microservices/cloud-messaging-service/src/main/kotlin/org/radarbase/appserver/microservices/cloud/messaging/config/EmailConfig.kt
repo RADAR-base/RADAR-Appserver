@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.config
+package org.radarbase.appserver.microservices.cloud.messaging.config
 
 import org.radarbase.jersey.config.ConfigLoader.copyEnv
 

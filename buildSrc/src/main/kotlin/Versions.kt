@@ -29,6 +29,10 @@ object Versions {
     const val radarCommonsVersion = "1.2.2"
     const val h2Version = "2.2.224"
     const val postgresqlVersion = "42.7.5"
+    const val jakartaMailVersion = "2.0.2"
+    const val quartzVersion = "2.5.0"
+    const val firebaseAdminVersion = "9.3.0"
+    const val jerseyBeanValidationVersion = "3.1.10"
 
     const val project = "2.4.3"
     const val wrapper = "8.5"

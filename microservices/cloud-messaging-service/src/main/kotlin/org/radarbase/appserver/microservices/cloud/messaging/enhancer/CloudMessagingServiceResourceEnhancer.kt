@@ -43,6 +43,7 @@ import org.radarbase.appserver.microservices.cloud.messaging.service.Notificatio
 import org.radarbase.appserver.microservices.cloud.messaging.service.quartz.SchedulerServiceImpl
 import org.radarbase.appserver.microservices.cloud.messaging.service.schedule.MessageSchedulerService
 import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.DataMessageTransmitter
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.EmailTransmitter
 import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.FcmTransmitter
 import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.NotificationTransmitter
 import org.radarbase.appserver.microservices.core.config.CoreEventBusConfig
@@ -81,7 +82,10 @@ import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.radarbase.jersey.service.ScopedAsyncCoroutineService
 
-class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingServiceConfig) : JerseyResourceEnhancer {
+class CloudMessagingServiceResourceEnhancer(
+    private val config: CloudMessagingServiceConfig,
+    private val emailTransmitter: EmailTransmitter?,
+) : JerseyResourceEnhancer {
     override val packages: Array<String>
         get() = arrayOf(
             "org.radarbase.appserver.microservices.cloud.messaging.api",
@@ -206,6 +210,12 @@ class CloudMessagingServiceResourceEnhancer(private val config: CloudMessagingSe
         bindFactory(QuartzSchedulerFactory::class.java)
             .to(Scheduler::class.java)
             .`in`(Singleton::class.java)
+
+        if (config.email.enabled && emailTransmitter != null) {
+            bind(emailTransmitter)
+                .to(EmailTransmitter::class.java)
+                .`in`(Singleton::class.java)
+        }
     }
 
     override fun ResourceConfig.enhance() {
