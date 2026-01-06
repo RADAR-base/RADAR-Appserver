@@ -158,9 +158,7 @@ class FcmNotificationResource @Inject constructor(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            log.info("Processing request....")
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            log.info("Checking permissions for subject ${token.subject} in project $projectId")
             authService.checkPermission(
                 Permission.SUBJECT_READ,
                 EntityDetails(project = projectId, subject = token.subject),

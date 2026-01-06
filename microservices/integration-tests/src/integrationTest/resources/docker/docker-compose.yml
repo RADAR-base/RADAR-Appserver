@@ -1,29 +1,29 @@
 version: '3.8'
 
-networks:
-  public:
-    driver: bridge
-  mp:
-    driver: bridge
-    internal: true
-  mp-db:
-    driver: bridge
-    internal: true
-  microservice:
-    driver: bridge
-    internal: true
-  project-service-internal:
-    driver: bridge
-    internal: true
-  user-service-internal:
-    driver: bridge
-    internal: true
-  task-service-internal:
-    driver: bridge
-    internal: true
-  cloud-messaging-service-internal:
-    driver: bridge
-    internal: true
+#networks:
+#  public:
+#    driver: bridge
+#  mp:
+#    driver: bridge
+#    internal: true
+#  mp-db:
+#    driver: bridge
+#    internal: true
+#  microservice:
+#    driver: bridge
+#    internal: true
+#  project-service-internal:
+#    driver: bridge
+#    internal: true
+#  user-service-internal:
+#    driver: bridge
+#    internal: true
+#  task-service-internal:
+#    driver: bridge
+#    internal: true
+#  cloud-messaging-service-internal:
+#    driver: bridge
+#    internal: true
 
 services:
   #---------------------------------------------------------------------------#
@@ -35,8 +35,8 @@ services:
       POSTGRES_USER: radarbase
       POSTGRES_PASSWORD: radarbase
       POSTGRES_DB: managementportal
-    networks:
-      - mp-db
+#    networks:
+#      - mp-db
 
   #---------------------------------------------------------------------------#
   # Management Portal                                                         #
@@ -56,29 +56,29 @@ services:
       MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL: http://localhost:8081/managementportal
       MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET:
       MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE: /mp-includes/config/oauth_client_details.csv
-    networks:
-      - public
-      - mp
-      - mp-db
+#    networks:
+#      - public
+#      - mp
+#      - mp-db
     ports:
       - "8081:8081"
     volumes:
-      - ./integration-tests/src/integrationTest/resources/docker/etc/:/mp-includes/
+      - ./etc/:/mp-includes/
 
   #---------------------------------------------------------------------------#
   # Gateway Service                                                           #
   #---------------------------------------------------------------------------#
   gateway-service:
     build:
-      context: ../
+      context: ../../../../../../
       dockerfile: microservices/gateway-service/Dockerfile
-    image: radarbase/appserver-gateway-service:SNAPSHOT
+    image: ${RADAR_APPSERVER_GATEWAY_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_GATEWAY_SERVICE_IMAGE_TAG}
     ports:
       - "8080:8080"
-    networks:
-      - public
-      - microservice
-      - mp
+#    networks:
+#      - public
+#      - microservice
+#      - mp
     environment:
       APPSERVER_PROJECT_SERVICE_BASE_URL: http://project-service:9010
       APPSERVER_USER_SERVICE_BASE_URL: http://user-service:9013
@@ -93,8 +93,8 @@ services:
   #---------------------------------------------------------------------------#
   project-service-db:
     image: postgres
-    networks:
-      - project-service-internal
+#    networks:
+#      - project-service-internal
     environment:
       POSTGRES_DB: appserver_project
       POSTGRES_USER: radar
@@ -102,12 +102,12 @@ services:
 
   project-service:
     build:
-      context: ..
+      context: ../../../../../../
       dockerfile: microservices/project-service/Dockerfile
-    image: radarbase/appserver-project-service:SNAPSHOT
-    networks:
-      - microservice
-      - project-service-internal
+    image: ${RADAR_APPSERVER_PROJECT_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_PROJECT_SERVICE_IMAGE_TAG}
+#    networks:
+#      - microservice
+#      - project-service-internal
     depends_on:
       - project-service-db
     environment:
@@ -122,8 +122,8 @@ services:
   #---------------------------------------------------------------------------#
   user-service-db:
     image: postgres
-    networks:
-      - user-service-internal
+#    networks:
+#      - user-service-internal
     environment:
       POSTGRES_DB: appserver_user
       POSTGRES_USER: radar
@@ -131,12 +131,12 @@ services:
 
   user-service:
     build:
-      context: ..
+      context: ../../../../../../
       dockerfile: microservices/user-service/Dockerfile
-    image: radarbase/appserver-user-service:SNAPSHOT
-    networks:
-      - microservice
-      - user-service-internal
+    image: ${RADAR_APPSERVER_USER_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_USER_SERVICE_IMAGE_TAG}
+#    networks:
+#      - microservice
+#      - user-service-internal
     depends_on:
       - user-service-db
     environment:
@@ -151,31 +151,31 @@ services:
   #---------------------------------------------------------------------------#
   github-service:
     build:
-      context: ..
+      context: ../../../../../../
       dockerfile: microservices/github-service/Dockerfile
-    image: radarbase/appserver-github-service:SNAPSHOT
-    networks:
-      - microservice
-      - public
+    image: ${RADAR_APPSERVER_GITHUB_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_GITHUB_SERVICE_IMAGE_TAG}
+#    networks:
+#      - microservice
+#      - public
 
   #---------------------------------------------------------------------------#
   # Protocol Service                                                          #
   #---------------------------------------------------------------------------#
   protocol-service:
     build:
-      context: ..
+      context: ../../../../../../
       dockerfile: microservices/protocol-service/Dockerfile
-    image: radarbase/appserver-protocol-service:SNAPSHOT
-    networks:
-      - microservice
+    image: ${RADAR_APPSERVER_PROTOCOL_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_PROTOCOL_SERVICE_IMAGE_TAG}
+#    networks:
+#      - microservice
 
   #---------------------------------------------------------------------------#
   # Task Service                                                              #
   #---------------------------------------------------------------------------#
   task-service-db:
     image: postgres
-    networks:
-      - task-service-internal
+#    networks:
+#      - task-service-internal
     environment:
       POSTGRES_DB: appserver_task
       POSTGRES_USER: radar
@@ -183,12 +183,12 @@ services:
 
   task-service:
     build:
-      context: ..
+      context: ../../../../../../
       dockerfile: microservices/task-service/Dockerfile
-    image: radarbase/appserver-task-service:SNAPSHOT
-    networks:
-      - microservice
-      - task-service-internal
+    image: ${RADAR_APPSERVER_TASK_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_TASK_SERVICE_IMAGE_TAG}
+#    networks:
+#      - microservice
+#      - task-service-internal
     depends_on:
       - task-service-db
     environment:
@@ -203,8 +203,8 @@ services:
   #---------------------------------------------------------------------------#
   cloud-messaging-service-db:
     image: postgres
-    networks:
-      - cloud-messaging-service-internal
+#    networks:
+#      - cloud-messaging-service-internal
     environment:
       POSTGRES_DB: appserver_cloud_messaging
       POSTGRES_USER: radar
@@ -212,12 +212,12 @@ services:
 
   cloud-messaging-service:
     build:
-      context: ..
+      context: ../../../../../../
       dockerfile: microservices/cloud-messaging-service/Dockerfile
-    image: radarbase/appserver-cloud-messaging-service:SNAPSHOT
-    networks:
-      - microservice
-      - cloud-messaging-service-internal
+    image: ${RADAR_APPSERVER_CLOUD_MESSAGING_SERVICE_IMAGE_NAME}:${RADAR_APPSERVER_CLOUD_MESSAGING_SERVICE_IMAGE_TAG}
+#    networks:
+#      - microservice
+#      - cloud-messaging-service-internal
     depends_on:
       - cloud-messaging-service-db
     environment:
@@ -228,6 +228,6 @@ services:
       APPSERVER_CLOUD_MESSAGING_JDBC_DRIVER: org.postgresql.Driver
       GOOGLE_APPLICATION_CREDENTIALS: /appserver-includes/google-credentials.json
     volumes:
-      - ./integration-tests/src/integrationTest/resources/docker/fcm:/appserver-includes/
+      - ./fcm:/appserver-includes/
 
 

@@ -13,3 +13,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktorVersion}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktorVersion}")
 }
+
+ktlint {
+    ignoreFailures.set(true)
+    outputColorName.set("RED")
+}

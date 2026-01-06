@@ -52,6 +52,14 @@ data class AppserverConfig(
             },
         )
         .copyOnChange(
+            github,
+            {
+                it.withEnv()
+            },
+            {
+                copy(github = it)
+            },
+        ).copyOnChange(
             email,
             {
                 it.withEnv()

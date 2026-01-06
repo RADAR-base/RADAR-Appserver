@@ -1,0 +1,148 @@
+name: CI jersey-main
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  REGISTRY: ghcr.io
+  REPOSITORY: ${{ github.repository }}
+  IMAGE_NAME: radar-appserver
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Compile code
+        run: ./gradlew :appserver-jersey:assemble
+
+      - name: Check
+        run: ./gradlew :appserver-jersey:check
+
+  # Check that the docker image builds correctly
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase image name
+        run: |
+          echo "DOCKER_IMAGE=${REGISTRY}/${REPOSITORY,,}/${IMAGE_NAME}" >>${GITHUB_ENV}
+
+      # Add Docker labels and tags
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+
+      # Setup docker build environment
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        id: cache-buildx
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile.appserver-jersey', 'appserver-jersey/build.gradle.kts', 'buildSrc/src/main/kotlin/Versions.kt', 'settings.gradle.kts', 'build.gradle.kts', 'appserver-jersey/src/main/**') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Cache parameters
+        id: cache-parameters
+        run: |
+          if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
+            echo "cache-to=" >> $GITHUB_OUTPUT
+          else
+            echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build docker
+        uses: docker/build-push-action@v3
+        with:
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
+          load: true
+          context: .
+          file: Dockerfile.appserver-jersey
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: |
+            ${{ steps.docker_meta.outputs.labels }}
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Inspect docker image
+        run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      - name: Check docker image
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help
+
+      # Push the image on the dev and master branches
+      - name: Push image
+        if: ${{ github.event_name != 'pull_request' }}
+        run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      - name: Move docker build cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Decrypt google application credentials
+        run: |
+          gpg --pinentry-mode loopback --local-user "Adi Mishra" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-jersey/src/integrationTest/resources/docker/fcm/google-credentials.json --decrypt appserver-jersey/src/integrationTest/resources/docker/fcm/google-credentials.enc.gpg
+
+      - name: Integration test
+        run: |
+          echo "RADAR_APPSERVER_IMAGE_NAME=${{ env.DOCKER_IMAGE }}" >> appserver-jersey/src/integrationTest/resources/docker/.env
+          echo "RADAR_APPSERVER_TAG=${{ steps.docker_meta.outputs.version }}" >> appserver-jersey/src/integrationTest/resources/docker/.env
+          ./gradlew :appserver-jersey:composeUp -PdockerComposeBuild=false
+          sleep 15
+          ./gradlew :appserver-jersey:integrationTest -PdockerComposeBuild=false
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-logs
+          path: appserver-jersey/build/container-logs/
+          retention-days: 7

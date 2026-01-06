@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.config.github
+package org.radarbase.appserver.microservices.commons
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import org.radarbase.jersey.config.ConfigLoader.copyEnv
+import kotlinx.serialization.Serializable
 
-data class GithubClientConfig(
-    val maxContentLength: Long = 10_00_000,
-    @field:JsonProperty("timeoutSec")
-    val timeout: Long = 10L,
-    val githubToken: String? = null,
-) {
-    fun withEnv() = this.
-        copyEnv("SECURITY_GITHUB_CLIENT_TOKEN") {
-            copy(githubToken = it)
-        }
-}
+@Serializable
+class MPPairResponse(
+    val tokenUrl: String,
+)

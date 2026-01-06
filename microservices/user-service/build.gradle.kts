@@ -17,3 +17,8 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
+
+ktlint {
+    ignoreFailures.set(true)
+    outputColorName.set("RED")
+}

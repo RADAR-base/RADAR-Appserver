@@ -43,7 +43,7 @@ import java.util.Objects
 class FcmTransmitter @Inject constructor(
     private val fcmSender: FcmSender,
     private val notificationService: FcmNotificationService,
-//    private val dataMessageService: FcmDataMessageService,
+    private val dataMessageService: FcmDataMessageService,
     config: CloudMessagingServiceConfig,
 ) : DataMessageTransmitter, NotificationTransmitter {
 
@@ -106,7 +106,7 @@ class FcmTransmitter @Inject constructor(
         }
     }
 
-    private suspend fun handleFCMErrorCode(errorCode: MessagingErrorCode, message: Message) {
+    private suspend fun handleFCMErrorCode(errorCode: MessagingErrorCode?, message: Message) {
         when (errorCode) {
             MessagingErrorCode.INTERNAL, MessagingErrorCode.QUOTA_EXCEEDED, MessagingErrorCode.INVALID_ARGUMENT, MessagingErrorCode.SENDER_ID_MISMATCH, MessagingErrorCode.THIRD_PARTY_AUTH_ERROR -> {}
             MessagingErrorCode.UNAVAILABLE -> {
@@ -123,10 +123,10 @@ class FcmTransmitter @Inject constructor(
                     projectId,
                     subjectId,
                 )
-//                dataMessageService.removeDataMessagesForUser(
-//                    projectId,
-//                    subjectId,
-//                )
+                dataMessageService.removeDataMessagesForUser(
+                    projectId,
+                    subjectId,
+                )
 
                 val userId = requireNotNullField(message.userId, "Notification's UserId")
                 val user = deserializeDtoFromContract<FcmUserDto>(
@@ -149,6 +149,7 @@ class FcmTransmitter @Inject constructor(
                     }
                 }
             }
+            else -> logger.error("Unknown error occurred when transmitting message")
         }
     }
 

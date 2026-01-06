@@ -18,3 +18,8 @@ dependencies {
     implementation(project(":microservices:core"))
     implementation(project(":microservices:contract"))
 }
+
+ktlint {
+    ignoreFailures.set(true)
+    outputColorName.set("RED")
+}

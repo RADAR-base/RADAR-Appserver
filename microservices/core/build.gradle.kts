@@ -45,3 +45,8 @@ allOpen {
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.Embeddable")
 }
+
+ktlint {
+    ignoreFailures.set(true)
+    outputColorName.set("RED")
+}

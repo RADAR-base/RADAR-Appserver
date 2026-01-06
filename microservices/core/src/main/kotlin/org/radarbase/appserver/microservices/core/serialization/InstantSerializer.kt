@@ -27,6 +27,7 @@ import kotlinx.serialization.json.double
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.math.floor
 
 object InstantSerializer : KSerializer<Instant> {
@@ -50,6 +51,7 @@ object InstantSerializer : KSerializer<Instant> {
     }
 
     override fun serialize(encoder: Encoder, value: Instant) {
-        encoder.encodeString(value.toString())
+        val truncated = value.truncatedTo(ChronoUnit.MILLIS)
+        encoder.encodeString(truncated.toString())
     }
 }

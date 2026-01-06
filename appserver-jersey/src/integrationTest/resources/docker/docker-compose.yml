@@ -54,7 +54,7 @@ services:
     build:
       context: ../../../../../
       dockerfile: Dockerfile.appserver-jersey
-    image: radarbase/radar-appserver:${RADAR_APPSERVER_TAG}
+    image: ${RADAR_APPSERVER_IMAGE_NAME}:${RADAR_APPSERVER_TAG}
     depends_on:
       - managementportal
       - appserver-postgres
@@ -68,6 +68,6 @@ services:
       APPSERVER_JDBC_DRIVER: org.postgresql.Driver
       APPSERVER_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       MANAGEMENTPORTAL_BASE_URL: http://managementportal:8081/managementportal
-      GOOGLE_APPLICATION_CREDENTIALS: /appserver-includes/google-application-credentials.json
+      GOOGLE_APPLICATION_CREDENTIALS: /appserver-includes/google-credentials.json
     volumes:
       - ./fcm:/appserver-includes/
