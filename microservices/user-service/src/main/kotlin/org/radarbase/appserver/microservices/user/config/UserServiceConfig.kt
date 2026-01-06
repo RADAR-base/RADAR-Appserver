@@ -55,8 +55,17 @@ data class UserServiceConfig(
         contract,
         {
             it.withEnv()
-        }, {
+        },
+        {
             copy(contract = it)
-        }
+        },
+    ).copyOnChange(
+        email,
+        {
+            it.withEnv()
+        },
+        {
+            copy(email = it)
+        },
     )
 }

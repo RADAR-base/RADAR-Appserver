@@ -2,6 +2,10 @@ plugins {
     application
 }
 
+application {
+    mainClass.set("org.radarbase.appserver.microservices.task.TaskMicroserviceKt")
+}
+
 description = "AppServer Task State Event Microservices Implementation"
 
 dependencies {

@@ -16,6 +16,13 @@
 
 package org.radarbase.appserver.microservices.user.config
 
+import org.radarbase.jersey.config.ConfigLoader.copyEnv
+
 data class EmailConfig(
     val enabled: Boolean = false,
-)
+) {
+    fun withEnv() = this.
+    copyEnv("RADAR_APPSERVER_NOTIFICATION_EMAIL_ENABLED") {
+        copy(enabled = it.toBoolean())
+    }
+}

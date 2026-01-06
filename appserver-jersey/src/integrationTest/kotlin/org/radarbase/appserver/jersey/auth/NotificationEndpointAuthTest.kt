@@ -99,7 +99,7 @@ class NotificationEndpointAuthTest {
             accept(ContentType.Application.Json)
         }
 
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -110,7 +110,7 @@ class NotificationEndpointAuthTest {
             accept(ContentType.Application.Json)
         }
 
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -122,7 +122,7 @@ class NotificationEndpointAuthTest {
             setBody(notification)
         }
 
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Order(1)
@@ -136,7 +136,7 @@ class NotificationEndpointAuthTest {
             contentType(ContentType.Application.Json)
         }
 
-        assertEquals(response.status, HttpStatusCode.Created)
+        assertEquals(HttpStatusCode.Created, response.status)
     }
 
     @Order(2)
@@ -160,7 +160,7 @@ class NotificationEndpointAuthTest {
             contentType(ContentType.Application.Json)
         }
 
-        assertEquals(response.status, HttpStatusCode.Created)
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 
     @Test
@@ -172,7 +172,7 @@ class NotificationEndpointAuthTest {
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
 
-        assertEquals(response.status, HttpStatusCode.OK)
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 
     @Test
@@ -184,7 +184,7 @@ class NotificationEndpointAuthTest {
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
 
-        assertEquals(response.status, HttpStatusCode.OK)
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 
     @Test
@@ -196,7 +196,7 @@ class NotificationEndpointAuthTest {
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
 
-        assertEquals(response.status, HttpStatusCode.Forbidden)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
@@ -208,7 +208,7 @@ class NotificationEndpointAuthTest {
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
 
-        assertEquals(response.status, HttpStatusCode.Forbidden)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     companion object {

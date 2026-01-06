@@ -1,0 +1,229 @@
+version: '3.8'
+
+networks:
+  public:
+    driver: bridge
+  mp:
+    driver: bridge
+    internal: true
+  mp-db:
+    driver: bridge
+    internal: true
+  microservice:
+    driver: bridge
+    internal: true
+  project-service-internal:
+    driver: bridge
+    internal: true
+  user-service-internal:
+    driver: bridge
+    internal: true
+  task-service-internal:
+    driver: bridge
+    internal: true
+  cloud-messaging-service-internal:
+    driver: bridge
+    internal: true
+
+services:
+  #---------------------------------------------------------------------------#
+  # ManagementPortal Postgres                                                 #
+  #---------------------------------------------------------------------------#
+  managementportal-postgresql:
+    image: postgres
+    environment:
+      POSTGRES_USER: radarbase
+      POSTGRES_PASSWORD: radarbase
+      POSTGRES_DB: managementportal
+    networks:
+      - mp-db
+
+  #---------------------------------------------------------------------------#
+  # Management Portal                                                         #
+  #---------------------------------------------------------------------------#
+  managementportal:
+    image: radarbase/management-portal:2.1.0
+    environment:
+      SERVER_PORT: 8081
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://managementportal-postgresql:5432/managementportal
+      SPRING_DATASOURCE_USERNAME: radarbase
+      SPRING_DATASOURCE_PASSWORD: radarbase
+      SPRING_LIQUIBASE_CONTEXTS: dev #includes testing_data, remove for production builds
+      JHIPSTER_SLEEP: 10 # gives time for the database to boot before the application
+      JAVA_OPTS: -Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
+      MANAGEMENTPORTAL_COMMON_BASE_URL: http://localhost:8081/managementportal
+      MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL: http://localhost:8081/managementportal
+      MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET:
+      MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE: /mp-includes/config/oauth_client_details.csv
+    networks:
+      - public
+      - mp
+      - mp-db
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./resources/docker/etc/:/mp-includes/
+
+  #---------------------------------------------------------------------------#
+  # Gateway Service                                                           #
+  #---------------------------------------------------------------------------#
+  gateway-service:
+    build:
+      context: ../
+      dockerfile: microservices/gateway-service/Dockerfile
+    image: radarbase/appserver-gateway-service:test
+    ports:
+      - "8080:8080"
+    networks:
+      - public
+      - microservice
+      - mp
+    environment:
+      APPSERVER_PROJECT_SERVICE_BASE_URL: http://project-service:9010
+      APPSERVER_USER_SERVICE_BASE_URL: http://user-service:9013
+      APPSERVER_GITHUB_SERVICE_BASE_URL: http://github-service:9011
+      APPSERVER_PROTOCOL_SERVICE_BASE_URL: http://protocol-service:9012
+      APPSERVER_TASK_SERVICE_BASE_URL: http://task-service:9014
+      APPSERVER_CLOUD_MESSAGING_SERVICE_BASE_URL: http://cloud-messaging-service:9015
+      APPSERVER_MANAGEMENTPORTAL_BASE_URL: http://managementportal:8081/managementportal
+
+  #---------------------------------------------------------------------------#
+  # Project Service                                                           #
+  #---------------------------------------------------------------------------#
+  project-service-db:
+    image: postgres
+    networks:
+      - project-service-internal
+    environment:
+      POSTGRES_DB: appserver_project
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+
+  project-service:
+    build:
+      context: ..
+      dockerfile: microservices/project-service/Dockerfile
+    image: radarbase/appserver-project-service:test
+    networks:
+      - microservice
+      - project-service-internal
+    depends_on:
+      - project-service-db
+    environment:
+      APPSERVER_PROJECT_JDBC_URL: jdbc:postgresql://project-service-db:5432/appserver_project
+      APPSERVER_PROJECT_JDBC_USERNAME: radar
+      APPSERVER_PROJECT_JDBC_PASSWORD: radar
+      APPSERVER_PROJECT_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      APPSERVER_PROJECT_JDBC_DRIVER: org.postgresql.Driver
+
+  #---------------------------------------------------------------------------#
+  # User Service                                                              #
+  #---------------------------------------------------------------------------#
+  user-service-db:
+    image: postgres
+    networks:
+      - user-service-internal
+    environment:
+      POSTGRES_DB: appserver_user
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+
+  user-service:
+    build:
+      context: ..
+      dockerfile: microservices/user-service/Dockerfile
+    image: radarbase/appserver-user-service:test
+    networks:
+      - microservice
+      - user-service-internal
+    depends_on:
+      - user-service-db
+    environment:
+      APPSERVER_USER_JDBC_URL: jdbc:postgresql://user-service-db:5432/appserver_user
+      APPSERVER_USER_JDBC_USERNAME: radar
+      APPSERVER_USER_JDBC_PASSWORD: radar
+      APPSERVER_USER_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      APPSERVER_USER_JDBC_DRIVER: org.postgresql.Driver
+
+  #---------------------------------------------------------------------------#
+  # Github Service                                                            #
+  #---------------------------------------------------------------------------#
+  github-service:
+    build:
+      context: ..
+      dockerfile: microservices/github-service/Dockerfile
+    image: radarbase/appserver-github-service:test
+    networks:
+      - microservice
+      - public
+
+  #---------------------------------------------------------------------------#
+  # Protocol Service                                                          #
+  #---------------------------------------------------------------------------#
+  protocol-service:
+    build:
+      context: ..
+      dockerfile: microservices/protocol-service/Dockerfile
+    image: radarbase/appserver-protocol-service:test
+    networks:
+      - microservice
+
+  #---------------------------------------------------------------------------#
+  # Task Service                                                              #
+  #---------------------------------------------------------------------------#
+  task-service-db:
+    image: postgres
+    networks:
+      - task-service-internal
+    environment:
+      POSTGRES_DB: appserver_task
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+
+  task-service:
+    build:
+      context: ..
+      dockerfile: microservices/task-service/Dockerfile
+    image: radarbase/appserver-task-service:test
+    networks:
+      - microservice
+      - task-service-internal
+    depends_on:
+      - task-service-db
+    environment:
+      APPSERVER_TASK_JDBC_URL: jdbc:postgresql://task-service-db:5432/appserver_task
+      APPSERVER_TASK_JDBC_USERNAME: radar
+      APPSERVER_TASK_JDBC_PASSWORD: radar
+      APPSERVER_TASK_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      APPSERVER_TASK_JDBC_DRIVER: org.postgresql.Driver
+
+  #---------------------------------------------------------------------------#
+  # Cloud Messaging Service                                                   #
+  #---------------------------------------------------------------------------#
+  cloud-messaging-service-db:
+    image: postgres
+    networks:
+      - cloud-messaging-service-internal
+    environment:
+      POSTGRES_DB: appserver_cloud_messaging
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+
+  cloud-messaging-service:
+    build:
+      context: ..
+      dockerfile: microservices/cloud-messaging-service/Dockerfile
+    image: radarbase/appserver-cloud-messaging-service:test
+    networks:
+      - microservice
+      - cloud-messaging-service-internal
+    depends_on:
+      - cloud-messaging-service-db
+    environment:
+      APPSERVER_CLOUD_MESSAGING_JDBC_URL: jdbc:postgresql://cloud-messaging-service-db:5432/appserver_cloud_messaging
+      APPSERVER_CLOUD_MESSAGING_JDBC_USERNAME: radar
+      APPSERVER_CLOUD_MESSAGING_JDBC_PASSWORD: radar
+      APPSERVER_CLOUD_MESSAGING_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      APPSERVER_CLOUD_MESSAGING_JDBC_DRIVER: org.postgresql.Driver
+

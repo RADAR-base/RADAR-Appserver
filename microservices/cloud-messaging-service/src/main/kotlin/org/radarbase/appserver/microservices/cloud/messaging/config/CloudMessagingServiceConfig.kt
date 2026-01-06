@@ -31,6 +31,7 @@ data class CloudMessagingServiceConfig(
     val eventBus: CoreEventBusConfig,
     val fcm: CoreFcmServerConfig,
     val quartz: CoreSchedulerConfig = CoreSchedulerConfig(),
+    val email: EmailConfig = EmailConfig(),
 ) : Validation {
     override fun validate() {
         listOf(server, db, eventBus).forEach {
@@ -62,5 +63,12 @@ data class CloudMessagingServiceConfig(
         {
             copy(contract = it)
         },
+    ).copyOnChange(
+        email,
+        {
+            it.withEnv()
+        }, {
+            copy(email = it)
+        }
     )
 }

@@ -49,7 +49,7 @@ import java.time.Instant
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class UserEndpointAuthTest {
     val fcmUserDto = FcmUserDto(
-        projectId = "radar",
+        projectId = DEFAULT_PROJECT,
         language = "en",
         enrolmentDate = Instant.now(),
         fcmToken = "xxx",
@@ -61,7 +61,7 @@ class UserEndpointAuthTest {
     fun createProject(): Unit = runBlocking {
         val project = ProjectDto(projectId = DEFAULT_PROJECT)
 
-        httpClient.post {
+        httpClient.post(PROJECT_PATH) {
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
             contentType(ContentType.Application.Json)
             setBody(project)
@@ -74,7 +74,7 @@ class UserEndpointAuthTest {
             accept(ContentType.Application.Json)
         }
 
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -84,7 +84,7 @@ class UserEndpointAuthTest {
             setBody(fcmUserDto)
         }
 
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -102,7 +102,7 @@ class UserEndpointAuthTest {
             return@runBlocking
         }
 
-        assertEquals(response.status, HttpStatusCode.Created)
+        assertEquals(HttpStatusCode.Created, response.status)
     }
 
     @Test
@@ -135,7 +135,7 @@ class UserEndpointAuthTest {
             header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
 
-        assertEquals(response.status, HttpStatusCode.Forbidden)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
@@ -147,7 +147,7 @@ class UserEndpointAuthTest {
         }
 
         // Should return a filtered list of users for which the token has access.
-        assertEquals(response.status, HttpStatusCode.OK)
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 
     companion object {

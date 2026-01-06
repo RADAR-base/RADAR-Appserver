@@ -2,6 +2,10 @@ plugins {
     application
 }
 
+application {
+    mainClass.set("org.radarbase.appserver.microservices.gateway.GatewayMicroserviceKt")
+}
+
 description = "AppServer Gateway Microservices Implementation"
 
 dependencies {

@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import jakarta.inject.Inject
 import jakarta.inject.Provider
 import jakarta.validation.Valid
 import jakarta.ws.rs.DELETE
@@ -51,6 +52,7 @@ import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
+import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.LocalDateTime
 import kotlin.time.Duration
@@ -58,7 +60,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
-class FcmNotificationResource(
+class FcmNotificationResource @Inject constructor(
     private val asyncService: AsyncCoroutineService,
     private val authService: AuthService,
     private val tokenProvider: Provider<RadarToken>,
@@ -150,13 +152,15 @@ class FcmNotificationResource(
     @Path("$PROJECTS_PATH/$PROJECT_ID/$MESSAGING_NOTIFICATION_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun getNotificationsUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            log.info("Processing request....")
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            log.info("Checking permissions for subject ${token.subject} in project $projectId")
             authService.checkPermission(
                 Permission.SUBJECT_READ,
                 EntityDetails(project = projectId, subject = token.subject),
@@ -328,5 +332,9 @@ class FcmNotificationResource(
             )
             Response.ok().build()
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(FcmNotificationResource::class.java)
     }
 }

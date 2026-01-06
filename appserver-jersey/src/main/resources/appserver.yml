@@ -11,7 +11,7 @@ server:
 # Authentication configuration.
 auth:
   managementPortalUrl: http://localhost:8081/managementportal
-  resourceName: res_Appserver
+  resourceName: res_AppServer
 
 db:
   # For Development environment, use H2 database.
@@ -20,8 +20,8 @@ db:
   #  hibernateDialect: org.hibernate.dialect.H2Dialect
   #  liquibase:
   #    enabled: false
-  #  additionalProperties:
-  #    jakarta.persistence.schema-generation.database.action: drop-and-create
+  additionalProperties:
+    jakarta.persistence.schema-generation.database.action: drop-and-create
   #    hibernate.show_sql: true
   #    hibernate.format_sql: true
   jdbcDriver: org.postgresql.Driver
@@ -65,6 +65,14 @@ protocol:
 
 email:
   enabled: false
+  smtpHost: smtp.gmail.com
+  smtpPort: 587
+  smtpUser:
+  smtpPassword:
+  fromAddress: radar-base@kcl.ac.uk
+  connectTimeout: 10000
+  readTimeout: 10000
+  enableTls: true
 
 fcm:
   fcmsender: org.radarbase.appserver.jersey.fcm.downstream.AdminSdkFcmSender

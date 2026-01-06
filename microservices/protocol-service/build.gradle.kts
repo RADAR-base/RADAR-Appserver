@@ -2,6 +2,10 @@ plugins {
     application
 }
 
+application {
+    mainClass.set("org.radarbase.appserver.microservices.protocol.ProtocolMicroserviceKt")
+}
+
 description = "AppServer Protocol Microservices Implementation"
 
 dependencies {

@@ -53,7 +53,7 @@ class ProjectEndpointAuthTest {
             contentType(ContentType.Application.Json)
             setBody(project)
         }
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -61,7 +61,7 @@ class ProjectEndpointAuthTest {
         val response = httpClient.get(PROJECT_PATH) {
             accept(ContentType.Application.Json)
         }
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -69,27 +69,28 @@ class ProjectEndpointAuthTest {
         val response = httpClient.get("$PROJECT_PATH/radar") {
             accept(ContentType.Application.Json)
         }
-        assertEquals(response.status, HttpStatusCode.Unauthorized)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
     fun forbiddenViewProjects(): Unit = runBlocking {
         val response = httpClient.get(PROJECT_PATH) {
             accept(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer ${AUTH_HEADERS[HttpHeaders.Authorization]}")
+            header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
         // Only Admins Can View List Of All Projects
-        assertEquals(response.status, HttpStatusCode.Forbidden)
+        assertEquals(HttpStatusCode.Forbidden, response.status)
     }
 
     @Test
     @Order(1)
     fun createSingleProjectWithAuth() = runBlocking {
         val project = ProjectDto(projectId = "radar")
+
         val response = httpClient.post(PROJECT_PATH) {
             contentType(ContentType.Application.Json)
             setBody(project)
-            header(HttpHeaders.Authorization, "Bearer ${AUTH_HEADERS[HttpHeaders.Authorization]}")
+            header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
 
         if (response.status == HttpStatusCode.ExpectationFailed) {
@@ -101,10 +102,12 @@ class ProjectEndpointAuthTest {
     @Test
     @Order(2)
     fun getSingleProjectWithAuth() = runBlocking {
+
         val response = httpClient.get("$PROJECT_PATH/radar") {
             accept(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer ${AUTH_HEADERS[HttpHeaders.Authorization]}")
+            header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
+
         assertEquals(HttpStatusCode.OK, response.status)
     }
 
@@ -113,7 +116,7 @@ class ProjectEndpointAuthTest {
     fun getForbiddenProjectWithAuth() = runBlocking {
         val response = httpClient.get("$PROJECT_PATH/test") {
             accept(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer ${AUTH_HEADERS[HttpHeaders.Authorization]}")
+            header(HttpHeaders.Authorization, AUTH_HEADERS[HttpHeaders.Authorization])
         }
         assertEquals(HttpStatusCode.Forbidden, response.status)
     }

@@ -4,7 +4,9 @@ import jakarta.inject.Inject
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
+import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.DataMessageTransmitter
+import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.EmailTransmitter
 import org.radarbase.appserver.microservices.cloud.messaging.service.transmitter.NotificationTransmitter
 import org.radarbase.appserver.microservices.core.exception.FcmMessageTransmitException
 import org.radarbase.appserver.microservices.core.exception.MessageTransmitException
@@ -23,7 +25,10 @@ class MessageJob @Inject constructor(
     private val notificationService: FcmNotificationService,
     private val dataMessageService: FcmDataMessageService,
     private val asyncService: AsyncCoroutineService,
+    private val emailTransmitter: EmailTransmitter?,
+    config: AppserverConfig,
 ) : Job {
+    private val emailEnabled = config.email.enabled
     /**
      * Called by the `[org.quartz.Scheduler]` when a `[org.quartz.Trigger]
      `*  fires that is associated with the `Job`.
@@ -60,6 +65,12 @@ class MessageJob @Inject constructor(
                                 transmitter.send(notification)
                             } catch (e: MessageTransmitException) {
                                 exceptions.add(e)
+                            }
+                        }
+
+                        if (emailEnabled) {
+                            emailTransmitter?.send(notification) ?: run {
+                                logger.warn("Sending Email is enabled but email transmitter is not configured")
                             }
                         }
                     }

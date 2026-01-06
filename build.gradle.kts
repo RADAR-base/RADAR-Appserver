@@ -9,7 +9,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlinVersion
     kotlin("plugin.allopen") version Versions.kotlinVersion
     kotlin("plugin.noarg") version Versions.kotlinVersion
-//    id("com.avast.gradle.docker-compose") version Versions.dockerCompose apply false
+    id("com.avast.gradle.docker-compose") version Versions.dockerCompose apply false
 }
 
 appserverProject {
@@ -33,6 +33,18 @@ subprojects {
             kotlinVersion.set(Versions.kotlinVersion)
             junitVersion.set(Versions.junit5Version)
             log4j2Version.set(Versions.log4j2)
+        }
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            force(
+                "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlinVersion}",
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlinVersion}",
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlinVersion}",
+                "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlinVersion}",
+                "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlinVersion}",
+            )
         }
     }
 }
