@@ -124,7 +124,7 @@ jobs:
             echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUT
           fi
 
-      - name: Assemble ${{ matrix.service }}
+      - name: Compile ${{ matrix.service }} code
         run: ./gradlew --no-daemon :microservices:${{ matrix.service }}:assemble
 
       - name: Build docker
