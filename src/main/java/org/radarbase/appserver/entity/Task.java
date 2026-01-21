@@ -23,8 +23,6 @@ package org.radarbase.appserver.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,7 +37,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.temporal.ChronoField;
+import java.util.Objects;
 
 @Entity
 @Table(
@@ -245,4 +243,21 @@ public class Task extends AuditModel implements Serializable {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Task task)) {
+            return false;
+        }
+        return Objects.equals(getUser(), task.getUser())
+                && Objects.equals(getTimestamp(), task.getTimestamp())
+                && Objects.equals(getName(), task.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUser(), getTimestamp(), getName());
+    }
 }

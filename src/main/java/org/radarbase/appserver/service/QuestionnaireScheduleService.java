@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -186,13 +185,6 @@ public class QuestionnaireScheduleService {
 
         this.saveTasksAndNotifications(List.of(a), user);
         return schedule;
-    }
-
-    @Scheduled(fixedRate = 3_600_000)
-    public void generateAllSchedules() {
-        List<User> users = this.userRepository.findAll();
-        log.info("Generating all schedules..");
-        users.forEach(this::generateScheduleForUser);
     }
 
     public Schedule getScheduleForSubject(String subjectId) {

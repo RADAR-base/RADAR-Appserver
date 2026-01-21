@@ -27,12 +27,12 @@ import org.radarbase.appserver.dto.protocol.TimePeriod;
 import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
 import org.radarbase.appserver.entity.Task;
 import org.radarbase.appserver.entity.User;
-import org.radarbase.appserver.service.TaskService;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
@@ -45,18 +45,21 @@ public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
     public RandomRepeatQuestionnaireHandler() { }
 
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
-        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
-        assessmentSchedule.setTasks(tasks);
+        Set<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
+        assessmentSchedule.setTasks(List.copyOf(tasks));
         return assessmentSchedule;
     }
 
-    private List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
+    private Set<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer[]> randomUnitsFromZeroBetween = repeatQuestionnaire.getRandomUnitsFromZeroBetween();
         Iterator<Instant> referenceTimestampsIter = referenceTimestamps.iterator();
         Long completionWindow = this.calculateCompletionWindow(assessment.getProtocol().getCompletionWindow());
-        List<Task> tasks = new ArrayList<>();
+        // Specific (edge case) combinations of repeatProtocol and repeatQuestionnaire may lead to Tasks with identical
+        // name, user id and scheduling time, causing downstream key constraint errors when storing Notifications.
+        // Deduplication of Task objects generated here solves this.
+        Set<Task> tasks = new LinkedHashSet<>();
         while (referenceTimestampsIter.hasNext()) {
             Instant referenceTimestamp = referenceTimestampsIter.next();
             TimePeriod timePeriod = new TimePeriod();
@@ -71,6 +74,7 @@ public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
                 tasks.add(task);
             }
         }
+
         return tasks;
     }
 

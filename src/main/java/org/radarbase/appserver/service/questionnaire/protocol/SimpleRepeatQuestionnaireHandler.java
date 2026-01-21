@@ -42,33 +42,32 @@ public class SimpleRepeatQuestionnaireHandler implements ProtocolHandler {
     public SimpleRepeatQuestionnaireHandler() { }
 
     public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
-        List<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
-        assessmentSchedule.setTasks(tasks);
+        Set<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
+        assessmentSchedule.setTasks(List.copyOf(tasks));
         return assessmentSchedule;
     }
 
-    private List<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
+    private Set<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
         TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
         RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
         List<Integer> unitsFromZero = repeatQuestionnaire.getUnitsFromZero();
         Long completionWindow = this.calculateCompletionWindow(assessment.getProtocol().getCompletionWindow());
-
-        List<Task> tasks = referenceTimestamps.parallelStream()
+        // Specific (edge case) combinations of repeatProtocol and repeatQuestionnaire may lead to Tasks with identical
+        // name, user id and scheduling time, causing downstream key constraint errors when storing Notifications.
+        // Deduplication of Task objects generated here solves this.
+        return referenceTimestamps.parallelStream()
                 .flatMap(referenceTimestamp -> {
                     TimePeriod timePeriod = new TimePeriod();
                     timePeriod.setUnit(repeatQuestionnaire.getUnit());
-                    List<Task> t = unitsFromZero.parallelStream()
+                    return unitsFromZero.parallelStream()
                             .map(unitFromZero -> {
                                 timePeriod.setAmount(unitFromZero);
                                 Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
                                 Task task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow);
                                 task.setUser(user);
                                 return task;
-                            }).collect(Collectors.toList());
-                    return t.stream();
-                }).collect(Collectors.toList());
-
-        return tasks;
+                            });
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private Long calculateCompletionWindow(TimePeriod completionWindow) {
