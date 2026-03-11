@@ -91,7 +91,7 @@ public class FcmNotificationDto implements Serializable {
   private String icon;
 
   // For android. Color of the icon
-  private String color;
+  private String color = "#000000";
 
   private String bodyLocKey;
 
