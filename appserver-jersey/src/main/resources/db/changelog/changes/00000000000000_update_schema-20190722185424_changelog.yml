@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1563818104000-01
+      author: yatharth
+      changes:
+        - addDefaultValue:
+            columnDataType: boolean
+            columnName: mutable_content
+            defaultValueBoolean: false
+            tableName: notifications
