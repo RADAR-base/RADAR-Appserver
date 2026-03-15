@@ -14,14 +14,16 @@ auth:
   resourceName: res_AppServer
 
 db:
-  # For Development environment, use H2 database.
+  # For Development environment, use H2 database with drop-and-create:
   #  jdbcDriver: org.h2.Driver
   #  jdbcUrl: jdbc:h2:mem:dev
   #  hibernateDialect: org.hibernate.dialect.H2Dialect
   #  liquibase:
   #    enabled: false
+  #  additionalProperties:
+  #    jakarta.persistence.schema-generation.database.action: drop-and-create
   additionalProperties:
-    jakarta.persistence.schema-generation.database.action: drop-and-create
+    hibernate.hbm2ddl.auto: validate
   #    hibernate.show_sql: true
   #    hibernate.format_sql: true
   jdbcDriver: org.postgresql.Driver
@@ -29,6 +31,9 @@ db:
   hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
   username: radar
   password: radar
+  liquibase:
+    enabled: true
+    changelogs: db/changelog/db.changelog-master.yaml
 
 # GitHub configuration.
 github:
