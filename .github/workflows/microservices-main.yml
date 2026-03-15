@@ -1,9 +1,9 @@
 name: CI microservices-main
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ master, dev ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ master, dev ]
 
 jobs:
   build:
@@ -247,5 +247,5 @@ jobs:
         if: always()
         with:
           name: integration-test-logs
-          path: appserver-jersey/build/container-logs/
+          path: microservices/integration-tests/build/container-logs/
           retention-days: 7

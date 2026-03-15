@@ -1,4 +1,4 @@
-name: Appserver Jersey Release
+name: Appserver Microservices Release
 
 on:
   release:
@@ -7,7 +7,6 @@ on:
 env:
   REGISTRY: ghcr.io
   REPOSITORY: ${{ github.repository }}
-  IMAGE_NAME: radar-appserver
 
 jobs:
   upload:
@@ -65,7 +64,7 @@ jobs:
           - cloud-messaging-service
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-java@v5
         with:
@@ -89,8 +88,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lowercase image name
+        env:
+          MODULE: ${{ matrix.service }}
         run: |
-          echo "DOCKER_IMAGE=${REGISTRY}/${REPOSITORY,,}/${IMAGE_NAME}" >>${GITHUB_ENV}
+          echo "DOCKER_IMAGE=${REGISTRY}/${REPOSITORY,,}/${MODULE}" >>${GITHUB_ENV}
 
       # Add Docker labels and tags
       - name: Docker meta
