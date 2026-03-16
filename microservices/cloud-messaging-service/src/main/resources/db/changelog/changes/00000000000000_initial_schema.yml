@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1773682377000-1
+      id: 20260313-cloud-messaging-service-initial-schema
       author: aditya
 
       changes:
