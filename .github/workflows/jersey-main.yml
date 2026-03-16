@@ -1,9 +1,9 @@
 name: CI jersey-main
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ master, dev ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ master, dev ]
 
 env:
   REGISTRY: ghcr.io

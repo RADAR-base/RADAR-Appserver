@@ -1,0 +1,118 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1773682377000-1
+      author: aditya
+
+      changes:
+        - createTable:
+            tableName: user_metrics
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: last_opened
+                  type: TIMESTAMP
+              - column:
+                  name: last_delivered
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: subject_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: fcm_token
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: project_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enrolment_date
+                  type: TIMESTAMP
+              - column:
+                  name: usermetrics_id
+                  type: BIGINT
+              - column:
+                  name: timezone
+                  type: VARCHAR(255)
+              - column:
+                  name: language
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: subject_id, project_id
+            constraintName: uk_users_subject_project
+
+        - addForeignKeyConstraint:
+            baseTableName: users
+            baseColumnNames: usermetrics_id
+            referencedTableName: user_metrics
+            referencedColumnNames: id
+            constraintName: fk_users_usermetrics
+
+        - createTable:
+            tableName: attributes_map
+            columns:
+              - column:
+                  name: User_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: attribute_key
+                  type: VARCHAR(255)
+              - column:
+                  name: attribute_value
+                  type: VARCHAR(255)
+
+        - addForeignKeyConstraint:
+            baseTableName: attributes_map
+            baseColumnNames: User_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_attributes_map_user

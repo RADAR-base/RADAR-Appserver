@@ -51,6 +51,7 @@ class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : En
             properties = config.db.additionalProperties,
             liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
+                changelogs = config.db.liquibase.changelogs,
             ),
         )
 

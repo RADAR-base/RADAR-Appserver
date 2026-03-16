@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260313-project-service-initial-schema
+      author: aditya
+
+      changes:
+        - createTable:
+            tableName: projects
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
