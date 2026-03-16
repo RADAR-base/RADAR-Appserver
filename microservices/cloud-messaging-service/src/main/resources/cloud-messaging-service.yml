@@ -6,21 +6,26 @@ server:
   isJmxEnabled: false
 
 db:
-  # For Development environment, use H2 database.
-  jdbcDriver: org.h2.Driver
-  jdbcUrl: jdbc:h2:mem:appserver_cloud_messaging
-  hibernateDialect: org.hibernate.dialect.H2Dialect
-  liquibase:
-    enabled: false
+  # For Development environment, use H2 database with drop-and-create:
+  #  jdbcDriver: org.h2.Driver
+  #  jdbcUrl: jdbc:h2:mem:appserver_cloud_messaging
+  #  hibernateDialect: org.hibernate.dialect.H2Dialect
+  #  liquibase:
+  #    enabled: false
+  #  additionalProperties:
+  #    jakarta.persistence.schema-generation.database.action: drop-and-create
   additionalProperties:
-    jakarta.persistence.schema-generation.database.action: drop-and-create
-#    hibernate.show_sql: true
-#    hibernate.format_sql: true
-#  jdbcDriver: org.postgresql.Driver
-#  jdbcUrl: jdbc:postgresql://localhost:5432/appserver_cloud_messaging
-#  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
-#  username: radar
-#  password: radar
+    hibernate.hbm2ddl.auto: validate
+  #    hibernate.show_sql: true
+  #    hibernate.format_sql: true
+  jdbcDriver: org.postgresql.Driver
+  jdbcUrl: jdbc:postgresql://localhost:5432/appserver_cloud_messaging
+  hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
+  username: radar
+  password: radar
+  liquibase:
+    enabled: true
+    changelogs: db/changelog/db.changelog-master.yaml
 
 eventBus:
   numThreads: 3

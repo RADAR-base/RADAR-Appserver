@@ -1,0 +1,211 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260313-cloud-messaging-service-initial-schema
+      author: aditya
+
+      changes:
+        - createTable:
+            tableName: notifications
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: subject_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: BIGINT
+              - column:
+                  name: source_id
+                  type: VARCHAR(255)
+              - column:
+                  name: scheduled_time
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ttl_seconds
+                  type: INT
+                  defaultValueNumeric: 0
+              - column:
+                  name: fcm_message_id
+                  type: VARCHAR(255)
+              - column:
+                  name: fcm_topic
+                  type: VARCHAR(255)
+              - column:
+                  name: fcm_condition
+                  type: VARCHAR(255)
+              - column:
+                  name: delivered
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: validated
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: app_package
+                  type: VARCHAR(255)
+              - column:
+                  name: source_type
+                  type: VARCHAR(255)
+              - column:
+                  name: dry_run
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: priority
+                  type: VARCHAR(255)
+              - column:
+                  name: mutable_content
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: body
+                  type: VARCHAR(255)
+              - column:
+                  name: type
+                  type: VARCHAR(255)
+              - column:
+                  name: sound
+                  type: VARCHAR(255)
+              - column:
+                  name: badge
+                  type: VARCHAR(255)
+              - column:
+                  name: subtitle
+                  type: VARCHAR(255)
+              - column:
+                  name: icon
+                  type: VARCHAR(255)
+              - column:
+                  name: color
+                  type: VARCHAR(255)
+              - column:
+                  name: body_loc_key
+                  type: VARCHAR(255)
+              - column:
+                  name: body_loc_args
+                  type: VARCHAR(255)
+              - column:
+                  name: title_loc_key
+                  type: VARCHAR(255)
+              - column:
+                  name: title_loc_args
+                  type: VARCHAR(255)
+              - column:
+                  name: android_channel_id
+                  type: VARCHAR(255)
+              - column:
+                  name: tag
+                  type: VARCHAR(255)
+              - column:
+                  name: click_action
+                  type: VARCHAR(255)
+              - column:
+                  name: email_enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: email_title
+                  type: TEXT
+              - column:
+                  name: email_body
+                  type: TEXT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: notifications
+            columnNames: user_id, source_id, scheduled_time, title, body, type, ttl_seconds, delivered, dry_run
+            constraintName: uk_notifications_unique
+
+        - createTable:
+            tableName: notifications_additional_data
+            columns:
+              - column:
+                  name: Notification_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: additional_key
+                  type: VARCHAR(255)
+              - column:
+                  name: additional_value
+                  type: VARCHAR(255)
+
+        - addForeignKeyConstraint:
+            baseTableName: notifications_additional_data
+            baseColumnNames: Notification_id
+            referencedTableName: notifications
+            referencedColumnNames: id
+            constraintName: fk_notification_additional_data
+
+        - createTable:
+            tableName: notification_state_events
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: state
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: associated_info
+                  type: VARCHAR(1250)
+              - column:
+                  name: notification_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: notification_state_events
+            baseColumnNames: notification_id
+            referencedTableName: notifications
+            referencedColumnNames: id
+            constraintName: fk_notification_state_events_notification
+            onDelete: CASCADE
