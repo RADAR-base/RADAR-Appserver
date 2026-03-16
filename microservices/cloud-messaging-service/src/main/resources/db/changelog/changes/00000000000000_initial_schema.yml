@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 20260313-cloud-messaging-service-initial-schema
+      id: 1773682377000-1
       author: aditya
 
       changes:
@@ -43,7 +43,7 @@ databaseChangeLog:
               - column:
                   name: ttl_seconds
                   type: INT
-                  defaultValueNumeric: 0
+                  defaultValueNumeric: "0"
               - column:
                   name: fcm_message_id
                   type: VARCHAR(255)
