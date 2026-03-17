@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.service.quartz
 
 import jakarta.inject.Inject
+import org.jvnet.hk2.annotations.Optional
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
