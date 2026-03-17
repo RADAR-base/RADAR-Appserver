@@ -29,7 +29,6 @@ import org.radarbase.appserver.jersey.mapper.Mapper
 import org.radarbase.appserver.jersey.mapper.UserMapper
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
-import org.radarbase.appserver.jersey.service.questionnaire.schedule.QuestionnaireScheduleService
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.jersey.exception.HttpNotFoundException
@@ -42,7 +41,6 @@ class UserService @Inject constructor(
     @Named(USER_MAPPER) val userMapper: Mapper<FcmUserDto, User>,
     val userRepository: UserRepository,
     val projectRepository: ProjectRepository,
-    val scheduleService: QuestionnaireScheduleService,
     config: AppserverConfig,
 ) {
     private val sendEmailNotifications: Boolean = config.email.enabled ?: false
@@ -219,8 +217,6 @@ class UserService @Inject constructor(
             userRepository.add(this)
         }
 
-        this.scheduleService.generateScheduleForUser(savedUser)
-
         return userMapper.entityToDto(savedUser)
     }
 
@@ -274,10 +270,6 @@ class UserService @Inject constructor(
             "user_not_found",
             "User with id ${user.id} not found.",
         )
-        // Generate schedule for user
-        if (user.attributes != userDto.attributes || user.timezone != userDto.timezone || user.enrolmentDate != userDto.enrolmentDate || user.language != userDto.language) {
-            this.scheduleService.generateScheduleForUser(savedUser)
-        }
 
         return userMapper.entityToDto(savedUser)
     }
