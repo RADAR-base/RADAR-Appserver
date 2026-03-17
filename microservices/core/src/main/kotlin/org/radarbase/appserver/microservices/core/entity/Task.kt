@@ -30,6 +30,7 @@ import jakarta.validation.constraints.NotNull
 import org.radarbase.appserver.microservices.core.dto.protocol.AssessmentType
 import org.radarbase.appserver.microservices.core.event.state.TaskState
 import java.sql.Timestamp
+import java.util.Objects
 
 @Entity
 @Table(name = "tasks")
@@ -186,7 +187,7 @@ class Task : AuditModel() {
         }
 
         fun build(): Task {
-            var task = Task()
+            val task = Task()
             task.id = id
             task.completed = completed
             task.timestamp = timestamp
@@ -207,6 +208,16 @@ class Task : AuditModel() {
     }
 
     override fun toString(): String {
-        return "Task" + "(id=$id, " + "completed=$completed, " + "timestamp=$timestamp, " + "name=$name, type=$type, " + "estimatedCompletionTime=$estimatedCompletionTime, " + "completionWindow=$completionWindow, " + "warning=$warning, " + "isClinical=$isClinical, " + "timeCompleted=$timeCompleted, " + "showInCalendar=$showInCalendar, " + "isDemo=$isDemo, " + "priority=$priority, " + "nQuestions=$nQuestions, " + "user=$userId, " + "status=$status" + ")"
+        return "Task(id=$id, completed=$completed, timestamp=$timestamp, name=$name, type=$type, estimatedCompletionTime=$estimatedCompletionTime, completionWindow=$completionWindow, warning=$warning, isClinical=$isClinical, timeCompleted=$timeCompleted, showInCalendar=$showInCalendar, isDemo=$isDemo, priority=$priority, nQuestions=$nQuestions, user=$userId, status=$status)"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Task) return false
+        return userId == other.userId
+            && timestamp == other.timestamp
+            && name == other.name
+    }
+
+    override fun hashCode(): Int = Objects.hash(userId, timestamp, name)
 }
