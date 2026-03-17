@@ -22,11 +22,11 @@ COPY ./buildSrc /code/buildSrc
 COPY ./build.gradle.kts ./settings.gradle.kts /code/
 COPY appserver-jersey/build.gradle.kts /code/appserver-jersey/
 
-RUN gradle appserver-jersey:downloadDependencies appserver-jersey:copyDependencies appserver-jersey:startScripts
+RUN gradle --no-daemon appserver-jersey:downloadDependencies appserver-jersey:copyDependencies appserver-jersey:startScripts
 
 COPY appserver-jersey/src/ /code/appserver-jersey/src
 
-RUN gradle jar
+RUN gradle --no-daemon :appserver-jersey:jar
 
 FROM eclipse-temurin:17-jre
 
@@ -35,10 +35,10 @@ COPY --from=builder /code/appserver-jersey/build/third-party/* /usr/lib/
 COPY --from=builder /code/appserver-jersey/build/libs/*.jar /usr/lib/
 COPY --from=builder /code/appserver-jersey/src/main/resources/appserver.yml /etc/appserver-jersey/appserver.yml
 
+ENV LIQUIBASE_ANALYTICS_ENABLED=false
+
 USER 101
 
 EXPOSE 8080
 
 CMD ["appserver-jersey"]
-
-
