@@ -12,7 +12,7 @@ jobs:
     env:
       REPORT_FILE: test.json
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle-jdk17@master
