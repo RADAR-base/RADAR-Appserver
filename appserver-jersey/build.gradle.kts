@@ -73,24 +73,24 @@ dependencies {
 
     implementation("com.google.firebase:firebase-admin:${Versions.firebaseAdminVersion}") {
         constraints {
-            implementation("com.google.protobuf:protobuf-java:3.25.5") {
+            implementation("com.google.protobuf:protobuf-java:${Versions.protobufVersion}") {
                 because("Provided version of protobuf has security vulnerabilities")
             }
-            implementation("com.google.protobuf:protobuf-java-util:3.25.5") {
+            implementation("com.google.protobuf:protobuf-java-util:${Versions.protobufVersion}") {
                 because("Provided version of protobuf has security vulnerabilities")
             }
         }
     }
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinxSerializationVersion}")
 
     implementation("com.sun.mail:jakarta.mail:${Versions.jakartaMailVersion}")
     implementation("com.google.guava:guava:${Versions.guavaVersion}")
     implementation("org.quartz-scheduler:quartz:${Versions.quartzVersion}")
 
-    testImplementation("io.mockk:mockk:1.14.4")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
-    testImplementation("org.hamcrest:hamcrest:2.1")
-    testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlinVersion}")
+    testImplementation("org.hamcrest:hamcrest:${Versions.hamcrestVersion}")
+    testImplementation("org.assertj:assertj-core:${Versions.assertjVersion}")
 
     integrationTestImplementation(platform("io.ktor:ktor-bom:${Versions.ktorVersion}"))
     integrationTestImplementation("io.ktor:ktor-client-content-negotiation")
@@ -105,7 +105,6 @@ ktlint {
 radarKotlin {
     javaVersion.set(Versions.java)
     kotlinVersion.set(Versions.kotlinVersion)
-//    kotlinApiVersion.set(Versions.kotlinVersion)
     junitVersion.set(Versions.junit5Version)
     log4j2Version.set(Versions.log4j2)
 }
