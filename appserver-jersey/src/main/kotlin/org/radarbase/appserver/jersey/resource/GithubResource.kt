@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
@@ -38,6 +39,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @Path("/$GITHUB_PATH")
+@Tag(name = "GitHub")
 class GithubResource @Inject constructor(
     private val githubService: GithubService,
     private val asyncService: AsyncCoroutineService,

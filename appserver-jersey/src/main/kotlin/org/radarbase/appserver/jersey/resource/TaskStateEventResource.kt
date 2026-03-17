@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -44,6 +45,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
+@Tag(name = "Task State Events")
 class TaskStateEventResource @Inject constructor(
     private val taskStateEventService: TaskStateEventService,
     private val asyncService: AsyncCoroutineService,

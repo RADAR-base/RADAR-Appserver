@@ -18,6 +18,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
@@ -57,6 +58,7 @@ import kotlin.time.Duration.Companion.seconds
 @Path("/")
 @Produces(APPLICATION_JSON)
 @Consumes(APPLICATION_JSON)
+@Tag(name = "Questionnaire Schedules")
 class QuestionnaireScheduleResource @Inject constructor(
     private val scheduleService: QuestionnaireScheduleService,
     private val asyncService: AsyncCoroutineService,

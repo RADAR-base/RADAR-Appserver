@@ -16,12 +16,13 @@
 
 package org.radarbase.appserver.jersey.enhancer.factory
 
-import jakarta.mail.Session
 import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.config.EmailConfig
 import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer
 import org.radarbase.appserver.jersey.service.transmitter.EmailTransmitter
 import org.radarbase.appserver.jersey.utils.mail.MailSessionFactory
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.jersey.auth.AuthConfig
 import org.radarbase.jersey.auth.MPConfig
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -87,11 +88,20 @@ class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : En
             )
         }
 
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver"
+                description = "General purpose application server for the RADAR platform"
+                version = "2.4.3"
+            }
+        }
+
         return listOf(
             AppserverResourceEnhancer(config, emailTransmitter),
             Enhancers.radar(authConfig),
             Enhancers.managementPortal(authConfig),
             HibernateResourceEnhancer(dbConfig),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )
