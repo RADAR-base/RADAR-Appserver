@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.microservices.cloud.messaging.enhancer.factory
 
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.appserver.microservices.cloud.messaging.config.CloudMessagingServiceConfig
 import org.radarbase.appserver.microservices.cloud.messaging.config.EmailConfig
 import org.radarbase.appserver.microservices.cloud.messaging.enhancer.CloudMessagingServiceResourceEnhancer
@@ -39,6 +41,7 @@ class CloudMessagingServiceResourceEnhancerFactory(private val config: CloudMess
             properties = config.db.additionalProperties,
             liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
+                changelogs = config.db.liquibase.changelogs,
             ),
         )
 
@@ -74,9 +77,18 @@ class CloudMessagingServiceResourceEnhancerFactory(private val config: CloudMess
             )
         }
 
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver Cloud Messaging Service"
+                description = "Manages notifications and data messages via FCM in the RADAR platform"
+                version = "2.4.3"
+            }
+        }
+
         return listOf(
             CloudMessagingServiceResourceEnhancer(config, emailTransmitter),
             HibernateResourceEnhancer(dbConfig),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )
