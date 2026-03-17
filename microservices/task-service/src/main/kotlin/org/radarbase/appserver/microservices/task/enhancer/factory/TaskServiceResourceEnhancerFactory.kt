@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.microservices.task.enhancer.factory
 
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
 import org.radarbase.appserver.microservices.task.enhancer.TaskServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -36,12 +38,22 @@ class TaskServiceResourceEnhancerFactory(private val config: TaskServiceConfig) 
             properties = config.db.additionalProperties,
             liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
+                changelogs = config.db.liquibase.changelogs,
             ),
         )
+
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver Task Service"
+                description = "Manages tasks and task state events in the RADAR platform"
+                version = "2.4.3"
+            }
+        }
 
         return listOf(
             TaskServiceResourceEnhancer(config),
             HibernateResourceEnhancer(dbConfig),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )

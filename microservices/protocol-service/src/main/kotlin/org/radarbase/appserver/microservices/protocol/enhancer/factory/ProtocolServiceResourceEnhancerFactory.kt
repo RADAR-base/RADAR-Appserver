@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.microservices.protocol.enhancer.factory
 
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.appserver.microservices.protocol.config.ProtocolServiceConfig
 import org.radarbase.appserver.microservices.protocol.enhancer.ProtocolServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -24,8 +26,17 @@ import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 
 class ProtocolServiceResourceEnhancerFactory(private val config: ProtocolServiceConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver Protocol Service"
+                description = "Manages questionnaire protocols and scheduling in the RADAR platform"
+                version = "2.4.3"
+            }
+        }
+
         return listOf(
             ProtocolServiceResourceEnhancer(config),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )

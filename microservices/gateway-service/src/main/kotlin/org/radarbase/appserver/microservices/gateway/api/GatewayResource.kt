@@ -826,7 +826,7 @@ class GatewayResource @Inject constructor(
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             handleProxyResponse(
-                NotificationServiceContract.getNotificationUsingId(id, taskServiceRoute.baseUrl),
+                NotificationServiceContract.getNotificationUsingId(id, cloudMessagingServiceRoute.baseUrl),
             )
         }
     }
@@ -1087,6 +1087,8 @@ class GatewayResource @Inject constructor(
     @GET
     @Path("/$MESSAGING_NOTIFICATION_PATH/$NOTIFICATION_ID/$NOTIFICATION_STATE_EVENTS_PATH")
     @Produces(APPLICATION_JSON)
+    @Authenticated
+    @NeedsPermission(Permission.PROJECT_READ)
     fun getNotificationStateEventsByNotificationId(
         @PathParam("notificationId") notificationId: Long,
         @Suspended asyncResponse: AsyncResponse,
@@ -1172,14 +1174,14 @@ class GatewayResource @Inject constructor(
     @Path("$MESSAGING_DATA_PATH/{id}")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
+    @NeedsPermission(Permission.SUBJECT_READ)G
     fun getDataMessageUsingId(
         @PathParam("id") id: Long,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             handleProxyResponse(
-                DataMessageServiceContract.getDataMessageUsingId(id, taskServiceRoute.baseUrl),
+                DataMessageServiceContract.getDataMessageUsingId(id, cloudMessagingServiceRoute.baseUrl),
             )
         }
     }

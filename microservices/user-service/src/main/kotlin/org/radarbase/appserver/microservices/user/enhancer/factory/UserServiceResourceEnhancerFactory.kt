@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.microservices.user.enhancer.factory
 
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.appserver.microservices.user.config.UserServiceConfig
 import org.radarbase.appserver.microservices.user.enhancer.UserServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -37,12 +39,22 @@ class UserServiceResourceEnhancerFactory(private val config: UserServiceConfig) 
             properties = config.db.additionalProperties,
             liquibase = LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
+                changelogs = config.db.liquibase.changelogs,
             ),
         )
+
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver User Service"
+                description = "Manages users, metrics, and attributes in the RADAR platform"
+                version = "2.4.3"
+            }
+        }
 
         return listOf(
             UserServiceResourceEnhancer(config),
             HibernateResourceEnhancer(dbConfig),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )

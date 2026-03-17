@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.GET
@@ -41,6 +42,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
+@Tag(name = "Protocols")
 class ProtocolResource @Inject constructor(
     private val protocolGenerator: ProtocolGenerator,
     private val asyncService: AsyncCoroutineService,

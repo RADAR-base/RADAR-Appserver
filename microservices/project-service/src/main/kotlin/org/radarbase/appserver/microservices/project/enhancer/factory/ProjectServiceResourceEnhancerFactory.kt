@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.microservices.project.enhancer.factory
 
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.appserver.microservices.project.config.ProjectServiceConfig
 import org.radarbase.appserver.microservices.project.enhancer.ProjectServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -36,12 +38,22 @@ class ProjectServiceResourceEnhancerFactory(private val config: ProjectServiceCo
             properties = config.db.additionalProperties,
             liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
+                changelogs = config.db.liquibase.changelogs,
             ),
         )
+
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver Project Service"
+                description = "Manages projects in the RADAR platform"
+                version = "2.4.3"
+            }
+        }
 
         return listOf(
             ProjectServiceResourceEnhancer(config),
             HibernateResourceEnhancer(dbConfig),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )
