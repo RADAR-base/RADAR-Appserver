@@ -15,7 +15,7 @@ dependencies {
     implementation(project(":microservices:core"))
     implementation(project(":microservices:contract"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinxSerializationVersion}")
 }
 
 ktlint {
