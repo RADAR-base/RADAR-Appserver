@@ -23,7 +23,6 @@ import org.radarbase.appserver.microservices.contract.utils.Env.USER_JDBC_URL
 import org.radarbase.appserver.microservices.contract.utils.Env.USER_JDBC_USERNAME
 import org.radarbase.appserver.microservices.core.config.CoreLiquibaseConfig
 import org.radarbase.appserver.microservices.core.config.Validation
-import org.radarbase.appserver.microservices.core.entity.Project
 import org.radarbase.appserver.microservices.core.entity.User
 import org.radarbase.appserver.microservices.core.entity.UserMetrics
 import org.radarbase.appserver.microservices.core.utils.checkInvalidDetails
@@ -32,7 +31,6 @@ import org.radarbase.jersey.config.ConfigLoader.copyEnv
 data class UserDbConfig(
     val classes: List<String> = listOf(
         User::class.qualifiedName!!,
-        Project::class.qualifiedName!!,
         UserMetrics::class.qualifiedName!!,
     ),
     val jdbcDriver: String = "org.postgresql.Driver",
@@ -59,7 +57,6 @@ data class UserDbConfig(
         .copyEnv(USER_JDBC_DRIVER) {
             copy(jdbcDriver = it)
         }
-
 
     override fun validate() {
         checkInvalidDetails<IllegalStateException>(

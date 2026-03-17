@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.service.quartz
 
 import jakarta.inject.Inject
+import org.jvnet.hk2.annotations.Optional
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
@@ -40,7 +41,7 @@ class MessageJob @Inject constructor(
     private val notificationService: FcmNotificationService,
     private val dataMessageService: FcmDataMessageService,
     private val asyncService: AsyncCoroutineService,
-    private val emailTransmitter: EmailTransmitter?,
+    @param:Optional private val emailTransmitter: EmailTransmitter?,
     config: AppserverConfig,
 ) : Job {
     private val emailEnabled = config.email.enabled
