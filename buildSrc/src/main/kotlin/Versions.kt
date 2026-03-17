@@ -1,12 +1,9 @@
 @Suppress("ConstPropertyName")
 object Versions {
     const val gatlingVersion = "3.9.2.1"
-    const val shadowVersion = "8.1.1"
     const val springBootVersion = "3.3.3"
     const val springDependencyManagementVersion = "1.1.6"
-    const val benMenesVersion = "0.46.0"
     const val kotlinVersion = "1.9.25"
-    const val sentryVersion = "4.11.0"
     const val dockerCompose = "0.17.6"
 
     const val springSecurityVersion = "6.0.5"
@@ -18,7 +15,7 @@ object Versions {
     const val springVersion = "6.0.6"
     const val radarSpringAuthVersion = "1.2.1"
     const val guavaVersion = "32.1.3-jre"
-    const val radarJerseyVersion = "0.12.2"
+    const val radarJerseyVersion = "0.12.7-SNAPSHOT"
     const val jacksonKotlinVersion = "2.15.4"
     const val ktorVersion = "2.3.13"
     const val coroutinesVersion = "1.10.1"
@@ -33,6 +30,11 @@ object Versions {
     const val quartzVersion = "2.5.0"
     const val firebaseAdminVersion = "9.3.0"
     const val jerseyBeanValidationVersion = "3.1.10"
+    const val protobufVersion = "3.25.5"
+    const val kotlinxSerializationVersion = "1.6.3"
+    const val mockkVersion = "1.14.4"
+    const val hamcrestVersion = "2.1"
+    const val assertjVersion = "3.24.2"
 
     const val project = "2.4.3"
     const val wrapper = "8.5"
