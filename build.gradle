@@ -2,7 +2,7 @@ plugins {
     id 'pmd'
     id 'io.gatling.gradle' version '3.9.2.1'
     id 'com.github.johnrengelman.shadow' version '8.1.0'
-    id 'org.springframework.boot' version '3.5.5'
+    id 'org.springframework.boot' version '3.5.11'
     id 'org.openjfx.javafxplugin' version '0.0.13'
     id("com.github.ben-manes.versions") version "0.46.0"
     id 'io.sentry.jvm.gradle' version '4.11.0'
@@ -15,7 +15,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'scala'
 
 group = 'org.radarbase'
-version = '2.4.6'
+version = '2.4.7'
 
 java {
     toolchain {
@@ -33,7 +33,7 @@ bootJar {
 }
 
 ext {
-    springBootVersion = '3.5.5'
+    springBootVersion = '3.5.11'
     springVersion = '6.2.10'
     springOauth2Version = "2.5.2.RELEASE"
     springOauth2AutoconfigureVersion = "2.6.8"
@@ -41,10 +41,11 @@ ext {
     lombokVersion = '1.18.26'
     junit5Version = '5.9.2'
     radarSpringAuthVersion = '1.2.1'
-    springSecurityVersion = '6.4.9'
+    springSecurityVersion = '6.5.8'
     hibernateValidatorVersion = '8.0.0.Final'
-    minioVersion = '8.5.10'
-    nettyVersion = '4.1.118.Final'
+    minioVersion = '8.6.0'
+    nettyVersion = '4.2.10.Final'
+    tomcatVersion = '10.1.52'
 }
 
 sourceSets {
@@ -58,9 +59,16 @@ sourceSets {
     }
 }
 
+// --- Vulnerability fixes start ---
 configurations.configureEach {
-    resolutionStrategy.force 'org.apache.commons:commons-lang3:3.18.0'
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'io.netty' && details.requested.name.startsWith('netty-codec')) {
+            details.useVersion(nettyVersion)
+            details.because('Force safe version of Netty across all modules')
+        }
+    }
 }
+// --- Vulnerability fixes end ---
 
 dependencies {
 
@@ -68,9 +76,8 @@ dependencies {
 
     /* The entries in the block below are added here to force the version of
     *  transitive dependencies and mitigate reported vulnerabilities */
-    implementation("org.apache.tomcat.embed:tomcat-embed-core:10.1.44")
-    implementation("io.netty:netty-handler-proxy:$nettyVersion")
-    implementation("io.netty:netty-handler:$nettyVersion")
+    implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion")
+    /* ----------------------------------------------------------------- */
 
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-web')
@@ -98,20 +105,10 @@ dependencies {
     annotationProcessor "org.springframework:spring-context-indexer"
 
     // FCM Admin SDK
-    implementation('com.google.firebase:firebase-admin:9.3.0') {
-        // Possibly remove these constraints when a newer version of firebase-adkon is available.
-        constraints {
-            implementation('com.google.protobuf:protobuf-java:3.25.5') {
-                because 'Provided version of protobuf has security vulnerabilities'
-            }
-            implementation('com.google.protobuf:protobuf-java-util:3.25.5') {
-                because 'Provided version of protobuf has security vulnerabilities'
-            }
-        }
-    }
+    implementation('com.google.firebase:firebase-admin:9.8.0')
 
     // AOP
-    runtimeOnly group: 'org.springframework', name: 'spring-aop'
+    runtimeOnly group: 'org.springframework', name: 'spring-aop', version: springVersion
     implementation(group: 'org.radarbase', name: 'radar-spring-auth', version: radarSpringAuthVersion)
 
     testImplementation group: 'io.gatling.highcharts', name: 'gatling-charts-highcharts', version: '3.9.2'

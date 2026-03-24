@@ -44,6 +44,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.ResourceAccessException;
@@ -57,6 +58,9 @@ public class UserEndpointAuthTest {
   public static final String USER_PATH = "/users";
   public static final String DEFAULT_PROJECT = "/radar";
   private static final HttpHeaders HEADERS = new HttpHeaders();
+  static {
+    HEADERS.setContentType(MediaType.APPLICATION_JSON);
+  }
   private static HttpHeaders AUTH_HEADER;
   private static TestRestTemplate restTemplate = new TestRestTemplate();
   private final transient FcmUserDto userDto =
@@ -74,6 +78,7 @@ public class UserEndpointAuthTest {
     OAuthHelper oAuthHelper = new MPOAuthHelper();
     AUTH_HEADER = new HttpHeaders();
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
+    AUTH_HEADER.setContentType(MediaType.APPLICATION_JSON);
   }
 
   @BeforeEach
