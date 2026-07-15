@@ -168,7 +168,7 @@ class TaskServiceImpl @Inject constructor(
             taskTimestamp,
         )
 
-        checkPresence(doesntExists, "task_not_found") {
+        if (doesntExists) {
             "The Task ${oldTask.id} does not exist to set to state $state  Please Use add endpoint"
         }
 

@@ -427,7 +427,7 @@ class GatewayResource @Inject constructor(
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_UPDATE,
-                EntityDetails(project = projectId, subject = token.subject),
+                EntityDetails(project = projectId, subject = fcmUserDto.subjectId),
                 token,
             )
 
@@ -1174,7 +1174,7 @@ class GatewayResource @Inject constructor(
     @Path("$MESSAGING_DATA_PATH/{id}")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)G
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun getDataMessageUsingId(
         @PathParam("id") id: Long,
         @Suspended asyncResponse: AsyncResponse,

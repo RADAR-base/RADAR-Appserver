@@ -86,7 +86,7 @@ class UserResource @Inject constructor(
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_UPDATE,
-                EntityDetails(project = projectId, subject = token.subject),
+                EntityDetails(project = projectId, subject = fcmUserDto.subjectId),
                 token,
             )
             if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(fcmUserDto)
