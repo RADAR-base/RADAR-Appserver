@@ -50,7 +50,7 @@ class QuestionnaireScheduleService @Inject constructor(
 ) {
     private val subjectScheduleMap: HashMap<String, Schedule> = hashMapOf()
 
-    suspend fun getTasksUsingProjectIdAndSubjectId(subjectId: String, projectId: String): List<Task> {
+    suspend fun getTasksUsingProjectIdAndSubjectId(projectId: String, subjectId: String): List<Task> {
         return getTasksForUser(subjectAndProjectExistsElseThrow(subjectId, projectId))
     }
 

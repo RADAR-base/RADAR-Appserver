@@ -85,7 +85,7 @@ class QuestionnaireScheduleService @Inject constructor(
         }
     }
 
-    suspend fun getTasksUsingProjectIdAndSubjectId(subjectId: String, projectId: String): List<Task> {
+    suspend fun getTasksUsingProjectIdAndSubjectId(projectId: String, subjectId: String): List<Task> {
         return getTasksForUser(subjectAndProjectExistsElseThrow(subjectId, projectId))
     }
 
