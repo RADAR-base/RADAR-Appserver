@@ -28,6 +28,7 @@ import org.radarbase.appserver.jersey.repository.TaskRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.search.QuerySpecification
 import org.radarbase.appserver.jersey.utils.checkPresence
+import org.radarbase.jersey.exception.HttpNotFoundException
 import java.sql.Timestamp
 import java.time.Instant
 
@@ -146,7 +147,10 @@ class TaskService @Inject constructor(
         )
 
         if (doesntExists) {
-            "The Task ${oldTask.id} does not exist to set to state $state  Please Use add endpoint"
+            throw HttpNotFoundException(
+                "task_not_found",
+                "The Task ${oldTask.id} does not exist to set to state $state. Please Use add endpoint",
+            )
         }
 
         if (state == TaskState.COMPLETED) {

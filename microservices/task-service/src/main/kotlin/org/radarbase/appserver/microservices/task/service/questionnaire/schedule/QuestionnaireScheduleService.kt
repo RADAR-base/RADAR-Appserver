@@ -101,8 +101,8 @@ class QuestionnaireScheduleService @Inject constructor(
     }
 
     suspend fun getTasksForDateUsingProjectIdAndSubjectId(
-        subjectId: String,
         projectId: String,
+        subjectId: String,
         startTime: Instant,
         endTime: Instant,
     ): List<Task> {

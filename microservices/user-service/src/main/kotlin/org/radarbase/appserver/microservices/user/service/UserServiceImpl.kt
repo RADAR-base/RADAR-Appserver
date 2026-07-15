@@ -18,7 +18,11 @@ package org.radarbase.appserver.microservices.user.service
 
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import jakarta.ws.rs.core.Response
+import kotlinx.serialization.json.Json
 import org.radarbase.appserver.microservices.contract.calls.ProjectServiceContract
+import org.radarbase.appserver.microservices.contract.calls.QuestionnaireScheduleContract
+import org.radarbase.appserver.microservices.contract.exception.ProxyResponseException
 import org.radarbase.appserver.microservices.contract.utils.Utils.deserializeDtoFromContract
 import org.radarbase.appserver.microservices.core.dto.ProjectDto
 import org.radarbase.appserver.microservices.core.dto.fcm.FcmUserDto
@@ -49,6 +53,9 @@ class UserServiceImpl @Inject constructor(
 ) : UserService {
     private val sendEmailNotifications: Boolean = config.email.enabled
     private val projectServiceUrl = config.contract.project
+    private val taskServiceUrl = config.contract.task
+
+    private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
 
     /**
      * Retrieves all users associated with the projects.
@@ -237,6 +244,7 @@ class UserServiceImpl @Inject constructor(
         }.run {
             userRepository.add(this)
         }
+        generateScheduleUsingProjectIdAndSubjectId(savedUser.projectId, savedUser.subjectId)
 
         return userMapper.entityToDto(savedUser)
     }
@@ -293,6 +301,14 @@ class UserServiceImpl @Inject constructor(
             "user_not_found",
             "User with id ${user.id} not found.",
         )
+        // Generate schedule for user
+        if (user.attributes != userDto.attributes ||
+            user.timezone !=
+            userDto.timezone ||
+            user.enrolmentDate?.equals(userDto.enrolmentDate) != true  ||
+            user.language != userDto.language) {
+            generateScheduleUsingProjectIdAndSubjectId(updatedUser.projectId, updatedUser.subjectId)
+        }
 
         return userMapper.entityToDto(updatedUser)
     }
@@ -342,6 +358,21 @@ class UserServiceImpl @Inject constructor(
         }
 
         this.userRepository.delete(user)
+    }
+
+    private suspend fun generateScheduleUsingProjectIdAndSubjectId(projectId: String?, subjectId: String?) {
+        return QuestionnaireScheduleContract.generateScheduleUsingProjectIdAndSubjectId(
+            requireNotNull(projectId) { "User's Project id must not be null" },
+            requireNotNull(subjectId) { "Subject id must not be null" },
+            taskServiceUrl
+        ).let {
+            if (it.status !in 200 .. 299) {
+                throw ProxyResponseException(
+                    Response.Status.fromStatusCode(it.status),
+                    it.body?.decodeToString() ?: "Upstream sent an incorrect response",
+                )
+            }
+        }
     }
 
     companion object {
