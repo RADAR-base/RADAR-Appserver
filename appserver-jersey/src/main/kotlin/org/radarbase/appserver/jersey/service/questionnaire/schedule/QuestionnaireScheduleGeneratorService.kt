@@ -53,8 +53,8 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     override fun getRepeatQuestionnaireHandler(assessment: Assessment): ProtocolHandler {
         val repeatQuestionnaire: RepeatQuestionnaire? = assessment.protocol?.repeatQuestionnaire
         val type = when {
-            repeatQuestionnaire?.dayOfWeekMap != null -> RepeatQuestionnaireHandlerType.DAYOFWEEKMAP
             repeatQuestionnaire?.randomUnitsFromZeroBetween != null -> RepeatQuestionnaireHandlerType.RANDOM
+            repeatQuestionnaire?.dayOfWeekMap != null -> RepeatQuestionnaireHandlerType.DAYOFWEEKMAP
             else -> RepeatQuestionnaireHandlerType.SIMPLE
         }
 

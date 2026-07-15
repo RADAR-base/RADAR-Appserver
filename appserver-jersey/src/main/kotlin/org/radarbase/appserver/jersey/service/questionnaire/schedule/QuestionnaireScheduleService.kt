@@ -31,12 +31,15 @@ import org.radarbase.appserver.jersey.search.TaskSpecificationsBuilder
 import org.radarbase.appserver.jersey.service.FcmNotificationService
 import org.radarbase.appserver.jersey.service.TaskService
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
+import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.Timestamp
+import java.time.Duration
 import java.time.Instant
 
 @Suppress("unused")
@@ -47,6 +50,8 @@ class QuestionnaireScheduleService @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val taskService: TaskService,
     private val notificationService: FcmNotificationService,
+    schedulingService: SchedulingService,
+    asyncService: AsyncCoroutineService,
 ) {
     private val subjectScheduleMap: HashMap<String, Schedule> = hashMapOf()
 
@@ -174,6 +179,15 @@ class QuestionnaireScheduleService @Inject constructor(
         saveTasksAndNotifications(user, listOf(assessmentSchedule))
 
         return schedule
+    }
+
+    suspend fun generateAllSchedules() {
+        logger.info("Generating all schedules")
+        userRepository.findAll().also { users: List<User> ->
+            users.forEach {
+                generateScheduleForUser(it)
+            }
+        }
     }
 
     fun getScheduleForSubject(subjectId: String): Schedule {
