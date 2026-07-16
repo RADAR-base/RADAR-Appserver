@@ -22,13 +22,16 @@ import org.glassfish.jersey.internal.inject.DisposableSupplier
 import org.quartz.Scheduler
 import org.quartz.SchedulerFactory
 import org.quartz.impl.StdSchedulerFactory
+import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.Properties
 
 class QuartzSchedulerFactory @Inject constructor(
     private val serviceLocator: ServiceLocator,
+    appserverConfig: AppserverConfig,
 ) : DisposableSupplier<Scheduler> {
-    val schedulerFactory: SchedulerFactory = StdSchedulerFactory()
+    val schedulerFactory: SchedulerFactory = StdSchedulerFactory(buildQuartzProperties(appserverConfig))
     var scheduler: Scheduler? = null
 
     override fun get(): Scheduler {
@@ -53,5 +56,30 @@ class QuartzSchedulerFactory @Inject constructor(
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(QuartzSchedulerFactory::class.java)
+
+        private const val DATA_SOURCE_NAME = "appserverDS"
+
+        private fun buildQuartzProperties(config: AppserverConfig): Properties {
+            val db = config.db
+            val quartz = config.quartz
+            return Properties().apply {
+                setProperty("org.quartz.scheduler.instanceName", quartz.instanceName)
+                setProperty("org.quartz.scheduler.instanceId", "AUTO")
+                setProperty("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool")
+                setProperty("org.quartz.threadPool.threadCount", quartz.threadCount.toString())
+                setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX")
+                setProperty("org.quartz.jobStore.driverDelegateClass", quartz.driverDelegateClass)
+                setProperty("org.quartz.jobStore.tablePrefix", quartz.tablePrefix)
+                setProperty("org.quartz.jobStore.dataSource", DATA_SOURCE_NAME)
+                setProperty("org.quartz.jobStore.misfireThreshold", quartz.misfireThreshold.toString())
+                val prefix = "org.quartz.dataSource.$DATA_SOURCE_NAME"
+                setProperty("$prefix.provider", "hikaricp")
+                setProperty("$prefix.driver", db.jdbcDriver)
+                setProperty("$prefix.URL", db.jdbcUrl)
+                setProperty("$prefix.user", db.username)
+                setProperty("$prefix.password", db.password)
+                setProperty("$prefix.maxConnections", (quartz.threadCount + 2).toString())
+            }
+        }
     }
 }
