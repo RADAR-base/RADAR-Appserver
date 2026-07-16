@@ -63,6 +63,17 @@ quartz:
   # Defaults to 'supervisor-job' if not provided.
   coroutineJob: supervisor-job
 
+  # Must match SCHED_NAME in the existing QRTZ_* tables ("quartzScheduler" is Spring
+  # Boot's default) so jobs scheduled by the legacy app server keep firing.
+  instanceName: quartzScheduler
+  # Number of worker threads for firing jobs.
+  threadCount: 5
+  # Prefix of the Quartz tables.
+  tablePrefix: QRTZ_
+  driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+  # Misfire threshold in milliseconds.
+  misfireThreshold: 60000
+
 protocol:
   githubProtocolRepo: RADAR-base/RADAR-aRMT-protocols
   protocolFileName: protocol.json

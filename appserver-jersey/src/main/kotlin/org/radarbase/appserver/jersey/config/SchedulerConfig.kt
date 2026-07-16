@@ -19,4 +19,9 @@ package org.radarbase.appserver.jersey.config
 data class SchedulerConfig(
     val coroutineDispatcher: String = "io",
     val coroutineJob: String = "supervisor-job",
+    val instanceName: String = "quartzScheduler",
+    val threadCount: Int = 5,
+    val tablePrefix: String = "QRTZ_",
+    val driverDelegateClass: String = "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate",
+    val misfireThreshold: Long = 60_000,
 )
