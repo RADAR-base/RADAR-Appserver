@@ -10,7 +10,7 @@ server:
 
 # Authentication configuration.
 auth:
-  managementPortalUrl: http://localhost:8081/managementportal
+  managementPortalUrl: http://stage.radar-base.net/managementportal
   resourceName: res_AppServer
 
 db:
@@ -24,6 +24,10 @@ db:
   #    jakarta.persistence.schema-generation.database.action: drop-and-create
   additionalProperties:
     hibernate.hbm2ddl.auto: validate
+    # Hibernate 6 defaults to per-entity sequences (<table>_seq). The existing
+    # schema (and the legacy Spring Boot app) use a single shared
+    # `hibernate_sequence`, so restore the pre-6 naming to match the DB.
+    hibernate.id.db_structure_naming_strategy: legacy
   #    hibernate.show_sql: true
   #    hibernate.format_sql: true
   jdbcDriver: org.postgresql.Driver
