@@ -54,7 +54,7 @@ services:
     build:
       context: ../../../../../
       dockerfile: Dockerfile.appserver-jersey
-    image: ${RADAR_APPSERVER_IMAGE_NAME}:${RADAR_APPSERVER_TAG}
+    image: ${RADAR_APPSERVER_IMAGE_NAME}
     depends_on:
       - managementportal
       - appserver-postgres
