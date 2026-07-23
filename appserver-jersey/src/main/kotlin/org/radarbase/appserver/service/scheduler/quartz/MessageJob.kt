@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory
 /**
  * A [Job] that sends notification/message to the device or email when executed.
  *
- * NOTE: This class intentionally lives in the legacy Spring package
+ * NOTE: This class intentionally retains the legacy Spring package
  * `org.radarbase.appserver.service.scheduler.quartz` (not under `...jersey.*`).
  * Quartz's JDBC job store persists the fully-qualified job class name in
  * QRTZ_JOB_DETAILS.JOB_CLASS_NAME and resolves it via Class.forName(...) when firing a
