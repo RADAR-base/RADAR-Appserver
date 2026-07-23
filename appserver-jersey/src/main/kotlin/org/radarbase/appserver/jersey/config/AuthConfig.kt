@@ -28,7 +28,7 @@ data class AuthConfig(
         copyEnv("MANAGEMENTPORTAL_BASE_URL") { copy(managementPortalUrl = it) }
 
     override fun validate() {
-        check(managementPortalUrl.isBlank() || publicKeyUrls.isNullOrEmpty()) {
+        check(managementPortalUrl.isNotBlank() || !publicKeyUrls.isNullOrEmpty()) {
             "At least one of auth.publicKeyUrls or auth.managementPortalUrl must be configured"
         }
     }
