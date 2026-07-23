@@ -1,7 +1,7 @@
 name: CI jersey-main
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, db-quartz ]
   pull_request:
     branches: [ master, dev ]
 
