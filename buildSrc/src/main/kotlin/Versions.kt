@@ -15,7 +15,7 @@ object Versions {
     const val springVersion = "6.0.6"
     const val radarSpringAuthVersion = "1.2.1"
     const val guavaVersion = "32.1.3-jre"
-    const val radarJerseyVersion = "0.12.7-SNAPSHOT"
+    const val radarJerseyVersion = "0.12.7"
     const val jacksonKotlinVersion = "2.15.4"
     const val ktorVersion = "2.3.13"
     const val coroutinesVersion = "1.10.1"
