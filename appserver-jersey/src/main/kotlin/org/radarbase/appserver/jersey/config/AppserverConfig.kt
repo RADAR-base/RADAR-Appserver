@@ -52,13 +52,13 @@ data class AppserverConfig(
             },
         )
         .copyOnChange(
-            email,
+            github,
             {
                 it.withEnv()
             },
             {
-                copy(email = it)
-            }
+                copy(github = it)
+            },
         )
 
     override fun validate() {
