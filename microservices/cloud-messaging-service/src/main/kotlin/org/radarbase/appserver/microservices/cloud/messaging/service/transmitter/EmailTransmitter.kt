@@ -56,6 +56,7 @@ class EmailTransmitter(
                     "Could not transmit a notification via email because subject {} has no email address",
                     user.subjectId
                 )
+                return
             }
 
             try {

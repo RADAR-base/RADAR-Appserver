@@ -427,7 +427,7 @@ class GatewayResource @Inject constructor(
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_UPDATE,
-                EntityDetails(project = projectId, subject = token.subject),
+                EntityDetails(project = projectId, subject = fcmUserDto.subjectId),
                 token,
             )
 
@@ -652,7 +652,7 @@ class GatewayResource @Inject constructor(
     @Path("/$QUESTIONNAIRE_SCHEDULE/$TASK_ID/$QUESTIONNAIRE_STATE_EVENTS_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
+    @NeedsPermission(Permission.SUBJECT_UPDATE)
     fun getTaskStateEventsByTaskId(
         @PathParam("taskId") taskId: Long,
         @Suspended asyncResponse: AsyncResponse,
@@ -668,7 +668,7 @@ class GatewayResource @Inject constructor(
     @Path("/$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$QUESTIONNAIRE_SCHEDULE/$TASK_ID/$QUESTIONNAIRE_STATE_EVENTS_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId", userPathParam = "subjectId")
     fun getTaskStateEvents(
         @PathParam("projectId") projectId: String,
         @PathParam("subjectId") subjectId: String,
@@ -1174,7 +1174,7 @@ class GatewayResource @Inject constructor(
     @Path("$MESSAGING_DATA_PATH/{id}")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)G
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun getDataMessageUsingId(
         @PathParam("id") id: Long,
         @Suspended asyncResponse: AsyncResponse,

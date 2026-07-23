@@ -136,10 +136,7 @@ class ProjectService @Inject constructor(
      */
     suspend fun updateProject(projectDto: ProjectDto): ProjectDto {
         return projectRepository.updateEfficiently(projectDto).let { savedProject ->
-            println("Project updated successfully: $savedProject")
-            projectMapper.entityToDto(savedProject).also {
-                println("Sending: $it")
-            }
+            projectMapper.entityToDto(savedProject)
         }
     }
 
