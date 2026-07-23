@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.entity
 
 import jakarta.annotation.Nullable
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
@@ -108,6 +109,7 @@ class Notification : Message() {
 
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "notification_additional_data")
     @MapKeyColumn(name = "additional_key", nullable = true)
     @Column(name = "additional_value")
     var additionalData: Map<String?, String?>? = null

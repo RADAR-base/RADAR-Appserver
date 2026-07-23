@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.radarbase.appserver.jersey.service.quartz
+package org.radarbase.appserver.service.scheduler.quartz
 
 import jakarta.inject.Inject
 import org.jvnet.hk2.annotations.Optional
@@ -22,6 +22,7 @@ import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
 import org.radarbase.appserver.jersey.config.AppserverConfig
+import org.radarbase.appserver.jersey.service.quartz.MessageType
 import org.radarbase.appserver.jersey.exception.FcmMessageTransmitException
 import org.radarbase.appserver.jersey.exception.MessageTransmitException
 import org.radarbase.appserver.jersey.service.FcmDataMessageService
@@ -34,6 +35,14 @@ import org.slf4j.LoggerFactory
 
 /**
  * A [Job] that sends notification/message to the device or email when executed.
+ *
+ * NOTE: This class intentionally retains the legacy Spring package
+ * `org.radarbase.appserver.service.scheduler.quartz` (not under `...jersey.*`).
+ * Quartz's JDBC job store persists the fully-qualified job class name in
+ * QRTZ_JOB_DETAILS.JOB_CLASS_NAME and resolves it via Class.forName(...) when firing a
+ * job. Jobs scheduled by the legacy Spring app server stored THIS exact name, so keeping
+ * the package identical lets those pending jobs continue to fire under the Jersey app.
+ *
  */
 class MessageJob @Inject constructor(
     private val notificationTransmitter: NotificationTransmitter,
