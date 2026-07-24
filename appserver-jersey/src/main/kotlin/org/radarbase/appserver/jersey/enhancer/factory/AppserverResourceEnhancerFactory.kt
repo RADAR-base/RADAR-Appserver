@@ -48,7 +48,7 @@ class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : En
             user = config.db.username,
             password = config.db.password,
             dialect = config.db.hibernateDialect,
-            properties = config.db.additionalProperties,
+            properties = DEFAULT_HIBERNATE_PROPERTIES + config.db.additionalProperties,
             liquibase = org.radarbase.jersey.hibernate.config.LiquibaseConfig(
                 enable = config.db.liquibase.enabled,
                 changelogs = config.db.liquibase.changelogs,
@@ -94,6 +94,13 @@ class AppserverResourceEnhancerFactory(private val config: AppserverConfig) : En
             HibernateResourceEnhancer(dbConfig),
             Enhancers.health,
             Enhancers.exception,
+        )
+    }
+
+    companion object {
+        private val DEFAULT_HIBERNATE_PROPERTIES = mapOf(
+            "hibernate.physical_naming_strategy" to "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
+            "hibernate.id.db_structure_naming_strategy" to "single",
         )
     }
 }
