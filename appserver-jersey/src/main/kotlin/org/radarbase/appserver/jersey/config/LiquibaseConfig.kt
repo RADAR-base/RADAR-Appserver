@@ -17,6 +17,6 @@
 package org.radarbase.appserver.jersey.config
 
 data class LiquibaseConfig(
-    val enabled: Boolean = false,
+    val enabled: Boolean = true,
     val changelogs: String = "db/changelog/db.changelog-master.yaml",
 )
