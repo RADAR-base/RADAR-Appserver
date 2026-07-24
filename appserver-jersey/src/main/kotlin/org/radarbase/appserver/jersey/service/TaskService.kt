@@ -84,6 +84,10 @@ class TaskService @Inject constructor(
         taskRepository.deleteByUserId(userId)
     }
 
+    suspend fun deleteTasksByUserIdAndType(userId: Long, type: AssessmentType) {
+        taskRepository.deleteByUserIdAndType(userId, type)
+    }
+
     suspend fun addTask(task: Task): Task {
         val (user, taskName, taskTimestamp) = validateUserTaskNameAndTaskTimestamp(task)
         val alreadyExists = this.taskRepository.existsByUserIdAndNameAndTimestamp(

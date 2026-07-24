@@ -20,10 +20,13 @@ package org.radarbase.appserver.jersey.resource
 
 import jakarta.inject.Inject
 import jakarta.validation.Valid
+import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
@@ -52,6 +55,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @Path("/")
+@Produces(APPLICATION_JSON)
+@Consumes(APPLICATION_JSON)
 class QuestionnaireScheduleResource @Inject constructor(
     private val scheduleService: QuestionnaireScheduleService,
     private val asyncService: AsyncCoroutineService,
