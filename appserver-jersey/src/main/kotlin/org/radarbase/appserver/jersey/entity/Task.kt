@@ -40,7 +40,7 @@ import java.sql.Timestamp
 @Table(name = "tasks")
 class Task : AuditModel() {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null
 
     @field:NotNull
