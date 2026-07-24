@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -36,4 +37,12 @@ enum class ReferenceTimestampType {
 
     @SerialName("today")
     TODAY,
+    ;
+
+    companion object {
+        @JvmStatic
+        @JsonCreator
+        fun fromString(value: String): ReferenceTimestampType =
+            valueOf(value.uppercase())
+    }
 }
