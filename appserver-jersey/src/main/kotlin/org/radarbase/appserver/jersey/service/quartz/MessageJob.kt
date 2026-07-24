@@ -40,7 +40,7 @@ class MessageJob @Inject constructor(
     private val notificationService: FcmNotificationService,
     private val dataMessageService: FcmDataMessageService,
     private val asyncService: AsyncCoroutineService,
-    private val emailTransmitter: EmailTransmitter?,
+    @org.jvnet.hk2.annotations.Optional private val emailTransmitter: EmailTransmitter?,
     config: AppserverConfig,
 ) : Job {
     private val emailEnabled = config.email.enabled
