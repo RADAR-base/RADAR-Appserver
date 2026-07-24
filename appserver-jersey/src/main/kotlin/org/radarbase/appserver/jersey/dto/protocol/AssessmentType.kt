@@ -31,6 +31,9 @@ enum class AssessmentType {
     @SerialName("triggered")
     TRIGGERED,
 
+    @SerialName("on_demand")
+    ON_DEMAND,
+
     @SerialName("all")
     ALL,
     ;
