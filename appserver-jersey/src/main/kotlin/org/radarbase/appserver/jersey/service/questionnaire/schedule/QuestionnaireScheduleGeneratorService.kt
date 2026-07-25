@@ -17,7 +17,6 @@
 package org.radarbase.appserver.jersey.service.questionnaire.schedule
 
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
-import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
 import org.radarbase.appserver.jersey.dto.protocol.NotificationProtocol
 import org.radarbase.appserver.jersey.dto.protocol.RepeatProtocol
 import org.radarbase.appserver.jersey.dto.protocol.RepeatQuestionnaire
@@ -38,15 +37,10 @@ import java.io.IOException
 class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
 
     override fun getProtocolHandler(assessment: Assessment): ProtocolHandler {
-        return when (assessment.type) {
-            AssessmentType.CLINICAL -> ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.CLINICAL)
-            else -> ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE)
-        }
+        return ProtocolHandlerFactory.getProtocolHandler(ProtocolHandlerType.SIMPLE)
     }
 
-    override fun getRepeatProtocolHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.type == AssessmentType.CLINICAL) return null
-
+    override fun getRepeatProtocolHandler(assessment: Assessment): ProtocolHandler {
         val repeatProtocol: RepeatProtocol? = assessment.protocol?.repeatProtocol
         val type = if (repeatProtocol?.dayOfWeek != null) {
             RepeatProtocolHandlerType.DAYOFWEEK
@@ -56,9 +50,7 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
         return RepeatProtocolHandlerFactory.getRepeatProtocolHandler(type)
     }
 
-    override fun getRepeatQuestionnaireHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.type == AssessmentType.CLINICAL) return null
-
+    override fun getRepeatQuestionnaireHandler(assessment: Assessment): ProtocolHandler {
         val repeatQuestionnaire: RepeatQuestionnaire? = assessment.protocol?.repeatQuestionnaire
         val type = when {
             repeatQuestionnaire?.dayOfWeekMap != null -> RepeatQuestionnaireHandlerType.DAYOFWEEKMAP
@@ -70,7 +62,6 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
     }
 
     override fun getNotificationHandler(assessment: Assessment): ProtocolHandler? {
-        if (assessment.type == AssessmentType.CLINICAL) return null
         val protocol: NotificationProtocol = assessment.protocol?.notification ?: return null
 
         return try {
@@ -81,24 +72,16 @@ class QuestionnaireScheduleGeneratorService : ScheduleGeneratorService {
         }
     }
 
-    override fun getReminderHandler(assessment: Assessment): ProtocolHandler? {
-        return if (assessment.type == AssessmentType.CLINICAL) {
-            null
-        } else {
-            ReminderHandlerFactory.reminderHandler
-        }
+    override fun getReminderHandler(assessment: Assessment): ProtocolHandler {
+        return ReminderHandlerFactory.reminderHandler
     }
 
     override fun getCompletedQuestionnaireHandler(
         assessment: Assessment,
         prevTasks: List<Task>,
         prevTimezone: String,
-    ): ProtocolHandler? {
-        return if (assessment.type == AssessmentType.CLINICAL) {
-            null
-        } else {
-            CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
-        }
+    ): ProtocolHandler {
+        return CompletedQuestionnaireHandlerFactory.getCompletedQuestionnaireHandler(prevTasks, prevTimezone)
     }
 
     companion object {
