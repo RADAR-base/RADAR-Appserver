@@ -67,6 +67,10 @@ class TaskService @Inject constructor(
         return taskRepository.findByUserIdAndType(nonNullUserId(user), type)
     }
 
+    suspend fun getTasksByUserAndType(userId: Long, type: AssessmentType): List<Task> {
+        return taskRepository.findByUserIdAndType(userId, type)
+    }
+
     suspend fun getTasksByUser(user: User): List<Task> {
         return taskRepository.findByUserId(nonNullUserId(user))
     }

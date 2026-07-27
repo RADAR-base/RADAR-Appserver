@@ -217,6 +217,9 @@ class QuestionnaireScheduleService @Inject constructor(
 
     suspend fun removeScheduleForUser(user: User) {
         val userId = checkNotNull(user.id) { "User ID cannot be null." }
+        taskService.getTasksByUserAndType(userId, AssessmentType.SCHEDULED).forEach { task ->
+            notificationService.deleteNotificationsByTaskId(task)
+        }
         taskService.deleteTasksByUserIdAndType(userId, AssessmentType.SCHEDULED)
     }
 
