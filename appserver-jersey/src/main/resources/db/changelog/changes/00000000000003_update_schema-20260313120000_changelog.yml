@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1773403200000-1
+      author: aditya
+      changes:
+        - renameColumn:
+            tableName: attributes_map
+            oldColumnName: key
+            newColumnName: attribute_key
+            columnDataType: varchar(255)
+
+        - renameColumn:
+            tableName: attributes_map
+            oldColumnName: value
+            newColumnName: attribute_value
+            columnDataType: varchar(255)
+
+        - renameColumn:
+            tableName: data_message_map
+            oldColumnName: key
+            newColumnName: data_message_key
+            columnDataType: varchar(255)
+
+        - renameColumn:
+            tableName: data_message_map
+            oldColumnName: value
+            newColumnName: data_message_value
+            columnDataType: varchar(255)
+
+      rollback:
+        - renameColumn:
+            tableName: attributes_map
+            oldColumnName: attribute_key
+            newColumnName: key
+            columnDataType: varchar(255)
+        - renameColumn:
+            tableName: attributes_map
+            oldColumnName: attribute_value
+            newColumnName: value
+            columnDataType: varchar(255)
+        - renameColumn:
+            tableName: data_message_map
+            oldColumnName: data_message_key
+            newColumnName: key
+            columnDataType: varchar(255)
+        - renameColumn:
+            tableName: data_message_map
+            oldColumnName: data_message_value
+            newColumnName: value
+            columnDataType: varchar(255)

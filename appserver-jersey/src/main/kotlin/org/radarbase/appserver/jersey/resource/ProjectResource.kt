@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.inject.Provider
 import jakarta.validation.Valid
@@ -54,6 +55,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
+@Tag(name = "Projects")
 class ProjectResource @Inject constructor(
     private val projectService: ProjectService,
     private val asyncService: AsyncCoroutineService,
@@ -77,7 +79,7 @@ class ProjectResource @Inject constructor(
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_READ,
-                EntityDetails(project = projectDto.projectId, subject = token.subject),
+                EntityDetails(project = projectDto.projectId),
                 token,
             )
             projectService.addProject(projectDto).let {
@@ -94,19 +96,13 @@ class ProjectResource @Inject constructor(
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId")
     fun updateProject(
         @Valid @PathParam("projectId") projectId: String,
         @Valid projectDto: ProjectDto,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_UPDATE,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
             projectService.updateProject(projectDto).let {
                 Response.ok(it).build()
             }
@@ -165,19 +161,13 @@ class ProjectResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
     fun getProjectUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
             val project = projectService.getProjectByProjectId(projectId)
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = project.projectId, subject = token.subject),
-                token,
-            )
             Response.ok(project).build()
         }
     }

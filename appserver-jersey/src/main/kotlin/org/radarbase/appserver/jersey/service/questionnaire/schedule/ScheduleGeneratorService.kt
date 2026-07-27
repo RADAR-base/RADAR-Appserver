@@ -19,6 +19,7 @@ package org.radarbase.appserver.jersey.service.questionnaire.schedule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import org.radarbase.appserver.jersey.dto.protocol.Assessment
+import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
 import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.dto.questionnaire.Schedule
@@ -50,7 +51,9 @@ interface ScheduleGeneratorService {
         protocol: Protocol,
         prevSchedule: Schedule,
     ): Schedule = coroutineScope {
-        val assessments = protocol.protocols ?: return@coroutineScope Schedule()
+        val assessments = protocol.protocols
+            ?.filter { it.type == AssessmentType.SCHEDULED }
+            ?: return@coroutineScope Schedule()
 
         val prevScheduledTaskByName: Map<String?, List<Task>?> = prevSchedule.assessmentSchedules
             .associate { it.name to it.tasks }

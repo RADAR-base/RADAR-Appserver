@@ -64,7 +64,7 @@ class QuestionnaireScheduleService @Inject constructor(
         }
     }
 
-    suspend fun getTasksUsingProjectIdAndSubjectId(subjectId: String, projectId: String): List<Task> {
+    suspend fun getTasksUsingProjectIdAndSubjectId(projectId: String, subjectId: String): List<Task> {
         return getTasksForUser(subjectAndProjectExistsElseThrow(subjectId, projectId))
     }
 
@@ -80,8 +80,8 @@ class QuestionnaireScheduleService @Inject constructor(
     }
 
     suspend fun getTasksForDateUsingProjectIdAndSubjectId(
-        subjectId: String,
         projectId: String,
+        subjectId: String,
         startTime: Instant,
         endTime: Instant,
     ): List<Task> {
@@ -156,10 +156,12 @@ class QuestionnaireScheduleService @Inject constructor(
         val user: User = subjectAndProjectExistsElseThrow(subjectId, projectId)
         val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
 
-        checkInvalidDetails<HttpNotFoundException>(
-            { protocol == null || !protocol.hasAssessment(assessment.name) },
-            { "Assessment not found in protocol. Add assessment to protocol first" },
-        )
+        if (protocol == null || !protocol.hasAssessment(assessment.name)) {
+            throw HttpNotFoundException(
+                "assessment_not_found",
+                "Assessment not found in protocol. Add assessment to protocol first",
+            )
+        }
 
         val userTimeZone = user.timezone
         checkNotNull(userTimeZone) { "User timezone cannot be null in questionnaire scheduler service." }
@@ -215,7 +217,10 @@ class QuestionnaireScheduleService @Inject constructor(
 
     suspend fun removeScheduleForUser(user: User) {
         val userId = checkNotNull(user.id) { "User ID cannot be null." }
-        taskService.deleteTasksByUserId(userId)
+        taskService.getTasksByUserAndType(userId, AssessmentType.SCHEDULED).forEach { task ->
+            notificationService.deleteNotificationsByTaskId(task)
+        }
+        taskService.deleteTasksByUserIdAndType(userId, AssessmentType.SCHEDULED)
     }
 
     suspend fun removeScheduleForUserUsingSubjectIdAndType(

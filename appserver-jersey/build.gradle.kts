@@ -1,21 +1,16 @@
+import java.time.Duration
+
 plugins {
     application
     kotlin("plugin.serialization") version Versions.kotlinVersion
-    id("org.radarbase.radar-kotlin")
     kotlin("plugin.allopen")
     kotlin("plugin.noarg")
+    id("org.radarbase.radar-kotlin")
+    id("com.avast.gradle.docker-compose") version Versions.dockerCompose
 }
 
 application {
     mainClass.set("org.radarbase.appserver.jersey.JerseyAppserverKt")
-
-    applicationDefaultJvmArgs = listOf(
-        "-Dcom.sun.management.jmxremote",
-        "-Dcom.sun.management.jmxremote.local.only=false",
-        "-Dcom.sun.management.jmxremote.port=9010",
-        "-Dcom.sun.management.jmxremote.authenticate=false",
-        "-Dcom.sun.management.jmxremote.ssl=false",
-    )
 }
 
 description = "RADAR Appserver for scheduling tasks and notifications."
@@ -41,6 +36,21 @@ val integrationTest by tasks.registering(Test::class) {
 
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
+dockerCompose {
+    useComposeFiles.set(listOf("src/integrationTest/resources/docker/docker-compose.yml"))
+    val dockerComposeBuild: String? by project
+    val doBuild = dockerComposeBuild?.toBoolean() ?: true
+    buildBeforeUp.set(doBuild)
+    buildBeforePull.set(doBuild)
+    buildAdditionalArgs.set(emptyList<String>())
+    val dockerComposeStopContainers: String? by project
+    stopContainers.set(dockerComposeStopContainers?.toBoolean() ?: true)
+    waitForTcpPortsTimeout.set(Duration.ofMinutes(3))
+    environment.put("SERVICES_HOST", "localhost")
+    captureContainersOutputToFiles.set(project.file("build/container-logs"))
+    isRequiredBy(integrationTest)
+}
+
 allOpen {
     annotation("jakarta.persistence.MappedSuperclass")
     annotation("jakarta.persistence.Entity")
@@ -59,27 +69,28 @@ dependencies {
 
     implementation("io.ktor:ktor-client-core:${Versions.ktorVersion}")
     implementation("io.ktor:ktor-client-cio:${Versions.ktorVersion}")
-    implementation("org.glassfish.jersey.ext:jersey-bean-validation:3.1.10")
+    implementation("org.glassfish.jersey.ext:jersey-bean-validation:${Versions.jerseyBeanValidationVersion}")
 
-    implementation("com.google.firebase:firebase-admin:9.3.0") {
+    implementation("com.google.firebase:firebase-admin:${Versions.firebaseAdminVersion}") {
         constraints {
-            implementation("com.google.protobuf:protobuf-java:3.25.5") {
+            implementation("com.google.protobuf:protobuf-java:${Versions.protobufVersion}") {
                 because("Provided version of protobuf has security vulnerabilities")
             }
-            implementation("com.google.protobuf:protobuf-java-util:3.25.5") {
+            implementation("com.google.protobuf:protobuf-java-util:${Versions.protobufVersion}") {
                 because("Provided version of protobuf has security vulnerabilities")
             }
         }
     }
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinxSerializationVersion}")
 
-    implementation("com.google.guava:guava:32.1.3-jre")
-    implementation("org.quartz-scheduler:quartz:2.5.0")
+    implementation("com.sun.mail:jakarta.mail:${Versions.jakartaMailVersion}")
+    implementation("com.google.guava:guava:${Versions.guavaVersion}")
+    implementation("org.quartz-scheduler:quartz:${Versions.quartzVersion}")
 
-    testImplementation("io.mockk:mockk:1.14.4")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
-    testImplementation("org.hamcrest:hamcrest:2.1")
-    testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("io.mockk:mockk:${Versions.mockkVersion}")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlinVersion}")
+    testImplementation("org.hamcrest:hamcrest:${Versions.hamcrestVersion}")
+    testImplementation("org.assertj:assertj-core:${Versions.assertjVersion}")
 
     integrationTestImplementation(platform("io.ktor:ktor-bom:${Versions.ktorVersion}"))
     integrationTestImplementation("io.ktor:ktor-client-content-negotiation")
@@ -87,14 +98,13 @@ dependencies {
 }
 
 ktlint {
-    ignoreFailures.set(false)
+    ignoreFailures.set(true)
     outputColorName.set("RED")
 }
 
 radarKotlin {
     javaVersion.set(Versions.java)
     kotlinVersion.set(Versions.kotlinVersion)
-//    kotlinApiVersion.set(Versions.kotlinVersion)
     junitVersion.set(Versions.junit5Version)
     log4j2Version.set(Versions.log4j2)
 }

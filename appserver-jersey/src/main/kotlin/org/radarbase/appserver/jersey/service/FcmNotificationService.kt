@@ -19,6 +19,7 @@ package org.radarbase.appserver.jersey.service
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
 import jakarta.inject.Named
+import jakarta.persistence.PersistenceException
 import org.radarbase.appserver.jersey.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmNotifications
 import org.radarbase.appserver.jersey.enhancer.AppserverResourceEnhancer.Companion.NOTIFICATION_MAPPER
@@ -40,6 +41,7 @@ import org.radarbase.appserver.jersey.service.questionnaire.schedule.MessageSche
 import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.appserver.jersey.utils.requireNotNullField
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import kotlin.contracts.ExperimentalContracts
@@ -387,12 +389,17 @@ class FcmNotificationService @Inject constructor(
             )
         }
 
-        val savedNotifications: List<Notification> = newNotifications.map {
-            this.notificationRepository.add(it)
+        val savedNotifications: List<Notification> = newNotifications.mapNotNull {
+            try {
+                this.notificationRepository.add(it)
+            } catch (e: PersistenceException) {
+                logger.warn("Skipping duplicate notification for user {}: {}", user.subjectId, e.message)
+                null
+            }
         }
-        savedNotifications.forEach { n: Notification? ->
+        savedNotifications.forEach { n: Notification ->
             addNotificationStateEvent(
-                n!!,
+                n,
                 MessageState.ADDED,
                 requireNotNullField(n.createdAt, "Notification creation timestamp").toInstant(),
             )
@@ -438,8 +445,13 @@ class FcmNotificationService @Inject constructor(
             }
         }
 
-        return newNotifications.map {
-            this.notificationRepository.add(it)
+        return newNotifications.mapNotNull {
+            try {
+                this.notificationRepository.add(it)
+            } catch (e: PersistenceException) {
+                logger.warn("Skipping duplicate notification: {}", e.message)
+                null
+            }
         }
     }
 
@@ -481,6 +493,8 @@ class FcmNotificationService @Inject constructor(
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(FcmNotificationService::class.java)
+
         private const val INVALID_SUBJECT_ID_MESSAGE =
             "The supplied Subject ID is invalid. No user found. Please Create a User First."
     }

@@ -28,6 +28,7 @@ import org.radarbase.appserver.jersey.repository.TaskRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.search.QuerySpecification
 import org.radarbase.appserver.jersey.utils.checkPresence
+import org.radarbase.jersey.exception.HttpNotFoundException
 import java.sql.Timestamp
 import java.time.Instant
 
@@ -67,6 +68,10 @@ class TaskService @Inject constructor(
         return taskRepository.findByUserIdAndType(nonNullUserId(user), type)
     }
 
+    suspend fun getTasksByUserAndType(userId: Long, type: AssessmentType): List<Task> {
+        return taskRepository.findByUserIdAndType(userId, type)
+    }
+
     suspend fun getTasksByUser(user: User): List<Task> {
         return taskRepository.findByUserId(nonNullUserId(user))
     }
@@ -82,6 +87,10 @@ class TaskService @Inject constructor(
 
     suspend fun deleteTasksByUserId(userId: Long) {
         taskRepository.deleteByUserId(userId)
+    }
+
+    suspend fun deleteTasksByUserIdAndType(userId: Long, type: AssessmentType) {
+        taskRepository.deleteByUserIdAndType(userId, type)
     }
 
     suspend fun addTask(task: Task): Task {
@@ -145,8 +154,11 @@ class TaskService @Inject constructor(
             taskTimestamp,
         )
 
-        checkPresence(doesntExists, "task_not_found") {
-            "The Task ${oldTask.id} does not exist to set to state $state  Please Use add endpoint"
+        if (doesntExists) {
+            throw HttpNotFoundException(
+                "task_not_found",
+                "The Task ${oldTask.id} does not exist to set to state $state. Please Use add endpoint",
+            )
         }
 
         if (state == TaskState.COMPLETED) {

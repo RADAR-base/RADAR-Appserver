@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -30,6 +31,17 @@ enum class AssessmentType {
     @SerialName("triggered")
     TRIGGERED,
 
+    @SerialName("on_demand")
+    ON_DEMAND,
+
     @SerialName("all")
     ALL,
+    ;
+
+    companion object {
+        @JvmStatic
+        @JsonCreator
+        fun fromString(value: String): AssessmentType =
+            valueOf(value.uppercase())
+    }
 }

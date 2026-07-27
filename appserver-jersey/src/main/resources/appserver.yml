@@ -10,11 +10,11 @@ server:
 
 # Authentication configuration.
 auth:
-  managementPortalUrl: http://localhost:8081/managementportal
-  resourceName: res_appconfig
+  managementPortalUrl: http://stage.radar-base.net/managementportal
+  resourceName: res_AppServer
 
 db:
-  # For Development environment, use H2 database.
+  # For Development environment, use H2 database with drop-and-create:
   #  jdbcDriver: org.h2.Driver
   #  jdbcUrl: jdbc:h2:mem:dev
   #  hibernateDialect: org.hibernate.dialect.H2Dialect
@@ -22,6 +22,12 @@ db:
   #    enabled: false
   #  additionalProperties:
   #    jakarta.persistence.schema-generation.database.action: drop-and-create
+  additionalProperties:
+    hibernate.hbm2ddl.auto: validate
+    # Hibernate 6 defaults to per-entity sequences (<table>_seq). The existing
+    # schema (and the legacy Spring Boot app) use a single shared
+    # `hibernate_sequence`, so restore the pre-6 naming to match the DB.
+    hibernate.id.db_structure_naming_strategy: legacy
   #    hibernate.show_sql: true
   #    hibernate.format_sql: true
   jdbcDriver: org.postgresql.Driver
@@ -29,6 +35,9 @@ db:
   hibernateDialect: org.hibernate.dialect.PostgreSQLDialect
   username: radar
   password: radar
+  liquibase:
+    enabled: true
+    changelogs: db/changelog/db.changelog-master.yaml
 
 # GitHub configuration.
 github:
@@ -58,6 +67,17 @@ quartz:
   # Defaults to 'supervisor-job' if not provided.
   coroutineJob: supervisor-job
 
+  # Must match SCHED_NAME in the existing QRTZ_* tables ("quartzScheduler" is Spring
+  # Boot's default) so jobs scheduled by the legacy app server keep firing.
+  instanceName: quartzScheduler
+  # Number of worker threads for firing jobs.
+  threadCount: 5
+  # Prefix of the Quartz tables.
+  tablePrefix: QRTZ_
+  driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+  # Misfire threshold in milliseconds.
+  misfireThreshold: 60000
+
 protocol:
   githubProtocolRepo: RADAR-base/RADAR-aRMT-protocols
   protocolFileName: protocol.json
@@ -65,6 +85,14 @@ protocol:
 
 email:
   enabled: false
+  smtpHost: smtp.gmail.com
+  smtpPort: 587
+  smtpUser:
+  smtpPassword:
+  fromAddress: radar-base@kcl.ac.uk
+  connectTimeout: 10000
+  readTimeout: 10000
+  enableTls: true
 
 fcm:
   fcmsender: org.radarbase.appserver.jersey.fcm.downstream.AdminSdkFcmSender

@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -25,4 +27,11 @@ data class ReferenceTimestamp(
     var timestamp: String? = null,
     @SerialName("format")
     var format: ReferenceTimestampType? = null,
-)
+) {
+    companion object {
+        @JvmStatic
+        @JsonCreator
+        fun fromString(value: String): ReferenceTimestamp =
+            ReferenceTimestamp(value, ReferenceTimestampType.DATETIMEUTC)
+    }
+}

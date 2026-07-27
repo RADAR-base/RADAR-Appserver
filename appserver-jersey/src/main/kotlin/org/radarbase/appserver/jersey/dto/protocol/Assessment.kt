@@ -16,7 +16,10 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Column
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -30,8 +33,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Assessment(
     var name: String? = null,
-    private var _type: AssessmentType? = null,
-    var showIntroduction: String? = null,
+    @SerialName("type") @JsonIgnore private var _type: AssessmentType? = null,
+    var showIntroduction: Boolean? = null,
     var questionnaire: DefinitionInfo? = null,
     var startText: LanguageText? = null,
     var endText: LanguageText? = null,
@@ -45,7 +48,7 @@ data class Assessment(
     var isDemo: Boolean = false,
 ) {
     var type: AssessmentType?
-        get() {
+        @JsonProperty("type") get() {
             return _type
                 ?: if (protocol?.clinicalProtocol != null) AssessmentType.CLINICAL else AssessmentType.SCHEDULED
         }

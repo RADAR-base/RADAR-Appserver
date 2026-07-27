@@ -28,8 +28,6 @@ import org.radarbase.appserver.jersey.exception.FcmMessageTransmitException
 import org.radarbase.appserver.jersey.fcm.downstream.FcmSender
 import org.radarbase.appserver.jersey.fcm.model.FcmDataMessage
 import org.radarbase.appserver.jersey.fcm.model.FcmNotificationMessage
-import org.radarbase.appserver.jersey.service.FcmDataMessageService
-import org.radarbase.appserver.jersey.service.FcmNotificationService
 import org.radarbase.appserver.jersey.service.UserService
 import org.radarbase.appserver.jersey.utils.requireNotNullField
 import org.slf4j.LoggerFactory
@@ -37,8 +35,6 @@ import java.util.Objects
 
 class FcmTransmitter @Inject constructor(
     private val fcmSender: FcmSender,
-    private val notificationService: FcmNotificationService,
-    private val dataMessageService: FcmDataMessageService,
     private val userService: UserService,
 ) : DataMessageTransmitter, NotificationTransmitter {
 
@@ -107,18 +103,7 @@ class FcmTransmitter @Inject constructor(
 
             MessagingErrorCode.UNREGISTERED -> {
                 val userDto = FcmUserDto(requireNotNull(message.user) { "User cannot be null" })
-                val subjectId = requireNotNullField(userDto.subjectId, "Subject Id")
-                val projectId = requireNotNullField(userDto.projectId, "Project Id")
-
-                logger.warn("The Device for user {} was unregistered.", userDto.subjectId)
-                notificationService.removeNotificationsForUser(
-                    projectId,
-                    subjectId,
-                )
-                dataMessageService.removeDataMessagesForUser(
-                    projectId,
-                    subjectId,
-                )
+                logger.warn("The Device for user {} was unregistered. Invalidating FCM token.", userDto.subjectId)
                 userService.checkFcmTokenExistsAndReplace(userDto)
             }
         }

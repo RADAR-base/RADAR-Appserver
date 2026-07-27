@@ -126,7 +126,7 @@ class TaskStateEventController(
         @PathVariable taskId: Long,
         @RequestBody taskStateEventDto: TaskStateEventDto,
     ): ResponseEntity<List<TaskStateEventDto>> {
-        taskStateEventService.publishNotificationStateEventExternal(
+        taskStateEventService.publishTaskStateEventExternal(
             projectId,
             subjectId,
             taskId,

@@ -35,12 +35,13 @@ import org.hibernate.annotations.OnDeleteAction
 import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
 import org.radarbase.appserver.jersey.event.state.TaskState
 import java.sql.Timestamp
+import java.util.Objects
 
 @Entity
 @Table(name = "tasks")
 class Task : AuditModel() {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null
 
     @field:NotNull
@@ -232,4 +233,15 @@ class Task : AuditModel() {
             "status=$status" +
             ")"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Task) return false
+        return user == other.user
+            && timestamp == other.timestamp
+            && name == other.name
+    }
+
+    override fun hashCode(): Int = Objects.hash(user, timestamp, name)
+
 }

@@ -16,7 +16,8 @@
 
 package org.radarbase.appserver.jersey.resource
 
-import jakarta.inject.Provider
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.DefaultValue
@@ -43,14 +44,11 @@ import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.SUBJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.TASKS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.USERS_PATH
-import org.radarbase.appserver.jersey.utils.tokenForCurrentRequest
-import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.auth.token.RadarToken
-import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
+import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.LocalDateTime
 import kotlin.time.Duration
@@ -58,10 +56,9 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
-class FcmNotificationResource(
+@Tag(name = "Notifications")
+class FcmNotificationResource @Inject constructor(
     private val asyncService: AsyncCoroutineService,
-    private val authService: AuthService,
-    private val tokenProvider: Provider<RadarToken>,
     private val fcmNotificationService: FcmNotificationService,
     config: AppserverConfig,
 ) {
@@ -99,7 +96,7 @@ class FcmNotificationResource(
     }
 
     @GET
-    @Path("$MESSAGING_NOTIFICATION_PATH/filter")
+    @Path("$MESSAGING_NOTIFICATION_PATH/filtered")
     @Produces(APPLICATION_JSON)
     @Authenticated
     @NeedsPermission(Permission.PROJECT_READ)
@@ -156,12 +153,6 @@ class FcmNotificationResource(
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
             fcmNotificationService.getNotificationsByProjectId(projectId).let {
                 Response.ok(it).build()
             }
@@ -235,7 +226,7 @@ class FcmNotificationResource(
     fun addBatchNotifications(
         @Valid @PathParam("projectId") projectId: String,
         @Valid @PathParam("subjectId") subjectId: String,
-        @QueryParam("schedule") @DefaultValue("false") schedule: Boolean,
+        @QueryParam("schedule") @DefaultValue("true") schedule: Boolean,
         @Valid fcmNotification: FcmNotifications,
         @Suspended asyncResponse: AsyncResponse,
     ) {
@@ -328,5 +319,9 @@ class FcmNotificationResource(
             )
             Response.ok().build()
         }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(FcmNotificationResource::class.java)
     }
 }

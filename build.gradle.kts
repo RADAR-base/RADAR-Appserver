@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlinVersion
     kotlin("plugin.allopen") version Versions.kotlinVersion
     kotlin("plugin.noarg") version Versions.kotlinVersion
-//    id("com.avast.gradle.docker-compose") version Versions.dockerCompose apply false
+    id("com.avast.gradle.docker-compose") version Versions.dockerCompose apply false
 }
 
 appserverProject {

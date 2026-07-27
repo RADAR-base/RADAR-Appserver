@@ -16,7 +16,17 @@
 
 package org.radarbase.appserver.jersey.config.github
 
+import org.radarbase.jersey.config.ConfigLoader.copyOnChange
+
 data class GithubConfig(
     val cache: GithubCacheConfig = GithubCacheConfig(),
     val client: GithubClientConfig = GithubClientConfig(),
-)
+) {
+    fun withEnv() = this.copyOnChange(
+        client,
+        { it.withEnv() },
+        {
+            copy(client = it)
+        },
+    )
+}
