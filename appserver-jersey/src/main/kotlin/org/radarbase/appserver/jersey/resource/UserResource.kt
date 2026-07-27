@@ -195,19 +195,12 @@ class UserResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
     fun getUsersUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
-
             val users = userService.getUsersByProjectId(projectId)
             Response.ok(users).build()
         }

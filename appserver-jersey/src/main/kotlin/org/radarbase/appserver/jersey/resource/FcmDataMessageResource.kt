@@ -18,7 +18,6 @@ package org.radarbase.appserver.jersey.resource
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
-import jakarta.inject.Provider
 import jakarta.validation.Valid
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -42,11 +41,7 @@ import org.radarbase.appserver.jersey.utils.Paths.PROJECTS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.SUBJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.USERS_PATH
-import org.radarbase.appserver.jersey.utils.tokenForCurrentRequest
-import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.auth.token.RadarToken
-import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
@@ -61,8 +56,6 @@ import kotlin.time.Duration.Companion.seconds
 class FcmDataMessageResource @Inject constructor(
     private val fcmDataMessageService: FcmDataMessageService,
     private val asyncService: AsyncCoroutineService,
-    private val authService: AuthService,
-    private val tokenProvider: Provider<RadarToken>,
     config: AppserverConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
@@ -146,18 +139,12 @@ class FcmDataMessageResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID/$MESSAGING_DATA_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
     fun getDataMessageUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
             fcmDataMessageService.getDataMessagesByProjectId(projectId).let {
                 Response.ok(it).build()
             }

@@ -79,7 +79,7 @@ class ProjectResource @Inject constructor(
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_READ,
-                EntityDetails(project = projectDto.projectId, subject = token.subject),
+                EntityDetails(project = projectDto.projectId),
                 token,
             )
             projectService.addProject(projectDto).let {
@@ -96,19 +96,13 @@ class ProjectResource @Inject constructor(
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_UPDATE)
+    @NeedsPermission(Permission.SUBJECT_UPDATE, projectPathParam = "projectId")
     fun updateProject(
         @Valid @PathParam("projectId") projectId: String,
         @Valid projectDto: ProjectDto,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_UPDATE,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
             projectService.updateProject(projectDto).let {
                 Response.ok(it).build()
             }
@@ -167,18 +161,12 @@ class ProjectResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ)
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
     fun getProjectUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
-            val token = tokenForCurrentRequest(asyncService, tokenProvider)
-            authService.checkPermission(
-                Permission.SUBJECT_READ,
-                EntityDetails(project = projectId, subject = token.subject),
-                token,
-            )
             val project = projectService.getProjectByProjectId(projectId)
             Response.ok(project).build()
         }
