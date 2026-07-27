@@ -29,7 +29,7 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
 
     @field:JsonFormat(
         shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX",
         timezone = "UTC",
     )
     var scheduledTime: @NotNull Instant? = dataMessageEntity?.scheduledTime
@@ -63,14 +63,14 @@ class FcmDataMessageDto(dataMessageEntity: DataMessage? = null) {
 
     @field:JsonFormat(
         shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX",
         timezone = "UTC",
     )
     var createdAt: Instant? = dataMessageEntity?.createdAt?.toInstant()
 
     @field:JsonFormat(
         shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX",
         timezone = "UTC",
     )
     var updatedAt: Instant? = dataMessageEntity?.updatedAt?.toInstant()

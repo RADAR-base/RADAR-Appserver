@@ -24,6 +24,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.MapKeyColumn
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
@@ -54,7 +55,10 @@ import java.time.Instant
 class DataMessage : Message() {
     @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "data_message_map")
+    @CollectionTable(
+        name = "data_message_map",
+        joinColumns = [JoinColumn(name = "data_message_id")],
+    )
     @MapKeyColumn(name = "data_message_key", nullable = true)
     @Column(name = "data_message_value")
     var dataMap: MutableMap<String?, String?>? = null

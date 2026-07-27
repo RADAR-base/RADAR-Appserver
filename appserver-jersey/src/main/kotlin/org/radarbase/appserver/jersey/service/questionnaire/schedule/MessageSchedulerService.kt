@@ -30,7 +30,7 @@ import org.radarbase.appserver.jersey.entity.Message
 import org.radarbase.appserver.jersey.entity.Notification
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.fcm.downstream.FcmSender
-import org.radarbase.appserver.jersey.service.quartz.MessageJob
+import org.radarbase.appserver.service.scheduler.quartz.MessageJob
 import org.radarbase.appserver.jersey.service.quartz.MessageType
 import org.radarbase.appserver.jersey.service.quartz.QuartzNamingStrategy
 import org.radarbase.appserver.jersey.service.quartz.SchedulerService
