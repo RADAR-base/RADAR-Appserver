@@ -1,33 +1,34 @@
 # RADAR-Appserver
 
-[![BCH compliance](https://bettercodehub.com/edge/badge/RADAR-base/RADAR-Appserver?branch=master)](https://bettercodehub.com/) [![Build Status](https://travis-ci.org/RADAR-base/RADAR-Appserver.svg?branch=master)](https://travis-ci.org/RADAR-base/RADAR-Appserver) [![Known Vulnerabilities](https://snyk.io//test/github/RADAR-base/RADAR-Appserver/badge.svg?targetFile=build.gradle)](https://snyk.io//test/github/RADAR-base/RADAR-Appserver?targetFile=build.gradle)
-General purpose application server for the radar platform currently with capability to schedule push notifications.
+General purpose application server for the RADAR platform with capability to schedule push notifications via Firebase Cloud Messaging.
+
+This project has two deployment modes:
+- **appserver-jersey** — monolith (single service, single database)
+- **microservices** — decomposed into independent services with separate databases
 
 <!-- TOC -->
-
 * [RADAR-Appserver](#radar-appserver)
-    * [Introduction](#introduction)
-    * [Getting Started](#getting-started)
-    * [REST API](#rest-api)
-        * [Quickstart](#quickstart)
-    * [FCM](#fcm)
-        * [AdminSDK](#adminsdk)
-    * [Docker/ Docker Compose](#docker-docker-compose)
-    * [Architecture](#architecture)
-    * [Notification Lifecycle](#notification-lifecycle)
-    * [Protocols](#protocols)
-    * [Documentation](#documentation)
-    * [Client](#client)
-    * [Security](#security)
-        * [Management Portal](#management-portal)
-        * [Management Portal Clients](#management-portal-clients)
-        * [Other Security Providers](#other-security-providers)
-    * [Monitoring](#monitoring)
-    * [Performance Testing](#performance-testing)
-    * [Code-Style and Quality](#code-style-and-quality)
-    * [Unit and Integration Testing](#unit-and-integration-testing)
-    * [Current Features](#current-features)
-
+  * [Introduction](#introduction)
+  * [Getting Started](#getting-started)
+  * [REST API](#rest-api)
+    * [Quickstart](#quickstart)
+  * [FCM](#fcm)
+    * [AdminSDK](#adminsdk)
+  * [Docker / Docker Compose](#docker--docker-compose)
+  * [Architecture](#architecture)
+  * [Notification Lifecycle](#notification-lifecycle)
+  * [Protocols](#protocols)
+  * [Email Notifications](#email-notifications)
+  * [Documentation](#documentation)
+  * [Security](#security)
+    * [Management Portal](#management-portal)
+    * [Management Portal Clients](#management-portal-clients)
+    * [Other Security Providers](#other-security-providers)
+  * [Database Migrations](#database-migrations)
+  * [Code Quality and Testing](#code-quality-and-testing)
+  * [Monitoring](#monitoring)
+    * [Sentry](#sentry)
+  * [Current Features](#current-features)
 <!-- TOC -->
 
 ## Introduction
@@ -47,53 +48,52 @@ see the relevant section below.
    access to all the Firebase services. Follow the instructions on
    the [official docs](https://firebase.google.com/docs/) according to your platform.
 
-2. Configure the Server Key and Sender ID (obtained from FCM) in application.properties.
+2. The AppServer needs a database. You can use either a standalone PostgreSQL instance or an in-memory H2 database.
 
-3. The AppServer needs a database to work. You can either use a `stand-alone` instance of the database of use an
-   in-memory `embedded` instance-
+   **Option A: Standalone PostgreSQL** (recommended for production)
 
-   3.1. To use the standalone instance, run the database a docker service by
-
-       ```bash
-         docker-compose -f src/integrationTest/resources/docker/non_appserver/docker-compose.yml up -d postgres
-        ```
-        
-        This will start the database at `localhost:5432`
-
-   3.2. To use as an embedded in-memory database instance (Not recommended for production deployments), set
-   the `spring.datasource.url=jdbc:hsqldb:mem:/appserver` in `application-<profile>.properties`. Also, change the
-   properties in `src/main/resources/application.properties` to dev or prod according to your requirements.
-
-4. Build the project using gradle wrapper and run using spring boot. Note: This project uses JAVA 17, please download
-   and install it before building.
-
-5. The build will need to create a logs directory. The default path is `/usr/local/var/lib/radar/appserver/logs`. Either
-   create the directory there using `sudo mkdir -p /usr/local/var/lib/radar/appserver/logs` followed
-   by `sudo chown $USER /usr/local/var/lib/radar/appserver/logs` or change logs file directory
-   in `src/main/resources/logback-spring.xml` to local log directory like `<property name="LOGS" value="logs" />`
-
-6. The appserver uses the Admin SDK to communicate with the Firebase Cloud Messaging. To
-   configure this, please look at the [FCM section](#fcm).
-
-7. To run the build, run the command below -
+   Start a PostgreSQL instance with Docker:
    ```bash
-    ./gradlew bootRun
+   docker run -d --name appserver-db -p 5432:5432 \
+     -e POSTGRES_DB=appserver -e POSTGRES_USER=radar -e POSTGRES_PASSWORD=radar \
+     postgres:15
    ```
-   You can also run in an IDE (like IntelliJ Idea) by giving
-   the `/src/main/java/org/radarbase/appserver/AppserverApplication.java` as the main class.
 
-8. The App-server is now running and is able to send FCM messages. You can make the request to
-   create a project, a user and a notification using the [REST API](#rest-api).
+   **Option B: In-memory H2 database** (for development only, not recommended for production)
 
-9. Voila!, you will now receive a notification at the schedule time (specified by `scheduledTime` in the payload) on
-   your device.
+   In `appserver-jersey/src/main/resources/appserver.yml`, uncomment the H2 configuration:
+   ```yaml
+   database:
+     jdbcDriver: org.h2.Driver
+     jdbcUrl: jdbc:h2:mem:dev
+     hibernateDialect: org.hibernate.dialect.H2Dialect
+   ```
+
+3. Build the project (requires Java 17):
+   ```bash
+   # Monolith
+   ./gradlew :appserver-jersey:build
+
+   # Microservices
+   ./gradlew :microservices:build
+   ```
+
+4. Run the monolith:
+   ```bash
+   ./gradlew :appserver-jersey:run
+   ```
+   The server starts at `http://localhost:8080/`.
+
+5. The AppServer uses the Admin SDK to communicate with Firebase Cloud Messaging. To configure this, see the [FCM section](#fcm).
+
+6. For microservices deployment, see [microservices/README.md](microservices/README.md).
 
 ## REST API
 
-The full API specification and documentation is available via Swagger UI when you launch the app
-server. Please refer to the [Documentation section](#documentation) below.
+The full API specification is available via OpenAPI/Swagger when you launch the app server:
+- OpenAPI spec: `http://localhost:8080/openapi.yaml` or `http://localhost:8080/openapi.json`
 
-1. Create a project. If using Management portal, this should be exactly same as the project name
+1. Create a project. If using Management Portal, this should be exactly same as the project name
    in management portal.
     ```
    POST http://localhost:8080/projects/p1
@@ -107,7 +107,7 @@ server. Please refer to the [Documentation section](#documentation) below.
    POST http://localhost:8080/projects/p1/users/u2
    {
     "subjectId": "u2",
-    "fcmToken" : "shdzdxcvc", 
+    "fcmToken" : "shdzdxcvc",
     "enrolmentDate": "2018-11-29T00:00:00Z",
     "timezone": "Australia/Sydney",
     "language": "en"
@@ -124,65 +124,53 @@ server. Please refer to the [Documentation section](#documentation) below.
         "type": "ers",
         "sourceType": "aRMT",
         "appPackage": "org.phidatalab.radar_armt",
-        "scheduledTime": "2022-02-23T09:04:00Z",
-        "additionalData": {
-        	"questionnaire":"{\"name\":\"ers\",\"questionnaire\":{\"avsc\":\"questionnaire\",\"name\":\"ers\",\"repository\":\"https://raw.githubusercontent.com/RADAR-CNS/RADAR-REDCap-aRMT-Definitions/master/questionnaires/\"},\"protocol\":{\"clinicalProtocol\":null,\"completionWindow\":{\"amount\":1440,\"unit\":\"minutes\"},\"notification\":{\"title\":{\"en\":\"Questionnaire Time\"},\"text\":{\"en\":\"Urgent Questionnaire Pending. Please complete now.\"}},\"reminders\":{\"repeat\":0,\"amount\":0,\"unit\":\"day\"},\"repeatProtocol\":{\"amount\":9999999999,\"unit\":\"minutes\"},\"repeatQuestionnaire\":{\"unitsFromZero\":[0],\"unit\":\"minutes\"}},\"referenceTimestamp\":1645607040.000000000,\"showInCalendar\":true,\"showIntroduction\":false,\"estimatedCompletionTime\":1,\"order\":0,\"isDemo\":false,\"startText\":{},\"endText\":{},\"warn\":{}}",
-        	"action":"QUESTIONNAIRE_TRIGGER",
-        	"metadata":"\"{}\""
-        	
-        }
+        "scheduledTime": "2022-02-23T09:04:00Z"
     }
     ```
 
 ### Quickstart
 
-The same result as stated in [Getting Started](#getting-started) can be achieved using REST endpoints of the AppServer.
+1. Run the AppServer by following the steps in [Getting Started](#getting-started).
 
-1. Run the AppServer by following the first 3 steps in the [Getting Started](#getting-started) section.
-
-2. Create a new Project by making a `POST` request to the endpoint `http://localhost:8080/projects` with the following
-   body-
+2. Create a new Project by making a `POST` request to `http://localhost:8080/projects/{projectId}`:
    ```json
-      {
-      "projectId": "radar"
-      }
+   {
+     "projectId": "radar"
+   }
    ```
 
-3. Create a new User in the Project by making a `POST` request to the
-   endpoint `http://localhost:8080/project/test/users` with the following body-
+3. Create a new User in the Project by making a `POST` request to
+   `http://localhost:8080/projects/radar/users/sub-1`:
    ```json
-      {
-      "subjectId": "sub-1",
-      "fcmToken" : "get-this-from-the-device",
-      "enrolmentDate": "2019-07-29T00:00:00Z",
-      "timezone": 7200,
-      "language": "en"
-      }
+   {
+     "subjectId": "sub-1",
+     "fcmToken": "get-this-from-the-device",
+     "enrolmentDate": "2019-07-29T00:00:00Z",
+     "timezone": "Europe/London",
+     "language": "en"
+   }
    ```
-   **Note:** You will need to get the FCM token from the device and the app. Please see
-   the [setup info](https://firebase.google.com/docs/cloud-messaging) for your platform.
+   **Note:** You will need to get the FCM token from the device and the app. See
+   the [FCM setup info](https://firebase.google.com/docs/cloud-messaging) for your platform.
 
-4. Add (and schedule) a notification for the above user by making a `POST` request to the
-   endpoint `http://localhost:8080/project/test/users/sub-1/notifications` with the following body-
+4. Schedule a notification for the user by making a `POST` request to
+   `http://localhost:8080/projects/radar/users/sub-1/messaging/notifications`:
    ```json
-      {
-        "title" : "Test Title",
-        "body": "Test Body",
-        "ttlSeconds": 86400,
-        "sourceId": "z",
-        "fcmMessageId": "12864132148",
-        "type": "ESM",
-        "sourceType": "aRMT",
-        "appPackage": "aRMT",
-        "scheduledTime": "2019-06-29T15:25:58.054Z"
-       }
+   {
+     "title": "Test Title",
+     "body": "Test Body",
+     "ttlSeconds": 86400,
+     "sourceId": "z",
+     "type": "ESM",
+     "sourceType": "aRMT",
+     "appPackage": "aRMT",
+     "scheduledTime": "2025-06-29T15:25:58.054Z"
+   }
    ```
-   Please update the `scheduledTime` to the desired time of notification delivery.
+   Update the `scheduledTime` to the desired time of notification delivery.
 
-5. You will now receive a notification at the `scheduledTime` for the App and device associated with the FCM token for
-   the user.
-   There are other features provided via the REST endpoints. These can be explored using swagger-ui. Please refer
-   to [Documentation](#documentation) section.
+5. You will receive a notification at the `scheduledTime` on the device associated with the FCM token.
+   Explore other features via the OpenAPI spec — see [Documentation](#documentation).
 
 ## FCM
 
@@ -193,123 +181,113 @@ Firebase [documentation](https://firebase.google.com/docs/admin/setup#initialize
 variable (`GOOGLE_APPLICATION_CREDENTIALS`). In the properties
 file, you would need to set `fcmserver.fcmsender` to `org.radarbase.fcm.downstream.AdminSdkFcmSender`.
 
-## Docker/ Docker Compose
+## Docker / Docker Compose
 
-The AppServer is also available as a docker container. Its [Dockerfile](/Dockerfile) is provided with the project. It
-can be run as follows -
+The AppServer is available as a Docker container.
 
 ```shell
-    docker run -v /logs/:/var/log/radar/appserver/ \
-    -v etc/google-credentials.json:/etc/google-credentials.json \
-    -e "GOOGLE_APPLICATION_CREDENTIALS=/etc/google-credentials.json" \
-    radarbase/radar-appserver:1.1.0
+docker run -v /logs/:/var/log/radar/appserver/ \
+  -v etc/google-credentials.json:/etc/google-credentials.json \
+  -e "GOOGLE_APPLICATION_CREDENTIALS=/etc/google-credentials.json" \
+  radarbase/radar-appserver:2.4.3
 ```
 
-Make sure to have the correct path to the google-credentials.json file.
+Make sure to have the correct path to the `google-credentials.json` file.
 
-The same can be achieved by running as a docker-compose service. Just specify the following in `docker-compose.yml`
-file -
+The same can be achieved by running as a Docker Compose service. Specify the following in your `docker-compose.yml`:
 
 ```yml
-    services:
-      appserver:
-        image: radarbase/radar-appserver:1.1.0
-        restart: always
-        ports:
-          - 8080:8080
-        volumes:
-          - ./radar-is.yml:/resources/radar-is.yml
-          - ./logs/:/var/log/radar/appserver/
-          - ./etc/google-credentials.json:/etc/google-credentials.json
-        environment:
-          JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
-          GOOGLE_APPLICATION_CREDENTIALS: /etc/google-credentials.json
-          RADAR_ADMIN_USER: "radar"
-          RADAR_ADMIN_PASSWORD: "radar"
-          SPRING_APPLICATION_JSON: '{"spring":{"boot":{"admin":{"client":{"url":"http://spring-boot-admin:1111","username":"radar","password":"appserver"}}}}}'
-          RADAR_IS_CONFIG_LOCATION: "/resources/radar-is.yml"
-          SPRING_BOOT_ADMIN_CLIENT_INSTANCE_NAME: radar-appserver
+services:
+  appserver:
+    image: radarbase/radar-appserver:2.4.3
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - ./logs/:/var/log/radar/appserver/
+      - ./etc/google-credentials.json:/etc/google-credentials.json
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /etc/google-credentials.json
+      JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
 ```
 
-An example `docker-compose` file with all the other components is provided
-in [integrationTest resources](/src/integrationTest/resources/docker/appserver_dockerhub/docker-compose.yml).
+For microservices deployment with Docker Compose, see [microservices/docker-compose.yml](microservices/docker-compose.yml).
 
 ## Architecture
 
 Here is a high level architecture and data flow diagram for the AppServer and its example interaction with a Cordova
 application (hybrid) like the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire).
 
-```text                                                                                                                                                   
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-                                                                                                                                                      
-             ┌───────────────────┐                                 Downstream                                                                         
-             │Device (Google Play│◀─────────────────────────────────Message                                             .───────────.                 
-             │  Services/Apple   │                                        │                                         _.─'             `──.             
-             │       IPNS)       │                                        └───────────────────────────────────────,'                     `.           
-             └────────▲────┬─────┴─────────────────────────────────────┐                                        ,'                         `.         
-                      │    │                                           │                                       ╱                             ╲        
-                      │    │                                         XMPP                                     ;                               :       
-                      │    │                                       Upstream                                   │   Firebase Cloud Messaging    │       
-                     .┴────▼─.                                     Message───────────────────────────────────▶│            Service            │       
-                   ,'         `.                                                                              :                               ;       
-                  ; Native Code :                                                                              ╲                             ╱        
-                  :(IOS/Android);                                                                               ╲                           ╱         
-                   ╲           ╱                                                                                 `.                       ,'         
-                    `▲       ,'                                                                                    `.                   ,'          
-                     │`─────│                                                                                       ▲`──.           _.─'            
-                     │      │                                                                                       │    `────────'▲              
-                     │      │                                                                                       │                             
-                     │      │                                                                                       │              ┃              
-                     │      │                                                                                       │                       
-                     │      │                                                                                       │              ┃         
-                     │──────▼.                                                                                    Send                     
-                  ,─'         '─.                                                                              downstream          ┃         
-                 ╱  Cordova FCM  ╲                                                                             Message at                      
-                ;     Plugin      :                                                                             Scheduled          ┃       
-                :                 ;                                                                               Time                        
-                 ╲               ╱                                                                                  │              ┃                
-                  ╲             ╱                                                                                   │            FCM Admin           
-                   '─▲       ,─'                                                                                    │           SDK (Only           
-                     │`─────'│                                                                                      │           downstream          
-                     │       │                                                                                      │           messaging)          
-                     │       │                                                                                      │                               
-                     │       │                                                                                      │              ┃               
-                     │       │                                                                                      │                               
-                     │       │                                                                                 ┌────┴───────▼──────┻─────── ▼────┐    
-                     │       │                                                                                 │                                 │    
-               ┌─────┴───────▼─────────┐                                                                       │                                 │    
-               │                       │                                   ┌───────────────────────────────────▶                                 │    
-               │                       │                           Schedule message                            │                                 │    
-               │                       │                          for future delivery                          │        New App Server           │    
-               │                       │                            using HTTP REST                            │                                 │    
-               │                       ├───────────────────────────────────┘                                   │        (HTTP Protocol)          │    
-               │  CORDOVA APPLICATION  │                                                                       │  (REST API and FCM Admin SDK)   │    
-               │                       │                          Get confirmation of ─────────────────────────┤                                 │    
-               │                       ◀───────────────────────success for each request.                       │                                 │    
-               │                       │                                                                       │                                 │    
-               │                       │                                   ┌───────────────────────────────────▶                                 │    
-               │                       │                                   │                                   │                                 │    
-               │                       │                       Get/Set user metrics,                           │                                 │    
-               │                       ├───────────────────schedule, notifications, etc                        │                                 │    
-               │                       │                                                                       │                                 │    
-               │                       │                               More                                    │                                 │    
-               │                       ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ functionality ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ▶                                 │    
-               └───────────────────────┘                               .....                                   └─────────────────────────────────┘    
-```                                                                                                                                                   
+```text
+
+
+
+
+
+
+
+
+
+
+             ┌───────────────────┐                                 Downstream
+             │Device (Google Play│◀─────────────────────────────────Message                                             .───────────.
+             │  Services/Apple   │                                        │                                         _.─'             `──.
+             │       IPNS)       │                                        └───────────────────────────────────────,'                     `.
+             └────────▲────┬─────┴─────────────────────────────────────┐                                        ,'                         `.
+                      │    │                                           │                                       ╱                             ╲
+                      │    │                                         XMPP                                     ;                               :
+                      │    │                                       Upstream                                   │   Firebase Cloud Messaging    │
+                     .┴────▼─.                                     Message───────────────────────────────────▶│            Service            │
+                   ,'         `.                                                                              :                               ;
+                  ; Native Code :                                                                              ╲                             ╱
+                  :(IOS/Android);                                                                               ╲                           ╱
+                   ╲           ╱                                                                                 `.                       ,'
+                    `▲       ,'                                                                                    `.                   ,'
+                     │`─────│                                                                                       ▲`──.           _.─'
+                     │      │                                                                                       │    `────────'▲
+                     │      │                                                                                       │
+                     │      │                                                                                       │              ┃
+                     │      │                                                                                       │
+                     │      │                                                                                       │              ┃
+                     │──────▼.                                                                                    Send
+                  ,─'         '─.                                                                              downstream          ┃
+                 ╱  Cordova FCM  ╲                                                                             Message at
+                ;     Plugin      :                                                                             Scheduled          ┃
+                :                 ;                                                                               Time
+                 ╲               ╱                                                                                  │              ┃
+                  ╲             ╱                                                                                   │            FCM Admin
+                   '─▲       ,─'                                                                                    │           SDK (Only
+                     │`─────'│                                                                                      │           downstream
+                     │       │                                                                                      │           messaging)
+                     │       │                                                                                      │
+                     │       │                                                                                      │              ┃
+                     │       │                                                                                      │
+                     │       │                                                                                 ┌────┴───────▼──────┻─────── ▼────┐
+                     │       │                                                                                 │                                 │
+               ┌─────┴───────▼─────────┐                                                                       │                                 │
+               │                       │                                   ┌───────────────────────────────────▶                                 │
+               │                       │                           Schedule message                            │                                 │
+               │                       │                          for future delivery                          │        New App Server           │
+               │                       │                            using HTTP REST                            │                                 │
+               │                       ├───────────────────────────────────┘                                   │        (HTTP Protocol)          │
+               │  CORDOVA APPLICATION  │                                                                       │  (REST API and FCM Admin SDK)   │
+               │                       │                          Get confirmation of ─────────────────────────┤                                 │
+               │                       ◀───────────────────────success for each request.                       │                                 │
+               │                       │                                                                       │                                 │
+               │                       │                                   ┌───────────────────────────────────▶                                 │
+               │                       │                                   │                                   │                                 │
+               │                       │                       Get/Set user metrics,                           │                                 │
+               │                       ├───────────────────schedule, notifications, etc                        │                                 │
+               │                       │                                                                       │                                 │
+               │                       │                               More                                    │                                 │
+               │                       ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ functionality ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ▶                                 │
+               └───────────────────────┘                               .....                                   └─────────────────────────────────┘
+```
 
 ## Notification Lifecycle
 
-The Appserver manages the lifecycle of the Notifications through state change events. It uses Pub/Sub paradigm utilising
-Spring Events so other subscribers can also hook up to the Events as listeners. Currently, there are 10 possible states
+The Appserver manages the lifecycle of the Notifications through state change events. It uses Pub/Sub paradigm so
+other subscribers can also hook up to the Events as listeners. Currently, there are 10 possible states
 as follows -
 
 ```text
@@ -325,7 +303,7 @@ as follows -
 
   // Miscellaneous
   ERRORED, UNKNOWN
-``` 
+```
 
 REST Endpoints are provided to update and query the STATE. Update can only be made to any of the ones above that can be
 updated by external entities(i.e. DELIVERED, OPENED, DISMISSED, ERRORED and UNKNOWN ).
@@ -366,10 +344,9 @@ Here is a simple flow between the states --
       │               │           `.                           ,'                                            │                           │
       └───────────────┘             `───.                 _.──'                                              │                           │
               │                          `───────────────'                                                   │                           │
-              │                                  ▲                                                           │                           │
-              │                                  │                                                           │                           ▼
-              └──────────────────────────────────┘                                                           │                  .─────────────────.
-                                                                                                             │             _.──'                   `───.
+              │                                  ▲                                                           │                           ▼
+              │                                  │                                                           │                  .─────────────────.
+              └──────────────────────────────────┘                                                           │             _.──'                   `───.
                                                                                                              │            ╱                             ╲
                                                                                                              └───────────(           DELIVERED           )
                                                                                                                           `.                           ,'
@@ -396,56 +373,61 @@ Here is a simple flow between the states --
 
 The AppServer has support for providing Protocols for
 the [RADAR-Questionnaire](https://github.com/RADAR-base/RADAR-Questionnaire) application. Currently, one strategy for
-getting the protocols from Github(Take a look
-at [RADAR-aRMT-protocols](https://github.com/RADAR-base/RADAR-aRMT-protocols/)) is provided. The AppServer also caches
-the protocols, so they are still available if there are any issues with GitHub. Later, we intend to extend this
-functionality to add protocols directly in the AppServer possibly by a UI.
-You can host your own protocols and configure the following properties -
+getting the protocols from GitHub (see [RADAR-aRMT-protocols](https://github.com/RADAR-base/RADAR-aRMT-protocols/)) is provided. The AppServer also caches the protocols, so they are still available if there are any issues with GitHub.
 
 |                   Property                    | Description                                                    |              Default              | Required? |
 |:---------------------------------------------:|----------------------------------------------------------------|:---------------------------------:|:---------:|
-| radar.questionnaire.protocol.github.repo.path | The Github repo where protocols are hosted.                    | `RADAR-base/RADAR-aRMT-protocols` |    No     |
+| radar.questionnaire.protocol.github.repo.path | The GitHub repo where protocols are hosted.                    | `RADAR-base/RADAR-aRMT-protocols` |    No     |
 | radar.questionnaire.protocol.github.file.name | The filename containing the Protocol for each Project.         |          `protocol.json`          |    No     |
 |  radar.questionnaire.protocol.github.branch   | The Branch of the Repository from which to fetch the protocols |             `master`              |    No     |
 
-## Email notifications
+## Email Notifications
 
-By default, appserver sends push notifications to mobile devices. Optionally, Notifications can be sent via email in
-addition. To enable email notifications, you need to set the following properties in the `application.properties` file:
+By default, the appserver sends push notifications to mobile devices. Optionally, notifications can be sent via email
+in addition. To enable email notifications, configure the `email` section in `appserver.yml`:
 
-1. set the `radar.notification.email.enabled` property to `true`.
-2. set the `radar.notification.email.from` property to the email address from which the notifications will be sent.
-3. set  [Spring Boot mail properties](https://docs.spring.io/spring-boot/reference/io/email.html) to configure the email
-   server.
+1. Set `enabled` to `true`.
+2. Set `fromAddress` to the email address from which notifications will be sent.
+3. Configure the SMTP server settings.
 
-Example:
+Example `appserver.yml` configuration:
 
-```properties
-radar.notification.email.enabled=true
-radar.notification.email.from=no-reply@radar.org
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=my_username
-spring.mail.password=my_password
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
+```yaml
+email:
+  enabled: true
+  smtpHost: smtp.gmail.com
+  smtpPort: 587
+  smtpUser: my_username
+  smtpPassword: my_password
+  fromAddress: no-reply@radar.org
+  enableTls: true
 ```
+
+These can also be set via environment variables:
+
+| Environment Variable | Description |
+|---|---|
+| `RADAR_APPSERVER_NOTIFICATION_EMAIL_ENABLED` | Enable email notifications (`true`/`false`) |
+| `RADAR_APPSERVER_NOTIFICATION_EMAIL_FROM` | Sender email address |
+| `RADAR_APPSERVER_EMAIL_SMTP_HOST` | SMTP server host |
+| `RADAR_APPSERVER_EMAIL_SMTP_PORT` | SMTP server port |
+| `RADAR_APPSERVER_EMAIL_SMTP_USERNAME` | SMTP username |
+| `RADAR_APPSERVER_EMAIL_SMTP_PASSWORD` | SMTP password |
+| `RADAR_APPSERVER_EMAIL_TLS_ENABLED` | Enable TLS (`true`/`false`) |
 
 In addition, in the notification scheduling request set the following fields:
 
-- _emailEnabled_ with value _true_.
-- (optional) _emailTitle_: subject of the email (notification title will be used when not specified)
-- (optional) _emailBody_: body of the email (notification text will be used when not specified)
+- `emailEnabled` with value `true`.
+- (optional) `emailTitle`: subject of the email (notification title will be used when not specified).
+- (optional) `emailBody`: body of the email (notification text will be used when not specified).
 
 Example of a request body (partial) to the notification scheduling endpoint:
 
 ```json
 {
-  ...
   "emailEnabled": true,
   "emailTitle": "My email title",
-  "emailBody": "My email body",
-  ...
+  "emailBody": "My email body"
 }
 ```
 
@@ -453,239 +435,158 @@ Note: HTML email is not supported at the moment of this writing.
 
 ## Documentation
 
-Api docs are available through swagger open api 3 config.
-The raw json is present at the `<your-base-url/v3/api-docs>`. By default this should
-be `http://localhost:8080/v3/api-docs`. This will provide the specification in JSON format. If `YAML` format is
-preferred, you can query `http://localhost:8080/v3/api-docs.yaml`
+API docs are available through OpenAPI (Swagger):
+- **JSON**: `http://localhost:8080/openapi.json`
+- **YAML**: `http://localhost:8080/openapi.yaml`
 
-The Swagger UI is shown below.
-It is present at `<your-base-url/swagger-ui.html`
-
-![swagger UI](/images/swagger-ui.png "Swagger UI Api Docs")
-
-The Swagger API docs are also available
-at [Swagger Hub](https://app.swaggerhub.com/apis-docs/RADAR-Base/RADAR-Appserver) but may not be most up-to-date. Please
-check the version matches the app-server that you have deployed.
-
-The Java docs are also available as static content when you build and deploy the app-server.
-These are stored in the `/src/main/resources/static/java-docs` path automatically when building and spring picks this up
-and exposes it on the path `<your-base-url/java-docs/index.html>` as shown below -
-
-![java documentation](/images/java-docs.png "Java Docs")
-
-## Client
-
-You can generate a client in 40 different languages for the api
-using [Swagger Codegen](https://swagger.io/tools/swagger-codegen/) tool. There is even
-a [javascript library](https://github.com/swagger-api/swagger-codegen#where-is-javascript) that is completely dynamic
-and does not require static code generation.
+Each microservice also exposes its own OpenAPI spec at its respective base URL.
 
 ## Security
 
-By Default, no OAuth 2.0 security is enabled for the endpoints. Only basic Auth is present on Admin endpoints.
-To enable security of specific provider, please read the sections below.
-
 ### Management Portal
 
-To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), set the following
-property -
+To enable security via the [RADAR Management Portal](https://github.com/RADAR-base/ManagementPortal), configure the
+`auth` section in `appserver.yml`:
 
-```ini
-security.radar.managementportal.enabled=true
-security.radar.managementportal.url=<your management portal base url>
+```yaml
+auth:
+  managementPortalUrl: http://localhost:8081/managementportal
+  resourceName: res_AppServer
 ```
 
-This will instantiate all the classes needed for security using the management portal. Per endpoint level auth is
-controlled using Pre and Post annotations for each permission.
-All the classes are located
-in [/src/main/java/org/radarbase/appserver/auth/managementportal](/src/main/java/org/radarbase/appserver/auth/managementportal).
+This will instantiate all the classes needed for security using the Management Portal. Per-endpoint authorization is
+controlled using `@NeedsPermission` annotations on each resource method.
 
-You can provide the Management Portal specific config in [radar-is.yml](radar-is.yml) file providing the public key
-endpoint and the resource name. The path to this file should be specified in the env
-variable `RADAR_IS_CONFIG_LOCATION`.
+The Management Portal URL and client credentials can also be configured via environment variables:
+
+| Environment Variable | Description |
+|---|---|
+| `MANAGEMENT_PORTAL_CLIENT_ID` | OAuth client ID |
+| `MANAGEMENT_PORTAL_CLIENT_SECRET` | OAuth client secret |
 
 ### Management Portal Clients
 
-If security is enabled, please also make sure that the correct resources and scope are set in the OAuth Client
-configurations in Management Portal.
+If security is enabled, make sure the correct resources and scope are set in the OAuth Client
+configuration in Management Portal.
 The resource `res_AppServer` and scopes `MEASUREMENT.CREATE,SUBJECT.UPDATE,SUBJECT.READ,PROJECT.READ` must be added to
-the `aRMT` client. Please check the `/src/integrationTest/resources/docker/etc/config/oauth_client_details.csv` file for
+the `aRMT` client. See `appserver-jersey/src/integrationTest/resources/docker/etc/config/oauth_client_details.csv` for
 an example.
 
 ### Other Security Providers
 
-For using other type of security providers, set `managementportal.security.enabled=false` and configure the security
-provider in the spring context and add any necessary classes. See [Management Portal Security](#management-portal)
-section for an example.
+For using other security providers, configure the security provider in the enhancer factory and modify the authorization annotations on each endpoint method.
 
-Then you will need to change the `Pre` and `Post` Authorise annotations for each endpoint method according to the
-semantics provided by your provider. Currently, these are configured to work with Management portal.
+## Database Migrations
+
+This project uses [Liquibase](https://www.liquibase.org/) for database schema management. Liquibase tracks which
+schema changes have been applied via a `DATABASECHANGELOG` table in the database, so migrations are only run once and
+in order.
+
+Changelogs are located at:
+- **appserver-jersey**: `appserver-jersey/src/main/resources/db/changelog/changes/`
+- **microservices**: each service has its own changelogs under `<service>/src/main/resources/db/changelog/changes/`
+
+A master changelog (`db.changelog-master.yaml`) uses `includeAll` to pick up all changesets in the `changes/` directory,
+sorted by filename. Changesets are named with a prefix (`00000000000000_`, `00000000000001_`, etc.) to control ordering.
+
+Liquibase is enabled by default in the `appserver.yml` config:
+
+```yaml
+db:
+  liquibase:
+    enabled: true
+    changelogs: db/changelog/db.changelog-master.yaml
+  additionalProperties:
+    hibernate.hbm2ddl.auto: validate
+```
+
+Hibernate runs in `validate` mode — it checks that the schema matches the entity definitions but does not modify the
+schema. All schema changes must go through Liquibase changelogs.
+
+For H2 development setups, Liquibase can be disabled and Hibernate can manage the schema directly:
+
+```yaml
+db:
+  jdbcDriver: org.h2.Driver
+  jdbcUrl: jdbc:h2:mem:dev
+  hibernateDialect: org.hibernate.dialect.H2Dialect
+  liquibase:
+    enabled: false
+  additionalProperties:
+    jakarta.persistence.schema-generation.database.action: drop-and-create
+```
+
+### Adding new schema changes
+
+1. Create a new changelog file in the `changes/` directory following the naming convention:
+   `00000000000003_update_schema-<yyyyMMddHHmmss>_changelog.yml`
+2. Add rollback definitions for reversibility.
+3. On startup, Liquibase will automatically detect and apply new changesets.
+
+Migration scripts for moving data between deployment modes (jersey to microservices) are available in `scripts/migration/`.
+
+## Code Quality and Testing
+
+Code quality checks (ktlint) and tests can be run with:
+
+```bash
+./gradlew check
+```
+
+This will run linting, unit tests and integration tests. Reports are generated in the `build/reports` folder.
+
+### Unit Tests
+
+```bash
+# Monolith
+./gradlew :appserver-jersey:test
+
+# Microservices
+./gradlew :microservices:<service-name>:test
+```
+
+### Integration Tests
+
+Integration tests are provided for both the monolith and microservices. They use a running instance of
+Management Portal to obtain a valid client token and verify access to resources.
+
+```bash
+# Monolith — starts required services via Docker Compose, then runs tests
+./gradlew :appserver-jersey:composeUp
+./gradlew :appserver-jersey:integrationTest
+
+# Microservices
+./gradlew :microservices:integration-tests:composeUp
+./gradlew :microservices:integration-tests:integrationTest
+```
+
+The integration tests are located at:
+- **appserver-jersey**: `appserver-jersey/src/integrationTest/`
+- **microservices**: `microservices/integration-tests/src/integrationTest/`
+
+The tests use Management Portal as the security provider. The OAuth helper
+(`MpOAuthSupport`) retrieves a valid access token from Management Portal for authenticating test requests.
 
 ## Monitoring
 
-The App server has built in support for
-the [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready) and
-can be accessed via the default REST endpoints `<your-base-url>/actuator/*`. To see all the features provided please
-refer to
-the [official docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints) of
-Spring boot actuator.
+### Sentry
 
-It also has functionality to register itself as a client to
-the [Spring Boot Admin Server](http://codecentric.github.io/spring-boot-admin/2.1.1/) for providing a beautiful UI for
-the Actuator and some other useful admin stuff.
-To make this work,
-
-- Run an instance of the Spring Boot Admin server (various examples on the internet and also via Docker) on the machine
-  and then
-
-- configure the client to point to the Admin Server for registration by adding the following to
-  your `application.properties` file -
-  ```ini
-    spring.boot.admin.client.url = http://localhost:8888
-  ```
-  In this case, the Spring Boot admin server was running on `http://localhost:8888`. If http basic auth is enabled on
-  the server also add the following to the `application.properties` file -
-  ```ini
-    spring.boot.admin.client.url = http://localhost:8888
-    spring.boot.admin.client".username = admin-server-username
-    spring.boot.admin.client".password = admin-server-password
-  ```
-
-The same can be achieved when deployed with the components as microservices in docker containers using docker-compose.
-The file [docker-compose.yml](/src/integrationTest/resources/docker/appserver_dockerhub/docker-compose.yml) in this
-project shows an example of how this is achieved.
-Please note how the App server is configured in the container compared to the method of adding properties
-in `application.properties` file shown above.
-
-Just run -
-
-```bash
-cd src/integrationTest/resources/docker/appserver_dockerhub/
-sudo docker-compose up -d
-```
-
-Then go to the browser to the URL : `https://localhost:8888` and login with credentials `radar:appserver` to see the
-Spring Boot Admin Server in action.
-
-Deploying the Spring Boot Admin server and the client as different components makes sure that the same Server can be
-used to register multiple client apps and the server's lifecycle is not associated with the client. This also means that
-our client app is lighter and production ready.
-
-### Sentry monitoring
-
-To enable Sentry monitoring:
-
-1. Add the `sentry` profile to active spring profiles.
-2. Set a `SENTRY_DSN` environment variable that points to the desired Sentry DSN.
-3. (Optional) Set the `SENTRY_LOG_LEVEL` environment variable to control the minimum log level of events sent to Sentry.
-   The default log level for Sentry is `ERROR`. Possible values are `TRACE`, `DEBUG`, `INFO`, `WARN`, and `ERROR`.
-
-For further configuration of Sentry via environmental variables see [here](https://docs.sentry.io/platforms/java/configuration/#configuration-via-the-runtime-environment). For instance:
+To enable Sentry monitoring, set the `SENTRY_DSN` environment variable:
 
 ```
-SENTRY_LOG_LEVEL: 'ERROR'
 SENTRY_DSN: 'https://000000000000.ingest.de.sentry.io/000000000000'
 SENTRY_ATTACHSTACKTRACE: true
 SENTRY_STACKTRACE_APP_PACKAGES: org.radarbase.appserver
 ```
 
-## Performance Testing
-
-The app server supports performance testing using Gatling and Scala. The simulations are located in the
-folder `src/gatling/simulations`.
-
-First run the application and then run the gatling test using the command -
-
-```bash
-  ./gradlew gatlingRun
-```
-
-To run a particular simulation you can run it like follows -
-
-```bash
-   ./gradlew gatlingRun-org.radarbase.appserver.BatchingApiGatlingSimulationTest
-```
-
-You can modify the number of iterations of the requests by change the variables the the top of the
-file `src/gatling/simulations/org/radarbase/appserver/ApiGatlingSimulationTest.scala` like -
-
-```scala
-  val numOfProjects = 5
-  val numOfUsersPerProject = 300
-  val numOfNotificationsPerUser = 300
-  val numOfSimultaneousClients = 2
-```
-
-You can also edit the base URL of your deployed instance of the server by changing the value of
-
-```scala
-  val baseUrl = "http://localhost:8080"
-``` 
-
-Ideally deploy the server on a remote instance using a persisted database instead of in-memory for real-world testing.
-Running on your local machine may not reflect the best results.
-
-The reports will be generated at the path `build/reports/gatling/` and the folders will be
-named `apigatlingsimulationtest-{date-time}`. Open the folder with the correct date time and open the `index.html` file
-in a browser to view the results. Example result is shown in the screengrab below-
-
-![gatling test](/images/gatling-results.png "Gatling Test Results")
-
-## Code-Style and Quality
-
-Various tools are enabled to ensure code quality and styling while also doing static code analysis for bugs. PMD,
-CheckStyle is included and all of these can be run with the command -
-
-```bash
-./gradlew check
-```
-
-**Note:** This will also run the test and integrationTest.
-
-The reports are generated in the `build/reports` folder. The config files for rules are present in the `config` folder.
-A style template following the Google Java style guidelines is also provided for use with IntellJ
-Idea ([style plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format)) in `config/codestyles` folder.
-
-## Unit and Integration Testing
-
-[Unit Tests](/src/test/java/org/radarbase/appserver)
-and [Integration Tests](/src/integrationTest/java/org/radarbase/appserver) are provided with the AppServer. These can be
-run as follows-
-
-```bash
-# For Unit tests
-./gradlew test
-```
-
-```bash
-# For Integration Tests
-./gradlew integrationTest
-```
-
-The integration tests are currently provided for Management Portal as the security provider and uses a running instance
-of Management Portal to get a valid client token and provide access to resources.
-To change the security provider implement the
-interface [OAuthHelper](/src/integrationTest/java/org/radarbase/appserver/auth/common/OAuthHelper.java) and provide a
-valid Access Token in `getAccessToken()` using your security provider.
-Then just use this instance in static Initialisation of the Tests. For more info take a look
-at [MPOAuthHelper](/src/integrationTest/java/org/radarbase/appserver/auth/common/MPOAuthHelper.java).
-
-You can also run all the checks and tests in a single command using -
-
-```bash
-./gradlew check
-```
-
-This will run checkstyle, PMD, spot bugs, unit tests and integration tests.
-
 ## Current Features
 
-- Provides a general purpose FCM library with facility to send messages with Admin SDK support.
-- Provides functionality of scheduling notifications via FCM.
-- Acts as a data store for important user and app related data (like FCM token to subject mapping, notifications, user
-  metrics, etc).
-- Can be easily extended for different apps.
-- Uses [Liquibase](https://www.liquibase.org/) for easy evolution of database.
-- Contains swagger integration for easy API documentation and generation of Java client.
-- Uses [lombok.data](https://projectlombok.org/) in most places to reduce boilerplate code and make it more readable.
-- Has support for Auditing of database entities.
+- FCM push notification scheduling via Admin SDK
+- Data store for user and app data (FCM token mapping, notifications, user metrics)
+- Questionnaire protocol management (fetched from GitHub)
+- Email notification support
+- Database schema management via Liquibase
+- OpenAPI/Swagger API documentation
+- Sentry monitoring integration
+- Management Portal authentication
+- Docker and Docker Compose deployment

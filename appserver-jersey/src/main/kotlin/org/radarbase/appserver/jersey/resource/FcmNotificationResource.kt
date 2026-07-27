@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.inject.Provider
 import jakarta.validation.Valid
@@ -60,6 +61,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
+@Tag(name = "Notifications")
 class FcmNotificationResource @Inject constructor(
     private val asyncService: AsyncCoroutineService,
     private val authService: AuthService,
@@ -101,7 +103,7 @@ class FcmNotificationResource @Inject constructor(
     }
 
     @GET
-    @Path("$MESSAGING_NOTIFICATION_PATH/filter")
+    @Path("$MESSAGING_NOTIFICATION_PATH/filtered")
     @Produces(APPLICATION_JSON)
     @Authenticated
     @NeedsPermission(Permission.PROJECT_READ)
@@ -237,7 +239,7 @@ class FcmNotificationResource @Inject constructor(
     fun addBatchNotifications(
         @Valid @PathParam("projectId") projectId: String,
         @Valid @PathParam("subjectId") subjectId: String,
-        @QueryParam("schedule") @DefaultValue("false") schedule: Boolean,
+        @QueryParam("schedule") @DefaultValue("true") schedule: Boolean,
         @Valid fcmNotification: FcmNotifications,
         @Suspended asyncResponse: AsyncResponse,
     ) {

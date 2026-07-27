@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.inject.Provider
 import jakarta.validation.Valid
@@ -58,6 +59,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
+@Tag(name = "Users")
 class UserResource @Inject constructor(
     private val userService: UserService,
     private val asyncService: AsyncCoroutineService,
@@ -84,7 +86,7 @@ class UserResource @Inject constructor(
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_UPDATE,
-                EntityDetails(project = projectId, subject = token.subject),
+                EntityDetails(project = projectId, subject = fcmUserDto.subjectId),
                 token,
             )
             if (forceFcmToken) userService.checkFcmTokenExistsAndReplace(fcmUserDto)

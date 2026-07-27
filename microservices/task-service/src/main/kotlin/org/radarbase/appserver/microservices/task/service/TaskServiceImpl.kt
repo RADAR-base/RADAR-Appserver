@@ -36,6 +36,7 @@ import org.radarbase.appserver.microservices.core.utils.Const.USER_MAPPER
 import org.radarbase.appserver.microservices.core.utils.checkPresence
 import org.radarbase.appserver.microservices.core.utils.requireNotNullField
 import org.radarbase.appserver.microservices.task.config.TaskServiceConfig
+import org.radarbase.jersey.exception.HttpNotFoundException
 import java.sql.Timestamp
 import java.time.Instant
 
@@ -168,8 +169,11 @@ class TaskServiceImpl @Inject constructor(
             taskTimestamp,
         )
 
-        checkPresence(doesntExists, "task_not_found") {
-            "The Task ${oldTask.id} does not exist to set to state $state  Please Use add endpoint"
+        if (doesntExists) {
+            throw HttpNotFoundException(
+                "task_not_found",
+                "The Task ${oldTask.id} does not exist to set to state $state. Please Use add endpoint",
+            )
         }
 
         if (state == TaskState.COMPLETED) {

@@ -76,6 +76,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           context: .
           push: true
+          file: Dockerfile.appserver-jersey
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: |
             ${{ steps.docker_meta.outputs.labels }}

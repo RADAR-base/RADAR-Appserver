@@ -86,7 +86,7 @@ class FcmNotificationResource @Inject constructor(
     }
 
     @GET
-    @Path("$MESSAGING_NOTIFICATION_PATH/filter")
+    @Path("$MESSAGING_NOTIFICATION_PATH/filtered")
     @Produces(APPLICATION_JSON)
     fun getFilteredNotifications(
         @Valid @QueryParam("type") type: String?,
@@ -202,7 +202,7 @@ class FcmNotificationResource @Inject constructor(
     fun addBatchNotifications(
         @Valid @PathParam("projectId") projectId: String,
         @Valid @PathParam("subjectId") subjectId: String,
-        @QueryParam("schedule") @DefaultValue("false") schedule: Boolean,
+        @QueryParam("schedule") @DefaultValue("true") schedule: Boolean,
         @Valid fcmNotification: FcmNotifications,
         @Suspended asyncResponse: AsyncResponse,
     ) {

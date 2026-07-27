@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.microservices.core.config
 
-data class CoreLiquibaseConfig (
+data class CoreLiquibaseConfig(
     val enabled: Boolean = false,
+    val changelogs: String = "db/changelog/db.changelog-master.yaml",
 )

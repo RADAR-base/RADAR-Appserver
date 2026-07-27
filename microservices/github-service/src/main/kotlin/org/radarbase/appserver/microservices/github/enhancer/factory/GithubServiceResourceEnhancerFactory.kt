@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.microservices.github.enhancer.factory
 
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.appserver.microservices.github.config.GithubServiceConfig
 import org.radarbase.appserver.microservices.github.enhancer.GithubServiceResourceEnhancer
 import org.radarbase.jersey.enhancer.EnhancerFactory
@@ -25,8 +27,17 @@ import org.radarbase.jersey.enhancer.JerseyResourceEnhancer
 class GithubServiceResourceEnhancerFactory(private val config: GithubServiceConfig) : EnhancerFactory {
     override fun createEnhancers(): List<JerseyResourceEnhancer> {
 
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver GitHub Service"
+                description = "Fetches questionnaire protocols from GitHub repositories"
+                version = "2.4.3"
+            }
+        }
+
         return listOf(
             GithubServiceResourceEnhancer(config),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )

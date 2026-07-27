@@ -80,7 +80,7 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
                     }
                 }
             }.awaitAll()
-        }
+        }.toCollection(LinkedHashSet()).toList()
     }
 
     private fun calculateCompletionWindow(completionWindow: TimePeriod?): Long {

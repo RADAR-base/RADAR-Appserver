@@ -41,7 +41,7 @@ jobs:
         run: ./gradlew :microservices:${{ matrix.service }}:check
 
   docker:
-    name: Docker setup for ${{ matrix.service }}
+    name: Docker ${{ matrix.service }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -101,19 +101,18 @@ jobs:
 
       - name: Cache Docker layers
         id: cache-buildx
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles(
+          key: ${{ runner.os }}-buildx-${{ matrix.service }}-${{ hashFiles(
             format('microservices/{0}/Dockerfile', matrix.service),
             'settings.gradle.kts',
             'buildSrc/src/main/kotlin/Versions.kt',
             'build.gradle.kts',
-            format('microservices/{0}/build.gradle.kts', matrix.service),
-            format('microservices/{0}/src/main/**', matrix.service)
+            format('microservices/{0}/build.gradle.kts', matrix.service)
             ) }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-${{ matrix.service }}-
 
       - name: Cache parameters
         id: cache-parameters
@@ -124,11 +123,8 @@ jobs:
             echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUT
           fi
 
-      - name: Compile ${{ matrix.service }} code
-        run: ./gradlew --no-daemon :microservices:${{ matrix.service }}:assemble
-
       - name: Build docker
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
@@ -140,12 +136,9 @@ jobs:
             ${{ steps.docker_meta.outputs.labels }}
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
-            
+
       - name: Inspect docker image
         run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
-
-      - name: Check docker image
-        run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help || true
 
       - name: Push image
         if: ${{ github.event_name != 'pull_request' }}
@@ -177,7 +170,7 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
     needs: docker
-    if: ${{ always() }}  # Running this job even if the docker job fails. It will build the image from source, and collect the logs
+    if: ${{ always() }}
 
     steps:
       - uses: actions/checkout@v5
@@ -215,7 +208,6 @@ jobs:
 
             svc_upper=$(echo "$service" | tr '[:lower:]-' '[:upper:]_' )
 
-            # variable names for microservices images
             echo "RADAR_APPSERVER_${svc_upper}_IMAGE_NAME=${image}" >> $OUTFILE
             echo "RADAR_APPSERVER_${svc_upper}_IMAGE_TAG=${tag}" >> $OUTFILE
 
@@ -231,7 +223,6 @@ jobs:
 
       - name: Decrypt google application credentials
         run: |
-          # adjust path to encrypted file if needed
           gpg --pinentry-mode loopback --local-user "Adi Mishra" --batch --yes \
             --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" \
             --output microservices/integration-tests/src/integrationTest/resources/docker/fcm/google-credentials.json \

@@ -4,7 +4,7 @@ on:
     branches: [ master, dev ]
   pull_request:
     branches: [ master, dev ]
-
+#
 env:
   REGISTRY: ghcr.io
   REPOSITORY: ${{ github.repository }}
@@ -31,7 +31,6 @@ jobs:
       - name: Check
         run: ./gradlew :appserver-jersey:check
 
-  # Check that the docker image builds correctly
   docker:
     runs-on: ubuntu-latest
     permissions:
@@ -52,14 +51,12 @@ jobs:
         run: |
           echo "DOCKER_IMAGE=${REGISTRY}/${REPOSITORY,,}/${IMAGE_NAME}" >>${GITHUB_ENV}
 
-      # Add Docker labels and tags
       - name: Docker meta
         id: docker_meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_IMAGE }}
 
-      # Setup docker build environment
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -68,12 +65,12 @@ jobs:
 
       - name: Cache Docker layers
         id: cache-buildx
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile.appserver-jersey', 'appserver-jersey/build.gradle.kts', 'buildSrc/src/main/kotlin/Versions.kt', 'settings.gradle.kts', 'build.gradle.kts', 'appserver-jersey/src/main/**') }}
+          key: ${{ runner.os }}-buildx-jersey-${{ hashFiles('Dockerfile.appserver-jersey', 'appserver-jersey/build.gradle.kts', 'buildSrc/src/main/kotlin/Versions.kt', 'settings.gradle.kts', 'build.gradle.kts') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-jersey-
 
       - name: Cache parameters
         id: cache-parameters
@@ -85,7 +82,7 @@ jobs:
           fi
 
       - name: Build docker
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
@@ -101,10 +98,6 @@ jobs:
       - name: Inspect docker image
         run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
 
-      - name: Check docker image
-        run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help
-
-      # Push the image on the dev and master branches
       - name: Push image
         if: ${{ github.event_name != 'pull_request' }}
         run: docker push ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}

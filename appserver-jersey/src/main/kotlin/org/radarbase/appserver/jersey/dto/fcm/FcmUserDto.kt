@@ -62,7 +62,7 @@ data class FcmUserDto(
 
     @field:JsonFormat(
         shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX",
         timezone = "UTC",
     )
     @Serializable(with = InstantSerializer::class)
@@ -70,7 +70,7 @@ data class FcmUserDto(
 
     @field:JsonFormat(
         shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX",
         timezone = "UTC",
     )
     @Serializable(with = InstantSerializer::class)
@@ -79,7 +79,7 @@ data class FcmUserDto(
     @field:NotNull
     @field:JsonFormat(
         shape = JsonFormat.Shape.STRING,
-        pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX",
         timezone = "UTC",
     )
     @Serializable(with = InstantSerializer::class)

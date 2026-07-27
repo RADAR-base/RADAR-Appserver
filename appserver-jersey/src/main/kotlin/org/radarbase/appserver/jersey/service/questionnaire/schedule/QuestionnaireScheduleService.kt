@@ -64,7 +64,7 @@ class QuestionnaireScheduleService @Inject constructor(
         }
     }
 
-    suspend fun getTasksUsingProjectIdAndSubjectId(subjectId: String, projectId: String): List<Task> {
+    suspend fun getTasksUsingProjectIdAndSubjectId(projectId: String, subjectId: String): List<Task> {
         return getTasksForUser(subjectAndProjectExistsElseThrow(subjectId, projectId))
     }
 
@@ -80,8 +80,8 @@ class QuestionnaireScheduleService @Inject constructor(
     }
 
     suspend fun getTasksForDateUsingProjectIdAndSubjectId(
-        subjectId: String,
         projectId: String,
+        subjectId: String,
         startTime: Instant,
         endTime: Instant,
     ): List<Task> {

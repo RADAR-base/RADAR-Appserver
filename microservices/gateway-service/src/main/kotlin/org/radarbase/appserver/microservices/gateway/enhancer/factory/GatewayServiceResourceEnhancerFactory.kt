@@ -16,6 +16,8 @@
 
 package org.radarbase.appserver.microservices.gateway.enhancer.factory
 
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
 import org.radarbase.appserver.microservices.gateway.config.GatewayConfig
 import org.radarbase.appserver.microservices.gateway.enhancer.GatewayServiceResourceEnhancer
 import org.radarbase.jersey.auth.AuthConfig
@@ -37,10 +39,19 @@ class GatewayServiceResourceEnhancerFactory(
             jwksUrls = config.auth.publicKeyUrls ?: emptyList(),
         )
 
+        val openApi = OpenAPI().apply {
+            info = Info().apply {
+                title = "RADAR-Appserver Gateway Service"
+                description = "API gateway for the RADAR-Appserver microservices"
+                version = "2.4.3"
+            }
+        }
+
         return listOf(
             GatewayServiceResourceEnhancer(config),
             Enhancers.radar(authConfig),
             Enhancers.managementPortal(authConfig),
+            Enhancers.swagger(openApi),
             Enhancers.health,
             Enhancers.exception,
         )

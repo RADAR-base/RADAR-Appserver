@@ -60,7 +60,7 @@ class RandomRepeatQuestionnaireHandler : ProtocolHandler {
         val randomUnitsFromZeroBetween = repeatQuestionnaire?.randomUnitsFromZeroBetween ?: return emptyList()
         val completionWindow = calculateCompletionWindow(assessment.protocol?.completionWindow)
 
-        val tasks = mutableListOf<Task>()
+        val tasks = LinkedHashSet<Task>()
         for (referenceTimestamp in referenceTimestamps) {
             val timePeriod = TimePeriod().apply { unit = repeatQuestionnaire.unit }
             for (range in randomUnitsFromZeroBetween) {
@@ -72,7 +72,7 @@ class RandomRepeatQuestionnaireHandler : ProtocolHandler {
                 tasks.add(task)
             }
         }
-        return tasks
+        return tasks.toList()
     }
 
     private fun getRandomAmountInRange(range: Array<Int>): Int {

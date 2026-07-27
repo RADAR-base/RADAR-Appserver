@@ -21,22 +21,22 @@ dependencies {
     api("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {
         runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
     }
-    api("org.glassfish.jersey.ext:jersey-bean-validation:3.1.10")
-    api("com.google.firebase:firebase-admin:9.3.0") {
+    api("org.glassfish.jersey.ext:jersey-bean-validation:${Versions.jerseyBeanValidationVersion}")
+    api("com.google.firebase:firebase-admin:${Versions.firebaseAdminVersion}") {
         constraints {
-            implementation("com.google.protobuf:protobuf-java:3.25.5") {
+            implementation("com.google.protobuf:protobuf-java:${Versions.protobufVersion}") {
                 because("Provided version of protobuf has security vulnerabilities")
             }
-            implementation("com.google.protobuf:protobuf-java-util:3.25.5") {
+            implementation("com.google.protobuf:protobuf-java-util:${Versions.protobufVersion}") {
                 because("Provided version of protobuf has security vulnerabilities")
             }
         }
     }
-    
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    implementation("com.google.guava:guava:32.1.3-jre")
-    api("org.quartz-scheduler:quartz:2.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinxSerializationVersion}")
+
+    implementation("com.google.guava:guava:${Versions.guavaVersion}")
+    api("org.quartz-scheduler:quartz:${Versions.quartzVersion}")
 
 }
 

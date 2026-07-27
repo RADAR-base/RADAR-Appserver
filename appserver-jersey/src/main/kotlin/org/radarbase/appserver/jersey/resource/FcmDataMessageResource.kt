@@ -16,6 +16,7 @@
 
 package org.radarbase.appserver.jersey.resource
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import jakarta.inject.Provider
 import jakarta.validation.Valid
@@ -56,6 +57,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UnresolvedRestParam")
 @Path("/")
+@Tag(name = "Data Messages")
 class FcmDataMessageResource @Inject constructor(
     private val fcmDataMessageService: FcmDataMessageService,
     private val asyncService: AsyncCoroutineService,
