@@ -39,6 +39,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.ResourceAccessException;
@@ -52,6 +53,10 @@ public class ProjectEndpointAuthTest {
   public static final String PROJECT_PATH = "/projects";
   private static final HttpHeaders HEADERS = new HttpHeaders();
   private static HttpHeaders AUTH_HEADER;
+
+  static {
+    HEADERS.setContentType(MediaType.APPLICATION_JSON);
+  }
   private final transient TestRestTemplate restTemplate = new TestRestTemplate();
   @LocalServerPort private transient int port;
 
@@ -60,6 +65,7 @@ public class ProjectEndpointAuthTest {
     OAuthHelper oAuthHelper = new MPOAuthHelper();
     AUTH_HEADER = new HttpHeaders();
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
+    AUTH_HEADER.setContentType(MediaType.APPLICATION_JSON);
   }
 
   public static String createURLWithPort(int port, String uri) {
