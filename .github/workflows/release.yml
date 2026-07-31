@@ -10,10 +10,10 @@ env:
   IMAGES: >-
     [{
     'name': 'radar-appserver',
-    'build_file': 'Dockerfile',
+    'build_file': 'appserver-legacy/Dockerfile',
     'authors': 'Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>',
     'description': 'RADAR-base appserver backend application',
-    'cache_keys_files': ['Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'src/main/**']
+    'cache_keys_files': ['appserver-legacy/Dockerfile', 'appserver-legacy/build.gradle', 'build.gradle', 'settings.gradle', 'appserver-legacy/src/main/**']
     }]
 
 jobs:
@@ -33,12 +33,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Compile code
-        run: ./gradlew assemble
+        run: ./gradlew :appserver-legacy:assemble
 
       - name: Upload to GitHub
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: 'build/libs/*'
+          files: 'appserver-legacy/build/libs/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   prepare-matrix:

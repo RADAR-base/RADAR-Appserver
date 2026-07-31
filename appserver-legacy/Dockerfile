@@ -6,19 +6,21 @@ WORKDIR /code
 ENV GRADLE_USER_HOME=/code/.gradlecache \
  GRADLE_OPTS='-Djdk.lang.Process.launchMechanism=vfork -Dorg.gradle.daemon=false -Dorg.gradle.vfs.watch=false'
 
-COPY ./build.gradle ./settings.gradle /code/
+COPY ./build.gradle ./settings.gradle ./gradlew /code/
+COPY ./gradle /code/gradle
+COPY ./appserver-legacy/build.gradle /code/appserver-legacy/
 
-RUN gradle downloadDependencies copyDependencies
+RUN gradle :appserver-legacy:downloadDependencies :appserver-legacy:copyDependencies
 
-COPY ./src /code/src
+COPY ./appserver-legacy/src /code/appserver-legacy/src
 
-RUN gradle unpack
+RUN gradle :appserver-legacy:unpack
 
 FROM eclipse-temurin:17-jre
 
 LABEL maintainer="Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>"
 
-LABEL description="RADAR-base App server"
+LABEL description="RADAR-base App server (legacy)"
 
 ENV JDK_JAVA_OPTIONS='-Xmx2G -Djava.security.egd=file:/dev/./urandom' \
     SPRING_PROFILES_ACTIVE=prod \
@@ -27,9 +29,9 @@ ENV JDK_JAVA_OPTIONS='-Xmx2G -Djava.security.egd=file:/dev/./urandom' \
     LIQUIBASE_ANALYTICS_ENABLED=false
 
 VOLUME /tmp
-ARG DEPENDENCY=/code/build/dependency
+ARG DEPENDENCY=/code/appserver-legacy/build/dependency
 
-COPY --from=builder /code/build/third-party/* /app/lib/
+COPY --from=builder /code/appserver-legacy/build/third-party/* /app/lib/
 COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes /app
 
