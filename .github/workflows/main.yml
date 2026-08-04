@@ -17,8 +17,15 @@ env:
     'name': 'radar-appserver',
     'build_file': 'Dockerfile.appserver-legacy',
     'authors': 'Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>',
-    'description': 'RADAR-base appserver backend application',
+    'description': 'RADAR-base appserver backend application (legacy Spring Boot)',
     'cache_keys_files': ['Dockerfile.appserver-legacy', '**/*.gradle.kts', 'gradle.properties', 'appserver-legacy/src/main/**']
+    },
+    {
+    'name': 'radar-appserver-jersey',
+    'build_file': 'Dockerfile.appserver-jersey',
+    'authors': 'Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>',
+    'description': 'RADAR-base appserver backend application (Jersey)',
+    'cache_keys_files': ['Dockerfile.appserver-jersey', '**/*.gradle.kts', 'gradle.properties', 'appserver-jersey/src/main/**']
     }]
 
 jobs:
@@ -40,7 +47,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Compile code
-        run: ./gradlew :appserver-legacy:assemble
+        run: ./gradlew :appserver-legacy:assemble :appserver-jersey:assemble
 
       # Use 'docker compose' instead of 'docker-compose' to use v2
       - name: Setup docker services
