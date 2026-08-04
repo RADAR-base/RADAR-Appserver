@@ -79,7 +79,7 @@ class ProjectResource @Inject constructor(
             val token = tokenForCurrentRequest(asyncService, tokenProvider)
             authService.checkPermission(
                 Permission.SUBJECT_READ,
-                EntityDetails(project = projectDto.projectId),
+                EntityDetails(project = projectDto.projectId, subject = token.subject),
                 token,
             )
             projectService.addProject(projectDto).let {
@@ -161,12 +161,18 @@ class ProjectResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun getProjectUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
             val project = projectService.getProjectByProjectId(projectId)
             Response.ok(project).build()
         }

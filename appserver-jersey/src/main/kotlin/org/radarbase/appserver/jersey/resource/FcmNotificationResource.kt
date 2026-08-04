@@ -18,6 +18,7 @@ package org.radarbase.appserver.jersey.resource
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
+import jakarta.inject.Provider
 import jakarta.validation.Valid
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.DefaultValue
@@ -36,6 +37,7 @@ import org.radarbase.appserver.jersey.config.AppserverConfig
 import org.radarbase.appserver.jersey.dto.fcm.FcmNotificationDto
 import org.radarbase.appserver.jersey.dto.fcm.FcmNotifications
 import org.radarbase.appserver.jersey.service.FcmNotificationService
+import org.radarbase.appserver.jersey.utils.tokenForCurrentRequest
 import org.radarbase.appserver.jersey.utils.Paths.ALL_KEYWORD
 import org.radarbase.appserver.jersey.utils.Paths.MESSAGING_NOTIFICATION_PATH
 import org.radarbase.appserver.jersey.utils.Paths.NOTIFICATION_ID
@@ -44,7 +46,10 @@ import org.radarbase.appserver.jersey.utils.Paths.PROJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.SUBJECT_ID
 import org.radarbase.appserver.jersey.utils.Paths.TASKS_PATH
 import org.radarbase.appserver.jersey.utils.Paths.USERS_PATH
+import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
+import org.radarbase.auth.token.RadarToken
+import org.radarbase.jersey.auth.AuthService
 import org.radarbase.jersey.auth.Authenticated
 import org.radarbase.jersey.auth.NeedsPermission
 import org.radarbase.jersey.service.AsyncCoroutineService
@@ -60,6 +65,8 @@ import kotlin.time.Duration.Companion.seconds
 class FcmNotificationResource @Inject constructor(
     private val asyncService: AsyncCoroutineService,
     private val fcmNotificationService: FcmNotificationService,
+    private val authService: AuthService,
+    private val tokenProvider: Provider<RadarToken>,
     config: AppserverConfig,
 ) {
     private val requestTimeout: Duration = config.server.requestTimeout.seconds
@@ -147,12 +154,18 @@ class FcmNotificationResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID/$MESSAGING_NOTIFICATION_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId")
+    @NeedsPermission(Permission.SUBJECT_READ)
     fun getNotificationsUsingProjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Suspended asyncResponse: AsyncResponse,
     ) {
         asyncService.runAsCoroutine(asyncResponse, requestTimeout) {
+            val token = tokenForCurrentRequest(asyncService, tokenProvider)
+            authService.checkPermission(
+                Permission.SUBJECT_READ,
+                EntityDetails(project = projectId, subject = token.subject),
+                token,
+            )
             fcmNotificationService.getNotificationsByProjectId(projectId).let {
                 Response.ok(it).build()
             }

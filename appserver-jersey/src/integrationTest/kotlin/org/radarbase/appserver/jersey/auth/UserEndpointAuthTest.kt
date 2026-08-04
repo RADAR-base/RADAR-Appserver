@@ -113,7 +113,7 @@ class UserEndpointAuthTest {
             accept(ContentType.Application.Json)
         }
 
-        assertEquals(response.status, HttpStatusCode.OK)
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 
     @Test
