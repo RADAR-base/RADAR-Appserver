@@ -48,6 +48,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.ResourceAccessException;
@@ -58,6 +59,9 @@ import org.springframework.web.client.ResourceAccessException;
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class NotificationEndpointAuthTest {
   private static final HttpHeaders HEADERS = new HttpHeaders();
+  static {
+    HEADERS.setContentType(MediaType.APPLICATION_JSON);
+  }
   private static final String NOTIFICATION_PATH = "/messaging/notifications";
   private static final String DEFAULT_USER = "/sub-1";
   private static HttpHeaders AUTH_HEADER;
@@ -81,6 +85,7 @@ public class NotificationEndpointAuthTest {
     OAuthHelper oAuthHelper = new MPOAuthHelper();
     AUTH_HEADER = new HttpHeaders();
     AUTH_HEADER.setBearerAuth(oAuthHelper.getAccessToken());
+    AUTH_HEADER.setContentType(MediaType.APPLICATION_JSON);
   }
 
   @BeforeEach
