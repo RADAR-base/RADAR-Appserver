@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1583418918003-01
+      author: pauline
+      changes:
+        - modifyDataType:
+            columnName: timezone
+            newDataType: VARCHAR(255)
+            tableName: users

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1564155800000-01
+      author: yatharth
+      changes:
+        - addDefaultValue:
+            columnDataType: VARCHAR(255)
+            columnName: state
+            defaultValue: UNKNOWN
+            tableName: notification_state_events

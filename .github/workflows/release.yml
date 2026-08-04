@@ -23,13 +23,13 @@ jobs:
 
       # Compile code
       - name: Compile code
-        run: ./gradlew assemble
+        run: ./gradlew :appserver-legacy:assemble
 
       # Upload it to GitHub
       - name: Upload to GitHub
         uses: AButler/upload-release-assets@v2.0.2
         with:
-          files: 'build/libs/*'
+          files: 'appserver-legacy/build/libs/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   # Build and push tagged release docker image
@@ -69,6 +69,7 @@ jobs:
         - name: Build docker
           uses: docker/build-push-action@v3
           with:
+              file: Dockerfile.appserver-legacy
               # Allow running the image on the architectures supported by openjdk:17-jre-slim
               platforms: linux/amd64,linux/arm64
               push: true

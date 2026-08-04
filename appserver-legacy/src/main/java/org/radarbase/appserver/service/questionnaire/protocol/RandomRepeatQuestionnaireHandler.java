@@ -1,0 +1,93 @@
+/*
+ *
+ *  *
+ *  *  * Copyright 2018 King's College London
+ *  *  *
+ *  *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  * you may not use this file except in compliance with the License.
+ *  *  * You may obtain a copy of the License at
+ *  *  *
+ *  *  *   http://www.apache.org/licenses/LICENSE-2.0
+ *  *  *
+ *  *  * Unless required by applicable law or agreed to in writing, software
+ *  *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  * See the License for the specific language governing permissions and
+ *  *  * limitations under the License.
+ *  *  *
+ *  *
+ *
+ */
+
+package org.radarbase.appserver.service.questionnaire.protocol;
+
+import org.radarbase.appserver.dto.protocol.Assessment;
+import org.radarbase.appserver.dto.protocol.RepeatQuestionnaire;
+import org.radarbase.appserver.dto.protocol.TimePeriod;
+import org.radarbase.appserver.dto.questionnaire.AssessmentSchedule;
+import org.radarbase.appserver.entity.Task;
+import org.radarbase.appserver.entity.User;
+
+import java.time.Instant;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+
+@SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+public class RandomRepeatQuestionnaireHandler implements ProtocolHandler {
+    private transient Long DefaultTaskCompletionWindow = 86400000L;
+
+    private transient TimeCalculatorService timeCalculatorService = new TimeCalculatorService();
+    private transient TaskGeneratorService taskGeneratorService = new TaskGeneratorService();
+
+    public RandomRepeatQuestionnaireHandler() { }
+
+    public AssessmentSchedule handle(AssessmentSchedule assessmentSchedule, Assessment assessment, User user) {
+        Set<Task> tasks = generateTasks(assessment, assessmentSchedule.getReferenceTimestamps(), user);
+        assessmentSchedule.setTasks(List.copyOf(tasks));
+        return assessmentSchedule;
+    }
+
+    private Set<Task> generateTasks(Assessment assessment, List<Instant> referenceTimestamps, User user) {
+        TimeZone timezone = TimeZone.getTimeZone(user.getTimezone());
+        RepeatQuestionnaire repeatQuestionnaire = assessment.getProtocol().getRepeatQuestionnaire();
+        List<Integer[]> randomUnitsFromZeroBetween = repeatQuestionnaire.getRandomUnitsFromZeroBetween();
+        Iterator<Instant> referenceTimestampsIter = referenceTimestamps.iterator();
+        Long completionWindow = this.calculateCompletionWindow(assessment.getProtocol().getCompletionWindow());
+        // Specific (edge case) combinations of repeatProtocol and repeatQuestionnaire may lead to Tasks with identical
+        // name, user id and scheduling time, causing downstream key constraint errors when storing Notifications.
+        // Deduplication of Task objects generated here solves this.
+        Set<Task> tasks = new LinkedHashSet<>();
+        while (referenceTimestampsIter.hasNext()) {
+            Instant referenceTimestamp = referenceTimestampsIter.next();
+            TimePeriod timePeriod = new TimePeriod();
+            timePeriod.setUnit(repeatQuestionnaire.getUnit());
+            Iterator<Integer[]> rangeIter = randomUnitsFromZeroBetween.iterator();
+            while (rangeIter.hasNext()) {
+                Integer[] range = rangeIter.next();
+                timePeriod.setAmount(this.getRandomAmountInRange(range));
+                Instant taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone);
+                Task task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow);
+                task.setUser(user);
+                tasks.add(task);
+            }
+        }
+
+        return tasks;
+    }
+
+    private Integer getRandomAmountInRange(Integer[] range) {
+        Integer lowerLimit = range[0];
+        Integer upperLimit = range[1];
+        return (int) (Math.random() * (upperLimit - lowerLimit + 1)) + lowerLimit;
+    }
+
+    private Long calculateCompletionWindow(TimePeriod completionWindow) {
+        if (completionWindow == null)
+            return DefaultTaskCompletionWindow;
+        return timeCalculatorService.timePeriodToMillis(completionWindow);
+    }
+
+}

@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1564153120000-01
+      author: yatharth
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: notifStateEventPK
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: state
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  constraints:
+                    nullable: false
+                  name: notification_id
+                  type: BIGINT
+              - column:
+                  name: associated_info
+                  type: VARCHAR(1250)
+            tableName: notification_state_events
+  - changeSet:
+      id: 1564153120000-02
+      author: yatharth
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: notification_id
+            baseTableName: notification_state_events
+            constraintName: FK65c9asnnjs3q8237gfs04mvcv
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: notifications
+            validate: true
+
