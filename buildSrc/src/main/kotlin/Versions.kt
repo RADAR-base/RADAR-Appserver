@@ -3,7 +3,7 @@ object Versions {
     const val gatlingVersion = "3.9.2.1"
     const val springBootVersion = "3.5.11"
     const val springDependencyManagementVersion = "1.1.6"
-    const val kotlinVersion = "1.9.25"
+    const val kotlinVersion = "2.1.20"
     const val dockerCompose = "0.17.6"
 
     const val springSecurityVersion = "6.5.8"
@@ -31,7 +31,7 @@ object Versions {
     const val firebaseAdminVersion = "9.8.0"
     const val jerseyBeanValidationVersion = "3.1.10"
     const val protobufVersion = "3.25.5"
-    const val kotlinxSerializationVersion = "1.6.3"
+    const val kotlinxSerializationVersion = "1.7.3"
     const val mockkVersion = "1.14.4"
     const val hamcrestVersion = "2.1"
     const val assertjVersion = "3.24.2"
