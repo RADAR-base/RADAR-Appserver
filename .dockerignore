@@ -1,6 +1,8 @@
 /appserver-jersey/src/test/
 /appserver-jersey/src/integrationTest
 /appserver-jersey/build
+/appserver-legacy/src/test/
+/appserver-legacy/src/integrationTest
 /appserver-legacy/build
 /buildSrc/build
 /out

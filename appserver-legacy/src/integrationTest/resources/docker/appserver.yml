@@ -3,13 +3,15 @@ version: "3.8"
 services:
   appserver:
     image: radarbase/radar-appserver
-    build: ../../../..
+    build:
+      context: ../../../../..
+      dockerfile: Dockerfile.appserver-legacy
     restart: always
     ports:
       - "8080:8080"
     volumes:
       - ../radar-is.yml:/resources/radar-is.yml
-      - ../../../../logs/:/var/log/radar/appserver/
+      - ../../../../../logs/:/var/log/radar/appserver/
     environment:
       JDK_JAVA_OPTIONS: -Xmx4G -Djava.security.egd=file:/dev/./urandom
       FCMSERVER_SENDERID: "1043784930865"

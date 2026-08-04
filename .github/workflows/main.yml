@@ -32,14 +32,14 @@ jobs:
 
       # Compile the code
       - name: Compile code
-        run: ./gradlew assemble
+        run: ./gradlew :appserver-legacy:assemble
 
       # Use 'docker compose' instead of 'docker-compose' to use v2
       - name: Setup docker services
         run: |
             sudo mkdir -p /usr/local/var/lib/radar/appserver/logs/
             sudo chown -R $(whoami) /usr/local/var/lib/radar/appserver/logs
-            docker compose -f src/integrationTest/resources/docker/non_appserver/docker-compose.yml up -d
+            docker compose -f appserver-legacy/src/integrationTest/resources/docker/non_appserver/docker-compose.yml up -d
             # Wait for services to start up.
             sleep 50
 
@@ -49,17 +49,17 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
       - name: Decrypt google application credentials
         run: |
-          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
+          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-legacy/src/integrationTest/resources/google-credentials.json --decrypt appserver-legacy/src/integrationTest/resources/google-credentials.enc.gpg
 
       # Gradle check
       - name: Check
-        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/src/integrationTest/resources/google-credentials.json ./gradlew check
+        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/appserver-legacy/src/integrationTest/resources/google-credentials.json ./gradlew :appserver-legacy:check
 
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          path: build/reports
+          path: appserver-legacy/build/reports
           if-no-files-found: ignore
           retention-days: 5
 
@@ -86,7 +86,7 @@ jobs:
           sudo mkdir -p /usr/local/var/lib/radar/appserver/logs/
           sudo chown -R $(whoami) /usr/local/var/lib/radar/appserver/logs
           # call docker compose without args to include the override file
-          cd src/integrationTest/resources/docker/appserver_downstream
+          cd appserver-legacy/src/integrationTest/resources/docker/appserver_downstream
           docker compose up -d
           # Wait for services to start up.
           sleep 50
@@ -98,11 +98,11 @@ jobs:
 
       - name: Decrypt google application credentials
         run: |
-          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
+          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-legacy/src/integrationTest/resources/google-credentials.json --decrypt appserver-legacy/src/integrationTest/resources/google-credentials.enc.gpg
 
       # Gradle check
       - name: Check
-        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/src/integrationTest/resources/google-credentials.json ./gradlew check
+        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/appserver-legacy/src/integrationTest/resources/google-credentials.json ./gradlew :appserver-legacy:check
 
   # Check that the docker image builds correctly
   docker:
@@ -140,7 +140,7 @@ jobs:
           uses: actions/cache@v3
           with:
               path: /tmp/.buildx-cache
-              key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'src/main/**') }}
+              key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile.appserver-legacy', 'appserver-legacy/build.gradle.kts', 'buildSrc/src/main/kotlin/Versions.kt', 'settings.gradle.kts', 'build.gradle.kts', 'appserver-legacy/src/main/**') }}
               restore-keys: |
                   ${{ runner.os }}-buildx-
 
@@ -156,6 +156,7 @@ jobs:
         - name: Build docker
           uses: docker/build-push-action@v3
           with:
+              file: Dockerfile.appserver-legacy
               cache-from: type=local,src=/tmp/.buildx-cache
               cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
               load: true
@@ -183,7 +184,4 @@ jobs:
           if: steps.cache-buildx.outputs.cache-hit != 'true'
           run: |
               rm -rf /tmp/.buildx-cache
-              mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
-        
-
-
+              mv /tmp/.buildx-cache-new /tmp/.buildx-cache
