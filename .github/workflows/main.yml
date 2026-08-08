@@ -15,10 +15,17 @@ env:
   IMAGES: >-
     [{
     'name': 'radar-appserver',
-    'build_file': 'Dockerfile',
+    'build_file': 'Dockerfile.appserver-legacy',
     'authors': 'Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>',
-    'description': 'RADAR-base appserver backend application',
-    'cache_keys_files': ['Dockerfile', '**/*.gradle.kts', 'gradle.properties', 'src/main/**']
+    'description': 'RADAR-base appserver backend application (legacy Spring Boot)',
+    'cache_keys_files': ['Dockerfile.appserver-legacy', '**/*.gradle.kts', 'gradle.properties', 'appserver-legacy/src/main/**']
+    },
+    {
+    'name': 'radar-appserver-jersey',
+    'build_file': 'Dockerfile.appserver-jersey',
+    'authors': 'Yatharth Ranjan <yatharth.ranjan@kcl.ac.uk>, Pauline Conde <pauline.conde@kcl.ac.uk>',
+    'description': 'RADAR-base appserver backend application (Jersey)',
+    'cache_keys_files': ['Dockerfile.appserver-jersey', '**/*.gradle.kts', 'gradle.properties', 'appserver-jersey/src/main/**']
     }]
 
 jobs:
@@ -40,14 +47,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Compile code
-        run: ./gradlew assemble
+        run: ./gradlew :appserver-legacy:assemble :appserver-jersey:assemble
 
       # Use 'docker compose' instead of 'docker-compose' to use v2
       - name: Setup docker services
         run: |
             sudo mkdir -p /usr/local/var/lib/radar/appserver/logs/
             sudo chown -R $(whoami) /usr/local/var/lib/radar/appserver/logs
-            docker compose -f src/integrationTest/resources/docker/non_appserver/docker-compose.yml up -d
+            docker compose -f appserver-legacy/src/integrationTest/resources/docker/non_appserver/docker-compose.yml up -d
             # Wait for services to start up.
             sleep 50
 
@@ -57,16 +64,16 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
       - name: Decrypt google application credentials
         run: |
-          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
+          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-legacy/src/integrationTest/resources/google-credentials.json --decrypt appserver-legacy/src/integrationTest/resources/google-credentials.enc.gpg
 
       - name: Gradle check
-        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/src/integrationTest/resources/google-credentials.json ./gradlew check
+        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/appserver-legacy/src/integrationTest/resources/google-credentials.json ./gradlew :appserver-legacy:check
 
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          path: build/reports
+          path: appserver-legacy/build/reports
           if-no-files-found: ignore
           retention-days: 5
 
@@ -93,7 +100,7 @@ jobs:
           sudo mkdir -p /usr/local/var/lib/radar/appserver/logs/
           sudo chown -R $(whoami) /usr/local/var/lib/radar/appserver/logs
           # call docker compose without args to include the override file
-          cd src/integrationTest/resources/docker/appserver_downstream
+          cd appserver-legacy/src/integrationTest/resources/docker/appserver_downstream
           docker compose up -d
           # Wait for services to start up.
           sleep 50
@@ -105,11 +112,11 @@ jobs:
 
       - name: Decrypt google application credentials
         run: |
-          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output src/integrationTest/resources/google-credentials.json --decrypt src/integrationTest/resources/google-credentials.enc.gpg
+          gpg --pinentry-mode loopback --local-user "Yatharth Ranjan" --batch --yes --passphrase "${{ secrets.GPG_SECRET_KEY_PASSPHRASE }}" --output appserver-legacy/src/integrationTest/resources/google-credentials.json --decrypt appserver-legacy/src/integrationTest/resources/google-credentials.enc.gpg
 
       # Gradle check
       - name: Check
-        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/src/integrationTest/resources/google-credentials.json ./gradlew check
+        run: GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/appserver-legacy/src/integrationTest/resources/google-credentials.json ./gradlew :appserver-legacy:check
 
   prepare-matrix:
     name: Prepare Matrix Output

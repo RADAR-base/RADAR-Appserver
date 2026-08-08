@@ -1,5 +1,5 @@
-.gradle
-/build/
+**/.gradle
+**/build/
 !gradle/wrapper/gradle-wrapper.jar
 
 ### STS ###
@@ -13,6 +13,7 @@
 
 ### IntelliJ IDEA ###
 .idea
+.kotlin
 *.iws
 *.iml
 *.ipr
