@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1788652800000-1
+      author: claude
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - indexExists:
+                tableName: tasks
+                indexName: uk_tasks_user_id_name_timestamp
+      changes:
+        - sql:
+            comment: Remove duplicate tasks keeping the earliest created record
+            sql: >
+              DELETE FROM tasks t1
+              USING tasks t2
+              WHERE t1.id > t2.id
+              AND t1.user_id = t2.user_id
+              AND t1.name = t2.name
+              AND t1.timestamp = t2.timestamp
+
+        - addUniqueConstraint:
+            tableName: tasks
+            columnNames: user_id, name, timestamp
+            constraintName: uk_tasks_user_id_name_timestamp
+
+      rollback:
+        - dropUniqueConstraint:
+            tableName: tasks
+            constraintName: uk_tasks_user_id_name_timestamp

@@ -68,7 +68,7 @@ class ProtocolResource @Inject constructor(
     @Path("$PROJECTS_PATH/$PROJECT_ID/$USERS_PATH/$SUBJECT_ID/$PROTOCOLS_PATH")
     @Produces(APPLICATION_JSON)
     @Authenticated
-    @NeedsPermission(Permission.PROJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
+    @NeedsPermission(Permission.SUBJECT_READ, projectPathParam = "projectId", userPathParam = "subjectId")
     fun getProtocolsUsingProjectIdAndSubjectId(
         @Valid @PathParam("projectId") projectId: String,
         @Valid @PathParam("subjectId") subjectId: String,

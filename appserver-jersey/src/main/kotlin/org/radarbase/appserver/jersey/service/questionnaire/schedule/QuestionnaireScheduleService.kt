@@ -38,9 +38,12 @@ import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.AsyncCoroutineService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.sql.Timestamp
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("unused")
 class QuestionnaireScheduleService @Inject constructor(
@@ -53,7 +56,8 @@ class QuestionnaireScheduleService @Inject constructor(
     schedulingService: SchedulingService,
     asyncService: AsyncCoroutineService,
 ) {
-    private val subjectScheduleMap: HashMap<String, Schedule> = hashMapOf()
+    private val subjectScheduleMap: ConcurrentHashMap<String, Schedule> = ConcurrentHashMap()
+    private val userLocks: ConcurrentHashMap<String, Mutex> = ConcurrentHashMap()
 
     private val cleanScheduleRef: SchedulingService.RepeatReference = schedulingService.repeat(
         Duration.ofMillis(3_600_000),
@@ -112,23 +116,26 @@ class QuestionnaireScheduleService @Inject constructor(
     suspend fun generateScheduleForUser(user: User): Schedule {
         val subjectId: String? = user.subjectId
         checkNotNull(subjectId) { "Subject ID cannot be null in questionnaire scheduler service." }
-        val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
+        val mutex = userLocks.getOrPut(subjectId) { Mutex() }
+        return mutex.withLock {
+            val protocol: Protocol? = protocolGenerator.getProtocolForSubject(subjectId)
 
-        val newSchedule: Schedule = protocol?.let {
-            val prevSchedule: Schedule = getScheduleForSubject(subjectId)
-            val prevTimeZone: String = prevSchedule.timezone ?: checkNotNull(user.timezone) {
-                "User timezone cannot be null in questionnaire scheduler service."
+            val newSchedule: Schedule = protocol?.let {
+                val prevSchedule: Schedule = getScheduleForSubject(subjectId)
+                val prevTimeZone: String = prevSchedule.timezone ?: checkNotNull(user.timezone) {
+                    "User timezone cannot be null in questionnaire scheduler service."
+                }
+
+                if ((prevSchedule.version != it.version) || (prevTimeZone != user.timezone)) {
+                    removeScheduleForUser(user)
+                }
+                scheduleGeneratorService.generateScheduleForUser(user, it, prevSchedule)
+            } ?: Schedule()
+
+            newSchedule.also {
+                subjectScheduleMap[subjectId] = it
+                saveTasksAndNotifications(user, newSchedule.assessmentSchedules)
             }
-
-            if ((prevSchedule.version != it.version) || (prevTimeZone != user.timezone)) {
-                removeScheduleForUser(user)
-            }
-            scheduleGeneratorService.generateScheduleForUser(user, it, prevSchedule)
-        } ?: Schedule()
-
-        return newSchedule.also {
-            subjectScheduleMap[subjectId] = it
-            saveTasksAndNotifications(user, newSchedule.assessmentSchedules)
         }
     }
 
