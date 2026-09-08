@@ -28,7 +28,12 @@ import java.time.Instant
 import java.util.TimeZone
 
 class RandomRepeatQuestionnaireHandler : ProtocolHandler {
-    private val defaultTaskCompletionWindow = 86_400_000L
+    private companion object {
+        private const val DEFAULT_TASK_COMPLETION_WINDOW = 86_400_000L
+        private val PLUS_ONE_WEEK = TimePeriod("week", 1)
+        private val MINUS_ONE_WEEK = TimePeriod("week", -1)
+    }
+
     private val timeCalculatorService = TimeCalculatorService()
     private val taskGeneratorService = TaskGeneratorService()
 
@@ -60,12 +65,17 @@ class RandomRepeatQuestionnaireHandler : ProtocolHandler {
         val randomUnitsFromZeroBetween = repeatQuestionnaire?.randomUnitsFromZeroBetween ?: return emptyList()
         val completionWindow = calculateCompletionWindow(assessment.protocol?.completionWindow)
 
+        val windowStart = timeCalculatorService.advanceRepeat(Instant.now(), MINUS_ONE_WEEK, timezone)
+        val windowEnd = timeCalculatorService.advanceRepeat(Instant.now(), PLUS_ONE_WEEK, timezone)
+
         val tasks = LinkedHashSet<Task>()
         for (referenceTimestamp in referenceTimestamps) {
             val timePeriod = TimePeriod().apply { unit = repeatQuestionnaire.unit }
             for (range in randomUnitsFromZeroBetween) {
                 timePeriod.amount = getRandomAmountInRange(range)
                 val taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone)
+                val taskEnd = taskTime.plusMillis(completionWindow)
+                if (taskEnd.isBefore(windowStart) || !taskTime.isBefore(windowEnd)) continue
                 val task = taskGeneratorService.buildTask(assessment, taskTime, completionWindow).apply {
                     this.user = user
                 }
@@ -83,6 +93,6 @@ class RandomRepeatQuestionnaireHandler : ProtocolHandler {
     private fun calculateCompletionWindow(completionWindow: TimePeriod?): Long {
         return completionWindow?.let {
             timeCalculatorService.timePeriodToMillis(it)
-        } ?: defaultTaskCompletionWindow
+        } ?: DEFAULT_TASK_COMPLETION_WINDOW
     }
 }
