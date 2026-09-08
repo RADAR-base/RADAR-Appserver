@@ -126,6 +126,14 @@ class QuestionnaireScheduleService @Inject constructor(
                     "User timezone cannot be null in questionnaire scheduler service."
                 }
 
+                // Build previous task list from DB so CompletedQuestionnaireHandler
+                // sees the actual completion state, not the stale in-memory state.
+                // This also works after server restart when in-memory schedule is empty.
+                prevSchedule.assessmentSchedules = taskService.getTasksByUser(user)
+                    .groupBy { it.name }
+                    .map { (name, tasks) -> AssessmentSchedule(name = name, tasks = tasks) }
+                    .toMutableList()
+
                 if ((prevSchedule.version != it.version) || (prevTimeZone != user.timezone)) {
                     removeScheduleForUser(user)
                 }
