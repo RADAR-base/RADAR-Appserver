@@ -66,7 +66,8 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
         }
 
         val simpleRepeatProtocol = TimePeriod(repeatProtocolUnit, repeatProtocolAmount)
-        var referenceTime: Instant = calculateValidStartTime(startTime, timezone, simpleRepeatProtocol)
+        val maxTaskReachMillis = calculateMaxTaskReach(assessment, timezone)
+        var referenceTime: Instant = calculateValidStartTime(startTime, timezone, simpleRepeatProtocol, maxTaskReachMillis)
         val referenceTimestamps: MutableList<Instant> = mutableListOf()
         while (isValidReferenceTimestamp(referenceTime, timezone)) {
             referenceTimestamps.add(referenceTime)
@@ -81,13 +82,42 @@ class SimpleRepeatProtocolHandler : ProtocolHandler {
             referenceTime.atZone(timezone.toZoneId()).year < MAX_YEAR
     }
 
+    /**
+     * Calculates the maximum time span from a reference timestamp to the end of
+     * the latest possible active task, accounting for both the unitsFromZero offset
+     * and the completion window. This extends the lower bound so that reference
+     * timestamps whose tasks are still completable are not discarded.
+     */
+    private fun calculateMaxTaskReach(assessment: Assessment, timezone: TimeZone): Long {
+        val repeatQuestionnaire = assessment.protocol?.repeatQuestionnaire
+        val unit = repeatQuestionnaire?.unit
+        val maxUnit = repeatQuestionnaire?.unitsFromZero?.maxOrNull()
+
+        val maxOffsetMillis = if (unit != null && maxUnit != null) {
+            timeCalculatorService.timePeriodToMillis(TimePeriod(unit, maxUnit))
+        } else {
+            0L
+        }
+
+        val completionWindowMillis = assessment.protocol?.completionWindow?.let {
+            timeCalculatorService.timePeriodToMillis(it)
+        } ?: 0L
+
+        return maxOffsetMillis + completionWindowMillis
+    }
+
     private fun calculateValidStartTime(
         startTime: Instant,
         timezone: TimeZone,
         simpleRepeatProtocol: TimePeriod,
+        maxTaskReachMillis: Long,
     ): Instant {
         var referenceTime = startTime
-        val defaultStartTime = timeCalculatorService.advanceRepeat(Instant.now(), MINUS_ONE_WEEK, timezone)
+        // The lower bound accounts for the max task reach (unitsFromZero + completionWindow):
+        // a reference timestamp is valid if any of its tasks are still completable
+        // (i.e. reference + maxOffset + completionWindow >= now - 1 week).
+        val windowStart = timeCalculatorService.advanceRepeat(Instant.now(), MINUS_ONE_WEEK, timezone)
+        val defaultStartTime = windowStart.minusMillis(maxTaskReachMillis)
         while (referenceTime.isBefore(defaultStartTime)) {
             referenceTime = timeCalculatorService.advanceRepeat(referenceTime, simpleRepeatProtocol, timezone)
         }

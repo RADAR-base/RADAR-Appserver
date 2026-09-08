@@ -29,6 +29,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import jakarta.validation.constraints.NotNull
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -38,7 +39,12 @@ import java.sql.Timestamp
 import java.util.Objects
 
 @Entity
-@Table(name = "tasks")
+@Table(
+    name = "tasks",
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = ["user_id", "name", "timestamp"]),
+    ],
+)
 class Task : AuditModel() {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

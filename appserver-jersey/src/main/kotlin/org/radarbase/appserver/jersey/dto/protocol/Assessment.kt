@@ -19,8 +19,16 @@ package org.radarbase.appserver.jersey.dto.protocol
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Column
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 
 /**
  * Data Transfer object (DTO) for Assessment. A project may represent a Protocol for scheduling
@@ -34,7 +42,8 @@ import kotlinx.serialization.Serializable
 data class Assessment(
     var name: String? = null,
     @SerialName("type") @JsonIgnore private var _type: AssessmentType? = null,
-    var showIntroduction: Boolean? = null,
+    @Serializable(with = ShowIntroductionSerializer::class)
+    var showIntroduction: ShowIntroduction = ShowIntroduction.NEVER,
     var questionnaire: DefinitionInfo? = null,
     var startText: LanguageText? = null,
     var endText: LanguageText? = null,
@@ -55,4 +64,35 @@ data class Assessment(
         set(value) {
             _type = value
         }
+}
+
+enum class ShowIntroduction {
+    ALWAYS,
+    ONCE,
+    NEVER,
+}
+
+internal object ShowIntroductionSerializer : KSerializer<ShowIntroduction> {
+    override val descriptor = PrimitiveSerialDescriptor("ShowIntroduction", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): ShowIntroduction {
+        val jsonDecoder = decoder as? JsonDecoder
+            ?: return ShowIntroduction.valueOf(decoder.decodeString().uppercase())
+        val element = jsonDecoder.decodeJsonElement() as? JsonPrimitive
+            ?: return ShowIntroduction.NEVER
+        val bool = element.booleanOrNull
+        if (bool != null) {
+            return if (bool) ShowIntroduction.ONCE else ShowIntroduction.NEVER
+        }
+        return when (element.content) {
+            "always" -> ShowIntroduction.ALWAYS
+            "once" -> ShowIntroduction.ONCE
+            "never" -> ShowIntroduction.NEVER
+            else -> ShowIntroduction.NEVER
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: ShowIntroduction) {
+        encoder.encodeString(value.name.lowercase())
+    }
 }

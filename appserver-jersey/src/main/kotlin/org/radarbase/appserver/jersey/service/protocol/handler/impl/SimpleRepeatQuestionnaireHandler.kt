@@ -67,6 +67,9 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
             assessment.protocol?.completionWindow,
         )
 
+        val windowStart = timeCalculatorService.advanceRepeat(Instant.now(), MINUS_ONE_WEEK, timezone)
+        val windowEnd = timeCalculatorService.advanceRepeat(Instant.now(), PLUS_ONE_WEEK, timezone)
+
         referenceTimestamps.flatMapParallel { referenceTimestamp: Instant ->
             unitsFromZero.map { unitFromZero: Int ->
                 async {
@@ -80,7 +83,13 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
                     }
                 }
             }.awaitAll()
-        }.toCollection(LinkedHashSet()).toList()
+        }
+            .filter { task ->
+                val taskTime = requireNotNull(task.timestamp) { "Task timestamp cannot be null" }.toInstant()
+                val taskEnd = taskTime.plusMillis(completionWindow)
+                !taskEnd.isBefore(windowStart) && taskTime.isBefore(windowEnd)
+            }
+            .toCollection(LinkedHashSet()).toList()
     }
 
     private fun calculateCompletionWindow(completionWindow: TimePeriod?): Long {
@@ -90,5 +99,7 @@ class SimpleRepeatQuestionnaireHandler : ProtocolHandler {
 
     companion object {
         private const val DEFAULT_TASK_COMPLETION_WINDOW = 86400000L
+        private val PLUS_ONE_WEEK = TimePeriod("week", 1)
+        private val MINUS_ONE_WEEK = TimePeriod("week", -1)
     }
 }
