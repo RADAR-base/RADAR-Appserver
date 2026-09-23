@@ -25,7 +25,9 @@ import org.radarbase.appserver.jersey.service.protocol.handler.ProtocolHandler
 import org.radarbase.appserver.jersey.service.protocol.time.TimeCalculatorService
 import org.radarbase.appserver.jersey.service.questionnaire.schedule.task.TaskGeneratorService
 import java.time.Instant
+import java.util.Objects
 import java.util.TimeZone
+import kotlin.random.Random
 
 class RandomRepeatQuestionnaireHandler : ProtocolHandler {
     private companion object {
@@ -70,9 +72,14 @@ class RandomRepeatQuestionnaireHandler : ProtocolHandler {
 
         val tasks = LinkedHashSet<Task>()
         for (referenceTimestamp in referenceTimestamps) {
+            // Seed deterministically per (user, assessment, referenceTimestamp) so that
+            // repeated schedule generations produce the same random times.
+            val seed = Objects.hash(user.id, assessment.name, referenceTimestamp.toEpochMilli()).toLong()
+            val random = Random(seed)
+
             val timePeriod = TimePeriod().apply { unit = repeatQuestionnaire.unit }
             for (range in randomUnitsFromZeroBetween) {
-                timePeriod.amount = getRandomAmountInRange(range)
+                timePeriod.amount = getRandomAmountInRange(range, random)
                 val taskTime = timeCalculatorService.advanceRepeat(referenceTimestamp, timePeriod, timezone)
                 val taskEnd = taskTime.plusMillis(completionWindow)
                 if (taskEnd.isBefore(windowStart) || !taskTime.isBefore(windowEnd)) continue
@@ -85,9 +92,9 @@ class RandomRepeatQuestionnaireHandler : ProtocolHandler {
         return tasks.toList()
     }
 
-    private fun getRandomAmountInRange(range: Array<Int>): Int {
+    private fun getRandomAmountInRange(range: Array<Int>, random: Random): Int {
         val (lowerLimit, upperLimit) = range
-        return (lowerLimit..upperLimit).random()
+        return random.nextInt(lowerLimit, upperLimit + 1)
     }
 
     private fun calculateCompletionWindow(completionWindow: TimePeriod?): Long {

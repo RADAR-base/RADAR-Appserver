@@ -22,7 +22,6 @@ import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
 import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.dto.questionnaire.Schedule
-import org.radarbase.appserver.jersey.entity.Notification
 import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
 import org.radarbase.appserver.jersey.repository.ProjectRepository
@@ -32,7 +31,6 @@ import org.radarbase.appserver.jersey.service.FcmNotificationService
 import org.radarbase.appserver.jersey.service.TaskService
 import org.radarbase.appserver.jersey.service.github.protocol.ProtocolGenerator
 import org.radarbase.appserver.jersey.service.scheduling.SchedulingService
-import org.radarbase.appserver.jersey.utils.checkInvalidDetails
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.jersey.exception.HttpNotFoundException
 import org.radarbase.jersey.service.AsyncCoroutineService
@@ -140,9 +138,9 @@ class QuestionnaireScheduleService @Inject constructor(
                 scheduleGeneratorService.generateScheduleForUser(user, it, prevSchedule)
             } ?: Schedule()
 
+            saveTasksAndNotifications(user, newSchedule.assessmentSchedules)
             newSchedule.also {
                 subjectScheduleMap[subjectId] = it
-                saveTasksAndNotifications(user, newSchedule.assessmentSchedules)
             }
         }
     }
@@ -150,16 +148,23 @@ class QuestionnaireScheduleService @Inject constructor(
     suspend fun saveTasksAndNotifications(user: User, assessmentSchedules: List<AssessmentSchedule?>) {
         assessmentSchedules.filterNotNull()
             .filter(AssessmentSchedule::hasTasks)
-            .forEach {
-                val (tasks, notifications, reminders) = nonNullTasksNotificationsAndReminders(
-                    it.tasks,
-                    it.notifications,
-                    it.reminders,
-                )
+            .forEach { schedule ->
+                try {
+                    val tasks = schedule.tasks.orEmpty()
+                    val notifications = schedule.notifications.orEmpty()
+                    val reminders = schedule.reminders.orEmpty()
 
-                taskService.addTasks(tasks, user)
-                notificationService.addNotifications(notifications, user)
-                notificationService.addNotifications(reminders, user)
+                    taskService.addTasks(tasks, user)
+                    notificationService.addNotifications(notifications, user)
+                    notificationService.addNotifications(reminders, user)
+                } catch (e: Exception) {
+                    logger.error(
+                        "Failed to save tasks/notifications for assessment {} of user {}: {}",
+                        schedule.name,
+                        user.subjectId,
+                        e.message,
+                    )
+                }
             }
     }
 
@@ -199,8 +204,16 @@ class QuestionnaireScheduleService @Inject constructor(
     suspend fun generateAllSchedules() {
         logger.info("Generating all schedules")
         userRepository.findAll().also { users: List<User> ->
-            users.forEach {
-                generateScheduleForUser(it)
+            users.forEach { user ->
+                try {
+                    generateScheduleForUser(user)
+                } catch (e: Exception) {
+                    logger.error(
+                        "Failed to generate schedule for user {}: {}",
+                        user.subjectId,
+                        e.message,
+                    )
+                }
             }
         }
     }
@@ -280,17 +293,5 @@ class QuestionnaireScheduleService @Inject constructor(
 
         private val TASK_SEARCH_PATTERN = Regex("(\\w+)([:<>])(\\w+)")
         private val COMMA_PATTERN = Regex(",")
-
-        fun nonNullTasksNotificationsAndReminders(
-            tasks: List<Task>?,
-            notifications: List<Notification>?,
-            reminders: List<Notification>?,
-        ): Triple<List<Task>, List<Notification>, List<Notification>> {
-            val nonNullTasks = requireNotNull(tasks) { "Tasks cannot be null" }
-            val nonNullNotifications = requireNotNull(notifications) { "Notifications cannot be null" }
-            val nonNullReminders = requireNotNull(reminders) { "Reminders cannot be null" }
-
-            return Triple(nonNullTasks, nonNullNotifications, nonNullReminders)
-        }
     }
 }
