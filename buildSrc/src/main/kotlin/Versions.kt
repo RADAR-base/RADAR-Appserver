@@ -1,7 +1,7 @@
 @Suppress("ConstPropertyName")
 object Versions {
     const val gatlingVersion = "3.9.2.1"
-    const val springBootVersion = "3.5.11"
+    const val springBootVersion = "3.5.15"
     const val springDependencyManagementVersion = "1.1.6"
     const val kotlinVersion = "2.1.20"
     const val dockerCompose = "0.17.6"
@@ -12,7 +12,7 @@ object Versions {
     const val hibernateValidatorVersion = "8.0.0.Final"
     const val springDocVersion = "2.7.0"
     const val lombokVersion = "1.18.26"
-    const val springVersion = "6.2.10"
+    const val springVersion = "6.2.19"
     const val radarSpringAuthVersion = "1.2.1"
     const val guavaVersion = "32.1.3-jre"
     const val radarJerseyVersion = "0.12.7"
@@ -25,7 +25,7 @@ object Versions {
     const val log4j2 = "2.23.1"
     const val radarCommonsVersion = "1.2.2"
     const val h2Version = "2.2.224"
-    const val postgresqlVersion = "42.7.5"
+    const val postgresqlVersion = "42.7.12"
     const val jakartaMailVersion = "2.0.2"
     const val quartzVersion = "2.5.0"
     const val firebaseAdminVersion = "9.8.0"
@@ -34,9 +34,14 @@ object Versions {
     const val kotlinxSerializationVersion = "1.7.3"
     const val mockkVersion = "1.14.4"
     const val hamcrestVersion = "2.1"
-    const val assertjVersion = "3.24.2"
-    const val nettyVersion = "4.2.10.Final"
-    const val tomcatVersion = "10.1.52"
+    const val assertjVersion = "3.27.7"
+    const val nettyVersion = "4.2.17.Final"
+    const val tomcatVersion = "10.1.59"
+
+    // Forced transitive overrides for vulnerability fixes.
+    const val jacksonVersion = "2.21.4"
+    const val httpcore5Version = "5.4.3"
+    const val bouncycastleVersion = "1.85"
 
     const val project = "3.0.0-SNAPSHOT"
     const val wrapper = "8.13"
