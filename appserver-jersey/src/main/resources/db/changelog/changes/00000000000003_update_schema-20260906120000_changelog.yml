@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1788652800000-1
+      author: claude
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - indexExists:
+                tableName: tasks
+                indexName: uk_tasks_user_id_name_timestamp
+      changes:
+        - addUniqueConstraint:
+            tableName: tasks
+            columnNames: user_id, name, timestamp
+            constraintName: uk_tasks_user_id_name_timestamp

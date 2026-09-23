@@ -29,6 +29,7 @@ import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.search.QuerySpecification
 import org.radarbase.appserver.jersey.utils.checkPresence
 import org.radarbase.jersey.exception.HttpNotFoundException
+import org.slf4j.LoggerFactory
 import java.sql.Timestamp
 import java.time.Instant
 
@@ -118,19 +119,26 @@ class TaskService @Inject constructor(
     }
 
     suspend fun addTasks(tasks: List<Task>, user: User): List<Task> {
+        val seen = mutableSetOf<Pair<String, Timestamp>>()
         val newTasks = tasks.filter { task ->
             val taskName = checkNotNull(task.name) { "Task name cannot be null" }
             val taskTimestamp = checkNotNull(task.timestamp) { "Task timestamp cannot be null" }
 
-            !this.taskRepository.existsByUserIdAndNameAndTimestamp(
-                nonNullUserId(user),
-                taskName,
-                taskTimestamp,
-            )
+            seen.add(taskName to taskTimestamp) &&
+                !this.taskRepository.existsByUserIdAndNameAndTimestamp(
+                    nonNullUserId(user),
+                    taskName,
+                    taskTimestamp,
+                )
         }
 
-        val saved = newTasks.map { task ->
-            taskRepository.add(task)
+        val saved = newTasks.mapNotNull { task ->
+            try {
+                taskRepository.add(task)
+            } catch (e: Exception) {
+                logger.warn("Failed to add task {} at {}: {}", task.name, task.timestamp, e.message)
+                null
+            }
         }
         saved.forEach { t ->
             val taskCreationTimestamp = checkNotNull(t.createdAt) { "Task creation timestamp cannot be null" }
@@ -170,6 +178,8 @@ class TaskService @Inject constructor(
     }
 
     companion object {
+        private val logger = LoggerFactory.getLogger(TaskService::class.java)
+
         private const val INVALID_SUBJECT_ID_MESSAGE =
             "The supplied Subject ID is invalid. No user found. Please Create a User First."
 
