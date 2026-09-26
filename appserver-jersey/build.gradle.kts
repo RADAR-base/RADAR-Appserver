@@ -60,6 +60,16 @@ allOpen {
 dependencies {
     implementation(kotlin("reflect"))
 
+    // --- Vulnerability fixes ---
+    implementation(platform("com.fasterxml.jackson:jackson-bom:${Versions.jacksonVersion}"))
+    // firebase-admin pulls in a vulnerable netty 4.2.10.
+    implementation(platform("io.netty:netty-bom:${Versions.nettyVersion}"))
+    constraints {
+        // firebase-admin pulls in a vulnerable httpcore5 (CVE-2026-54399, CVE-2026-54428).
+        implementation("org.apache.httpcomponents.core5:httpcore5:${Versions.httpcore5Version}")
+        implementation("org.apache.httpcomponents.core5:httpcore5-h2:${Versions.httpcore5Version}")
+    }
+
     implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommonsVersion}")
     implementation("org.radarbase:radar-jersey:${Versions.radarJerseyVersion}")
     implementation("org.radarbase:radar-jersey-hibernate:${Versions.radarJerseyVersion}") {

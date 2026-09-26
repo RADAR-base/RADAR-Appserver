@@ -55,9 +55,12 @@ val integrationTestRuntimeOnly: Configuration by configurations.getting
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
 // --- Vulnerability fixes ---
+// Override the Spring Boot managed httpcore5 version (CVE-2026-54399, CVE-2026-54428).
+extra["httpcore5.version"] = Versions.httpcore5Version
+
 configurations.configureEach {
     resolutionStrategy.eachDependency {
-        if (requested.group == "io.netty" && requested.name.startsWith("netty-codec")) {
+        if (requested.group == "io.netty" && !requested.name.startsWith("netty-tcnative")) {
             useVersion(Versions.nettyVersion)
             because("Force safe version of Netty across all modules")
         }
@@ -69,6 +72,11 @@ dependencies {
 
     // Force transitive dependency versions to mitigate vulnerabilities
     implementation("org.apache.tomcat.embed:tomcat-embed-core:${Versions.tomcatVersion}")
+
+    constraints {
+        // minio pulls in a vulnerable bcprov (CVE-2025-14813, CVE-2026-13506, CVE-2026-8763).
+        implementation("org.bouncycastle:bcprov-jdk18on:${Versions.bouncycastleVersion}")
+    }
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -87,7 +95,7 @@ dependencies {
     // runtimeOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.hsqldb:hsqldb")
     runtimeOnly("org.liquibase:liquibase-core:4.20.0")
-    runtimeOnly("org.postgresql:postgresql:42.5.5")
+    runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
 
     annotationProcessor("org.projectlombok:lombok:${Versions.lombokVersion}")
     implementation("org.projectlombok:lombok:${Versions.lombokVersion}")
