@@ -22,13 +22,13 @@ object Versions {
     const val mockitoKotlinVersion = "3.2.0"
     const val minioVersion = "8.6.0"
     const val junit5Version = "5.9.2"
-    const val log4j2 = "2.23.1"
+    const val log4j2 = "2.25.5"
     const val radarCommonsVersion = "1.2.8"
     const val h2Version = "2.2.224"
     const val postgresqlVersion = "42.7.12"
     const val jakartaMailVersion = "2.0.2"
     const val quartzVersion = "2.5.0"
-    const val firebaseAdminVersion = "9.8.0"
+    const val firebaseAdminVersion = "9.11.0"
     const val jerseyBeanValidationVersion = "3.1.10"
     const val protobufVersion = "3.25.5"
     const val kotlinxSerializationVersion = "1.7.3"
@@ -39,8 +39,10 @@ object Versions {
     const val tomcatVersion = "10.1.59"
 
     // Forced transitive overrides for vulnerability fixes.
-    const val jacksonVersion = "2.21.4"
+    const val jacksonVersion = "2.21.7"
     const val httpcore5Version = "5.4.3"
+    const val httpclient5Version = "5.6.4"
+    const val opentelemetryVersion = "1.62.0"
     const val bouncycastleVersion = "1.85"
 
     const val project = "3.0.0-SNAPSHOT"

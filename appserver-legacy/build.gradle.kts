@@ -57,6 +57,13 @@ configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeO
 // --- Vulnerability fixes ---
 // Override the Spring Boot managed httpcore5 version (CVE-2026-54399, CVE-2026-54428).
 extra["httpcore5.version"] = Versions.httpcore5Version
+// Override the Spring Boot managed log4j version (CVE in log4j-api 2.24.3).
+extra["log4j2.version"] = Versions.log4j2
+// Override the Spring Boot managed Jackson, httpclient5 and OpenTelemetry versions (CVE-2026-68497,
+// CVE-2026-91776, CVE-2026-91777 in jackson-databind 2.21.4; CVEs in httpclient5 5.5.2, opentelemetry-api 1.49.0).
+extra["jackson-bom.version"] = Versions.jacksonVersion
+extra["httpclient5.version"] = Versions.httpclient5Version
+extra["opentelemetry.version"] = Versions.opentelemetryVersion
 
 configurations.configureEach {
     resolutionStrategy.eachDependency {
@@ -76,7 +83,14 @@ dependencies {
     constraints {
         // minio pulls in a vulnerable bcprov (CVE-2025-14813, CVE-2026-13506, CVE-2026-8763).
         implementation("org.bouncycastle:bcprov-jdk18on:${Versions.bouncycastleVersion}")
+        // spring-security-jwt (through spring-security-oauth2-autoconfigure) pulls in the discontinued
+        // -jdk15on artifacts 1.64; 1.70 is the last release of that line.
+        implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+        implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     }
+
+    // radar-spring-auth 1.2.1 (radar-auth 2.1.0) pulls in ktor 2.3.3 (CVE in ktor-client-core).
+    implementation(platform("io.ktor:ktor-bom:${Versions.ktorVersion}"))
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
