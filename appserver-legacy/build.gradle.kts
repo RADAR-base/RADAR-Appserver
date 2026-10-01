@@ -8,10 +8,8 @@ plugins {
     checkstyle
     pmd
     id("io.gatling.gradle") version Versions.gatlingVersion
-    id("com.github.johnrengelman.shadow") version "8.1.0"
     id("org.springframework.boot") version Versions.springBootVersion
     id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
-    id("org.openjfx.javafxplugin") version "0.0.13"
     id("com.github.ben-manes.versions")
     id("io.sentry.jvm.gradle")
 }
@@ -141,11 +139,6 @@ dependencies {
     gatlingImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }
 
-javafx {
-    version = "19"
-    modules = listOf("javafx.controls")
-}
-
 checkstyle {
     configDirectory.set(file("config/checkstyle"))
     toolVersion = "10.8.0"
@@ -155,6 +148,8 @@ checkstyle {
 }
 
 pmd {
+    // The version Gradle 8 used by default. Gradle 9 defaults to PMD 7, which has different rules.
+    toolVersion = "6.55.0"
     sourceSets = listOf(project.sourceSets.main.get())
 }
 
@@ -236,6 +231,11 @@ tasks.register("downloadDependencies") {
 tasks.register<Copy>("copyDependencies") {
     from(configurations.named("runtimeClasspath").get().files)
     into(layout.buildDirectory.dir("third-party"))
+    // Gradle 9 stores downloaded dependencies as owner-only (0600), and Copy keeps those permissions.
+    // Make the copies world-readable, so the image also works when it runs as a non-root user.
+    filePermissions {
+        unix("rw-r--r--")
+    }
 }
 
 fun isNonStable(version: String): Boolean {

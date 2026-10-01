@@ -46,6 +46,6 @@ object Versions {
     const val bouncycastleVersion = "1.85"
 
     const val project = "3.0.0-SNAPSHOT"
-    const val wrapper = "8.13"
+    const val wrapper = "9.6.0"
     const val java = 17
 }
