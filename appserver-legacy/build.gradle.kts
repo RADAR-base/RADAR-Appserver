@@ -8,10 +8,8 @@ plugins {
     checkstyle
     pmd
     id("io.gatling.gradle") version Versions.gatlingVersion
-    id("com.github.johnrengelman.shadow") version "8.1.0"
     id("org.springframework.boot") version Versions.springBootVersion
     id("io.spring.dependency-management") version Versions.springDependencyManagementVersion
-    id("org.openjfx.javafxplugin") version "0.0.13"
     id("com.github.ben-manes.versions")
     id("io.sentry.jvm.gradle")
 }
@@ -55,9 +53,19 @@ val integrationTestRuntimeOnly: Configuration by configurations.getting
 configurations["integrationTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
 // --- Vulnerability fixes ---
+// Override the Spring Boot managed httpcore5 version (CVE-2026-54399, CVE-2026-54428).
+extra["httpcore5.version"] = Versions.httpcore5Version
+// Override the Spring Boot managed log4j version (CVE in log4j-api 2.24.3).
+extra["log4j2.version"] = Versions.log4j2
+// Override the Spring Boot managed Jackson, httpclient5 and OpenTelemetry versions (CVE-2026-68497,
+// CVE-2026-91776, CVE-2026-91777 in jackson-databind 2.21.4; CVEs in httpclient5 5.5.2, opentelemetry-api 1.49.0).
+extra["jackson-bom.version"] = Versions.jacksonVersion
+extra["httpclient5.version"] = Versions.httpclient5Version
+extra["opentelemetry.version"] = Versions.opentelemetryVersion
+
 configurations.configureEach {
     resolutionStrategy.eachDependency {
-        if (requested.group == "io.netty" && requested.name.startsWith("netty-codec")) {
+        if (requested.group == "io.netty" && !requested.name.startsWith("netty-tcnative")) {
             useVersion(Versions.nettyVersion)
             because("Force safe version of Netty across all modules")
         }
@@ -69,6 +77,18 @@ dependencies {
 
     // Force transitive dependency versions to mitigate vulnerabilities
     implementation("org.apache.tomcat.embed:tomcat-embed-core:${Versions.tomcatVersion}")
+
+    constraints {
+        // minio pulls in a vulnerable bcprov (CVE-2025-14813, CVE-2026-13506, CVE-2026-8763).
+        implementation("org.bouncycastle:bcprov-jdk18on:${Versions.bouncycastleVersion}")
+        // spring-security-jwt (through spring-security-oauth2-autoconfigure) pulls in the discontinued
+        // -jdk15on artifacts 1.64; 1.70 is the last release of that line.
+        implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+        implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
+    }
+
+    // radar-spring-auth 1.2.1 (radar-auth 2.1.0) pulls in ktor 2.3.3 (CVE in ktor-client-core).
+    implementation(platform("io.ktor:ktor-bom:${Versions.ktorVersion}"))
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -87,7 +107,7 @@ dependencies {
     // runtimeOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.hsqldb:hsqldb")
     runtimeOnly("org.liquibase:liquibase-core:4.20.0")
-    runtimeOnly("org.postgresql:postgresql:42.5.5")
+    runtimeOnly("org.postgresql:postgresql:${Versions.postgresqlVersion}")
 
     annotationProcessor("org.projectlombok:lombok:${Versions.lombokVersion}")
     implementation("org.projectlombok:lombok:${Versions.lombokVersion}")
@@ -119,11 +139,6 @@ dependencies {
     gatlingImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }
 
-javafx {
-    version = "19"
-    modules = listOf("javafx.controls")
-}
-
 checkstyle {
     configDirectory.set(file("config/checkstyle"))
     toolVersion = "10.8.0"
@@ -133,6 +148,8 @@ checkstyle {
 }
 
 pmd {
+    // The version Gradle 8 used by default. Gradle 9 defaults to PMD 7, which has different rules.
+    toolVersion = "6.55.0"
     sourceSets = listOf(project.sourceSets.main.get())
 }
 
@@ -214,6 +231,11 @@ tasks.register("downloadDependencies") {
 tasks.register<Copy>("copyDependencies") {
     from(configurations.named("runtimeClasspath").get().files)
     into(layout.buildDirectory.dir("third-party"))
+    // Gradle 9 stores downloaded dependencies as owner-only (0600), and Copy keeps those permissions.
+    // Make the copies world-readable, so the image also works when it runs as a non-root user.
+    filePermissions {
+        unix("rw-r--r--")
+    }
 }
 
 fun isNonStable(version: String): Boolean {

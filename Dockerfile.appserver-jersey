@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=$BUILDPLATFORM gradle:8.5-jdk17 AS builder
+FROM --platform=$BUILDPLATFORM gradle:9.6.0-jdk17 AS builder
 
 RUN mkdir /code
 WORKDIR /code
@@ -21,6 +21,9 @@ ENV GRADLE_USER_HOME=/code/.gradlecache \
 COPY ./buildSrc /code/buildSrc
 COPY ./build.gradle.kts ./settings.gradle.kts /code/
 COPY appserver-jersey/build.gradle.kts /code/appserver-jersey/
+
+# Gradle 9 requires the directory of every included project to exist.
+RUN mkdir -p /code/appserver-legacy
 
 RUN gradle --no-daemon appserver-jersey:downloadDependencies appserver-jersey:copyDependencies appserver-jersey:startScripts
 

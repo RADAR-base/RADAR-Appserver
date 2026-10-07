@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM gradle:8.13-jdk17 AS builder
+FROM --platform=$BUILDPLATFORM gradle:9.6.0-jdk17 AS builder
 
 RUN mkdir /code
 WORKDIR /code
@@ -9,6 +9,9 @@ ENV GRADLE_USER_HOME=/code/.gradlecache \
 COPY ./buildSrc /code/buildSrc
 COPY ./build.gradle.kts ./settings.gradle.kts /code/
 COPY appserver-legacy/build.gradle.kts /code/appserver-legacy/
+
+# Gradle 9 requires the directory of every included project to exist.
+RUN mkdir -p /code/appserver-jersey
 
 RUN gradle --no-daemon :appserver-legacy:downloadDependencies :appserver-legacy:copyDependencies
 
