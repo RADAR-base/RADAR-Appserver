@@ -18,7 +18,6 @@ package org.radarbase.appserver.jersey.event.listener.quartz
 
 import com.google.common.eventbus.EventBus
 import jakarta.inject.Inject
-import kotlinx.coroutines.runBlocking
 import org.quartz.JobDetail
 import org.quartz.JobKey
 import org.quartz.Scheduler
@@ -120,7 +119,7 @@ class QuartzMessageSchedulerListener @Inject constructor(
             logger.warn("The message id could not be established from unscheduled trigger.")
             return
         }
-        val notification = runBlocking {
+        val notification = asyncService.runBlocking {
             notificationRepository.find(notificationId)
         } ?: run {
             logger.warn("The notification does not exist in database and yet was unscheduled.")
