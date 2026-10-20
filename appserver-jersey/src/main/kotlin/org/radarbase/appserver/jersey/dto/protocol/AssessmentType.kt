@@ -17,6 +17,7 @@
 package org.radarbase.appserver.jersey.dto.protocol
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -37,6 +38,9 @@ enum class AssessmentType {
     @SerialName("all")
     ALL,
     ;
+
+    @JsonValue
+    fun toJson(): String = name.lowercase()
 
     companion object {
         @JvmStatic
