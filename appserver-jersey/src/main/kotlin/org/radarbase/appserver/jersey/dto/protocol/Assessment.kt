@@ -16,8 +16,10 @@
 
 package org.radarbase.appserver.jersey.dto.protocol
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
 import jakarta.persistence.Column
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -70,6 +72,24 @@ enum class ShowIntroduction {
     ALWAYS,
     ONCE,
     NEVER,
+    ;
+
+    @JsonValue
+    fun toJson(): String = name.lowercase()
+
+    companion object {
+        @JvmStatic
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        fun fromJson(value: Any?): ShowIntroduction = when (value) {
+            is Boolean -> if (value) ONCE else NEVER
+            is String -> when (value.lowercase()) {
+                "always" -> ALWAYS
+                "once", "true" -> ONCE
+                else -> NEVER
+            }
+            else -> NEVER
+        }
+    }
 }
 
 internal object ShowIntroductionSerializer : KSerializer<ShowIntroduction> {
@@ -77,22 +97,13 @@ internal object ShowIntroductionSerializer : KSerializer<ShowIntroduction> {
 
     override fun deserialize(decoder: Decoder): ShowIntroduction {
         val jsonDecoder = decoder as? JsonDecoder
-            ?: return ShowIntroduction.valueOf(decoder.decodeString().uppercase())
+            ?: return ShowIntroduction.fromJson(decoder.decodeString())
         val element = jsonDecoder.decodeJsonElement() as? JsonPrimitive
             ?: return ShowIntroduction.NEVER
-        val bool = element.booleanOrNull
-        if (bool != null) {
-            return if (bool) ShowIntroduction.ONCE else ShowIntroduction.NEVER
-        }
-        return when (element.content) {
-            "always" -> ShowIntroduction.ALWAYS
-            "once" -> ShowIntroduction.ONCE
-            "never" -> ShowIntroduction.NEVER
-            else -> ShowIntroduction.NEVER
-        }
+        return ShowIntroduction.fromJson(element.booleanOrNull ?: element.content)
     }
 
     override fun serialize(encoder: Encoder, value: ShowIntroduction) {
-        encoder.encodeString(value.name.lowercase())
+        encoder.encodeString(value.toJson())
     }
 }
