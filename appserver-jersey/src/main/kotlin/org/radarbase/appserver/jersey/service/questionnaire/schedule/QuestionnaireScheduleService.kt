@@ -42,6 +42,7 @@ import java.sql.Timestamp
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.minutes
 
 @Suppress("unused")
 class QuestionnaireScheduleService @Inject constructor(
@@ -61,7 +62,7 @@ class QuestionnaireScheduleService @Inject constructor(
         Duration.ofMillis(3_600_000),
         Duration.ofMillis(5_000),
     ) {
-        asyncService.runBlocking {
+        asyncService.runBlocking(timeout = 30.minutes) {
             generateAllSchedules()
         }
     }
