@@ -22,8 +22,10 @@ import org.radarbase.appserver.jersey.dto.protocol.AssessmentType
 import org.radarbase.appserver.jersey.dto.protocol.Protocol
 import org.radarbase.appserver.jersey.dto.questionnaire.AssessmentSchedule
 import org.radarbase.appserver.jersey.dto.questionnaire.Schedule
+import org.radarbase.appserver.jersey.entity.Notification
 import org.radarbase.appserver.jersey.entity.Task
 import org.radarbase.appserver.jersey.entity.User
+import org.radarbase.appserver.jersey.event.state.TaskState
 import org.radarbase.appserver.jersey.repository.ProjectRepository
 import org.radarbase.appserver.jersey.repository.UserRepository
 import org.radarbase.appserver.jersey.search.TaskSpecificationsBuilder
@@ -151,11 +153,23 @@ class QuestionnaireScheduleService @Inject constructor(
             .filter(AssessmentSchedule::hasTasks)
             .forEach { schedule ->
                 try {
-                    val tasks = schedule.tasks.orEmpty()
-                    val notifications = schedule.notifications.orEmpty()
-                    val reminders = schedule.reminders.orEmpty()
+                    val newTasks = taskService.addTasks(schedule.tasks.orEmpty(), user)
+                    val newTaskIds = newTasks.mapNotNull { it.id }.toSet()
+                    val savedTasks = taskService.getTasksByUser(user).associateBy { it.name to it.timestamp }
+                    val now = Instant.now()
 
-                    taskService.addTasks(tasks, user)
+                    fun linkToSavedTask(notification: Notification): Notification? {
+                        val generated = notification.task ?: return notification
+                        val saved = savedTasks[generated.name to generated.timestamp] ?: return null
+                        if (saved.status == TaskState.COMPLETED || saved.completed == true) return null
+                        if (saved.id !in newTaskIds && notification.scheduledTime?.isBefore(now) == true) return null
+
+                        notification.task = saved
+                        return notification
+                    }
+
+                    val notifications = schedule.notifications.orEmpty().mapNotNull(::linkToSavedTask)
+                    val reminders = schedule.reminders.orEmpty().mapNotNull(::linkToSavedTask)
                     notificationService.addNotifications(notifications, user)
                     notificationService.addNotifications(reminders, user)
                 } catch (e: Exception) {
