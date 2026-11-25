@@ -18,7 +18,6 @@ package org.radarbase.appserver.jersey.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.annotation.Nullable
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -49,7 +48,7 @@ class Message(
     @JsonIgnore
     var user: User? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = [CascadeType.ALL])
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "task_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
