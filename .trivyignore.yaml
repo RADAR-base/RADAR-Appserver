@@ -1,0 +1,36 @@
+# Trivy ignore file (https://trivy.dev/latest/docs/configuration/filtering/#trivyignoreyaml).
+# Every entry needs a reason and an expiry, for example:
+#
+#   vulnerabilities:
+#     - id: CVE-2024-12345
+#       statement: Not exploitable, because ...
+#       expired_at: 2027-01-01
+vulnerabilities:
+  - id: CVE-2023-37920
+    statement: >-
+      certifi 2020.4.5.1 (HIGH) in appserver-legacy/scripts/requirements.txt, a helper script that isn't part of the shipped image: fixed only in urllib3 2.x / current certifi, which need a newer requests (and Python 3).
+    expired_at: 2027-04-05
+  - id: CVE-2025-66418
+    statement: >-
+      urllib3 1.26.20 (HIGH) in appserver-legacy/scripts/requirements.txt, a helper script that isn't part of the shipped image: fixed only in urllib3 2.x / current certifi, which need a newer requests (and Python 3).
+    expired_at: 2027-04-05
+  - id: CVE-2025-66471
+    statement: >-
+      urllib3 1.26.20 (HIGH) in appserver-legacy/scripts/requirements.txt, a helper script that isn't part of the shipped image: fixed only in urllib3 2.x / current certifi, which need a newer requests (and Python 3).
+    expired_at: 2027-04-05
+  - id: CVE-2026-21441
+    statement: >-
+      urllib3 1.26.20 (HIGH) in appserver-legacy/scripts/requirements.txt, a helper script that isn't part of the shipped image: fixed only in urllib3 2.x / current certifi, which need a newer requests (and Python 3).
+    expired_at: 2027-04-05
+  - id: CVE-2026-44431
+    statement: >-
+      urllib3 1.26.20 (HIGH) in appserver-legacy/scripts/requirements.txt, a helper script that isn't part of the shipped image: fixed only in urllib3 2.x / current certifi, which need a newer requests (and Python 3).
+    expired_at: 2027-04-05
+  - id: CVE-2026-97687
+    statement: >-
+      urllib3 1.26.20 (HIGH) in appserver-legacy/scripts/requirements.txt, a helper script that isn't part of the shipped image: fixed only in urllib3 2.x / current certifi, which need a newer requests (and Python 3).
+    expired_at: 2027-04-05
+  - id: CVE-2026-97689
+    statement: >-
+      urllib3 1.26.20 (HIGH) in appserver-legacy/scripts/requirements.txt, a helper script that isn't part of the shipped image: fixed only in urllib3 2.x / current certifi, which need a newer requests (and Python 3).
+    expired_at: 2027-04-05
